@@ -1,0 +1,21 @@
+; module-definition file for CLUMON Sample -- used by LINK.EXE
+
+NAME         CLUMON        ; application's module name
+
+DESCRIPTION  'Windows version NPN Cluster API sample'
+
+EXETYPE      WINDOWS       ; required for all Windows applications
+
+STUB         'WINSTUB.EXE' ; Generates error message if application
+			   ; is run without Windows
+
+HEAPSIZE     1024
+STACKSIZE   20480          ; recommended minimum for Notes API applications
+
+
+; All functions that will be called by any Windows routine
+; MUST be exported.
+
+EXPORTS
+	MainWndProc    @1   ; name of window processing function
+   

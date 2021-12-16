@@ -1,0 +1,7 @@
+LIBRARY nbillmgr
+
+STACKSIZE 1200000
+
+EXPORTS
+    MainEntryPoint   @1
+    BillHandler      @2

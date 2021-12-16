@@ -1,0 +1,4 @@
+LIBRARY   NIEDIT
+
+EXPORTS
+          MainEntryPoint @1 ; (Main entry point)

@@ -1,0 +1,19 @@
+LIBRARY NDUSSPI
+
+HEAPSIZE 0
+
+DESCRIPTION 'Domino Upgrade Service'
+EXPORTS
+	DUSGetName                      @1
+	DUSStart                        @2
+	DUSExtendedErrorText            @3
+	DUSRetrieveUsers                @4
+	DUSRetrieveGroups               @5
+	DUSGetUserInformation           @6
+	DUSGetGroupInformation          @7
+	DUSGetGroupMembers              @8
+	DUSAdvancedDlg                  @9
+	DUSRegistrationNotify           @10
+	DUSConvertMailFile              @11
+	DUSStop                         @12
+	DUSTerm                         @13

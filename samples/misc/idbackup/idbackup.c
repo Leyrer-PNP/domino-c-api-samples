@@ -1,0 +1,175 @@
+/****************************************************************************
+
+ PROGRAM:   idbackup
+
+ FILE:      idbackup.c
+
+ PURPOSE:   This program is intended to illustrate the practical usage of the
+            SECBuildEncryptedBackupIDFile function of the Notes ID Backup and Recovery API.  
+            It is not intended to show exclusive use of these functions or the most
+            effective program logic when using these functions.
+
+****************************************************************************/
+#include <stdio.h>
+#include <string.h>
+
+#include <global.h>
+#include <addin.h>
+#include <nsfdb.h>
+#include <nif.h>
+#include <nsfsearc.h>
+#include <kfm.h>
+#include <osmisc.h>
+
+#if !defined(ND64) 
+    #define DHANDLE HANDLE 
+#endif
+
+char *DB_NAME	= "IDStore.nsf";
+char *view_name = "IDWaitProcess";
+
+void printAPIError(STATUS error);
+STATUS doJob(char *);
+STATUS LNPUBLIC note_action(VOID *db_handle,
+			SEARCH_MATCH far *pSearchMatch,
+			ITEM_TABLE *summary_info);
+							
+STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
+{
+
+    STATUS     error = 0;           /* return code from API calls */
+    DHANDLE      hOldStatusLine;  /* handle to initial default status line*/
+    DHANDLE      hStatusLineDesc; /* handle to new default status line */
+    HMODULE    hMod;            /* add-in task's module handle */
+    char       statusline[] =  "Build encrypted back up ID file from IDStire.nsf";
+	
+    AddInQueryDefaults (&hMod, &hOldStatusLine);
+    AddInDeleteStatusLine (hOldStatusLine);
+    hStatusLineDesc = AddInCreateStatusLine(statusline);
+    AddInSetDefaults (hMod, hStatusLineDesc);
+	
+    while (!AddInIdle())
+    {
+	/* For non-preemptive operating systems, give up control to other tasks. 
+		OSPreemptOccasionally will do nothing in preemptive operating systems. */
+        OSPreemptOccasionally(); 
+		
+        if (AddInMinutesHaveElapsed(3))
+        {
+			doJob(DB_NAME);
+        }
+		
+    } 
+    
+    return (NOERROR);
+}
+
+void printAPIError(STATUS error)
+{
+	WORD	len = 0;
+	char	msgtxt[MAXUSERNAME] = {0};
+	
+	len = OSLoadString(NULL, error, msgtxt, MAXUSERNAME-1);
+	AddInLogMessageText(msgtxt, NOERROR);
+}
+
+STATUS LNPUBLIC note_action(VOID *db_handle,
+							SEARCH_MATCH far *pSearchMatch,
+							ITEM_TABLE *summary_info)
+{
+	STATUS			err = NOERROR;
+	SEARCH_MATCH    SearchMatch;   // local copy of search match 
+	NOTEHANDLE		note_handle;
+	BLOCKID			objectItem;
+	char			idpass[MAXPATH] = {0};
+	KFM_PASSWORD	retHashedPassword;
+	char			*pBackupIDFileName = "d:\\idback.ide";
+	char			pRepositoryBuf[MAXPATH] = {0};
+	DWORD			retRepositoryBufLen = 0;
+	char status[128] = {0};
+    memcpy ((char*)(&SearchMatch), (char *)pSearchMatch, sizeof(SEARCH_MATCH));
+	
+
+	AddInLogMessageText("find a doc, process it", NOERROR);	
+	if (err = NSFNoteOpen (
+            *(DBHANDLE *)db_handle,         
+            SearchMatch.ID.NoteID,         
+            0,                          
+            &note_handle)){
+			printAPIError(err);
+			return err;
+		}
+		
+		NSFItemGetText(note_handle, "status", status, sizeof(status));
+		if (strcmp(status, "1") == 0) {
+			AddInLogMessageText("this note is processed already", NOERROR);
+			NSFNoteClose(note_handle);
+			return NOERROR;
+		}
+
+		AddInLogMessageText("note is opened", NOERROR);	
+		NSFItemGetText(note_handle, "idpass", idpass, sizeof(idpass));
+		AddInLogMessageText("get its password", NOERROR);
+		AddInLogMessageText(idpass, NOERROR);
+		
+		if (err = NSFItemSetText(note_handle, "status", "1", strlen("1"))) {
+			printAPIError(err);
+			return err;
+		}
+		if (err = NSFNoteUpdate(note_handle, UPDATE_FORCE)) {
+			printAPIError(err);
+			return err;
+		}
+		if (NSFNoteHasObjects(note_handle, &objectItem)) {
+			AddInLogMessageText("note has object", NOERROR);
+			AddInLogMessageText("extract id file from the note", NOERROR);
+			if (err = NSFNoteExtractFile(note_handle, objectItem, "d:\\sample.id", NULL)) {
+				printAPIError(err);
+				NSFNoteClose(note_handle);
+				return err;
+			}
+			
+			if (err = NSFNoteClose(note_handle)) {
+				printAPIError(err);
+				return err;
+			}
+			
+			SECKFMCreatePassword(idpass, &retHashedPassword);
+			if (err = SECBuildEncryptedBackupIDFile("d:\\sample.id", 
+				&retHashedPassword, pBackupIDFileName, pRepositoryBuf,
+				MAXPATH, &retRepositoryBufLen, NULL, 0)) {
+				printAPIError(err);
+				return err;
+			}
+		}
+	return NOERROR;
+}
+
+STATUS doJob(char *db_name)
+{
+	DBHANDLE db_handle;
+	STATUS error = 0;
+	AddInLogMessageText("open the db", NOERROR);
+	if (error = NSFDbOpen(db_name, &db_handle)) {
+		printAPIError(error);
+		return ERR(error);
+	}
+	AddInLogMessageText("search the db", NOERROR);
+	if (error = NSFSearch (
+		db_handle,				/* database handle */
+		NULL,					/* selection formula */
+		view_name,				/* title of view in selection formula */
+		0,						/* search flags */
+		NOTE_CLASS_DOCUMENT,	/* note class to find */
+		NULL,					/* starting date (unused) */
+        note_action,			/* action routine for notes found */
+		&db_handle,				/* parameter to action routine */
+		NULL))					/* returned ending date (unused) */
+	{
+		printAPIError(error);
+		NSFDbClose(db_handle);
+		return ERR(error);
+	}	
+	NSFDbClose(db_handle);
+	return NOERROR;
+}

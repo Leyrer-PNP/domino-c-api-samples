@@ -1,0 +1,9 @@
+LIBRARY    UIADDIN2
+
+DESCRIPTION 'UIADDIN2 - Sample menu add-in'
+ 
+HEAPSIZE    0
+
+EXPORTS
+                DTMenuProc @1
+

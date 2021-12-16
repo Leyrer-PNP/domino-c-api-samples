@@ -1,0 +1,11 @@
+;
+;		extpwd.def - Module definition file for extpwd for 32-bit Windows
+;
+
+	LIBRARY		nEXTPWD
+	DESCRIPTION	"Extension manager password dialog.  Copyright (C) 2020 HCL Tech."
+
+
+	EXPORTS
+		MainEntryPoint		@1
+;		LibMain				@2

@@ -1,0 +1,86 @@
+/*
+ *		app_rsc.rc - Resources for NotesFlow sample
+ */
+
+#include <windows.h>
+
+#include "app_rsc.h"
+
+	/* Application icon */
+NotesFlow	ICON	notesflo.ico
+
+	/* Application menu */
+NotesFlow	MENU
+{
+	POPUP	"&File"
+	{
+		MENUITEM "E&xit",		IDM_EXIT
+	}
+	POPUP	"&Color"
+	{
+		MENUITEM "&Background Color...",	IDM_BGCOLOR
+		MENUITEM "&Foreground Color...",	IDM_FGCOLOR
+	}
+	POPUP	"&Help"
+	{
+		MENUITEM "&About NotesFlow...",		IDM_ABOUT
+	}
+}
+
+	/* The "About..." dialog box */
+AboutBox	DIALOG DISCARDABLE  22, 17, 144, 75
+	STYLE	DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+	CAPTION	"NotesFlow Server"
+	FONT	8, "System"
+{
+    CTEXT           "HCL C API for Domino and Notes Samples",-1,0,5,144,8
+    CTEXT           "NotesFlow OLE Server",-1,0,14,144,8
+    CTEXT           "Version 1.0",-1,0,34,144,8
+    DEFPUSHBUTTON   "OK",IDOK,53,59,32,14,WS_GROUP
+}
+
+VS_VERSION_INFO VERSIONINFO
+	FILEVERSION		1,0,0,0
+	PRODUCTVERSION	4,5,0,0
+	FILEFLAGSMASK	VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+	FILEFLAGS		VS_FF_DEBUG | VS_FF_PRERELEASE
+#else
+	FILEFLAGS		0
+#endif
+#ifdef WIN32
+	FILEOS			VOS_NT_WINDOWS32
+#else
+	FILEOS			VOS_DOS_WINDOWS16
+#endif
+	FILETYPE		VFT_APP
+	FILESUBTYPE		0
+BEGIN
+	BLOCK	"StringFileInfo"
+	BEGIN
+#ifdef UNICODE
+		BLOCK "040904B0"	/* US English, UNICODE */
+#else
+		BLOCK "040904E4"	/* US English, Windows Multilingual */
+#endif
+		BEGIN
+			VALUE	"CompanyName",		"HCL Tech.\0"
+			VALUE	"FileDescription",	"NotesFlow Sample 1.0\0"
+			VALUE	"FileVersion",		"1.0\0"
+			VALUE	"InternalName",		"NOTESFLO\0"
+			VALUE	"LegalCopyright",	"Copyright (C) 2020 HCL Tech.\0"
+			VALUE	"OriginalFilename",	"NOTESFLO.EXE\0"
+			VALUE	"ProductName",		"HCL C API for Domino and Notes Toolkit\0"
+			VALUE	"ProductVersion",	"Notes/Domino 6\0"
+			VALUE	"OLESelfRegister",	"\0"
+		END
+	END
+	BLOCK	"VarFileInfo"
+	BEGIN
+#ifdef UNICODE
+		VALUE	"Translation",	0x409, 1200		/* US English, UNICODE */
+#else
+		VALUE	"Translation",	0x409, 1252		/* US English, Windows Multilingual */
+#endif
+	END
+END

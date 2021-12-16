@@ -1,0 +1,5 @@
+LIBRARY     NXVIEW
+
+EXPORTS
+            ExportView   @1 ; (Main entry point)
+            XViewDlgProc @2

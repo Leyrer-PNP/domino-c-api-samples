@@ -1,0 +1,44 @@
+DLGINCLUDE RCDATA DISCARDABLE
+BEGIN
+    "HISTORY.H\0"
+END
+
+HISTORYDLG DIALOG 24, 41, 295, 120
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Response Collector"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Database Title:", 101, 8, 44, 51, 8
+    PUSHBUTTON      "Collect responses into History", IDC_OK, 11, 90, 111, 
+                    14
+    PUSHBUTTON      "Select a different database", IDC_SELECT_DB, 131, 90, 
+                    104, 14
+    PUSHBUTTON      "Cancel", IDC_CANCEL, 245, 90, 40, 14
+    EDITTEXT        IDC_DB_TITLE, 66, 42, 199, 12, ES_AUTOHSCROLL | 
+                    ES_READONLY
+    CTEXT           "Collect all response documents into History field of main documents.", 
+                    106, 39, 11, 228, 16
+    COMBOBOX        IDC_VIEW_TITLE, 66, 61, 199, 52, CBS_DROPDOWNLIST |
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "View to Process:", 108, 8, 63, 58, 8
+END
+
+
+
+
+
+
+
+
+SELECTDBDLG DIALOG 32, 82, 242, 72
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Select a Notes Database"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Server:", IDC_OK, 5, 14, 29, 8
+    EDITTEXT        IDC_SERVER, 34, 12, 193, 12, ES_AUTOHSCROLL
+    EDITTEXT        IDC_FILE, 34, 31, 193, 12, ES_AUTOHSCROLL
+    LTEXT           "File:", IDC_DB_TITLE, 7, 32, 19, 8
+    PUSHBUTTON      "OK", COLLECT_HIST_OK, 74, 50, 40, 14
+    PUSHBUTTON      "Cancel", COLLECT_HIST_SEL_DIFF_DB, 134, 50, 40, 14
+END

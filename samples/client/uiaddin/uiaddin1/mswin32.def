@@ -1,0 +1,9 @@
+LIBRARY    UIADDIN1
+
+DESCRIPTION 'UIADDIN1 - Sample menu add-in'
+ 
+HEAPSIZE    0
+
+EXPORTS
+        AddinMenuProc      @1   ;
+

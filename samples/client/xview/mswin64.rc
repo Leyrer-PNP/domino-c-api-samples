@@ -1,0 +1,64 @@
+/**********************************************************************
+
+    FILE:       MSWIN32.RC
+
+    PROGRAM:    XVIEW
+
+    PURPOSE:    Windows resource file - defines the string table
+                and the dialog box.
+
+***********************************************************************/
+
+#include <windows.h>
+#include <globerr.h>
+#include "xview.h"
+
+#undef msgtext
+#define msgtext(code,text) code, text
+
+#undef errortext
+#define errortext(code,text) code, text
+
+/*  XVIEW message definitions */
+
+STRINGTABLE
+BEGIN
+
+errortext(ERR_XVIEW_OPENFILE,
+       "Unable to open ASCII output file.")
+
+errortext(ERR_XVIEW_NOSELECTED,
+       "Unable to access list of selected notes.")
+
+errortext(ERR_XVIEW_NULLDBHANDLE,
+       "NULL database handle in View Data structure.")
+
+errortext(ERR_XVIEW_NULLITEMNAME,
+       "No Item name specified to export from notes.")
+
+errortext(ERR_XVIEW_NSFNOTEOPEN,
+       "Unable to open note.")
+
+errortext(ERR_XVIEW_NSFNOTECLOSE,
+       "Unable to close note.")
+
+errortext(ERR_XVIEW_FILEWRITE,
+       "Unable to write to ASCII output file.")
+
+END
+
+/* dialog box */
+
+IDD_XVIEW DIALOG LOADONCALL MOVEABLE DISCARDABLE 41, 63, 231, 109
+CAPTION "XVIEW Sample Export: Specify Fields to Export"
+STYLE WS_BORDER | WS_CAPTION | WS_DLGFRAME | WS_VISIBLE | DS_SYSMODAL | WS_POPUP
+BEGIN
+    CONTROL "&OK", IDD_OK, "button", BS_DEFPUSHBUTTON | WS_TABSTOP | WS_CHILD, 181, 15, 42, 14
+    CONTROL "&Cancel", IDD_CANCEL, "button", BS_PUSHBUTTON | WS_TABSTOP | WS_CHILD, 181, 34, 43, 14
+    CONTROL "", IDD_PROMPT1, "static", SS_LEFT | WS_CHILD, 10, 8, 164, 8
+    CONTROL "", IDD_STRING1, "edit", ES_LEFT | ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD, 10, 23, 164, 12
+    CONTROL "", IDD_PROMPT2, "static", SS_LEFT | WS_CHILD, 10, 42, 164, 8
+    CONTROL "", IDD_STRING2, "edit", ES_LEFT | ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD, 10, 58, 164, 12
+    CONTROL "", IDD_PROMPT3, "static", SS_LEFT | WS_CHILD, 10, 77, 164, 8
+    CONTROL "", IDD_STRING3, "edit", ES_LEFT | ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD, 10, 91, 164, 12
+END

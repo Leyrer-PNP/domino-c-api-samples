@@ -1,0 +1,21 @@
+#include "windows.h"
+#include "introwin.h"
+introwinMenu MENU
+BEGIN
+    POPUP        "&File"
+    BEGIN
+        MENUITEM "&Get Database Title...", FILE_GET_DB_TITLE
+        MENUITEM "&Quit", FILE_QUIT
+    END
+END
+
+GetDBNameDlg DIALOG 91, 44, 165, 90
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "Get database title"
+BEGIN
+    LTEXT  "Database name?", DBNAME_TEXT, 11, 13, 57, 8
+    EDITTEXT 		     DBNAME_EDIT, 75, 12, 84, 12, ES_AUTOHSCROLL
+    DEFPUSHBUTTON "OK",	     IDOK, 	  17, 57, 53, 14
+    PUSHBUTTON "CANCEL",     IDCANCEL, 	  92, 56, 54, 14
+END
+ 

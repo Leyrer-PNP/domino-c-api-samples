@@ -1,0 +1,18 @@
+/*
+ *		extpwd.rc - Resources for Extension Manager password dialog
+ */
+
+#include "windows.h"
+#include "extpwdrs.h"
+
+PwdDialog DIALOG LOADONCALL MOVEABLE DISCARDABLE
+	20, 20, 160, 108
+STYLE WS_POPUP | WS_DLGFRAME
+BEGIN
+	CTEXT	"Welcome to Notes",			-1,				0, 12, 160, 8
+	CTEXT	"Kiddo",					IDD_USERNAME,	0, 24, 160, 8
+	CTEXT	"Let's have your password:"	-1,				0, 48, 160, 8
+	EDITTEXT 							IDD_PASSWORD,	40, 60, 80, 12, ES_PASSWORD
+	DEFPUSHBUTTON	"OK"				IDOK,			32, 84, 32, 14, WS_GROUP
+	PUSHBUTTON		"Cancel"			IDCANCEL,		96, 84, 32, 14
+END

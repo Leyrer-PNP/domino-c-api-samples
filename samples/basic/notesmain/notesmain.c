@@ -1,0 +1,150 @@
+/****************************************************************************
+    PROGRAM:    notesmain
+
+    FILE:       notesmain.c
+
+    SYNTAX:     notesmain [server name - optional] <database filename>
+
+    PURPOSE:    Illustrates the basic structure of a HCL C API
+                NotesMain application for Domino and Notes.
+
+    DESCRIPTION:
+        This program illustrates the basic structure of a HCL C API
+        application for Domino and Notes. Using NotesMain as the main entry
+        point, this  application opens the specified local or remote
+        Domino database, reads the database title, and prints the
+        information on the screen.
+
+****************************************************************************/
+#if defined(OS400)
+#pragma convert(850)
+#endif
+
+/* OS and C include files */
+
+#include <stdio.h>
+#include <string.h>
+
+/* HCL C API for Notes/Domino include files containing the C API
+   Version #
+ */
+
+#if defined(OS390)
+#include "lapicinc.h"
+#endif
+
+#include <global.h>
+#include <nsfdb.h>
+#include <nsfdata.h>
+#include <osfile.h>
+
+#include <lapiplat.h>
+
+#if defined(OS390) && (__STRING_CODE_SET__==ISO8859-1 /* ascii compile */)
+#include <_Ascii_a.h>   /* NOTE: must be the LAST file included */
+#endif /* OS390, ascii compile */
+
+#if defined(OS390) 
+#include <osmisc.h>
+#endif
+
+
+/************************************************************************
+
+    FUNCTION:   NotesMain
+
+    PURPOSE:    Main HCL C API for Notes/Domino subroutine
+
+*************************************************************************/
+
+STATUS LNPUBLIC NotesMain(int argc, char far *argv[])
+{
+    char       pname[MAXPATH] = "";         /* buffer to store the input path to database */
+    char       *path_name;                  /* pathname of database */
+    char       *server_name;                /* server name where database lives*/
+    char       *db_name;                    /* name of database */
+
+    DBHANDLE    db_handle = NULLHANDLE;     /* database handle */
+    char        buffer[NSF_INFO_SIZE] = ""; /* database info buffer */
+    char        title[NSF_INFO_SIZE] = "";  /* database title */
+    STATUS      error = NOERROR;            /* error code from API calls */
+
+
+#if defined(OS390)
+    char XLATE_prog_name[MAXPATH] = "";     /* program name translation buffer */
+    char XLATE_path_name[MAXPATH] = "";     /* path name translation buffer */
+    char XLATE_title[NSF_INFO_SIZE] = "";   /* database title translation buffer */
+#endif
+
+/* Initialize pointers to point to "" */
+    path_name = pname;
+    server_name = pname;
+    db_name = pname;
+
+/* On OS390, all args come in LMBCS for BOTH ascii and ebcdic */
+
+    if((argc < 2) || (argc >3))
+    {
+#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
+        OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, argv[0], MAXWORD, XLATE_prog_name, sizeof(XLATE_prog_name));
+        printf( "\nUsage:  %s  [server name - optional] <database filename>\n", XLATE_prog_name);
+
+#else
+        printf( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
+#endif
+        return (0);
+    }
+
+    db_name = argv[argc - 1];
+    path_name = db_name;
+
+    if (argc == 3)
+    {
+         server_name = argv[1];
+
+         if (strcmp(server_name, ""))
+         {
+            if (error = OSPathNetConstruct( NULL, server_name, db_name, pname))
+            {
+               return (ERR(error));
+            }
+            path_name = pname;
+         }
+    }
+
+/* Open the database. */
+
+    if (error = NSFDbOpen (path_name, &db_handle))
+        return (ERR(error));
+
+  /* Get the database title. */
+
+    if (error = NSFDbInfoGet (db_handle, buffer))
+    {
+        NSFDbClose (db_handle);
+        return (ERR(error));
+    }
+
+    NSFDbInfoParse (buffer, INFOPARSE_TITLE, title, NSF_INFO_SIZE - 1);
+
+
+    /* Print the information. */
+
+#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
+    OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXWORD, XLATE_path_name, sizeof(XLATE_path_name));
+    OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, title, MAXWORD, XLATE_title, sizeof(XLATE_title));
+    printf ("\n\n\nThe title for the database, %s, is:\n\n%s\n", XLATE_path_name, XLATE_title);
+#else
+    printf ("\n\n\nThe title for the database, %s, is:\n\n%s\n\n", path_name, title);
+#endif /* OS390, ebcdic compile */
+
+    /* Close the database. */
+
+    if (error = NSFDbClose (db_handle))
+        return (ERR(error));
+
+    /* End of subroutine. */
+    printf("\nProgram completed successfully\n");
+    return (NOERROR);
+}
+

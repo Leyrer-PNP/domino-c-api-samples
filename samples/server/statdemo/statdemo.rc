@@ -1,0 +1,11 @@
+#include "statdemo.h"
+
+STRINGTABLE
+BEGIN
+#include <globerr.h>
+SERVER_ADDIN_NAME, "StatDemo Sample"
+ADDIN_VERSION, "Version 1.0"
+ADDIN_MSG_FMT, "%s"
+END
+
+

@@ -1,0 +1,17 @@
+Form^TEXT^Form #1^
+plain_text^TEXT^Here is a plain text field.^
+text_list^TEXT_LIST^a|b|c^
+number^NUMBER^123^
+number_list^NUMBER_LIST^1|2|3.005^
+*
+Form^TEXT^Form #1^
+plain_text^TEXT^Here is a another plain text field.^
+time_date^TIME^09/05/90 12:07 AM^
+time_list^TIME_LIST^7/04/53 7:20 AM|5/30/55 9:00PM^
+rich_text^RICH_TEXT^This is a rich text field.  Here comes a new line
+Here is another line...
+Here is another line...
+Here is another line...
+Here is another line...^
+user^USER_ID^Phil Margolis^
+*

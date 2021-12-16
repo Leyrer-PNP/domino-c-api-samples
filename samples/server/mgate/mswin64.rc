@@ -1,0 +1,42 @@
+#include "mgateerr.h"
+
+STRINGTABLE LOADONCALL DISCARDABLE
+BEGIN
+#include <globerr.h>
+MSG_MGATE_ADDIN_NAME, "MGATE"
+MSG_MGATE_ADDIN_VERSION, "Version 1.0"
+
+
+/*  Mail Gateway logging message definitions */
+
+ERR_MGATE_STARTED, "MGATE Mail gateway started"
+ERR_MGATE_SHUTDOWN, "MGATE Mail gateway shutdown"
+
+ERR_MGATE_NONDELIVERYSUBJ, "NON-DELIVERY of: "
+ERR_MGATE_MSGLIST, "MGATE: Unable to create message list"
+ERR_MGATE_NOUNIQUE, "MGATE: Unable to create a unique file name"
+ERR_MGATE_RECIPCREATE, "MGATE: Unable to create a recipient message file %s"
+ERR_MGATE_BODYFILE, "MGATE: Unable to create a body text file %s"
+ERR_MGATE_MSGOPEN, "MGATE: Unable to open foreign message file %s"
+ERR_MGATE_SENDSUCCESS, "MGATE: Mail successfully sent to user %s"
+ERR_MGATE_SENDERROR, 	"MGATE: Unable to send to user %s"
+ERR_MGATE_UNKNOWNITEM, "MGATE: Unkown foreign message item: %s"
+ERR_MGATE_TRANSFERSUCCESS, "MGATE: Mail successfully received"
+ERR_MGATE_TRANSFERERROR, "MGATE: Mail unsuccessfully transferred"
+ERR_MGATE_MSGFILE_OPEN, "MGATE: Error opening message file %s"
+ERR_MGATE_TEXT_OPEN, "MGATE: Error creating/opening body text file %s"
+ERR_MGATE_MSGFILE_CREATE, "MGATE: Creating new message file %s"
+ERR_MGATE_ATT_CREATE, "MGATE: Creating temporary attachment file %s"
+ERR_MGATE_ATT_WRITE, "MGATE: Writing temporary attachment file"
+ERR_MGATE_ATT_ADD, "MGATE: Appending attachment file %s to message"
+ERR_MGATE_NODOMAIN, "MGATE: No MGATEDOMAIN set; use SET CONFIG MGATEDOMAIN=domain to set it"
+ERR_MGATE_NODRIVE, "MGATE: No MGATEDRIVE set; use SET CONFIG MGATEDRIVE=driveletter to set it"
+
+/*  Gateway status definitions (for server console display) */
+
+ERR_MGATE_INITIALIZING,	"Initializing"
+ERR_MGATE_IDLE, "Idle"
+ERR_MGATE_RECEIVING, "Receiving inbound mail from %s"
+ERR_MGATE_TRANSFERING, "Searching for outbound mail to transfer"
+ERR_MGATE_TRANSFERING_TO, "Transferring mail to %s"
+END

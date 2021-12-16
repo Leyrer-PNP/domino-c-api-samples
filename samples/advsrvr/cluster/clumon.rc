@@ -1,0 +1,160 @@
+//
+// RESOURCE FILE FOR CLUMON SAMPLE
+//
+
+#include "resource.h"
+#include "windows.h"
+#include "clumon.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+110                     ICON    DISCARDABLE     "clumon.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+CLUMONMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       FILE_EXIT
+    END
+    POPUP "&Information"
+    BEGIN
+        MENUITEM "&Cluster ...",                INFO_CLUSTER
+        MENUITEM "&Database Mark Options ...",  INFO_DATABASE_OPTIONS
+    END
+    POPUP "&Administration"
+    BEGIN
+        MENUITEM "&Database Mark Options ...",  ADMIN_MANAGE_DATABASE
+        MENUITEM "Server &Restriction ...",     ADMIN_RESTRICT_SERVER
+        MENUITEM "Server Availability &Threshold ...", 
+                                                ADMIN_MODIFY_THRESHOLD
+        MENUITEM "Database &Copy ...", ADMIN_CREATECOPY_DB
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+CLUSTERINFODLG DIALOG DISCARDABLE  91, 44, 167, 161
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cluster Information"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Server Name:",SERVERNAME_TEXT,11,13,57,8
+    EDITTEXT        SERVERNAME_EDIT,70,13,84,12,ES_AUTOHSCROLL
+    GROUPBOX        "Cluster Information",CLUSTER_STATIC,10,30,150,90
+    LTEXT           "Cluster Name:",CLUSTERNAME_TEXT,20,45,54,10
+    LTEXT           "",CLUSTERNAME_VALUE,70,45,65,8
+    LTEXT           "Availability:",AVAILABILITY_TEXT,20,60,54,8
+    LTEXT           "",AVAILABILITY_VALUE,70,60,65,8
+    LTEXT           "Cluster Mates:",CLUSTEMATES_TEXT,20,75,59,8
+    LTEXT           "",CLUSTERMATES_COUNT,71,75,65,8
+    LISTBOX         CLUSTERMATES_LIST,25,85,128,38,WS_VSCROLL | WS_HSCROLL
+    DEFPUSHBUTTON   "&Info",IDOK,15,130,47,17
+    PUSHBUTTON      "&Done",IDCANCEL,100,130,47,17
+END
+
+DBOPTIONSDLG DIALOG DISCARDABLE  91, 44, 167, 149
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DB Mark Options Information"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Server Name:",SERVERNAME_TEXT,11,13,57,8
+    EDITTEXT        SERVERNAME_EDIT,70,13,84,12,ES_AUTOHSCROLL
+    LTEXT           "Database Name:",DBNAME_TEXT,11,28,62,8
+    EDITTEXT        DBNAME_EDIT,70,28,84,12,ES_AUTOHSCROLL
+    GROUPBOX        "Database Mark Options",DBMARK_STATIC,10,50,145,60
+    CHECKBOX        "Marked In Service",DBOPTION_INSERVICE,25,65,90,10
+    CHECKBOX        "Marked Out Of Service",DBOPTION_OUTSERVICE,25,80,95,10
+    CHECKBOX        "Marked For Delete",DBOPTION_DELETE,25,95,90,10
+    DEFPUSHBUTTON   "&Current",IDOK,15,121,47,17
+    PUSHBUTTON      "&Done",IDCANCEL,102,121,47,17
+END
+
+DBADMINDLG DIALOG DISCARDABLE  91, 44, 167, 156
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DB Mark Options Management"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Server Name:",SERVERNAME_TEXT,11,13,57,8
+    EDITTEXT        SERVERNAME_EDIT,70,13,84,12,ES_AUTOHSCROLL
+    LTEXT           "Database Name:",DBNAME_TEXT,11,28,62,8
+    EDITTEXT        DBNAME_EDIT,70,28,84,12,ES_AUTOHSCROLL
+    GROUPBOX        "Database Mark Options",DBMARK_STATIC,10,50,145,60
+    CONTROL         "Marked In Service",DBOPTION_INSERVICE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,25,65,95,10
+    CONTROL         "Marked Out Of Service",DBOPTION_OUTSERVICE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,25,80,95,10
+    CONTROL         "Marked For Delete",DBOPTION_DELETE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,25,95,95,10
+    DEFPUSHBUTTON   "&Current",IDCURRENT,5,125,47,17
+    PUSHBUTTON      "&Update",IDOK,55,125,47,17
+    PUSHBUTTON      "&Done",IDCANCEL,110,125,47,17
+END
+
+SVRRESTRICTDLG DIALOG DISCARDABLE  91, 44, 167, 126
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Server Restriction Management"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Server Name:",SERVERNAME_TEXT,11,13,57,8
+    EDITTEXT        SERVERNAME_EDIT,70,13,84,12,ES_AUTOHSCROLL
+    GROUPBOX        "Restriction Information",RESTRICT_STATIC,10,35,145,25
+    CONTROL         "Server Restricted",RESTRICT_SVR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,20,47,70,10
+    DEFPUSHBUTTON   "&Current",IDCURRENT,25,70,47,17
+    PUSHBUTTON      "&Update",IDOK,95,70,47,17
+    PUSHBUTTON      "&Shutdown",IDSHUTDOWN,25,95,47,17
+    PUSHBUTTON      "&Done",IDCANCEL,95,95,47,17
+END
+
+SVRTHRESHOLDDLG DIALOG DISCARDABLE  91, 44, 167, 130
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Availability Threshold Management"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Server Name:",SERVERNAME_TEXT,12,15,57,8
+    EDITTEXT        SERVERNAME_EDIT,70,13,84,12,ES_AUTOHSCROLL
+    GROUPBOX        "Availability Information ",THRESHOLD_STATIC,10,29,145,
+                    55
+    LTEXT           "Availability:",AVAILABILITY_TEXT,25,47,75,8
+    LTEXT           "",AVAILABILITY_VALUE,105,47,20,8
+    LTEXT           "Availability Threshold:",THRESHOLD_TEXT,25,64,75,8
+    EDITTEXT        THRESHOLD_EDIT,105,64,30,12
+    DEFPUSHBUTTON   "&Current",IDCURRENT,5,99,47,17
+    PUSHBUTTON      "&Update",IDOK,55,99,47,17
+    PUSHBUTTON      "&Done",IDCANCEL,110,99,47,17
+END
+
+DBCREATECOPYDLG DIALOG DISCARDABLE  91, 44, 167, 175
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DB Copy Management"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "DB Source Information",DBSOURCE_STATIC,5,5,155,45
+    LTEXT           "Server Name:",SERVERNAME_TEXT,10,20,57,8
+    EDITTEXT        SERVERNAME_EDIT,70,17,84,12,ES_AUTOHSCROLL
+    LTEXT           "Database Name:",DBDEST_TEXT,10,88,59,8
+    EDITTEXT        DBNAME_EDIT,70,32,84,12,ES_AUTOHSCROLL
+    GROUPBOX        "DB Destination Information",DBCOPY_STATIC,5,60,155,75
+    LTEXT           "Server Name:",SERVERDEST_TEXT,10,73,57,8
+    EDITTEXT        SERVERDEST_EDIT,70,71,84,12,ES_AUTOHSCROLL
+    LTEXT           "Database Name:",DBNAME_TEXT,10,34,59,8
+    EDITTEXT        DBDEST_EDIT,70,86,84,12,ES_AUTOHSCROLL
+    CONTROL         "Replica Copy",DBCOPY_REPL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,20,104,60,10
+    CONTROL         "New Copy",DBCOPY_NEW,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,20,117,49,10
+    DEFPUSHBUTTON   "&Copy",IDOK,25,147,47,17
+    PUSHBUTTON      "&Done",IDCANCEL,90,147,47,17
+END

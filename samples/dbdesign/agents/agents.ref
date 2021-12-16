@@ -1,0 +1,37 @@
+Successfully ran agent 'Assign Support Rep'.
+
+Redirected PRINT statements:
+Support Rep parameter = Isabel Silton
+Updated documents =  1
+
+Agent Run Information:
+TimeDate of Execution: 10/01/96 03:06:47 PM
+Documents Processed By Formula: 0
+Exit Code: 0
+
+Agent Log <Start>:
+Started running agent 'Assign Support Rep' on 10/01/96 03:06:46 PM
+Running on new or modified documents: 9 total
+Found 9 document(s) that match search criteria
+Ran LotusScript code
+Done running agent 'Assign Support Rep' on 10/01/96 03:06:47 PM
+Agent Log <End>:
+Successfully read run data for agent 'Assign Support Rep'.
+
+Successfully ran agent 'Escalate Priority'.
+Agent Run Information:
+TimeDate of Execution: 10/01/96 03:06:48 PM
+Documents Processed By Formula: 9
+Exit Code: 0
+
+Agent Log <Start>:
+Started running agent 'Escalate Priority' on 10/01/96 03:06:48 PM
+Running on all documents in database: 9 total
+Found 9 document(s) that match search criteria
+8 document(s) were modified by formula
+Done running agent 'Escalate Priority' on 10/01/96 03:06:48 PM
+Agent Log <End>:
+Successfully read run data for agent 'Escalate Priority'.
+
+Successfully executed the triggered agent notes in 'problems'.
+Program execution completed.

@@ -1,0 +1,54 @@
+/**********************************************************************
+
+    FILE:       MSWIN32.RC
+
+    PROGRAM:    XEDIT
+
+    PURPOSE:    Windows resource file - defines the string table
+                and the dialog box.
+
+***********************************************************************/
+#include <windows.h>    
+#include <globerr.h>    /* Define PKG_ADDIN                  */
+#include "xedit.h"
+
+#undef msgtext
+#define msgtext(code,text) code, text
+
+#undef errortext
+#define errortext(code,text) code, text
+
+/*  XEDIT message definitions */
+
+STRINGTABLE
+BEGIN
+   errortext(ERR_XEDIT_CDTOOBIG,
+       "Rich Text Body is Too Big: %lu bytes.  Terminating")
+
+   errortext(ERR_XEDIT_BADDELIM,
+       "Unknown line delimiter(s): %s")
+
+   errortext(ERR_XEDIT_BADLEN,
+       "Incorrect line length: %s")
+
+   errortext(ERR_XEDIT_BADSTRIP,
+       "Incorrect strip tabs response: %s")
+
+END
+
+/* dialog box */
+
+IDD_XEDIT DIALOG LOADONCALL MOVEABLE DISCARDABLE 41, 63, 231, 109
+CAPTION "XEDIT Sample ASCII Export"
+STYLE WS_BORDER | WS_CAPTION | WS_DLGFRAME | WS_VISIBLE | DS_SYSMODAL | WS_POPUP
+BEGIN
+    CONTROL "&OK", IDD_OK, "button", BS_DEFPUSHBUTTON | WS_TABSTOP | WS_CHILD, 181, 15, 42, 14
+    CONTROL "&Cancel", IDD_CANCEL, "button", BS_PUSHBUTTON | WS_TABSTOP | WS_CHILD, 181, 34, 43, 14
+    CONTROL "", IDD_PROMPT1, "static", SS_LEFT | WS_CHILD, 10, 8, 164, 8
+    CONTROL "", IDD_STRING1, "edit", ES_LEFT | ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD, 10, 23, 164, 12
+    CONTROL "", IDD_PROMPT2, "static", SS_LEFT | WS_CHILD, 10, 42, 164, 8
+    CONTROL "", IDD_STRING2, "edit", ES_LEFT | ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD, 10, 58, 164, 12
+    CONTROL "", IDD_PROMPT3, "static", SS_LEFT | WS_CHILD, 10, 77, 164, 8
+    CONTROL "", IDD_STRING3, "edit", ES_LEFT | ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP | WS_CHILD, 10, 91, 164, 12
+END
+

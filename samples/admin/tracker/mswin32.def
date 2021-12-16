@@ -1,0 +1,8 @@
+LIBRARY NTRACKER
+
+EXPORTS
+    MainEntryPoint          @1
+    TrackerTerm             @2
+    TrackerNoteOpen         @3
+    TrackerNoteUpdate       @4
+    TrackerDbStampNotes     @5

@@ -1,0 +1,13 @@
+
+Filename:   IEDIT.TXT
+
+Author:     M. Wallace
+
+Date:       January 2, 1992
+
+
+
+This is a sample ASCII text file that is part of the IEDIT sample program.
+A user may import this file (or any other ASCII text files) into a note
+using the procedures outlined in the README.TXT file that is also
+included in this package.

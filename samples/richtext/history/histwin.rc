@@ -1,0 +1,83 @@
+#include <windows.h>
+#include <globerr.h>
+#include "history.h"
+#include "histerr.h"
+#include "histwin.dlg"
+
+Histicon ICON histwin.ico
+
+historyMenu MENU
+BEGIN
+    POPUP        "&File"
+    BEGIN
+        MENUITEM "&Collect Responses into History...", FILE_COLLECT
+        MENUITEM "&Select Database to process...", FILE_SELECT_DB
+        MENUITEM "&Quit", FILE_QUIT
+    END
+END
+
+
+STRINGTABLE
+BEGIN
+HISTORY_NAME, "History Sample Program"
+HISTORY_VERSION, "Version 1.0"
+DEFAULT_HISTORY_DBFILENAME, "history"
+DEFAULT_HISTORY_DBSERVER, ""
+HISTORY_RESP_AUTHOR_STAT_TXT, "\nAuthor: "
+HISTORY_RESP_DATE_STAT_TXT, "\n\nResponse Dated: "
+HISTORY_RESP_TOPIC_STAT_TXT, "\nTopic: "
+HISTORY_RESP_COMMENTS_STAT_TXT, "\nComments: "
+ERR_HISTORY_CANTINIT, "Unable to Initialize Notes"
+ERR_HISTORY_DBPATH, "Unable to construct network path to database"
+ERR_HISTORY_PATHTOOLONG, "Database full path name is too long."
+ERR_HISTORY_CANTOPENDEFDB, "Unable to open Default Notes database"
+ERR_HISTORY_CANTOPENDB, "Unable to open Notes database"
+ERR_HISTORY_NBFDBINFO, "Unable to get title of Notes database"
+ERR_HISTORY_MAKEPROC, "Unable to make procedure instance for InsertOneViewItem."
+ERR_HISTORY_SEARCH, "Unable to search for views in database"
+ERR_HISTORY_OPENVIEW, "Unable to open selected database view"
+ERR_HISTORY_READNEXT, "Unable to read next entry in view"
+ERR_HISTORY_EMPTYVIEW, "No documents found in selected view."
+ERR_HISTORY_READRESP, "Unable to read response documents"
+ERR_HISTORY_SKIPRESP, "Unable to skip from response documents in view"
+ERR_HISTORY_SKIPCAT, "Unable to skip category note to main document"
+ERR_HISTORY_OPENMAIN, "Unable to open main document in view"
+ERR_HISTORY_UPDATE, "Unable to update main document with history"
+ERR_HISTORY_SUCCESS, "Successfully collected responses into history"
+ERR_HISTORY_FAILURE, "Unable to collect responses into history"
+ERR_HISTORY_NORESPONSE, "No response documents were found."
+ERR_HISTORY_CONTEXT, "Unable to create compound text context"
+ERR_HISTORY_STYLE, "Unable to define compound text style"
+ERR_HISTORY_OLDHISTORY, "Unable to assimilate history field from main document"
+ERR_HISTORY_DELETE, "Unable to delete response note after assimilation"
+ERR_HISTORY_RESPONSE, "Unable to open response document"
+ERR_HISTORY_ASSIMRESP, "Unable to assimilate body from response document"
+ERR_HISTORY_DATEITEM, "Unable to add Date text"
+ERR_HISTORY_AUTHSTAT, "Unable to add Author static text"
+ERR_HISTORY_FROMITEMINFO, "Unable to get From item"
+ERR_HISTORY_FROMITEMTEXT, "Unable to convert author (From item) to text"
+ERR_HISTORY_AUTHITEM, "Unable to add Author item text"
+ERR_HISTORY_TOPICSTAT, "Unable to add Topic static text"
+ERR_HISTORY_TOPICITEMINFO, "Unable to get Topic item"
+ERR_HISTORY_TOPICITEMTEXT, "Unable to convert Topic (Subject item) to text"
+ERR_HISTORY_COMMNTSTAT, "Unable to add Comments static text"
+ERR_HISTORY_DELETEHIST, "Unable to delete old history from main doc"
+ERR_HISTORY_CLOSECOMP, "Unable to close compound text context"
+ERR_HISTORY_APPENDHIST, "Unable to append new history item to main doc"
+ERR_HISTORY_VIEWTITLE, "Unable to get title of View note"
+ERR_HISTORY_ADDVIEW, "Unable to add View title to list."
+ERR_HISTORY_ADDVIEWSPACE, "Insufficient space available to add View title to list."
+ERR_HISTORY_GETSELVIEWID, "Unable to get ID of selected View."
+ERR_HISTORY_LINKSINFO, "Unable to get Doc Link Reference List information"
+ERR_HISTORY_BODYINFO, "Unable to get body of response document"
+ERR_HISTORY_MALLOC, "Unable to allocate memory for new body item"
+ERR_HISTORY_DELOLDBODY, "Unable to delete old body from response document"
+ERR_HISTORY_APPENDBODY, "Unable to append new body item to response note"
+ERR_HISTORY_CDMALLOC, "Unable to allocate memory for Doc Link record"
+ERR_HISTORY_ENUMBODY, "Unable to process body of response document"
+ERR_HISTORY_TOOMANYRESBDY, "Response document contains too many Body items"
+ERR_HISTORY_NEWRESBDY, "New Body of response document is too large"
+ERR_HISTORY_NEWCONTXT, "Unable to create new history compound text context"
+ERR_HISTORY_ASSIMFILE, "Unable to assimilate old history file into CD context"
+ERR_HISTORY_CLOSENEW, "Unable to close New compound text context"
+END

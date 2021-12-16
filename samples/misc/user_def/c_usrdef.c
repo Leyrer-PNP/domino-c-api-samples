@@ -1,0 +1,195 @@
+/****************************************************************************
+
+    PROGRAM:    w_usrdef
+
+    FILE:       w_usrdef.c
+
+    SYNTAX:     w_usrdef   <database filename>
+
+    PURPOSE:    creates a field with a user-defined data type in a Domino 
+                    and Notes document.
+
+****************************************************************************/
+#if defined(OS400)
+#pragma convert(850)
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* C include files */
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+/* HCL C API for Notes/Domino include files */
+
+#include <global.h>
+#include <nsfdb.h>
+#include <nsfnote.h>
+#include <ostime.h>
+#include <osmisc.h>
+
+/* Local include files */
+
+#include "user_def.h"
+
+/* Local function prototypes */
+void PrintAPIError (STATUS);
+
+
+int main(int argc, char *argv[])
+{
+
+    /* Local data declarations */
+    char           *path_name;                  /* pathname of database */
+    DBHANDLE       db_handle;                   /* database handle */
+    NOTEHANDLE     note_handle;                 /* note handle */
+    TIMEDATE       timedate;                    /* contents of a time/date field */
+    BYTE           my_field[MAX_USERDEF_FIELD]; /* field with custom data type */
+    WORD           descrip_len;                 /* len of type description */
+    WORD           my_field_len;                /* actual len of custom field */
+    STATUS         error=NOERROR;               /* return code from API calls */
+
+
+    if (error = NotesInitExtended (argc, argv))
+    {
+        printf("\n Unable to initialize Notes.\n");
+        return (1);
+    }
+
+    /* Allocate memory for an input database path */
+    path_name = (char *) malloc(STRING_LENGTH);
+    if (path_name == NULL)
+    {
+        printf("Error: Out of memory.\n");
+        goto exit0;
+    }
+ 
+    /* Get the pathname of the database. */
+    ProcessArgs(argc, argv, path_name);
+
+    /* Open the database. */
+    if (error = NSFDbOpen (path_name, &db_handle))
+       goto exitFreeDBFile;
+
+    /* Create a new data note. */
+    if (error = NSFNoteCreate (db_handle, &note_handle))
+       goto exitCloseDB;
+
+    /* Write a field named FORM to the note -- this field specifies the
+    default form to use when displaying the note. */
+    if (error = NSFItemSetText ( note_handle, 
+                    "Form",
+                    "Form #1",
+                    MAXWORD))
+       goto exitCloseNote;
+
+    /* Write a text field named PLAIN_TEXT to the note. */
+    if (error = NSFItemSetText(note_handle,
+                    "PLAIN_TEXT",
+                    "This doc has a user-defined field.",
+                    MAXWORD))
+       goto exitCloseNote;
+	
+
+
+    /* Get the current time/date and write it to a field named TIME_DATE. */
+    OSCurrentTIMEDATE(&timedate);
+
+    if (error = NSFItemSetTime (note_handle, "TIME_DATE", &timedate))
+       goto exitCloseNote;
+
+    /* Create a field with a user-defined data type. */
+    /* The first byte of the field is the length of the type description
+    string. */
+
+    descrip_len = strlen (MY_DATA_TYPE);
+    my_field[0] = (BYTE) descrip_len;
+    my_field_len = 1;
+
+    /* Next comes the type description string. You may put whatever you want
+    in this string. Its purpose is to allow you to distinguish between
+    different user-defined data types. */
+
+    memcpy (my_field+my_field_len, MY_DATA_TYPE, descrip_len);
+    my_field_len += descrip_len;
+	printf("\nNew userdefined datatype is %s", MY_DATA_TYPE);
+
+    /* Next comes the actual data. Domino and Notes will make no attempt to 
+	interpret the structure of this data or its meaning. (In this example, we 
+	simply put some arbitrary hex numbers in the data.) */
+
+    memset (my_field+my_field_len, 0xC3, MY_DATA_LEN);
+    my_field_len += MY_DATA_LEN;
+
+    /* Add the custom field to the note. We set the ITEM_SUMMARY flag so that
+    the field can appear in a view selection formula or in an NSFSearch
+    formula. */
+
+    if (error = NSFItemAppend (note_handle, ITEM_SUMMARY,
+                        MY_FIELD_NAME, (WORD)strlen(MY_FIELD_NAME),
+                        TYPE_USERDATA,
+                        &my_field, my_field_len))
+		goto exitCloseNote;
+
+    /* Add the entire new note (with all fields) to the database. */
+
+    if (error = NSFNoteUpdate (note_handle, 0))
+		goto exitCloseNote;
+	else
+		printf("\nAdded userdefined datatype and documnets sucessfully to the database");
+		
+
+
+exitCloseNote:
+
+    /* Close the note. (Remove its structure from memory.) */
+    NSFNoteClose (note_handle);
+
+exitCloseDB:
+    /* Close the database */
+    NSFDbClose (db_handle);
+
+exitFreeDBFile:
+    /* Free the the allocated space for database name*/
+    free(path_name);   
+
+exit0:
+    if (error)
+       PrintAPIError (error);
+    NotesTerm();
+    return(error);
+
+}
+
+
+
+/* This function prints the HCL C API for Notes/Domino error message
+   associated with an error code. */
+
+void PrintAPIError (STATUS api_error)
+
+{
+    STATUS  string_id = ERR(api_error);
+    char    error_text[200];
+    WORD    text_len;
+
+    /* Get the message for this HCL C API for Notes/Domino error code
+       from the resource string table. */
+
+    text_len = OSLoadString (NULLHANDLE,
+                             string_id,
+                             error_text,
+                             sizeof(error_text));
+
+    /* Print it. */
+    fprintf (stderr, "\n%s\n", error_text);
+
+}
+
+#ifdef __cplusplus
+}
+#endif

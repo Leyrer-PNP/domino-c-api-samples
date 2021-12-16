@@ -1,0 +1,9 @@
+#include "consume.h"
+
+STRINGTABLE
+BEGIN
+#include <globerr.h>
+SERVER_ADDIN_NAME, "Event Consumer Test"
+ADDIN_VERSION, "Version 2.0"
+ADDIN_MSG_FMT, "%s"
+END

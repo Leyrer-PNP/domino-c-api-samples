@@ -1,0 +1,6 @@
+LIBRARY     NXEDIT
+
+EXPORTS
+	    ExpAsciiText @1 ; (Main entry point)
+	    XEditDlgProc @2
+

@@ -1,0 +1,10 @@
+;
+;       mswin32.def - Module definition file for extconf for 32-bit Windows
+;
+
+	LIBRARY		nextconf
+	DESCRIPTION	"Conflict Handler"
+
+
+	EXPORTS
+		MainEntryPoint		@1

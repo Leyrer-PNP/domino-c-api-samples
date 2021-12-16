@@ -1,0 +1,14 @@
+
+#include "add_res.h"
+
+#if defined(W) || defined(NT)
+STRINGTABLE  LOADONCALL DISCARDABLE
+#else
+STRINGTABLE
+#endif
+BEGIN
+#include <globerr.h>
+ADDIN_TASK_NAME, "Add-in Test"
+ADDIN_VERSION, "Version 1.0"
+ADDIN_MSG_FMT, "%s"
+END

@@ -1,0 +1,12 @@
+NAME         ServList
+
+EXETYPE      WINDOWS
+STUB         'WINSTUB.EXE'
+
+HEAPSIZE     1024
+STACKSIZE    20480
+
+EXPORTS
+             MainWndProc   @1
+             ServListDlg   @2
+

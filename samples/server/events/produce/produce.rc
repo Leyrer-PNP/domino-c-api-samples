@@ -1,0 +1,9 @@
+#include "produce.h"
+
+STRINGTABLE
+BEGIN
+#include <globerr.h>
+SERVER_ADDIN_NAME, "Event Producer Test"
+ADDIN_VERSION, "Version 2.0"
+ADDIN_MSG_FMT, "%s"
+END

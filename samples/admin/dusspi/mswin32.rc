@@ -1,0 +1,30 @@
+/*************************************************************************
+ *      
+ *      PROGRAM:        DUSSPI.DLL
+ *
+ *      MODULE:         MSWIN32.RC
+ *
+ *      DESCRIPTION:    Resources for DUS SPI DLL DUSSPI.DLL
+ *
+ *************************************************************************
+ */
+#include "duspierr.h"
+
+STRINGTABLE DISCARDABLE
+BEGIN
+#include <globerr.h>
+    MSG_DUS_ADDIN_NAME          "C API DUSSPI Sample"
+    MSG_DUS_ADDIN_VERSION       "Version 1.0"
+    STR_DUS_NAME                "C API DUS SPI Sample"
+    STR_DUS_DESCRIPTION         "C API Domino Upgrade Service Sample"
+    STR_DUS_GETTING_USERS       "Retrieving Users from Input File Names.Txt"
+    STR_DUS_FINISHED_USERS      "Finished Retrieving Users from Input File Names.Txt"
+    STR_DUS_ERR_NOFILE_NAMES    "Cannot open NAMES.TXT"
+    STR_DUS_ERR_READFILE_NAMES  "Cannot read file NAMES.TXT"
+    STR_DUS_ERR_NOFILE_ADDRESS  "Cannot open ADDRESS.TXT"
+    STR_DUS_ERR_READFILE_ADDRESS"Cannot read file ADDRESS.TXT"
+    STR_DUS_ERR_CLOSEFILE_NAMES "Error closing file NAMES.TXT"
+    STR_DUS_ERR_NOMEM           "Unable to allocate memory to read in data from ADDRESS.TXT"
+    STR_DUS_ERR_CLOSEFILE_ADDRESS "Error closing file ADDRESS.TXT"
+    STR_DUS_ERR_ADDRESSES       "Error processing informaiton from ADDRESS.TXT"
+END

@@ -1,0 +1,10 @@
+LIBRARY secdom
+DESCRIPTION "Web Server API"
+
+EXPORTS
+    MainEntryPoint  @1
+    FilterInit      @2
+    TerminateFilter @3
+    HttpFilterProc  @4
+
+
