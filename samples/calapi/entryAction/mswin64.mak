@@ -4,29 +4,27 @@
 # This makefile assumes that the INCLUDE and LIB environment variables
 # are set up to point at the Notes and C "include" and "lib" directories.
 
-# Standard Windows 32-bit make definitions
-!include <ntwin32.mak>
+# Windows 64-bit make definitions
+!include <makeEnvWin.mak>
 
 # The name of the program.
 
 PROGNAME = entryAction
 
-#cpuflags = /Zp
 
-# Dependencies
 
 all: chair.exe OneAttendee.exe
 
 chair.exe: chair.obj
-	$(link) $(linkdebug) $(conflags) -out:$@ chair.obj $(conlibs) \
-	notes.lib user32.lib
+	link $(LOPTIONS_1) -subsystem:console,5.0 -out:$@ chair.obj $(ENTRY_FLAG) \
+	kernel32.lib  ws2_32.lib mswsock.lib advapi32.lib  notes.lib user32.lib
 
 OneAttendee.exe: OneAttendee.obj
-	$(link) $(linkdebug) $(conflags) -out:$@ OneAttendee.obj $(conlibs) \
-	notes.lib user32.lib
+	link $(LOPTIONS_1) -subsystem:console,5.0 -out:$@ OneAttendee.obj $(ENTRY_FLAG) \
+	kernel32.lib  ws2_32.lib mswsock.lib advapi32.lib  notes.lib user32.lib
 
 chair.obj:
-	$(cc) $(cdebug) $(cflags) $(cpuflags) /DNT $(cvars) chair.c
+	!cl $(COPTIONS) -D_WINNT -D_WIN32_WINNT=0x0500 chair.c
     
 OneAttendee.obj:
-	$(cc) $(cdebug) $(cflags) $(cpuflags) /DNT $(cvars) OneAttendee.c
+	!cl $(COPTIONS) -D_WINNT -D_WIN32_WINNT=0x0500  OneAttendee.c

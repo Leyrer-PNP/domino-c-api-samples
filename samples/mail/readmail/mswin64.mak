@@ -6,16 +6,12 @@
 # This makefile assumes that the INCLUDE and LIB environment variables
 # are set up to point at the Notes and C "include" and "lib" directories.
 
-# Standard Windows 64-bit make definitions
-!include <ntwin32.mak>
+# Windows 64-bit make definitions
+!include <makeEnvWin.mak>
 
 # The name of the program.
 
 PROGNAME = readmail
-
-##
-
-# Dependencies
 
 $(PROGNAME).EXE: $(PROGNAME).OBJ
 $(PROGNAME).OBJ: $(PROGNAME).C
@@ -25,10 +21,9 @@ $(PROGNAME).OBJ: $(PROGNAME).C
 
 
 .C.OBJ:
-    !cl -nologo -c /MD /Zi /Ot /O2 /Ob2 /Oy- -Gd /Gy /GF /Gs4096 /GS- /favor:INTEL64 /EHsc /Zc:wchar_t- /Zc:forScope- -Zl -W4 -DNT -DW32 -DW -DWIN32 -DW64 -DND64 -D_AMD64_ -DDTRACE -D_CRT_SECURE_NO_WARNINGS -DND64SERVER -DPRODUCTION_VERSION  -DDUMMY -D_CONSOLE $*.c
+    !cl $(COPTIONS) -W4 $*.c
 
 # Link command.
 
 .OBJ.EXE:
-    link -nologo -opt:ref -machine:AMD64 /LARGEADDRESSAWARE -map:w64_cmp.mpx  -debug -debugtype:cv -out:$@ $** notes.lib \
-        msvcrt.lib OLDNAMES.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib winspool.lib ws2_32.lib userenv.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+    link $(LOPTIONS_1) -out:$@ $** $(ENTRY_FLAG1) $(LIBS)

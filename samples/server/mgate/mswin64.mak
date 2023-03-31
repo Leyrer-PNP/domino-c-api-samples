@@ -8,11 +8,11 @@
 
 # Standard Windows 64-bit make definitions
 
-!include <ntwin32.mak>
+!include <makeEnvWin.mak>
 
 ##
 !IF ([cl /? 2>&1 | findstr /C:"Version 19" > nul] == 0)
-runtime =  libvcruntime.lib ucrt.lib libcmt.lib  
+runtime =  libvcruntime.lib ucrt.lib  
 !ELSEIF ([cl /? 2>&1 | findstr /C:"Version 16" > nul] == 0)
 runtime = msvcrt.lib
 !ENDIF
@@ -23,8 +23,7 @@ outfilename = nmgate
 # Update the executable file if necessary, and if so, add the resource
 # back in.
 $(outfilename).exe: main.obj inbound.obj outbound.obj nmgate.res
-   $(link) $(linkdebug)    main.obj inbound.obj outbound.obj notes0.obj notesai0.obj \
-		nmgate.res $(conlibs) msvcrt.lib oldnames.lib notes.lib user32.lib -out:$(outfilename).exe
+	link /DEBUG /DEBUGTYPE:cv    main.obj inbound.obj outbound.obj notes0.obj notesai0.obj  nmgate.res kernel32.lib  ws2_32.lib mswsock.lib advapi32.lib msvcrt.lib oldnames.lib notes.lib user32.lib -out:$(outfilename).exe
 
 # Update the resource file if necessary.
 nmgate.res : mswin64.rc mgateerr.h
@@ -32,12 +31,12 @@ nmgate.res : mswin64.rc mgateerr.h
 
 # Update the object file if necessary.
 main.obj : main.c mgate.h mgateerr.h
-	!cl -nologo -c /MD /Zi /Ot /O2 /Ob2 /Oy- -Gd /Gy /GF /Gs4096 /GS- /favor:INTEL64 /EHsc /Zc:wchar_t- /Zc:forScope- -Zl -W4 -DNT -DW32 -DW -DW64 -DND64 -D_AMD64_ -DDTRACE -D_CRT_SECURE_NO_WARNINGS -DND64SERVER -DPRODUCTION_VERSION  -DDUMMY main.c
-	
+	!cl $(COPTIONS) main.c
+
 inbound.obj : inbound.c mgate.h mgateerr.h
-	!cl -nologo -c /MD /Zi /Ot /O2 /Ob2 /Oy- -Gd /Gy /GF /Gs4096 /GS- /favor:INTEL64 /EHsc /Zc:wchar_t- /Zc:forScope- -Zl -W4 -DNT -DW32 -DW -DW64 -DND64 -D_AMD64_ -DDTRACE -D_CRT_SECURE_NO_WARNINGS -DND64SERVER -DPRODUCTION_VERSION  -DDUMMY inbound.c
+	!cl $(COPTIONS) inbound.c
 	
 outbound.obj : outbound.c mgate.h mgateerr.h
-	!cl -nologo -c /MD /Zi /Ot /O2 /Ob2 /Oy- -Gd /Gy /GF /Gs4096 /GS- /favor:INTEL64 /EHsc /Zc:wchar_t- /Zc:forScope- -Zl -W4 -DNT -DW32 -DW -DW64 -DND64 -D_AMD64_ -DDTRACE -D_CRT_SECURE_NO_WARNINGS -DND64SERVER -DPRODUCTION_VERSION  -DDUMMY outbound.c
+	!cl $(COPTIONS) outbound.c
 
 

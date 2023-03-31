@@ -6,8 +6,8 @@
 # This makefile assumes that the INCLUDE and LIB environment variables
 # are set up to point at the Notes and C "include" and "lib" directories.
 
-# Standard Windows 64-bit make definitions
-!include <ntwin32.mak>
+# Windows 64-bit make definitions
+!include <makeEnvWin.mak>
 
 # The name of the program.
 PROGNAME = capierr
@@ -26,7 +26,7 @@ StdAfx.obj		: StdAfx.cpp
 
 # Compilation command.
 .cpp.obj:
-    !cl -nologo -c /ID:\notesapi90\include /Zi /Ot /O2 /Ob2 /Oy- -Gd /Gy /GF /Gs4096 /GS- /favor:INTEL64 /EHsc /Zc:wchar_t- /Zc:forScope- -Zl -W4 -DNT -DW32 -DW -D_WINDOWS -DW64 -DND64 -D_AMD64_ -DDTRACE -D_CRT_SECURE_NO_WARNINGS -DND64SERVER -DPRODUCTION_VERSION  -DDUMMY $*.cpp
+	!cl $(COPTIONS1) $*.cpp
 
 # Link command.
 .obj.exe:

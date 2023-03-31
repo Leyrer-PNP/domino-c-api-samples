@@ -6,7 +6,8 @@
 # This makefile assumes that the INCLUDE and LIB environment variables
 # are set up to point at the Notes and C "include" and "lib" directories.
 
-# Standard Windows 32-bit make definitions
+# Windows 64-bit make definitions
+!include <makeEnvWin.mak>
 
 all : notesflo.exe
 
@@ -58,15 +59,16 @@ oleps.obj : oleps.cpp $(HEADERS)
 selcolor.obj : selcolor.cpp $(HEADERS)
 
 # Compilation command.
+
 .CPP.OBJ:
-	
-	!cl -nologo   -c /MD /Zi /Ot /O2 /Ob2 /Oy- -Gd /Gy /GF /Gs4096 /GS- /favor:INTEL64 /EHsc /Zc:wchar_t- /Zc:forScope- -Zl -DNT -DW32 -DW -DW64 -DND64 -D_AMD64_ -DDTRACE -D_CRT_SECURE_NO_WARNINGS -DND64SERVER -DPRODUCTION_VERSION  -DDUMMY $*.cpp
+	!cl $(COPTIONS)  $*.cpp
+
+# Link command.
 
 .OBJ.EXE:
-    link -nologo -opt:ref -machine:AMD64 -map:w64_cmp.mpx -debug -debugtype:cv -out:$@ $** notes.lib\
-        msvcrt.lib kernel32.lib user32.lib gdi32.lib advapi32.lib ws2_32.lib userenv.lib uuid.lib ole32.lib comdlg32.lib
-		 		 
+	link -nologo -opt:ref -machine:AMD64 -map:w64_cmp.mpx -debug -debugtype:cv -out:$@ $** notes.lib \
+	msvcrt.lib kernel32.lib user32.lib gdi32.lib advapi32.lib ws2_32.lib userenv.lib uuid.lib ole32.lib comdlg32.lib
+
 # Update the resource if necessary
 notesflo.res : app_rsc.rc app_rsc.h
-    rc -r -fo notesflo.res  app_rsc.rc
-
+	rc -r -fo notesflo.res  app_rsc.rc

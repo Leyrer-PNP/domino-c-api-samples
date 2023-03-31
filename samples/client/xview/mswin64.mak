@@ -1,15 +1,15 @@
 #
 # makefile for Notes API sample program XVIEW
-# Windows 32-bit version using Microsoft Visual Studio 2010
+# Windows 64-bit version using Microsoft Visual Studio 2010
 # compiler and linker.
 #
 # This makefile assumes that the INCLUDE and LIB environment variables
 # are set up to point at the Notes and C "include" and "lib" directories.
 
-# Standard Windows 32-bit make definitions
-!include <win.mak>
+# Windows 64-bit make definitions
+!include <makeEnvWin.mak>
 
-#cpuflags = -Zp
+
 outfilename = nxview
 defname = mswin64
 
@@ -20,13 +20,13 @@ all : $(outfilename).dll
 # Link command.
 
 $(outfilename).dll : nxview.obj nxview.res $(defname).def
-    $(link) $(linkdebug) -base:0x1C000000 \
+	link $(LOPTIONS) -base:0x1C000000 -stack:0 \
     	-dll -entry:_DllMainCRTStartup$(DLLENTRY) \
       -def:$(defname).def \
     	-out:$(outfilename).dll \
     	nxview.obj \
     	nxview.res \
-		$(conlibs) $(guilibs) notes.lib
+	$(LIBS_1) $(ENTRY_FLAG1)
 
 # Update the resource if necessary
 
@@ -36,4 +36,4 @@ nxview.res: mswin64.rc xview.h
 # Compilation command.
 
 nxview.obj : xview.c xview.h
-        $(cc) $(cdebug) $(cflags) $(cpuflags) /optimize -DW32 $(cvars) -Fonxview.obj xview.c
+	!cl -DCRTAPI1=_cdecl -DCRTAPI2=_cdecl -D_WINNT -D_WIN32_WINNT=0x0500 -DNTDDI_VERSION=0x05000000 -D_WIN32_IE=0x0500 -DWINVER=0x0500 /optimize -DW32 $(COPTIONS) -D_MT -MTd -Fonxview.obj xview.c

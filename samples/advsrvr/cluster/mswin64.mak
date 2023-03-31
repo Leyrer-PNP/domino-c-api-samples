@@ -6,19 +6,17 @@
 # This makefile assumes that the INCLUDE and LIB environment variables
 # are set up to point at the Notes and C "include" and "lib" directories.
 
-# Standard Windows 64-bit make definitions
+# Windows 64-bit make definitions
+!include <makeEnvWin.mak>
 
-!include <win.mak>
 
 proj = CLUMON
 
-!IF ([cl /? 2>&1 | findstr /C:"Version 16" > nul] == 0)
-cpuflags = /Zp
-!ENDIF	
+	
 
 ##
 .c.obj :
-	$(cc) $(cdebug) $(cflags) $(cpuflags) /DNT $(cvars) $*.c
+	!cl /DNT -Zi -Od -DDEBUG -c -DCRTAPI1=_cdecl -DCRTAPI2=_cdecl -nologo -GS -D_AMD64_=1 -DWIN64 -D_WIN64  -DWIN32 -D_WIN32 -W4 -D_WINNT -D_WIN32_WINNT=0x0500 -DNTDDI_VERSION=0x05000000 -D_WIN32_IE=0x0500 -DWINVER=0x0500  /DNT  -D_MT -MTd  $*.c
 	
 all: $(proj).exe
 
@@ -35,6 +33,6 @@ $(proj).res : $(proj).rc resource.h $(proj).ico
 # Update the executable file if necessary, and if so, add the resource
 # back in.
 $(proj).exe: $(proj).obj clfunc.obj  $(proj).res mswin64.def
-	$(link) $(linkdebug) $(guiflags) $(proj).obj clfunc.obj $(proj).res \
-		$(guilibs) notes.lib -out:$(proj).exe
+	link $(LOPTIONS) $(proj).obj clfunc.obj $(proj).res \
+		$(LIBS_1) mswsock.lib $(ENTRY_FLAG1) -out:$(proj).exe
  

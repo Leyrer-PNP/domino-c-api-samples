@@ -1,33 +1,24 @@
 #
 # Makefile for Notes API sample program getbuild
-# Windows 32-bit version using Microsoft Visual Studio 2010 compiler
+# using Microsoft Visual Studio 2017
 # and linker.
 #
 
-# Standard Windows 64-bit make definitions
-#!include <ntwin32.mak>
+# Windows 64-bit make definitions
+!include <makeEnvWin.mak>
 
 # The name of the program.
 
 PROGNAME = GETBUILD
-
-#
-!IF ([cl /? 2>&1 | findstr /C:"Version 19" > nul] == 0)
-ENTRY_FLAG =  -entry:mainCRTStartup libvcruntime.lib ucrt.lib libcmt.lib  
-!ELSEIF ([cl /? 2>&1 | findstr /C:"Version 16" > nul] == 0)
-ENTRY_FLAG = msvcrt.lib
-!ENDIF	
-##
-
-# Dependencies
 
 $(PROGNAME).EXE: $(PROGNAME).OBJ
 $(PROGNAME).OBJ: $(PROGNAME).C
 
 # Compilation command.
 .C.OBJ:
-    !cl -nologo   -c /MD /Zi /Ot /O2 /Ob2 /Oy- -Gd /Gy /GF /Gs4096 /GS- /favor:INTEL64 /EHsc /Zc:wchar_t- /Zc:forScope- -Zl  -DNT -DW32 -DW -DW64 -DND64 -D_AMD64_ -DDTRACE -D_CRT_SECURE_NO_WARNINGS -DND64SERVER -DPRODUCTION_VERSION  -DDUMMY $*.c
+    !cl $(COPTIONS)  $*.c
+
+# Link command.
 
 .OBJ.EXE:
-    link -nologo -opt:ref -machine:AMD64 -nodefaultlib /LARGEADDRESSAWARE -map:w64_cmp.mpx  -debug -debugtype:cv -out:$@ $** notes.lib\
-        $(ENTRY_FLAG) kernel32.lib user32.lib gdi32.lib advapi32.lib winspool.lib ws2_32.lib userenv.lib  
+    link $(LOPTIONS_1) -out:$@ $** $(ENTRY_FLAG) $(LIBS_1)
