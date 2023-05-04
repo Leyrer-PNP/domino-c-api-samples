@@ -1,3 +1,11 @@
+---
+layout: default
+title: "Overview"
+nav_order: 1
+description: "HCL Domino C API Samples"
+has_children: true
+---
+
 # Domino C-API Samples
 This repository is a collection of examples for using the HCL Domino C-API, it compliments the [HCL Domino C API documentation](https://opensource.hcltechsw.com/domino-c-api-docs/) and is open to external [contributions](CONTRIBUTING.md).
 
@@ -11,6 +19,7 @@ Programs that illustrate how to use the C API to develop applications that manag
 
 ### Basic
 Programs that show the basic structure of API code or basic operations using the C API
+see [Basic](basic.md)
 
 ### Client
 Programs that show the structure of client specific API code or operations using the C API
@@ -32,7 +41,7 @@ Programs that show how to read and write elements of a rich text field
 
 ### Server
 Programs that show the structure of HCL Domino Server add-in tasks and features of the HCL Domino Server environment
-
+[ref]()
 ### Views
 Programs that show how to use indexes (views)
 
