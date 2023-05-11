@@ -68,6 +68,8 @@ For instructions refer to the [HCL Domino C API documentation](https://opensourc
 - [HCL Domino C API User Guide](https://github.com/HCL-TECH-SOFTWARE/domino-c-api-docs/blob/main/apiug.nsf) (*.nsf / Domino application) 
 - [HCL Domino C API Reference Guide](https://github.com/HCL-TECH-SOFTWARE/domino-c-api-docs/blob/main/apiref.nsf) (*.nsf / Domino application) 
 
+###Supported environments
+The project is supported on Windows 64bit, Windows 32bit, Linux 64bit, see detailed information about supported run-time and build environments refer [HCL Domino C API User Guide](https://github.com/HCL-TECH-SOFTWARE/domino-c-api-docs/blob/main/apiug.nsf) (*.nsf / Domino application).
 
 ## Issues
 For issues relating to the code samples and scripts published in this repository, please refer to the [GitHub issue tracker](issues)
@@ -83,4 +85,4 @@ Special Thanks go to the following people for having provided valuable input to 
 ## License
 The code examples and scripts in this repository are licensed under the [Apache License 2.0](LICENSE.txt). 
 
-Note that HCL Domino and add-on products are commercial software - The software licenses agreement does not permit further distribution of the docker image that was built using this script.
+Note that HCL Domino and add-on products are commercial software - The software licenses agreement does not permit further distribution of the HCL CAPI samples.
