@@ -68,7 +68,7 @@ For instructions refer to the [HCL Domino C API documentation](https://opensourc
 - [HCL Domino C API User Guide](https://github.com/HCL-TECH-SOFTWARE/domino-c-api-docs/blob/main/apiug.nsf) (*.nsf / Domino application) 
 - [HCL Domino C API Reference Guide](https://github.com/HCL-TECH-SOFTWARE/domino-c-api-docs/blob/main/apiref.nsf) (*.nsf / Domino application) 
 
-###Supported environments
+##Supported environments
 The project is supported on Windows 64bit, Windows 32bit, Linux 64bit, see detailed information about supported run-time and build environments refer [HCL Domino C API User Guide](https://github.com/HCL-TECH-SOFTWARE/domino-c-api-docs/blob/main/apiug.nsf) (*.nsf / Domino application).
 
 ## Issues
