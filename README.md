@@ -85,4 +85,4 @@ Special Thanks go to the following people for having provided valuable input to 
 ## License
 The code examples and scripts in this repository are licensed under the [Apache License 2.0](LICENSE.txt). 
 
-Note that HCL Domino and add-on products are commercial software - The software licenses agreement does not permit further distribution of the HCL CAPI samples.
+Note that HCL Domino and add-on products are commercial software - The software licenses agreement does not permit further distribution of the HCL Domino CAPI samples.
