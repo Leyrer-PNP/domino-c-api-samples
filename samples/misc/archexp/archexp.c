@@ -35,6 +35,7 @@
 #include "osfile.h"
 #include "idtable.h"
 #include "oserr.h"
+#include "printLog.h"
 
 /* archivie services API file */
 
@@ -44,7 +45,6 @@
 /* Local function prototypes */
 
 BOOL  LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID, char *pOutFileName);
-void PrintAPIError (STATUS);
 
 
 /* Callbacks for ArchiveExportDatabase */
@@ -103,32 +103,32 @@ int main(int argc, char *argv[])
 
     if(!ProcessArgs(argc, argv, pname, &NoteID, achOutFileName))
     {
-        printf( "\nUsage:  %s  <database filename> <hex NoteID> <Output file> [options]\n", argv[0] );
-		printf("\nOptions: -s ServerName\n"); 
+        PRINTLOG( "\nUsage:  %s  <database filename> <hex NoteID> <Output file> [options]\n", argv[0] );
+		PRINTLOG("\nOptions: -s ServerName\n"); 
         return (0);
 
     }
 
 	/* Open source database. */	
 	
-	printf("Opening %s\n", pname);
+	PRINTLOG("Opening %s\n", pname);
     if (error = NSFDbOpen (pname, &db_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbOpen");
         goto cleanup;
     }
 
 	/* Create an IDTable, and insert note ID into this IDTable. */
 
-	printf("Creating ID table for note %x\n", NoteID);	
+	PRINTLOG("Creating ID table for note %x\n", NoteID);	
 	if(error = IDCreateTable(sizeof(NOTEID), &hIDTable))
 		{
-		PrintAPIError(error);
+		PRINTERROR(error,"IDCreateTable");
 		goto cleanup;
 		}
 	if(error = IDInsert(hIDTable, NoteID, NULL))
 		{
-		PrintAPIError(error);
+		PRINTERROR(error,"IDInsert");
 		goto cleanup;
 		}
 
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 	Ctx.pOutFile = fopen(achOutFileName, "wb");
 	if(Ctx.pOutFile == NULL)
 		{
-		printf("Error creating noteexp.dat\n");
+		PRINTLOG("Error creating noteexp.dat\n");
 		goto cleanup;
 		}
 
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 											ArchiveDocumentCallback,
 											NULL, &Ctx))
 		{
-		PrintAPIError(error);
+		PRINTERROR(error,"ArchiveExportDatabase");
 	   	goto cleanup;	   
    		}
   
@@ -179,35 +179,6 @@ cleanup:
     return (0);
 }
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-				error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
 
 /************************************************************************
 
@@ -239,13 +210,13 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID
 
 	if(curarg == argc)
 		{
-		printf("Missing required note ID argument\n");
+		PRINTLOG("Missing required note ID argument\n");
 		return FALSE;
 		}
 	
 	if(sscanf(argv[curarg], "%x", pNoteID) != 1)
   	  {
-	   printf("Unable to convert %s to a NoteID\n",argv[curarg]); 
+	   PRINTLOG("Unable to convert %s to a NoteID\n",argv[curarg]); 
 	   return 0;
 	   }
 
@@ -253,7 +224,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID
 
 	if(curarg == argc)
 		{
-		printf("Missing required output file argument\n");
+		PRINTLOG("Missing required output file argument\n");
 		return FALSE;
 		}
 
@@ -268,7 +239,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID
 			curarg++;
 			if(curarg == argc)
 				{
-				printf("ERROR: Missing server argument after -s\n");
+				PRINTLOG("ERROR: Missing server argument after -s\n");
 				return FALSE;
 				}
 			pServerName = argv[curarg];					
@@ -278,7 +249,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID
 
 	if (Error = OSPathNetConstruct( NULL, pServerName, pDBName, dbPath))
         {
-		PrintAPIError (Error);
+		PRINTERROR (Error,"OSPathNetConstruct");
 		return FALSE;
 		}
 
@@ -336,7 +307,7 @@ STATUS far PASCAL AttachInitCallback(const char *szFileName,
 {
 	STATUS Error = NOERROR;
 	EXPORTCONTEXT *pCtx = (EXPORTCONTEXT *)pUserCtx;	
-	printf("AttachInitCallback called\n");
+	PRINTLOG("AttachInitCallback called\n");
 
 	if(retError)
 	{
@@ -374,7 +345,7 @@ STATUS far PASCAL AttachOutputCallback(const BYTE *Buffer, DWORD BufferSize, BOO
 {
 	STATUS Error = NOERROR;	
 	EXPORTCONTEXT *pCtx = (EXPORTCONTEXT *)pUserCtx;
-	printf("AttachOutputCallback called\n");
+	PRINTLOG("AttachOutputCallback called\n");
 
 	if(retError)
 	{
@@ -457,7 +428,7 @@ STATUS far PASCAL NoteExportCallback(
 
 	if(pExp->pOutFile == NULL)
 		{
-	  		printf("ERROR: ArchSvcCrlExporter::NoteExportCallback: Cannot open output file\n");
+	  		PRINTLOG("ERROR: ArchSvcCrlExporter::NoteExportCallback: Cannot open output file\n");
 			goto cleanup;
 		} 
 

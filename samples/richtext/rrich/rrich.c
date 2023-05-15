@@ -29,6 +29,7 @@
 #include <nsferr.h>
 #include <odserr.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -37,7 +38,6 @@
 /* Function prototypes */
 
 STATUS LNPUBLIC print_fields (void *, SEARCH_MATCH *, ITEM_TABLE *);
-void PrintAPIError (STATUS);
 
 #define BUFSIZE 1000
 
@@ -77,7 +77,7 @@ db_filename="richtext.nsf";
 	 error = NotesInitExtended (argc, argv);
 	 if (error)
 	 {
-		 printf("Error: Unable to initialize Notes.\n");
+		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
 	 }
 
@@ -85,8 +85,8 @@ db_filename="richtext.nsf";
 
     if (error = NSFDbOpen (db_filename, &db_handle))
 	 {
-		 printf ("Error: unable to open database '%s'.\n", db_filename);
-		 PrintAPIError(error);
+		 PRINTLOG ("Error: unable to open database '%s'.\n", db_filename);
+		 PRINTERROR(error,"NSFDbOpen");
 		 NotesTerm();
 		 return(1);
 	 }
@@ -108,7 +108,7 @@ db_filename="richtext.nsf";
         &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
 
     {
-		  PrintAPIError(error);
+		  PRINTERROR(error,"NSFFormulaCompile");
 		  NotesTerm();
         NSFDbClose (db_handle);
         return (1);
@@ -129,7 +129,7 @@ note found, the routine print_fields is called. */
         NULL))            /* returned ending date (unused) */
 
     {
-		  PrintAPIError(error);
+		  PRINTERROR(error,"NSFSearch");
 		  NotesTerm();
         NSFDbClose (db_handle);
         return (1);
@@ -143,7 +143,7 @@ note found, the routine print_fields is called. */
 
     if (error = NSFDbClose (db_handle))
     {
-		  PrintAPIError(error);
+		  PRINTERROR(error,"NSFDbClose");
 		  NotesTerm();
         return (1);
     }
@@ -153,7 +153,7 @@ note found, the routine print_fields is called. */
 
 	 NotesTerm();
 
-	 printf("\nProgram completed successfully.\n");
+	 PRINTLOG("\nProgram completed successfully.\n");
 
 	 return(0);
 }
@@ -211,7 +211,7 @@ but is shown here in case a starting date was used in the search. */
 
 /* Print the note ID. */
 
-    printf ("\n\n       ************* Note ID is: %lX. *************\n",
+    PRINTLOG ("\n\n       ************* Note ID is: %lX. *************\n",
         SearchMatch.ID.NoteID);
 
 /* Open the note. */
@@ -289,7 +289,7 @@ to it. (We do this so that we now have a regular C text string.) */
 
 /* Print the text of the RICH_TEXT field. */
 
-        printf ("\nRICH_TEXT field is:\n\n%s\n", field_text);
+        PRINTLOG ("\nRICH_TEXT field is:\n\n%s\n", field_text);
 
 /* Unlock and free the text buffer. */
 
@@ -300,7 +300,7 @@ to it. (We do this so that we now have a regular C text string.) */
 /* If the RICH_TEXT field is not there, print a message. */
 
     else
-        printf ("\nRICH_TEXT field not found.\n");
+        PRINTLOG ("\nRICH_TEXT field not found.\n");
 
 /* Close the note. */
 
@@ -310,30 +310,5 @@ to it. (We do this so that we now have a regular C text string.) */
 /* End of subroutine. */
 
     return (NOERROR);
-
-}
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
 
 }

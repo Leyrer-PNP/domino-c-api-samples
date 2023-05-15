@@ -46,6 +46,7 @@
 #include <niferr.h>                     /* ERR_NO_MORE_MEMBERS */
 #include <lookup.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -62,9 +63,6 @@ STATUS  LNPUBLIC  DisplayItem(char  *pMatch,
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                 char *view_names, char *names, char *items, char *servername); 
-
-
-void PrintAPIError (STATUS);
 
 /* constants */
 #define MAX_ARG_LEN 512
@@ -152,19 +150,19 @@ int main (int argc, char *argv[])
     }
     if (NumItems == 0)
     {
-        printf("Error: no items requested.\n");
+        PRINTLOG("Error: no items requested.\n");
         error=1;
         goto End1;
     }
 
-    printf("Looking up %d item(s) for %d name(s) in %d view(s).\n",
+    PRINTLOG("Looking up %d item(s) for %d name(s) in %d view(s).\n",
                           NumItems, NumNames, NumNameSpaces);
 
     /*   Start by calling Notes Init.  */
 
     if (error = NotesInitExtended (argc, argv))
     {
-       printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
        goto End1;
     }
    
@@ -174,7 +172,7 @@ int main (int argc, char *argv[])
                             NumItems, Items,
                             &hLookup))
     {
-        printf("Error: unable to look up names in N&A books.\n");
+        PRINTLOG("Error: unable to look up names in N&A books.\n");
         goto End;
     }
 
@@ -203,7 +201,7 @@ int main (int argc, char *argv[])
             pName += (strlen(pName)+1);
         }
 
-        printf("Found %d match(es) in record for name '%s' in view '%s'.\n",
+        PRINTLOG("Found %d match(es) in record for name '%s' in view '%s'.\n",
                           NumMatches, pName, pView);
 
         /* Loop over matches in this name record */
@@ -213,7 +211,7 @@ int main (int argc, char *argv[])
         {
             pMatch = (char *) NAMELocateNextMatch2(pLookup, pNameRecord, pMatch);
 
-            printf("Item(s) in match # %d:\n", usMatch+1);
+            PRINTLOG("Item(s) in match # %d:\n", usMatch+1);
 
             /* For each requested item, get information and display. */
 
@@ -247,9 +245,13 @@ CleanUp:
 
 End:
     if (error == NOERROR)
-        printf("\nProgram completed successfully.\n");
+    {
+        PRINTLOG("\nProgram completed successfully.\n");
+    }
     else
-        PrintAPIError (error);  
+    {
+        PRINTERROR (error,"NAMELookup2"); 
+    }
 
     NotesTerm();
 End1:
@@ -281,13 +283,13 @@ STATUS  LNPUBLIC  DisplayItem(char   *pMatch,
     WORD      TimeStringLen;            /* length of ASCII time/date */
     RANGE     Range;                    /* time list or number list header */
 
-    printf("item %d:", wItemNum+1);
-    printf("\tName   = '%s'\n", szItemName);
-    printf("\tLength = %d\n", Size-DATATYPE_SIZE);
+    PRINTLOG("item %d:", wItemNum+1);
+    PRINTLOG("\tName   = '%s'\n", szItemName);
+    PRINTLOG("\tLength = %d\n", (Size-DATATYPE_SIZE));
 
     if (Size <= DATATYPE_SIZE)
     {
-        printf("\tItem has no value.\n");
+        PRINTLOG("\tItem has no value.\n");
         return (NOERROR);
     }
 
@@ -438,8 +440,8 @@ STATUS  LNPUBLIC  DisplayItem(char   *pMatch,
             szItemText[0] = '\0';
     }
 
-    printf("\tType   = %s\n", szDataType);
-    printf("\tValue  = '%s'\n", szItemText);
+    PRINTLOG("\tType   = %s\n", szDataType);
+    PRINTLOG("\tValue  = '%s'\n", szItemText);
 
     return (NOERROR);
 }
@@ -493,33 +495,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         
 } /* ProcessArgs */
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 

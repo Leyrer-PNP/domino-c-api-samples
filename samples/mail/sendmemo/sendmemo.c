@@ -67,14 +67,13 @@
 #include <fontid.h>
 #include <mail.h>
 #include <osmisc.h>
+#include<printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
 
 #define TEMP_MAIL_BODY_ITEM   "TempBody"
-
-void PrintAPIError (STATUS);
  
 
 /************************************************************************
@@ -343,8 +342,10 @@ Done1:
     NSFDbClose(hMailBox);
 
 Done:
-    if (error)
-        PrintAPIError (error);  
+	if (error)
+	{
+		PRINTERROR(error, "NSFDbOpen");
+	}
     else
     {
         printf ("%s: successfully deposited memo '%s' in '%s'.\n",
@@ -355,34 +356,3 @@ Done:
     NotesTerm();
     return (error); 
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

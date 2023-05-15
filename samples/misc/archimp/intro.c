@@ -29,6 +29,7 @@ SYNTAX:     intro  [server name - optional] <database filename>
 #include "nsfdata.h"
 #include "osmisc.h"
 #include "osfile.h"
+#include "PRINTLOG.h"
 #if defined(OS390)
 #include "lapicinc.h"
 #endif
@@ -79,7 +80,7 @@ int main(int argc, char *argv[])
 #endif
 	if((ArgNum < 2) || (ArgNum >3))
 	{
-		printf( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
+		PRINTLOG( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
 		return (0);
 	}
 
@@ -140,9 +141,9 @@ int main(int argc, char *argv[])
 	OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXWORD, XLATE_path_name, sizeof(XLATE_path_name));
 
 	OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, title, MAXWORD, XLATE_title, sizeof(XLATE_title));
-	printf ("\n\n\nThe title for the database %s is...\n\n%s\n", XLATE_path_name, XLATE_title);
+	PRINTLOG ("\n\n\nThe title for the database %s is...\n\n%s\n", XLATE_path_name, XLATE_title);
 #else
-	printf ("\n\n\nThe title for the database, %s, is:\n\n%s\n\n", path_name, title);
+	PRINTLOG ("\n\n\nThe title for the database, %s, is:\n\n%s\n\n", path_name, title);
 #endif /* OS390, ebcdic compile */
 
 	/* Close the database. */

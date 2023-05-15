@@ -80,6 +80,7 @@
 #include <mailserv.h>                   /* MailOpenMessageFile */
 #include <neterr.h>                     /* ERR_NO_NETBIOS */
 #include <clerr.h>                      /* ERR_SERVER_NOT_RESPONDING */
+#include <printLog.h>
 
 #include <osmisc.h>
 
@@ -117,9 +118,6 @@ char          szSubject[MAIL_SUB_LEN+1];
 char          szBody[MAIL_BODY_LEN+1];
 int           BodyLen;
 
-/* function prototypes */
-
-void PrintAPIError (STATUS);
 
 /****************************************************************************
 
@@ -134,7 +132,7 @@ int main(int argc, char *argv[])
    status = NotesInitExtended (argc, argv);
    if (status) 
    {
-      printf("\nUnable to initialize Notes. Error Code[0x%04x]\n", status);
+      PRINTLOG("\nUnable to initialize Notes. Error Code[0x%04x]\n", status);
       return(1);
    }
 
@@ -145,14 +143,14 @@ int main(int argc, char *argv[])
 
    if (status != NOERROR) 
    {
-      PrintAPIError(status);
+      PRINTERROR(status,"SendMailMainProc");
       NotesTerm();
       return(status);
    }
 
    status = PrintMail(szMailServerName);
    if (status) 
-      PrintAPIError(status);
+      PRINTERROR(status,"PrintMail");
 
    NotesTerm();
    return(status);
@@ -176,7 +174,7 @@ int SendMailMainProc()
   /* Get user's name and initialize "From" field. */
   if (status = SECKFMGetUserName(szFrom))
     {  /* Unable to get user name. */
-      printf ("\nError: unable to get user name.\n");
+      PRINTLOG ("\nError: unable to get user name.\n");
       return(status);
     }
 
@@ -186,7 +184,7 @@ int SendMailMainProc()
                   &tdDate, szDate, MAXALPHATIMEDATE,
                   (WORD FAR*)&wDateLen))
     {   /* Unable to initialize date field */
-      printf ("\nError: unable to initialize Date field.\n");
+      PRINTLOG ("\nError: unable to initialize Date field.\n");
       return(status);
     }
   
@@ -284,7 +282,7 @@ int SendMail()
   if (!OSGetEnvironmentString(MAIL_MAILSERVER_ITEM, /*"MailServer"*/
                szMailServerName, MAXUSERNAME))
     {   /* Unable to get mail server name */
-      printf ("\nError: unable to get mail server name.\n");
+      PRINTLOG ("\nError: unable to get mail server name.\n");
       return(status);
     }
   
@@ -309,8 +307,7 @@ int SendMail()
       status = NOERROR;
 
       /* Ask user if they would like to deliver msg to local MAIL.BOX */
-      printf("Would you like to deliver the mail message to your local Mail Box (YES/NO)?: ");      
-      fflush (stdout);
+      PRINTLOG("Would you like to deliver the mail message to your local Mail Box (YES/NO)?: ");      
       gets(szLocalMailBox);
        
       /* Unable to reach Mail Server. Save in local MAIL.BOX? */
@@ -328,13 +325,13 @@ int SendMail()
   
   if (status)
     { /* Unable to open user's Domino and Notes mail file */
-      printf ("\nError: unable to open user's mail file.\n");
+      PRINTLOG ("\nError: unable to open user's mail file.\n");
       return(status);
     }
 
   if (status = MailCreateMessage(hMailFile, &hMsg))
     { /* Unable to create memo in mail file */
-      printf ("\nError: unable to create memo in mail file.\n");
+      PRINTLOG ("\nError: unable to create memo in mail file.\n");
       error=SENDMAILERROR;
       goto CloseFile;
     }
@@ -342,7 +339,7 @@ int SendMail()
   if (status = ListAllocate(0, 0, TRUE, &hRecipientsList,
              &plistRecipients, &wRecipientsSize))
     {  /* Unable to allocate list */
-      printf ("\nError: unable to allocate list.\n");
+      PRINTLOG ("\nError: unable to allocate list.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -351,7 +348,7 @@ int SendMail()
   if (status = ListAllocate(0, 0, TRUE, &hSendToList,
              &plistSendTo, &wSendToSize))
     {
-      printf ("\nError: unable to allocate list.\n");
+      PRINTLOG ("\nError: unable to allocate list.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -360,15 +357,14 @@ int SendMail()
   if (status = ListAllocate(0, 0, TRUE, &hCopyToList,
              &plistCopyTo, &wCopyToSize))
     {
-      printf ("\nError: unable to allocate list.\n");
+      PRINTLOG ("\nError: unable to allocate list.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
   OSUnlockObject(hCopyToList);
 
   /* Parse SendTo string. Add names to SendTo and Recipients lists. */
-  printf("\nSend To mailIDs:%s", szSendTo);
-  fflush(stdout);
+  PRINTLOG("\nSend To mailIDs:%s", szSendTo);
   for (szNextName = strtok(szSendTo, ",");
        szNextName != (char*)NULL;
        szNextName = strtok(NULL, ","))
@@ -381,7 +377,7 @@ int SendMail()
                                 wSendToCount++, szNextName,
                                 (WORD)strlen(szNextName)))
         {   /* Unable to add name to SendTo list */
-           printf ("\nError: unable to add name to SendTo list.\n");
+           PRINTLOG ("\nError: unable to add name to SendTo list.\n");
            error=SENDMAILERROR;
            goto CloseMsg;
         }
@@ -390,7 +386,7 @@ int SendMail()
                                 wRecipientsCount++, szNextName,
                                 (WORD)strlen(szNextName)))
         {   /* Unable to add name to Recipients list */
-           printf ("\nError: unable to add name to Recipients list.\n");
+           PRINTLOG ("\nError: unable to add name to Recipients list.\n");
            error=SENDMAILERROR;
            goto CloseMsg;
         }
@@ -398,8 +394,7 @@ int SendMail()
   
   /* Parse CopyTo string. Add names to CopyTo and Recipients list. */
   
-  printf("\nCopy To mailIDs:%s", szCopyTo);
-  fflush(stdout);
+  PRINTLOG("\nCopy To mailIDs:%s", szCopyTo);
   for (szNextName = strtok(szCopyTo, ",");
        szNextName != (char*)NULL;
        szNextName = strtok(NULL, ","))
@@ -411,7 +406,7 @@ int SendMail()
                                 wCopyToCount++, szNextName,
                                 (WORD)strlen(szNextName)))
         { /* Unable to add name to CopyTo list */
-          printf ("\nError: unable to add name to CopyTo list.\n");
+          PRINTLOG ("\nError: unable to add name to CopyTo list.\n");
           error=SENDMAILERROR;
           goto CloseMsg;
         }
@@ -421,7 +416,7 @@ int SendMail()
                                 (WORD)strlen(szNextName)))
         
         {
-          printf ("\nError: unable to add name to Recipients list.\n");
+          PRINTLOG ("\nError: unable to add name to Recipients list.\n");
           error=SENDMAILERROR;
           goto CloseMsg;
         }
@@ -438,7 +433,7 @@ int SendMail()
   /* Add the Recipients item to the message. */
   if (wRecipientsCount == 0)  /* Mail memo has no recipients. */
     {
-      printf ("\nError: mail message has no recipients.\n");
+      PRINTLOG ("\nError: mail message has no recipients.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -447,7 +442,7 @@ int SendMail()
                  wRecipientsSize))
     {
       /* Unable to set Recipient item in memo */
-      printf ("\nError: unable to set Recipient item in memo.\n");
+      PRINTLOG ("\nError: unable to set Recipient item in memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -463,7 +458,7 @@ int SendMail()
   if (status = MailAddHeaderItemByHandle( hMsg, MAIL_SENDTO_ITEM_NUM,
                 hSendToList, wSendToSize, 0))
     {  /* Unable to set SendTo item in memo */
-      printf ("\nError: unable to set SendTo item in memo.\n");
+      PRINTLOG ("\nError: unable to set SendTo item in memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -472,7 +467,7 @@ int SendMail()
   if (status = MailAddHeaderItemByHandle( hMsg, MAIL_COPYTO_ITEM_NUM,
                 hCopyToList, wCopyToSize, 0))
     { /* Unable to set CopyTo item in memo */
-      printf ("\nError: unable to set CopyTo item in memo.\n");
+      PRINTLOG ("\nError: unable to set CopyTo item in memo.\n");
       goto CloseMsg;
     }
   hCopyToList = NULLHANDLE;
@@ -482,7 +477,7 @@ int SendMail()
              MAIL_MEMO_FORM,
              (WORD)strlen(MAIL_MEMO_FORM)))
     { /* Unable to set Form item in memo  */
-      printf ("\nError: unable to set Form item in memo.\n");
+      PRINTLOG ("\nError: unable to set Form item in memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -491,26 +486,24 @@ int SendMail()
   if (status = MailAddHeaderItem( hMsg, MAIL_FROM_ITEM_NUM,
              szFrom, (WORD)strlen(szFrom)))
     { /* Unable to set From item in memo */
-      printf ("\nError: unable to set From item in memo.\n");
+      PRINTLOG ("\nError: unable to set From item in memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
-  printf("\nSubject:%s", szSubject);
-  fflush(stdout);
+  PRINTLOG("\nSubject:%s", szSubject);
   if (status = MailAddHeaderItem( hMsg, MAIL_SUBJECT_ITEM_NUM,
              szSubject, (WORD)strlen(szSubject)))
     { /* Unable to set Subject item in memo */
-      printf ("\nError: unable to set Subject item in memo.\n");
+      PRINTLOG ("\nError: unable to set Subject item in memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
   
-  printf("\nPriority:%s", szPriority);
-  fflush(stdout);
+  PRINTLOG("\nPriority:%s", szPriority);
   if (status = MailAddHeaderItem( hMsg, MAIL_DELIVERYPRIORITY_ITEM_NUM,
             szPriority, (WORD)strlen(szPriority)))
     { /* Unable to set Delivery Priority item in memo */
-      printf ("\nError: unable to set Delivery Priority item in memo.\n");
+      PRINTLOG ("\nError: unable to set Delivery Priority item in memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -518,7 +511,7 @@ int SendMail()
   if (status = MailAddHeaderItem( hMsg, MAIL_DELIVERYREPORT_ITEM_NUM,
             szReport, (WORD)strlen(szReport)))
     { /* Unable to set Delivery Report into memo */
-      printf ("\nError: unable to set Delivery Report item in memo.\n");
+      PRINTLOG ("\nError: unable to set Delivery Report item in memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -528,31 +521,30 @@ int SendMail()
              (char*)(&tdDate),
              (WORD)sizeof(TIMEDATE)))
     { /* Unable to set Composed Date in memo */
-      printf ("\nError: unable to set Composed Date item in memo.\n");
+      PRINTLOG ("\nError: unable to set Composed Date item in memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
   
   if (status = MailCreateBodyItem (&hBodyItem, &dwBodyItemLen))
     { /* Unable to create body item in message */
-      printf ("\nError: unable to create body item in memo.\n");
+      PRINTLOG ("\nError: unable to create body item in memo.\n");
       hBodyItem = NULLHANDLE;
       error=SENDMAILERROR;
       goto CloseMsg;
     }
-  printf("\nBody:%s", szBody);
-  fflush(stdout);
+  PRINTLOG("\nBody:%s", szBody);
   if (status = MailAppendBodyItemLine (hBodyItem, &dwBodyItemLen,
                    szBody, (WORD)BodyLen))
     { /* Unable to append text to body */
-      printf ("\nError: unable to append text to body.\n");
+      PRINTLOG ("\nError: unable to append text to body.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
 
   if (status = MailAddBodyItemExt(hMsg, hBodyItem, dwBodyItemLen, NULL))
     { /* Unable to add Body item to memo */
-      printf ("\nError: unable to add body item to memo.\n");
+      PRINTLOG ("\nError: unable to add body item to memo.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -563,7 +555,7 @@ int SendMail()
              (char*)(&tdDate),
              (WORD)sizeof(TIMEDATE)))
     {
-      printf ("\nError: unable to set date.\n");
+      PRINTLOG ("\nError: unable to set date.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -575,7 +567,7 @@ int SendMail()
       if (status = MailTransferMessageLocal(hMsg))
         {
            /* Unable to transfer message to local mail box */
-          printf ("\nError: unable to transfer message to local mail box.\n");
+          PRINTLOG ("\nError: unable to transfer message to local mail box.\n");
           error=SENDMAILERROR;
           goto CloseMsg;
         }
@@ -583,7 +575,7 @@ int SendMail()
       /* Save msg to user's mail file and clean up.*/
       if (status = NSFNoteUpdate(hMsg, UPDATE_NOCOMMIT))
         {   /* Unable to update message in local mail file */
-          printf ("\nError: unable to update message in local mail box.\n");
+          PRINTLOG ("\nError: unable to update message in local mail box.\n");
           error=SENDMAILERROR;
         }
       goto CloseMsg;
@@ -596,7 +588,7 @@ int SendMail()
   
   if (status = NSFDbOpen(szMailBoxPath, &hMailBox))
     {
-      printf ("\nError: unable to open mail box.\n");
+      PRINTLOG ("\nError: unable to open mail box.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -616,7 +608,7 @@ int SendMail()
   if (status = NSFDbGenerateOID (hMailBox, &NewNoteOID))
     {
       /* Unable to generate originator ID for mail box */
-      printf ("\nError: unable to generate id for mail box.\n");
+      PRINTLOG ("\nError: unable to generate id for mail box.\n");
       error=SENDMAILERROR;
       goto CloseMsg;
     }
@@ -628,7 +620,7 @@ int SendMail()
   if (status = NSFNoteUpdate(hMsg, UPDATE_NOCOMMIT))
     {
       /* Unable to update message to router mail box */
-      printf ("\nError: unable to update message to router mail box.\n");
+      PRINTLOG ("\nError: unable to update message to router mail box.\n");
       error=SENDMAILERROR;
     }
   else/* message successfully copied into router's mail box */
@@ -647,13 +639,13 @@ CloseMsg:
   if (hCopyToList != NULLHANDLE)      OSMemFree(hCopyToList);
   
   if (status) 
-      PrintAPIError(status);
+      PRINTERROR(status,"NSFDbGenerateOID ");
 
   if (error == NOERROR)
     {
       if (status = MailCloseMessage(hMsg))
       { /* Unable to close memo */
-          printf ("\nError: unable to close memo.\n");
+          PRINTLOG ("\nError: unable to close memo.\n");
           error=SENDMAILERROR;
       }
       else
@@ -673,7 +665,7 @@ CloseFile:
     {
       if (status = MailCloseMessageFile(hMailFile))
         { /* Unable to close mail file. */
-          printf ("\nError: unable to close mail file.\n");
+          PRINTLOG ("\nError: unable to close mail file.\n");
           error=SENDMAILERROR;
         }
     }
@@ -684,8 +676,7 @@ CloseFile:
 
   if (error == NOERROR)
     /* SendMail Success */
-    printf ("\nSendMail successful.\n");
-    fflush(stdout);
+    PRINTLOG ("\nSendMail successful.\n");
 
   return(status);
 }
@@ -823,7 +814,7 @@ STATUS PrintMail(char *szServerName)
     /* Open the message file. */
     if (error = MailOpenMessageFile(szMailFilePath, &hMessageFile))
     {
-        printf ("Error: unable to open '%s'.\n", szMailFilePath);
+        PRINTLOG ("Error: unable to open '%s'.\n", szMailFilePath);
         goto Exit0;
     }
  
@@ -832,12 +823,11 @@ STATUS PrintMail(char *szServerName)
     if (error = MailCreateMessageList(hMessageFile,
                         &hMessageList, &MessageList, &MessageCount))
     {
-        printf ("Error: unable to create message list.\n");
+        PRINTLOG ("Error: unable to create message list.\n");
         goto Exit1;
     }
   
-    printf ("Mail file contains %d message(s).\n", MessageCount);
-    fflush(stdout);
+    PRINTLOG ("Mail file contains %d message(s).\n", MessageCount);
   
     /* Print out each of the outbound messages. */
   
@@ -846,19 +836,18 @@ STATUS PrintMail(char *szServerName)
       if (error = MailGetMessageInfo(MessageList, Msg,
             &RecipientCount, NULL, NULL))
       {
-        printf("Error: unable to get number of recipients in message.\n");
+        PRINTLOG("Error: unable to get number of recipients in message.\n");
         MailCloseMessage(hMessage);
         goto Exit2;
       }
    
       if (RecipientCount > 0)           /*To print mails which are sent*/
       {
-         printf("\nMessage #%d: \n", ++MsgNum);
-         fflush(stdout);
+         PRINTLOG("\nMessage #%d: \n", ++MsgNum);
         
          if (error = MailOpenMessage(MessageList, Msg, &hMessage))
          {
-             printf("Error: unable to open message number %d.\n", Msg + 1);
+             PRINTLOG("Error: unable to open message number %d.\n", Msg + 1);
              goto Exit2;
          }
         
@@ -866,17 +855,15 @@ STATUS PrintMail(char *szServerName)
          if (error = MailGetMessageOriginator(MessageList, Msg,
                   Originator, sizeof(Originator) - 1, &OriginatorLength))
          {
-              printf("Error: unable to get message originator.\n");
+              PRINTLOG("Error: unable to get message originator.\n");
               goto Exit2;
          }
         
          Originator[OriginatorLength] = '\0';
         
-         printf("\tOriginator = '%s'\n", Originator);
-         fflush(stdout);
+         PRINTLOG("\tOriginator = '%s'\n", Originator);
         
-         printf("\tNumber of Recipients = %d.\n", RecipientCount);
-         fflush(stdout);
+         PRINTLOG("\tNumber of Recipients = %d.\n", RecipientCount);
        
          for (Rec = 0; Rec < RecipientCount; Rec++)
          {
@@ -888,9 +875,8 @@ STATUS PrintMail(char *szServerName)
              UserName[UserNameLength] = '\0';
              DomainName[DomainNameLength] = '\0';
 
-             printf("\t\tRecipient %d = '%s'\t Domain = '%s'\n", Rec + 1,
+             PRINTLOG("\t\tRecipient %d = '%s'\t Domain = '%s'\n", Rec + 1,
                  UserName, DomainName);
-             fflush(stdout);
          }   /* end of loop over recipients */
         
          /* SendTo */
@@ -898,30 +884,26 @@ STATUS PrintMail(char *szServerName)
             MAXSPRINTF, &StringLength);
         
          String[StringLength] = '\0';
-         printf("\tTo: %s\n", String);
-         fflush(stdout);
+         PRINTLOG("\tTo: %s\n", String);
  
          /* CopyTo */
          MailGetMessageItem(hMessage, MAIL_COPYTO_ITEM_NUM, String,
             MAXSPRINTF, &StringLength);
          String[StringLength] = '\0';
-         printf("\tCc: %s\n", String);
-         fflush(stdout);
+         PRINTLOG("\tCc: %s\n", String);
         
          /* From */
          MailGetMessageItem(hMessage, MAIL_FROM_ITEM_NUM, String,
              MAXSPRINTF, &StringLength);
          String[StringLength] = '\0';
-         printf("\tFrom: %s\n", String);
-         fflush(stdout);
+         PRINTLOG("\tFrom: %s\n", String);
 
          /* PostedDate */
          MailGetMessageItemTimeDate(hMessage, MAIL_POSTEDDATE_ITEM_NUM, &Time);
          ConvertTIMEDATEToText(NULL, NULL, &Time, String,
              sizeof(String) - 1, &StringLength);
          String[StringLength] = '\0';
-         printf("\tDate: %s\n", String);
-         fflush(stdout);
+         PRINTLOG("\tDate: %s\n", String);
         
          /* Subject. If non-delivery report, prefix with "NonDelivery of:" */
         
@@ -930,13 +912,11 @@ STATUS PrintMail(char *szServerName)
          String[StringLength] = '\0';
          if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
          {
-             printf("\tNonDelivery of: %s\n", String);
-             fflush(stdout);
+             PRINTLOG("\tNonDelivery of: %s\n", String);
          }
          else
          {
-             printf("\tSubject: %s\n", String);
-             fflush(stdout);
+             PRINTLOG("\tSubject: %s\n", String);
          }
          
          if (NonDeliveryReport)
@@ -944,21 +924,19 @@ STATUS PrintMail(char *szServerName)
              MailGetMessageItem(hMessage, MAIL_INTENDEDRECIPIENT_ITEM_NUM,
                 String, sizeof(String), &StringLength);
              String[StringLength] = '\0';
-             printf("\tIntended Recipients: %s\n", String);
-             fflush(stdout);
+             PRINTLOG("\tIntended Recipients: %s\n", String);
              
              MailGetMessageItem(hMessage, MAIL_FAILUREREASON_ITEM_NUM,
                 String, sizeof(String), &StringLength);
              String[StringLength] = '\0';
-             printf("\tFailure Reason: %s\n", String);
-             fflush(stdout);
+             PRINTLOG("\tFailure Reason: %s\n", String);
          }
          
          /* Body */
           
          if (error = GetUniqueFileName(szDriveLetter_blank, szExtensionName_TMP, BodyFileName))
          {
-              printf("Error: unable to create temporary file name.\n");
+              PRINTLOG("Error: unable to create temporary file name.\n");
               MailCloseMessage(hMessage);
               goto Exit2;
          }
@@ -970,7 +948,7 @@ STATUS PrintMail(char *szServerName)
                  BodyFileName,
                  &BodyFileSize))
          {
-              printf("Error: unable to get Message body into temporary file.\n");
+              PRINTLOG("Error: unable to get Message body into temporary file.\n");
 #ifdef LINUX
               unlink(BodyFileName);
 #else
@@ -988,16 +966,16 @@ STATUS PrintMail(char *szServerName)
          if (!(BodyFile = fopen(BodyFileName, "r")))
 #endif
          {
-               printf("Error: unable to open temporary file.\n");
+               PRINTLOG("Error: unable to open temporary file.\n");
                unlink(BodyFileName);
                MailCloseMessage(hMessage);
                goto Exit2;
          }
             
-         printf("\tBody:\n");
+         PRINTLOG("\tBody:\n");
          while (fgets(String, READMAIL_BODY_LINELEN, BodyFile))
          {
-             printf("\t\t%s\n", String);
+             PRINTLOG("\t\t%s\n", String);
          }
          fclose(BodyFile);
          unlink(BodyFileName);
@@ -1019,12 +997,13 @@ Exit1:
     if (hMessageFile != NULLHANDLE)
         MailCloseMessageFile(hMessageFile);
 Exit0:
-    if (ERR(error))
-       PrintAPIError(error);
+	if (ERR(error))
+	{
+		PRINTERROR(error, "MailOpenMessageFile");
+	}
     else 
     {
-       printf("\nProgram completed successfully.\n");
-       fflush(stdout);
+       PRINTLOG("\nProgram completed successfully.\n");
     }
      
     return(NOERROR);
@@ -1099,30 +1078,3 @@ STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
 }
 
 #endif
-
-/************************************************************************
-   This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. 
-*************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
-

@@ -54,6 +54,7 @@
 #include <nif.h>
 #include <idtable.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -64,8 +65,6 @@
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[], 
                              char *db_name, char *query);
-
-void PrintAPIError (STATUS);
 
 
 int main(int argc, char *argv[])
@@ -107,7 +106,7 @@ int main(int argc, char *argv[])
 
    if (error = NotesInitExtended (argc, argv))
    {
-      printf("\n Unable to initialize Notes.\n");
+      PRINTLOG("\n Unable to initialize Notes.\n");
       return (1);
    }
 
@@ -125,12 +124,12 @@ int main(int argc, char *argv[])
    if (error = FTIndex(hDB, FT_INDEX_AUTOOPTIONS, NULL, &Stats))
       goto exitCloseDB; 
 
-   printf ("Database:  %s\n", DBName);
-   printf ("------------------------------------------------\n\n");
-   printf("New documents added to index: %lu\n", Stats.DocsAdded);
-   printf("Revised documents re-indexed: %lu\n", Stats.DocsUpdated);
-   printf("Documents deleted from index: %lu\n", Stats.DocsDeleted);
-   printf("%lu bytes indexed\n\n", Stats.BytesIndexed);
+   PRINTLOG ("Database:  %s\n", DBName);
+   PRINTLOG ("------------------------------------------------\n\n");
+   PRINTLOG("New documents added to index: %lu\n", Stats.DocsAdded);
+   PRINTLOG("Revised documents re-indexed: %lu\n", Stats.DocsUpdated);
+   PRINTLOG("Documents deleted from index: %lu\n", Stats.DocsDeleted);
+   PRINTLOG("%lu bytes indexed\n\n", Stats.BytesIndexed);
 
    /* Report the date/time that this database was indexed */
 
@@ -142,7 +141,7 @@ int main(int argc, char *argv[])
                                       MAXALPHATIMEDATE, &wRetLen))
       goto exitCloseDB; 
 
-   printf ("Time of Last Index:  %s\n\n", szTD);
+   PRINTLOG ("Time of Last Index:  %s\n\n", szTD);
 
    /* ********************************************* */
    /* obtain a handle to a search                   */
@@ -174,7 +173,7 @@ int main(int argc, char *argv[])
    /* return if no document in the result */
    if (dwRetDocs == 0 )
    {
-      printf("\n0 documents returned \n");
+      PRINTLOG("\n0 documents returned \n");
       goto exitCloseSearch;
    }
 
@@ -188,7 +187,7 @@ int main(int argc, char *argv[])
    {
       OSUnlockObject(hSearchResults);
       OSMemFree (hSearchResults);
-      printf("\nThis sample only support single search\n");
+      PRINTLOG("\nThis sample only support single search\n");
       goto exitCloseSearch;
    }  
 
@@ -209,20 +208,20 @@ int main(int argc, char *argv[])
    pNoteID = (NOTEID *) (((char *) pSearchResults)
        + sizeof(FT_SEARCH_RESULTS));
  
-   printf ("This is a Single Database Search...\n"); 
-   printf ("-------------------------------------\n"); 
-   printf ("%lu document(s) found on the query:  %s\n\n", 
+   PRINTLOG ("This is a Single Database Search...\n"); 
+   PRINTLOG ("-------------------------------------\n"); 
+   PRINTLOG ("%lu document(s) found on the query:  %s\n\n", 
            pSearchResults->NumHits, Query);
  
    if (pSearchResults->NumHits)
    {
-      printf ("Note IDs        Relevancy Scores\n");
-      printf ("--------        ----------------\n");
+      PRINTLOG ("Note IDs        Relevancy Scores\n");
+      PRINTLOG ("--------        ----------------\n");
    }
    pScores = (BYTE *) (pNoteID + pSearchResults->NumHits);
    for (i = 0; i < pSearchResults->NumHits; i++, pNoteID++, pScores++)
    {
-      printf ("%lX             %3d\n", *pNoteID, *pScores);
+      PRINTLOG ("%lX             %3d\n", *pNoteID, *pScores);
 
       /* save the note ids in the IDTABLE */
 
@@ -282,7 +281,7 @@ int main(int argc, char *argv[])
    /* return if no document in the result */
    if (dwRetDocs == 0 )
    {
-      printf("\n0 documents returned \n");
+      PRINTLOG("\n0 documents returned \n");
       IDDestroyTable (hIDTable);
       goto exitCloseSearch;
    }
@@ -295,16 +294,16 @@ int main(int argc, char *argv[])
 
    pNoteID = (NOTEID *) (((char *) pSearchResults)
            + sizeof(FT_SEARCH_RESULTS));
-   printf ("\n%lu document(s) found on the refined query\n", 
+   PRINTLOG ("\n%lu document(s) found on the refined query\n", 
            pSearchResults->NumHits);
    if (pSearchResults->NumHits)
    {
-      printf ("Note IDs        Relevancy Scores\n");
-      printf ("--------        ----------------\n");
+      PRINTLOG ("Note IDs        Relevancy Scores\n");
+      PRINTLOG ("--------        ----------------\n");
    }
    pScores = (BYTE *) (pNoteID + pSearchResults->NumHits);
    for (i = 0; i < pSearchResults->NumHits; i++, pNoteID++, pScores++)
-      printf ("%lX             %3d\n", *pNoteID, *pScores);
+      PRINTLOG ("%lX             %3d\n", *pNoteID, *pScores);
 
    OSUnlockObject (hSearchResults);
    OSMemFree (hSearchResults);
@@ -373,7 +372,7 @@ int main(int argc, char *argv[])
    /* return if no document in the result */
    if (dwRetDocs == 0 )
    {
-      printf("\n0 documents returned \n");
+      PRINTLOG("\n0 documents returned \n");
       goto exitCloseCollection;
    }
 
@@ -413,7 +412,7 @@ int main(int argc, char *argv[])
 
       if (hBuffer == NULLHANDLE)
       {
-         printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+         PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
          goto exitCloseCollection;
       }
 	 
@@ -425,19 +424,19 @@ int main(int argc, char *argv[])
 	
       if (FirstTime)
       {
-         printf ("\n The following document(s) were found on the query ");
-         printf ("of the view,\n%s\n", VIEW_NAME);
-         printf ("Note IDs        Relevancy Scores\n");
-         printf ("--------        ----------------\n");
+         PRINTLOG ("\n The following document(s) were found on the query ");
+         PRINTLOG ("of the view,\n%s\n", VIEW_NAME);
+         PRINTLOG ("Note IDs        Relevancy Scores\n");
+         PRINTLOG ("--------        ----------------\n");
          FirstTime = FALSE;		
       }
-	  printf("total entries : %d ", EntriesFound);
+	  PRINTLOG("total entries : %d ", EntriesFound);
       for (i=0; i<EntriesFound; i++)
       {
-         printf ("%lX            ", *((NOTEID *)IdList));
+         PRINTLOG ("%lX            ", *((NOTEID *)IdList));
          /* advance IdList to point to the relevancy score */
          IdList = (WORD *) (((char *)IdList) + sizeof(NOTEID));
-         printf ("%3d\n", *IdList);
+         PRINTLOG ("%3d\n", *IdList);
          /* advance to the next note ID */
          IdList = (WORD *) (((char *)IdList) + sizeof(WORD));
       }
@@ -447,7 +446,7 @@ int main(int argc, char *argv[])
       /* When done, print the total number of entries found */
 	
       if ( !(SignalFlag & SIGNAL_MORE_TO_DO) )
-         printf ("\n%lu document(s) found on the query of the view, %s\n", 
+         PRINTLOG ("\n%lu document(s) found on the query of the view, %s\n", 
                  Total, VIEW_NAME);
 
       /* Unlock the list of IDs. */
@@ -478,7 +477,7 @@ exitCloseDB:
 
 exit0:
    if (error) 
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFDbOpen");
    NotesTerm();
    return(error);
 }
@@ -517,29 +516,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         strcpy(query, argv[2]);    
     } /* end if */
 } /* ProcessArgs */
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

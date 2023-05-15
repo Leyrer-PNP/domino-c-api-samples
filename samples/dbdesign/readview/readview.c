@@ -33,6 +33,7 @@
 #if defined(OS400)
 #include <misc.h>
 #endif
+#include <printLog.h>
 
 
 /*
@@ -44,8 +45,6 @@
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -116,11 +115,11 @@ int main(int argc, char *argv[])
     /* Domino and Notes initialization */
     if (sError = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
       
-    printf("");
+    PRINTLOG("");
     fflush(stdout);
 
     /*
@@ -130,7 +129,7 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen(szFileName, &hDB))
     {
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFDbOpen");  
         NotesTerm();
         return (1);
     }
@@ -138,7 +137,7 @@ int main(int argc, char *argv[])
     if (sError = NIFFindView(hDB, szViewName, &ViewNoteID))
     {
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError, "NIFFindView");
         NotesTerm();
         return (1);
     }
@@ -146,7 +145,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteOpen(hDB, ViewNoteID, 0, &hNote))
     {
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteOpen");  
         NotesTerm();
         return (1);
     }
@@ -166,7 +165,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFItemInfo");  
         NotesTerm();
         return (1);
     }
@@ -180,7 +179,7 @@ int main(int argc, char *argv[])
 
     memmove(szTitleString, pData, (int) (dwLength - sizeof(WORD)));
     szTitleString[dwLength - sizeof(WORD)] = '\0';    
-    printf ( "View Title:  %s\n", szTitleString);
+    PRINTLOG ( "View Title:  %s\n", szTitleString);
     OSUnlockBlock(ValueBlockID);
 
     /*
@@ -197,13 +196,13 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"ConvertTIMEDATEToText");  
         NotesTerm();
         return (1);
     }
                                        
     szTimeDate[wStringLen]='\0';
-    printf ( "Date/Time of last modification:  %s\n",
+    PRINTLOG ( "Date/Time of last modification:  %s\n",
               szTimeDate);
 
     /*
@@ -215,7 +214,7 @@ int main(int argc, char *argv[])
                                              VIEW_FORMULA_TIME_ITEM,
                                              sizeof(VIEW_FORMULA_TIME_ITEM) -1);
                                           
-    printf ( "Time relative formulae %s exist in this view.\n", 
+    PRINTLOG ( "Time relative formulae %s exist in this view.\n", 
             (bTimeRelativeFormulae) ? "DO" : "DO NOT");
 
 
@@ -235,7 +234,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFItemInfo");  
         NotesTerm();
         return (1);
     }
@@ -257,7 +256,7 @@ int main(int argc, char *argv[])
         OSUnlockBlock(ValueBlockID);
         NSFNoteClose(hNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFItemInfo");  
         NotesTerm();
         return (1);
     }
@@ -304,7 +303,7 @@ int main(int argc, char *argv[])
              *  Column number
              */
 
-            printf ( "\nColumn %d of %d\n", wColumn, pTableFormat->Columns );
+            PRINTLOG ( "\nColumn %d of %d\n", wColumn, pTableFormat->Columns );
 
             /*
              * Print Item Name, then advance data pointer
@@ -313,7 +312,7 @@ int main(int argc, char *argv[])
 
             memmove(szColTitle, pPackedData,pColumnFormat->ItemNameSize); 
             szColTitle[pColumnFormat->ItemNameSize] = '\0';    
-            printf ( "\t\tItem Name:                  %s\n", szColTitle );
+            PRINTLOG ( "\t\tItem Name:                  %s\n", szColTitle );
             pPackedData += pColumnFormat->ItemNameSize;
 
             /*
@@ -322,7 +321,7 @@ int main(int argc, char *argv[])
 
             memmove(szColTitle, pPackedData, pColumnFormat->TitleSize);
             szColTitle[pColumnFormat->TitleSize] = '\0';    
-            printf ( "\t\tTitle:                      \"%s\"\n", szColTitle);
+            PRINTLOG ( "\t\tTitle:                      \"%s\"\n", szColTitle);
             pPackedData += pColumnFormat->TitleSize;
 
             /*
@@ -340,11 +339,11 @@ int main(int argc, char *argv[])
                                   
                 if (sError)
                 {
-                    printf ( "\n# Error Decompiling Formula\n");
+                    PRINTLOG ( "\n# Error Decompiling Formula\n");
                     OSUnlockBlock(ValueBlockID);
                     NSFNoteClose(hNote);
                     NSFDbClose(hDB);
-				    PrintAPIError (sError);  
+				    PRINTERROR (sError,"NSFFormulaDecompile");  
 					NotesTerm();
 				    return (1);
                 }
@@ -367,7 +366,7 @@ int main(int argc, char *argv[])
                     memmove(pTemp, pFormulaText, (int) wFormulaTextLen);                    
                     pTemp[wFormulaTextLen] = '\0';    
 
-                    printf ( "\t\tFormula:                    %s\n", pTemp);
+                    PRINTLOG ( "\t\tFormula:                    %s\n", pTemp);
                     free (pTemp);
                 }
             
@@ -386,21 +385,21 @@ int main(int argc, char *argv[])
              *  See if this column is a sort key or not.
              */
 
-            printf ("\t\tSort Key:                   %s\n", 
+            PRINTLOG ("\t\tSort Key:                   %s\n", 
                (pColumnFormat->Flags1 & VCF1_M_Sort) ? "YES" : "NO");
 
             /*
              *  See if this column is a category  or not.
              */
 
-            printf ("\t\tCategory:                   %s\n",
+            PRINTLOG ("\t\tCategory:                   %s\n",
                (pColumnFormat->Flags1 & VCF1_M_SortCategorize) ? "YES" : "NO");
 
             /*
              *  See how this column is sorted.
              */
 
-            printf ("\t\tSort Order:                 %s\n",
+            PRINTLOG ("\t\tSort Order:                 %s\n",
                (pColumnFormat->Flags1 & VCF1_M_SortDescending) ? "Descending" : "Ascending");
             
 
@@ -408,7 +407,7 @@ int main(int argc, char *argv[])
              *  See if this column is hidden.
              */
 
-            printf ("\t\tHidden:                     %s\n",
+            PRINTLOG ("\t\tHidden:                     %s\n",
                (pColumnFormat->Flags1 & VCF1_M_Hidden) ? "YES" : "NO");
             
 
@@ -416,7 +415,7 @@ int main(int argc, char *argv[])
              *  See if this column is a response column.
              */
 
-            printf ("\t\tResponse Column:            %s\n",
+            PRINTLOG ("\t\tResponse Column:            %s\n",
                (pColumnFormat->Flags1 & VCF1_M_Response) ? "YES" : "NO");
             
 
@@ -424,7 +423,7 @@ int main(int argc, char *argv[])
              *  See if this column shows details if it is a subtotaled column.
              */
 
-            printf ("\t\tHide Detail if Subtotaled:  %s\n",
+            PRINTLOG ("\t\tHide Detail if Subtotaled:  %s\n",
                (pColumnFormat->Flags1 & VCF1_M_HideDetail) ? "YES" : "NO");
             
 
@@ -432,7 +431,7 @@ int main(int argc, char *argv[])
              *  See if this column displays an icon INSTEAD of text as its title.
              */
 
-            printf ("\t\tDisplay Icon:               %s\n",
+            PRINTLOG ("\t\tDisplay Icon:               %s\n",
                (pColumnFormat->Flags1 & VCF1_M_Icon) ? "YES" : "NO");
             
 
@@ -440,14 +439,14 @@ int main(int argc, char *argv[])
              *  See if this column is resizable at runtime.
              */
 
-            printf ("\t\tResizable at Runtime:      %sresizable\n",
+            PRINTLOG ("\t\tResizable at Runtime:      %sresizable\n",
                (pColumnFormat->Flags1 & VCF1_M_NoResize) ? " NOT " : " ");
 
             /*
              *  See if this column is resortable at runtime.
              */
 
-            printf ("\t\tResortable at Runtime:     %sresortable\n",
+            PRINTLOG ("\t\tResortable at Runtime:     %sresortable\n",
                (pColumnFormat->Flags1 & VCF1_M_ResortDescending) ? " " : " NOT ");
 
             if (pColumnFormat->Flags1 & VCF1_M_ResortDescending)
@@ -456,7 +455,7 @@ int main(int argc, char *argv[])
                  *  See how this column is sorted, if resortable at runtime.
                  */
 
-                printf ("\t\tResortable Sort Order:      %s\n",
+                PRINTLOG ("\t\tResortable Sort Order:      %s\n",
                        (pColumnFormat->Flags1 & VCF1_S_ResortDescending) ? "Descending" : "Ascending");
             }
 
@@ -507,7 +506,7 @@ int main(int argc, char *argv[])
                     memmove(pTemp, pFormulaText, (int) wFormulaTextLen);
                     pTemp[wFormulaTextLen] = '\0';    
       
-                    printf ( "\n\nSelection View Formula: \"%s\"\n", pTemp);
+                    PRINTLOG ( "\n\nSelection View Formula: \"%s\"\n", pTemp);
                     free (pTemp);
                 } /* end if */
             
@@ -520,7 +519,7 @@ int main(int argc, char *argv[])
                 OSUnlockBlock(ValueBlockID);
                 NSFNoteClose(hNote);
                 NSFDbClose(hDB);
-                PrintAPIError (sError);  
+                PRINTERROR (sError,"NSFItemInfo");  
                 NotesTerm();
                 return (1);
             } /* end if */
@@ -529,7 +528,7 @@ int main(int argc, char *argv[])
         {
             NSFNoteClose(hNote);
             NSFDbClose(hDB);
-            PrintAPIError (sError);  
+            PRINTERROR (sError,"NSFItemInfo");  
             NotesTerm();
             return (1);
         } /* end if */
@@ -547,39 +546,8 @@ int main(int argc, char *argv[])
     /*
      * leave with no error
      */
-    printf("\nProgram completed successfully.\n");         
+    PRINTLOG("\nProgram completed successfully.\n");         
     NotesTerm();
     return (0);
 
 } /* main */
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}

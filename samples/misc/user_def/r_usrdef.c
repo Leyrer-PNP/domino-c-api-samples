@@ -36,6 +36,7 @@ extern "C" {
 #include <osmem.h>
 #include <nsferr.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 /* Local include files */
 
@@ -49,7 +50,6 @@ extern "C" {
 
 STATUS LNPUBLIC find_my_data (void *, SEARCH_MATCH *, ITEM_TABLE *);
 STATUS LNPUBLIC EnumProc(void far *, SEARCH_MATCH far *, ITEM_TABLE far *);
-void PrintAPIError (STATUS);
 
 /* Main HCL C API for Notes/Domino routine */
 
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     db_filename = (char *) malloc(STRING_LENGTH);
     if (db_filename == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         goto exit0;
     }
 
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
                 NULL);
     if ( error != NOERROR ) 
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFSearch");
         goto exitCloseDB;
     }
 
@@ -166,7 +166,7 @@ exitFreeDBFile:
 
 exit0:
     if (error)
-       PrintAPIError (error);
+       PRINTERROR (error,"(char *) malloc");
 
     NotesTerm();
     return(error);
@@ -211,7 +211,7 @@ STATUS LNPUBLIC find_my_data
 
     /* Print the note ID. */
 
-    printf ("\n\n***** Note ID is: %lX. *****\n", SearchMatch.ID.NoteID);
+    PRINTLOG ("\n\n***** Note ID is: %lX. *****\n", SearchMatch.ID.NoteID);
 
     /* Open the note. */
 
@@ -233,7 +233,7 @@ STATUS LNPUBLIC find_my_data
 
     if (ERR(error) == ERR_ITEM_NOT_FOUND)
     {
-		printf ("\nField %s was NOT found in this note.\n", MY_FIELD_NAME);
+		PRINTLOG ("\nField %s was NOT found in this note.\n", MY_FIELD_NAME);
         NSFNoteClose (note_handle);
         return (NOERROR);
     }
@@ -246,7 +246,7 @@ STATUS LNPUBLIC find_my_data
 
     /* Tell the user that we found the field. */
 
-    printf ("\nField %s was found in this note.\n", MY_FIELD_NAME);
+    PRINTLOG ("\nField %s was found in this note.\n", MY_FIELD_NAME);
 
     /* Convert the BLOCKID of the field value into a memory pointer. We will
     advance this pointer as we extract the parts of the field. */
@@ -270,7 +270,7 @@ STATUS LNPUBLIC find_my_data
     item_ptr += descrip_len;
 
     type_descrip[descrip_len] = '\0';
-    printf ("\nType description string is: %s.\n", type_descrip);
+    PRINTLOG ("\nType description string is: %s.\n", type_descrip);
 
     /* Figure out the length of the user-defined data. This length is the
     total length of the Domino and Notes field, minus the two-byte data 
@@ -283,9 +283,9 @@ STATUS LNPUBLIC find_my_data
 
     memcpy (user_data, item_ptr, user_data_len);
 
-    printf ("\nData is: ");
-    for (i=0; i<user_data_len; i++) printf ("%X", user_data[i]);
-    printf ("\n");
+    PRINTLOG ("\nData is: ");
+    for (i=0; i<user_data_len; i++) PRINTLOG ("%X", user_data[i]);
+    PRINTLOG ("\n");
 
     /* Unlock the memory block holding this field. */
 
@@ -299,31 +299,6 @@ STATUS LNPUBLIC find_my_data
     /* End of subroutine. */
 
     return (NOERROR);
-
-}
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
 
 }
 

@@ -37,13 +37,12 @@
 #include <editods.h>
 #include <editdflt.h>
 #include <fontid.h>
+#include <printLog.h>
 
 #include <osmisc.h>
               
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *db_filename); 
-                         
-void PrintAPIError (STATUS);
 
 #define  STRING_LENGTH  256
               
@@ -74,7 +73,7 @@ int main(int argc, char *argv[])
    
     if (error = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	}
 
@@ -83,20 +82,19 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen (szPathName, &hDB))
     {
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbOpen");  
         NotesTerm();
         return (1);
     } 
         
-    printf("\nOpened database: \"%s\"\n", szPathName); 
-    fflush(stdout);
+    PRINTLOG("\nOpened database: \"%s\"\n", szPathName); 
 
 /* Create a new data note. */
 
     if (error = NSFNoteCreate (hDB, &hNote))
     {
         NSFDbClose (hDB);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFNoteCreate");  
         NotesTerm();
         return (1);
     }
@@ -107,7 +105,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFItemSetText");  
         NotesTerm();
         return (1);
     }
@@ -119,7 +117,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFItemSetText");  
         NotesTerm();
         return (1);
     }
@@ -127,8 +125,7 @@ int main(int argc, char *argv[])
 /* Write a field named NUMBER to the note. */
 
         
-    printf("Appending number list.\n", szPathName); 
-    fflush(stdout);
+    PRINTLOG("Appending number list.\n", szPathName); 
     if (error = AppendNumberListField (
                      hNote, 
                      "NUMBER", 
@@ -137,19 +134,18 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (error);  
+        PRINTERROR (error,"AppendNumberListField");  
         NotesTerm();
         return (1);
     }    
         
-    printf("Updating and closing note.\n", szPathName); 
-    fflush(stdout);
+    PRINTLOG("Updating and closing note.\n", szPathName); 
 
     if (error = NSFNoteUpdate (hNote, 0))
     {
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFNoteUpdate");  
         NotesTerm();
         return (1);
     }
@@ -157,19 +153,19 @@ int main(int argc, char *argv[])
     if (error = NSFNoteClose (hNote))
     {
         NSFDbClose (hDB);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFNoteClose");  
         NotesTerm();
         return (1);
     }
 
     if (error = NSFDbClose (hDB))
 	{
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbClose");  
         NotesTerm();
         return (1);
 	}
 
-    printf("\nProgram completed successfully.\n"); 
+    PRINTLOG("\nProgram completed successfully.\n"); 
 
     NotesTerm();
     return (0); 
@@ -207,7 +203,7 @@ STATUS LNPUBLIC AppendNumberListField (
     
     if (pvoidItemValue == NULL)
     {
-        printf ("malloc failed\n");
+        PRINTLOG ("malloc failed\n");
         return (ERR(PKG_NSF+52)); 
     }
 
@@ -266,34 +262,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
         strcpy(db_filename, argv[1]);    
     } /* end if */
 } /* ProcessArgs */
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

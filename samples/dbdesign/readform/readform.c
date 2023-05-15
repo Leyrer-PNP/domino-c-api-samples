@@ -50,6 +50,7 @@ extern "C" {
 #include <osmisc.h>     /*  for OSLoadString */
 #include <stdnames.h>
 #include <nsferr.h>
+#include <printLog.h>
 
 /*
  *  Local header files
@@ -68,8 +69,6 @@ extern "C" {
 DBHANDLE       hDB;						  /* database handle */
 char far       *pOutputBuffer;            /* Buffer to hold output strings. */
 STATUS         sError=0;				  /* return code */
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -119,11 +118,11 @@ int main(int argc, char *argv[])
   /* Domino and Notes initialization */
   if (sError = NotesInitExtended (argc, argv))
   {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
   }
       
-  printf("");
+  PRINTLOG("");
   fflush(stdout);
 
   /*
@@ -133,7 +132,7 @@ int main(int argc, char *argv[])
 
   if (sError = NSFDbOpen(szFileName, &hDB))
   {
-   PrintAPIError (sError);  
+   PRINTERROR (sError,"NSFDbOpen");  
    NotesTerm();
    return (1);
   }
@@ -146,7 +145,7 @@ int main(int argc, char *argv[])
     NSFDbClose(hDB);
   else 
   {
-   PrintAPIError (sError);  
+   PRINTERROR (sError,"ReadForm");  
    NotesTerm();
    return (1);
   }
@@ -154,7 +153,7 @@ int main(int argc, char *argv[])
   /*
    * leave with no error
    */
-  printf("\nProgram completed successfully.\n");   
+  PRINTLOG("\nProgram completed successfully.\n");   
   NotesTerm();
   return (0); 
 
@@ -349,7 +348,7 @@ STATUS LNPUBLIC ReadForm(char *pFormName)
    *  fields in this form.
    */
 
-  printf("%s", pOutputBuffer);
+  PRINTLOG("%s", pOutputBuffer);
     
   /*
    *  Close the note and the database.
@@ -604,36 +603,6 @@ void far        *pCtx)
   return (sError);
 
 }   
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 #ifdef __cplusplus
 }
 #endif

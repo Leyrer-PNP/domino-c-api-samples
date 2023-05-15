@@ -28,6 +28,7 @@
 #include <nif.h>
 #include <osmem.h>
 #include <miscerr.h>
+#include <printLog.h>
 
 #include <osmisc.h>
 
@@ -40,8 +41,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *db_filename, 
                          char *view_name, 
                          char *category); 
- 
-void PrintAPIError (STATUS);
 
 #define  STRING_LENGTH  256
 
@@ -89,7 +88,7 @@ int main(int argc, char *argv[])
 
    if (error = NotesInitExtended (argc, argv))
    {
-       printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
        return (1);
    }
 
@@ -103,7 +102,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (db_filename, &db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbOpen");  
        NotesTerm();
        return (1);
    } 
@@ -114,7 +113,7 @@ int main(int argc, char *argv[])
    if (error = NIFFindView (db_handle, view_name, &view_id))
    {
        NSFDbClose (db_handle);
-       PrintAPIError (error);  
+       PRINTERROR (error,"NIFFindView");  
        NotesTerm();
        return (1);
    }
@@ -134,7 +133,7 @@ int main(int argc, char *argv[])
          NULLHANDLE))    /* handle to selected list (return) */
    {
        NSFDbClose (db_handle);
-       PrintAPIError (error);  
+       PRINTERROR (error,"NIFOpenCollection");  
        NotesTerm();
        return (1);
    }
@@ -153,7 +152,7 @@ subcategories. */
 
    if (ERR(error) == ERR_NOT_FOUND) 
    {
-      printf ("\nCategory not found in the collection.\n");
+      PRINTLOG ("\nCategory not found in the collection.\n");
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
       NotesTerm();
@@ -164,7 +163,7 @@ subcategories. */
    {
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFFindByName");  
       NotesTerm();
       return (1);
    }
@@ -201,7 +200,7 @@ arranged in the order of the bits in the READ_MASKs.
          {
             NIFCloseCollection (coll_handle);
             NSFDbClose (db_handle);
-            PrintAPIError (error);  
+            PRINTERROR (error,"NIFReadEntries");  
             NotesTerm();
             return (1);
          }
@@ -214,7 +213,7 @@ has some documents in it.) */
         {
            NIFCloseCollection (coll_handle);
            NSFDbClose (db_handle);
-           printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+           PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
            NotesTerm();
            return (0); 
         }
@@ -227,7 +226,7 @@ the resulting pointer to the type we need. */
 /* Start a loop that extracts the info about each collection entry from
 the information buffer. */
 
-        printf ("\n");
+        PRINTLOG ("\n");
         for (i = 1; i <= entries_found; i++)
         {
 
@@ -277,7 +276,7 @@ over it. */
 
 /* We have found a main-topic note. Print out its note ID. */
 
-           printf ("Main topic count is: %lu.  \tNote ID is: %lX.\n",
+           PRINTLOG ("Main topic count is: %lu.  \tNote ID is: %lX.\n",
                   ++main_topics_found, entry_id);
 
 /* End of loop that gets info about each entry. */
@@ -301,7 +300,7 @@ over it. */
    if (error = NIFCloseCollection(coll_handle))
    {
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFCloseCollection");  
       NotesTerm();
       return (1);
    }
@@ -310,7 +309,7 @@ over it. */
 
    if (error = NSFDbClose (db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbClose");  
        NotesTerm();
        return (1);
    } 
@@ -318,7 +317,7 @@ over it. */
 
 /* End of subroutine. */
 
-   printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
 
    NotesTerm();
    return (0); 
@@ -369,33 +368,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     } /* end if */
 } /* ProcessArgs */
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
 

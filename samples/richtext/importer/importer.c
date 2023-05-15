@@ -69,6 +69,7 @@
 #include <ixport.h>
 #include <ixedit.h>
 #include <ods.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -84,8 +85,6 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
 STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
                          DWORD *retdwLen);
 STATUS LNPUBLIC AddRichText(DHANDLE hNote, DHANDLE hBuf, DWORD dwBufLen);
-
-void PrintAPIError (STATUS);
 
 /* function specification for Domino and Notes DLLs    */
 
@@ -112,9 +111,9 @@ int main(int argc, char *argv[])
 		
 	 if (argc != 4 && argc != 5)
     {
-        printf("\nThe proper syntax is: \n\tIMPORTER.EXE <NSF Filename>");
-        printf(" <Import/Export DLL Path> <Import File Path> \n");
-        printf(" <Second DLL Name> (if necessary)\n");
+        PRINTLOG("\nThe proper syntax is: \n\tIMPORTER.EXE <NSF Filename>");
+        PRINTLOG(" <Import/Export DLL Path> <Import File Path> \n");
+        PRINTLOG(" <Second DLL Name> (if necessary)\n");
         return NOERROR;
     }
     szNSFFile    = argv[1];
@@ -138,7 +137,7 @@ int main(int argc, char *argv[])
 	 error = NotesInitExtended (argc, argv);
 	 if (error)
 	 {
-		 printf("Error: Unable to initialize Notes.\n");
+		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
 	 }
 
@@ -148,8 +147,8 @@ int main(int argc, char *argv[])
 
     if (error = ImportCD(szModPath, szFilePath, achTempName, szDLL))
     {
-        printf("\nUnable to create temporary file. Terminating...\n");
-		  PrintAPIError(error);
+        PRINTLOG("\nUnable to create temporary file. Terminating...\n");
+		  PRINTERROR(error,"ImportCD");
         goto Done;
     }
 
@@ -158,8 +157,8 @@ int main(int argc, char *argv[])
 
     if (error = LoadCD(achTempName, &hImpBuffer, &dwImpBufLen))
     {
-        printf("\nUnable to process temp file properly. Terminating...\n");
-		  PrintAPIError(error);
+        PRINTLOG("\nUnable to process temp file properly. Terminating...\n");
+		  PRINTERROR(error,"LoadCD");
         goto Done;
     }
 
@@ -168,8 +167,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen(szNSFFile, &hDbNSFFile))
     {
-        printf("\nCannot open database '%s'. Terminating...\n", szNSFFile);
-		  PrintAPIError(error);
+        PRINTLOG("\nCannot open database '%s'. Terminating...\n", szNSFFile);
+		  PRINTERROR(error,"NSFDbOpen");
         goto Done;
     }
 
@@ -177,9 +176,9 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate(hDbNSFFile, &hNewNote))
     {
-        printf("\nCannot create new note. Terminating...\n");
+        PRINTLOG("\nCannot create new note. Terminating...\n");
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(error);
+		  PRINTERROR(error,"NSFNoteCreate");
         goto Done;
     }
 
@@ -190,11 +189,11 @@ int main(int argc, char *argv[])
                                  "Simple Form",
                                  (WORD) strlen("Simple Form")))
     {
-        printf("\nError while setting Form name. Terminating...\n");
+        PRINTLOG("\nError while setting Form name. Terminating...\n");
 
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(error);
+		  PRINTERROR(error,"NSFItemSetText");
         goto Done;
     }
 
@@ -202,11 +201,11 @@ int main(int argc, char *argv[])
 
     if (error = AddRichText(hNewNote, hImpBuffer, dwImpBufLen))
     {
-        printf("\nError while adding rich text.  Terminating...\n");
+        PRINTLOG("\nError while adding rich text.  Terminating...\n");
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
         OSMemFree(hImpBuffer);     /* ERROR - Free up the Import buffer. */
-		  PrintAPIError(error);
+		  PRINTERROR(error,"AddRichText");
         goto Done;
     }
 
@@ -214,11 +213,11 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteUpdate(hNewNote, 0))
     {
-        printf("\nError writing new Note. Terminating..\n");
+        PRINTLOG("\nError writing new Note. Terminating..\n");
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
         OSMemFree(hImpBuffer);     /* Free up the Import buffer.         */
-		  PrintAPIError(error);
+		  PRINTERROR(error,"NSFNoteUpdate");
         goto Done;
     }
 
@@ -230,8 +229,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hNewNote))
 	 {
-		  printf("\nUnable to close Note.  Terminating..\n");
-		  PrintAPIError(error);
+		  PRINTLOG("\nUnable to close Note.  Terminating..\n");
+		  PRINTERROR(error,"NSFNoteClose");
         goto Done;
 	 }
 
@@ -240,8 +239,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose(hDbNSFFile))
 	 {
-		  printf("\nError closing database '%s'. Terminating...\n, szNSFFile");
-		  PrintAPIError(error);
+		  PRINTLOG("\nError closing database '%s'. Terminating...\n, szNSFFile");
+		  PRINTERROR(error,"NSFDbClose");
         goto Done;
 	 }
 
@@ -249,15 +248,15 @@ int main(int argc, char *argv[])
 
 	if (unlink(achTempName))
 	 {
-		  printf("\nError deleting temporary file %s\n", achTempName);
+		  PRINTLOG("\nError deleting temporary file %s\n", achTempName);
         goto Done;
 	 }
 
-	 printf("\nAll Done!\n");
+	 PRINTLOG("\nAll Done!\n");
 
 	 NotesTerm();
 
-	 printf("\nProgram completed successfully.\n");
+	 PRINTLOG("\nProgram completed successfully.\n");
 
 	 return(0);
 
@@ -308,7 +307,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
 
     if (error = OSLoadLibrary (ModuleName, (DWORD)0, &hmod, &ProcAddress))
     {
-        printf ("OSLoadLibrary failed.\n");
+        PRINTLOG ("OSLoadLibrary failed.\n");
         goto Done;
     }
 
@@ -322,7 +321,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
     /* data.                                                            */
 
       strcpy (EditImportData.OutputFileName, TempName);
-      printf ("Temp filename is %s.\n", EditImportData.OutputFileName);
+      PRINTLOG ("Temp filename is %s.\n", EditImportData.OutputFileName);
 
     /* Assign the default fontid */
 
@@ -344,7 +343,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
         DLLName,                            /* 2nd DLL, if needed.      */
         FileName))                          /* File to import.          */
         {
-            printf ("Call to DLL Entry point failed.\n");
+            PRINTLOG ("Call to DLL Entry point failed.\n");
             goto Done;
         }
 
@@ -401,7 +400,7 @@ STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
 
     if ( (pCDFile = fopen(FileName, "r+b")) == NULL)
     {
-        printf ("Open of '%s' failed.\n", FileName);
+        PRINTLOG ("Open of '%s' failed.\n", FileName);
 		error = ERR_NOEXIST;
         goto Done;
     }
@@ -421,10 +420,10 @@ STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
         //ltoa(CDFileLength, NumberString, 10); /* Convert dword value to ASCII */
 		sprintf(NumberString, "%d", CDFileLength);
 		
-        printf ("Error - temp file '%s' is too large: %s bytes.\n",
+        PRINTLOG ("Error - temp file '%s' is too large: %s bytes.\n",
                  FileName, NumberString);
 
-        printf("This program can't import files larger than %u bytes.\n",
+        PRINTLOG("This program can't import files larger than %u bytes.\n",
                 MAXONESEGSIZE);
         fclose (pCDFile);
         error = ERR_ODS_TEXT_TOOBIG;
@@ -435,7 +434,7 @@ STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
 
     if (error = OSMemAlloc (0, CDFileLength, &hBuffer))
     {
-        printf ("Error allocating memory for file read.  Terminating...\n");
+        PRINTLOG ("Error allocating memory for file read.  Terminating...\n");
         fclose(pCDFile);
         goto Done;
     }
@@ -448,7 +447,7 @@ STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
 
     if ( fread (pBuffer, (size_t)CDFileLength, (size_t)1, pCDFile) < 1 )
     {
-        printf ("error on file %s read.\n", FileName);
+        PRINTLOG ("error on file %s read.\n", FileName);
         OSUnlockObject (hBuffer);
         OSMemFree(hBuffer);
         fclose(pCDFile);
@@ -522,7 +521,7 @@ STATUS LNPUBLIC AddRichText (DHANDLE hNote, DHANDLE hImpBuffer,
 
     if (rError = OSMemAlloc (0, CDBUFLEN, &hCDBuffer))
     {
-        printf("Cannot allocate memory for CD buffer.  Terminating...\n");
+        PRINTLOG("Cannot allocate memory for CD buffer.  Terminating...\n");
         goto Done;
     }
 
@@ -549,8 +548,8 @@ STATUS LNPUBLIC AddRichText (DHANDLE hNote, DHANDLE hImpBuffer,
 
     if ((dwCDBufLen + ODSLength(_CDPABDEFINITION)) > dwCDMaxBuf)
     {
-        printf("\nCD Buffer not big enough to add CDPABDEFINITION. ");
-        printf("Terminating...\n");
+        PRINTLOG("\nCD Buffer not big enough to add CDPABDEFINITION. ");
+        PRINTLOG("Terminating...\n");
         OSUnlockObject(hCDBuffer);       /* Unlock  CD buffer.     */
         OSMemFree(hCDBuffer);            /* Free up the CD buffer. */
         goto Done;
@@ -586,8 +585,8 @@ STATUS LNPUBLIC AddRichText (DHANDLE hNote, DHANDLE hImpBuffer,
 
     if ((dwCDBufLen + ODSLength(_CDPABREFERENCE)) > dwCDMaxBuf)
     {
-        printf("\nCD Buffer not big enough to add CDPABREFERENCE. ");
-        printf("Terminating...\n");
+        PRINTLOG("\nCD Buffer not big enough to add CDPABREFERENCE. ");
+        PRINTLOG("Terminating...\n");
         OSUnlockObject(hCDBuffer);  /* Unlock  CD buffer.     */
         OSMemFree(hCDBuffer);       /* Free up the CD buffer. */
         goto Done;
@@ -607,8 +606,8 @@ STATUS LNPUBLIC AddRichText (DHANDLE hNote, DHANDLE hImpBuffer,
     dwItemBufLen = dwBufLen - sizeof(WORD);
     if ((dwCDBufLen + dwItemBufLen) > dwCDMaxBuf)
     {
-        printf("\nCD Buffer not big enough for import file.  ");
-        printf("Terminating...\n");
+        PRINTLOG("\nCD Buffer not big enough for import file.  ");
+        PRINTLOG("Terminating...\n");
         OSUnlockObject(hImpBuffer); /* Unlock Import buffer.   */
         OSUnlockObject(hCDBuffer);  /* Unlock  CD buffer.      */
         OSMemFree(hCDBuffer);       /* Free up the CD buffer.  */
@@ -629,7 +628,7 @@ STATUS LNPUBLIC AddRichText (DHANDLE hNote, DHANDLE hImpBuffer,
                                TYPE_COMPOSITE,
                                pCDBuffer, dwCDBufLen))
     {
-        printf("\nError adding 'Body' item. Terminating...\n");
+        PRINTLOG("\nError adding 'Body' item. Terminating...\n");
         OSUnlockObject(hImpBuffer); /* Unlock Import buffer.     */
         OSUnlockObject(hCDBuffer);  /* Unlock  CD buffer.        */
         OSMemFree(hCDBuffer);       /* Free up the CD buffer.    */
@@ -648,30 +647,3 @@ Done:
     return (rError);
 
 }
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

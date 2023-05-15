@@ -1,5 +1,5 @@
         
-TARGET = twokey
+TARGET = findbykeyextend
         
 SOURCES = $(TARGET).c
 OBJECTS = $(TARGET).o

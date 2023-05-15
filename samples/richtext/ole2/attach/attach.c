@@ -58,6 +58,7 @@
 #include <osmem.h>
 #include <nsfole.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #include "cdrecord.h"
 
@@ -76,9 +77,6 @@ STATUS LNPUBLIC AppendRichText(
   char *szItemName,
   char *szObjectName,
   char *szClassName);
-
-
-void PrintAPIError (STATUS);
  
 
 /*
@@ -112,7 +110,7 @@ int main(int argc, char *argv[])
    
   if (sError = NotesInitExtended (argc, argv))
   {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
   }
   /* Initialize OLE */
@@ -131,7 +129,7 @@ int main(int argc, char *argv[])
 
   if(FAILED(GetClassFile(szSrcFile, &clsid)))
   {
-    printf ("Sample file used to create OLE2 object not found.\n");
+    PRINTLOG ("Sample file used to create OLE2 object not found.\n");
     goto exit2;
   }
 
@@ -238,11 +236,11 @@ int main(int argc, char *argv[])
   if (sError = NSFNoteUpdate(hNote, 0))
     goto exit9;
 
-  printf("Attached OLE object...\n");
+  PRINTLOG("Attached OLE object...\n");
 
 exit9:
   if (sError)
-      PrintAPIError (sError);  
+      PRINTERROR (sError,"NSFNoteUpdate");  
 
   NSFNoteClose(hNote);
 
@@ -318,7 +316,7 @@ STATUS LNPUBLIC AppendRichText(
   if ((pBuffer = OSLockObject(hBuffer)) == NULL)
   {
     OSMemFree (hBuffer);
-    printf("Error: Can not do OSLockObject on the buffer handle\n");
+    PRINTLOG("Error: Can not do OSLockObject on the buffer handle\n");
     return (FALSE);
   }
 
@@ -397,34 +395,3 @@ STATUS LNPUBLIC AppendRichText(
   return(NOERROR);
 }
  
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

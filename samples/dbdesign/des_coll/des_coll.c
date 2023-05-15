@@ -45,6 +45,7 @@
 #include <ods.h>
 #include <textlist.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -53,9 +54,6 @@
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename);
 
 void LNPUBLIC PrintTitle (DWORD dwItem, WORD wClass, BYTE *summary);
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
 
 
 #define  STRING_LENGTH  256
@@ -84,7 +82,7 @@ int main (int argc, char *argv[])
 
 
   if (error = NotesInitExtended (argc, argv)) {
-     PrintAPIError (error);
+     PRINTERROR (error,"NotesInitExtended");
      NotesTerm();
      return (1);
   }
@@ -94,7 +92,7 @@ int main (int argc, char *argv[])
   szPathName = (char *) malloc(STRING_LENGTH);
   if (szPathName == NULL)
   {
-    printf("Error: Out of memory.\n");
+    PRINTLOG("Error: Out of memory.\n");
     NotesTerm();
     return (0);
   }
@@ -105,24 +103,24 @@ int main (int argc, char *argv[])
   /* Open the database */
   if (error = NSFDbOpen (szPathName, &hDB))
   {
-    printf ("Error: unable to open database '%s'.\n", szPathName);
+    PRINTLOG ("Error: unable to open database '%s'.\n", szPathName);
     free(szPathName);
-    PrintAPIError (error);
+    PRINTERROR (error,"NSFDbOpen");
     return (1);
   }
 
   if (error = NSFDbInfoGet (hDB, szDBInfo))
   {
-    printf("Error: unable to get title of database '%s'\n.", szPathName);
+    PRINTLOG("Error: unable to get title of database '%s'\n.", szPathName);
     NSFDbClose (hDB);
     free(szPathName);
-    PrintAPIError (error);
+    PRINTERROR (error,"NSFDbInfoGet");
     return (1);
   }
 
   NSFDbInfoParse (szDBInfo, INFOPARSE_TITLE, szDBTitle, NSF_INFO_SIZE-1);
  
-  printf("Printing design collection for '%s'\n", szDBTitle);
+  PRINTLOG("Printing design collection for '%s'\n", szDBTitle);
 
   /* Open the special "design" collection, which contains an index of
      all nondata notes. */
@@ -136,10 +134,10 @@ int main (int argc, char *argv[])
 			    NULL, NULL, NULL, NULL))
   {    /* Collection may not have been setup yet by the first user to 
 	  open the file.*/
-    printf("Unable to open the design collection for '%s'.\n", szDBTitle);
+    PRINTLOG("Unable to open the design collection for '%s'.\n", szDBTitle);
     NSFDbClose (hDB);
     free(szPathName);
-    PrintAPIError (error);
+    PRINTERROR (error,"NIFOpenCollection");
     return (1);
   }
 
@@ -161,11 +159,11 @@ int main (int argc, char *argv[])
 	     &dwEntriesFound,       /* entries read (return) */
 	     NULL))
   {
-    printf("No entries found in design collection for '%s'.\n", szDBTitle);
+    PRINTLOG("No entries found in design collection for '%s'.\n", szDBTitle);
     NIFCloseCollection (hCollection);
     NSFDbClose (hDB);
     free(szPathName);
-    PrintAPIError (error);
+    PRINTERROR (error,"NIFReadEntries");
     return (1);
   }
 
@@ -173,17 +171,17 @@ int main (int argc, char *argv[])
 
   if (hBuffer == NULLHANDLE)
   {
-    printf ("Empty buffer returned reading entries in design collection.\n");
+    PRINTLOG ("Empty buffer returned reading entries in design collection.\n");
     NIFCloseCollection (hCollection);
     NSFDbClose (hDB);
     free(szPathName);
-    PrintAPIError (error);
+    PRINTERROR (error,"NIFReadEntries");
     return (1);
   }
 
   pBuffer = (BYTE *) OSLockObject (hBuffer);
 
-  printf ("Found %ld design notes in '%s'.\n",dwEntriesFound, szDBTitle);
+  PRINTLOG ("Found %ld design notes in '%s'.\n",dwEntriesFound, szDBTitle);
   for (i = 0; i < dwEntriesFound; i++)
   {
     wClass = *(WORD*) pBuffer;
@@ -211,7 +209,7 @@ int main (int argc, char *argv[])
   {
      NSFDbClose(hDB);
      free(szPathName);
-     PrintAPIError (error);
+     PRINTERROR (error,"NIFCloseCollection");
      return (1);
   }
 
@@ -310,8 +308,8 @@ void LNPUBLIC PrintTitle (DWORD dwItem, WORD wClass, BYTE *summary)
     strcpy (szTitleString, "not available");
   }
 	
-  printf ("\tDesign Note %ld : Class = %s", dwItem+1, szNoteType);
-  printf ("\tTitle = '%s'\n", szTitleString);
+  PRINTLOG ("\tDesign Note %ld : Class = %s", dwItem+1, szNoteType);
+  PRINTLOG ("\tTitle = '%s'\n", szTitleString);
 
   return;
 }
@@ -341,29 +339,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
      strcpy(db_filename, argv[1]);
   } /* end if */
 } /* ProcessArgs */
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

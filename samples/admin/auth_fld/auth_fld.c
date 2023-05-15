@@ -86,15 +86,12 @@
 #endif
 
 #include <osmisc.h>
- 
+#include <printLog.h>
 #include "auth_fld.h"                   /* Local definitions */
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
 
 /************************************************************************
                                                                         
@@ -124,7 +121,7 @@ int main (int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-       printf("\n Unable to initialize Notes.\n");
+       PRINTLOG("\n Unable to initialize Notes.\n");
        return (1);
     }
 
@@ -164,7 +161,7 @@ int main (int argc, char *argv[])
         goto Exit3;
     }
 
-    printf ("auth_fld: added 2 documents to %s.\n", szDbPathName);
+    PRINTLOG ("auth_fld: added 2 documents to %s.\n", szDbPathName);
 
 Exit3:
     free (szRespSubject);
@@ -177,7 +174,7 @@ Exit1:
 
 Exit0:
     if (error)
-       PrintAPIError (error);
+       PRINTERROR (error,"OpenNotesDB");
 
     NotesTerm();
 
@@ -204,7 +201,7 @@ STATUS LNPUBLIC   OpenNotesDB(char * pServer, char * pNsfName,
         error = OSPathNetConstruct (NULL, pServer, pNsfName, fullpath_name);
         if (error != NOERROR)
         {
-            printf("Error: unable to construct network path to database.\n");
+            PRINTLOG("Error: unable to construct network path to database.\n");
             return(error);
         }
     }
@@ -214,14 +211,14 @@ STATUS LNPUBLIC   OpenNotesDB(char * pServer, char * pNsfName,
     /* Check user input in case DB full path name too long */
     if (strlen(fullpath_name) > MAXPATH)
     {
-        printf("Error: Database full path name: '%s'\n is longer than %i\n",
+        PRINTLOG("Error: Database full path name: '%s'\n is longer than %i\n",
                 fullpath_name, MAXPATH);
         return(ERR_AUTH_FLD_DBOPEN);
     }
 
     if (error = NSFDbOpen (fullpath_name, phDb))
     {
-        printf("Error: unable to open database '%s'.\n", fullpath_name);
+        PRINTLOG("Error: unable to open database '%s'.\n", fullpath_name);
         return (error);
     }                    
     return (NOERROR);
@@ -242,7 +239,7 @@ STATUS  LNPUBLIC  GetFileFirstLine (char * szFileName, char ** szFirstLine)
 
     if (NULL == (pFile = fopen (szFileName, "r")))
     {
-        printf ("Error: unable to open input file '%s'.\n", szFileName);
+        PRINTLOG ("Error: unable to open input file '%s'.\n", szFileName);
         return(ERR_AUTH_FLD_FILEOPEN);
     }
 
@@ -250,7 +247,7 @@ STATUS  LNPUBLIC  GetFileFirstLine (char * szFileName, char ** szFirstLine)
 
     if (*szFirstLine == NULL)
     {
-        printf ("Error: unable to allocate %lu bytes memory.\n", 
+        PRINTLOG ("Error: unable to allocate %lu bytes memory.\n", 
                                             (DWORD)FIRST_LINE_MAX_SIZE);
         fclose (pFile);
         return(ERR_AUTH_FLD_MALLOC);
@@ -260,13 +257,13 @@ STATUS  LNPUBLIC  GetFileFirstLine (char * szFileName, char ** szFirstLine)
     {
         if (feof (pFile))               /* input file empty */
         {
-            printf ("Error: input file '%s' is empty.\n", szFileName);
+            PRINTLOG ("Error: input file '%s' is empty.\n", szFileName);
             fclose (pFile);
             return (ERR_AUTH_FLD_EOF);
         }
         else                    /* some other file read error encountered */
         {
-            printf ("Error: unable to read input file '%s'.\n", szFileName);
+            PRINTLOG ("Error: unable to read input file '%s'.\n", szFileName);
             fclose (pFile);
             return (ERR_AUTH_FLD_READ_ERROR);
         }
@@ -308,7 +305,7 @@ STATUS  LNPUBLIC  CreateMainTopic (DBHANDLE hDb,
     /* Create a new data note. */
     if (error = NSFNoteCreate (hDb, &hNote))
     {
-        printf ("Error: unable to create main topic document.\n");
+        PRINTLOG ("Error: unable to create main topic document.\n");
         goto Exit0;
     }
 
@@ -339,7 +336,7 @@ STATUS  LNPUBLIC  CreateMainTopic (DBHANDLE hDb,
     /* Update the Main Topic document to the database. */
     if (error = NSFNoteUpdate (hNote, 0))
     {
-        printf ("Error: unable to update main document to disk.\n");
+        PRINTLOG ("Error: unable to update main document to disk.\n");
         goto Exit1;
     }
         
@@ -382,7 +379,7 @@ STATUS  LNPUBLIC  CreateResponse (DBHANDLE hDb,
     /* Create a new data note. */
     if (error = NSFNoteCreate (hDb, &hNote))
     {
-        printf ("Error: unable to create response note.\n");
+        PRINTLOG ("Error: unable to create response note.\n");
         goto Exit0;
     }
 
@@ -416,7 +413,7 @@ STATUS  LNPUBLIC  CreateResponse (DBHANDLE hDb,
     /* Update the Response document to the database. */
     if (error = NSFNoteUpdate (hNote, 0))
     {
-        printf ("Error: unable to update response document to disk.\n");
+        PRINTLOG ("Error: unable to update response document to disk.\n");
     }
         
 Exit1:
@@ -442,7 +439,7 @@ STATUS  LNPUBLIC  AppendFormItem (NOTEHANDLE  hNote, char * szForm)
                                 szForm, 
                                 MAXWORD))
     {
-        printf ("Error: unable to set text in Form field.\n");
+        PRINTLOG ("Error: unable to set text in Form field.\n");
         return (error);
     }
     return(NOERROR);
@@ -475,7 +472,7 @@ STATUS  LNPUBLIC  AppendAuthorItem (NOTEHANDLE  hNote, char * szAuthor)
                                 szAuthor,
                                 strlen(szAuthor)))
     {
-        printf ("Error: unable to append Author field.\n");
+        PRINTLOG ("Error: unable to append Author field.\n");
     }
     return (error);
 }
@@ -527,7 +524,7 @@ STATUS  LNPUBLIC  AppendEditorsItem (NOTEHANDLE  hNote)
 
     if (pvoidItemValue == NULL)
     {
-        printf ("Error: unable to allocate %lu bytes memory.\n", dwValueLen);
+        PRINTLOG ("Error: unable to allocate %lu bytes memory.\n", dwValueLen);
         return(ERR_AUTH_FLD_MALLOC);
     }
 
@@ -552,7 +549,7 @@ STATUS  LNPUBLIC  AppendEditorsItem (NOTEHANDLE  hNote)
                                 pvoidItemValue,
                                 dwValueLen))
     {
-        printf ("Error: unable to append Editors field.\n");
+        PRINTLOG ("Error: unable to append Editors field.\n");
     }
     free (pvoidItemValue);
     return (error);
@@ -585,7 +582,7 @@ STATUS  LNPUBLIC  AppendReadersItem (NOTEHANDLE  hNote)
     pvoidItemValue = (void far *) malloc ((size_t)dwValueLen);
     if (pvoidItemValue == NULL)
     {
-        printf ("Error: unable to allocate %lu bytes memory.\n", dwValueLen);
+        PRINTLOG ("Error: unable to allocate %lu bytes memory.\n", dwValueLen);
         return(ERR_AUTH_FLD_MALLOC);
     }
 
@@ -610,7 +607,7 @@ STATUS  LNPUBLIC  AppendReadersItem (NOTEHANDLE  hNote)
                                 pvoidItemValue,
                                 dwValueLen))
     {
-        printf ("Error: unable to append Readers field.\n");
+        PRINTLOG ("Error: unable to append Readers field.\n");
     }
     free (pvoidItemValue);
     return (error);
@@ -631,7 +628,7 @@ STATUS  LNPUBLIC  AppendCategoriesItem (NOTEHANDLE hNote)
                         CATEGORIES,              /* "Using Notes" */ 
                         MAXWORD))
     {
-        printf ("Error: unable to set Categories field.\n");
+        PRINTLOG ("Error: unable to set Categories field.\n");
     }
     return (error);
 }
@@ -667,7 +664,7 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFileName)
                     szDISCUSS_ITEM_BODY,      /* "Body" */
                     &hCompound)) 
     {
-        printf ("Error: unable to create Compound Text context.\n");
+        PRINTLOG ("Error: unable to create Compound Text context.\n");
         return (error);
     }
 
@@ -676,7 +673,7 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFileName)
     if (error = CompoundTextDefineStyle (hCompound, szBlank, &Style, 
                                          &dwStyleID))
     {
-        printf ("Error: unable to define Compound Text style.\n");
+        PRINTLOG ("Error: unable to define Compound Text style.\n");
         CompoundTextDiscard (hCompound);
         return (error);
     }
@@ -693,7 +690,7 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFileName)
                         COMP_PRESERVE_LINES,    /* preserve line breaks */
                         NULLHANDLE))            /* CLS translation table */
     {
-        printf("Error: unable to add text from file '%s' to Compound Text.\n",
+        PRINTLOG("Error: unable to add text from file '%s' to Compound Text.\n",
                                  szFileName);
         CompoundTextDiscard (hCompound);
         return (error);
@@ -702,7 +699,7 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFileName)
     /* Close the compound text context. This adds the CD text to the note. */
     if (error = CompoundTextClose (hCompound, 0, 0L, NULL, 0))
     {
-        printf("Error: unable to add Compound Text to document.\n");
+        PRINTLOG("Error: unable to add Compound Text to document.\n");
         CompoundTextDiscard (hCompound);
     }
     return (error);
@@ -723,7 +720,7 @@ STATUS LNPUBLIC AppendSubjectItem(NOTEHANDLE hNote, char * szSubject)
                     szSubject, 
                     MAXWORD))
     {
-        printf ("Error: unable to set Subject field in note.\n");
+        PRINTLOG ("Error: unable to set Subject field in note.\n");
     }
     return (error);
 }
@@ -746,7 +743,7 @@ STATUS LNPUBLIC AppendUpdatedByItem (NOTEHANDLE hNote, char * szAuthor)
                                 szAuthor,
                                 strlen(szAuthor)))
     {
-        printf ("Error: unable to append $UpdatedBy field.\n");
+        PRINTLOG ("Error: unable to append $UpdatedBy field.\n");
     }
     return (error);
 }
@@ -771,7 +768,7 @@ STATUS  LNPUBLIC  AppendRefItem( NOTEHANDLE hRespNote, OID oidMainNote)
 
     if (buf == NULL)
     {
-        printf ("Error: unable to allocate %lu bytes memory.\n", dwValueLen);
+        PRINTLOG ("Error: unable to allocate %lu bytes memory.\n", dwValueLen);
         return(ERR_AUTH_FLD_MALLOC);
     }
  
@@ -796,7 +793,7 @@ STATUS  LNPUBLIC  AppendRefItem( NOTEHANDLE hRespNote, OID oidMainNote)
                                 buf,
                                 dwValueLen))
     {
-        printf ("Error: unable to append Note Reference List to Response.\n");
+        PRINTLOG ("Error: unable to append Note Reference List to Response.\n");
     }
     free (buf);
     return (error);
@@ -818,7 +815,7 @@ STATUS  LNPUBLIC  AppendOriginalSubjectItem (NOTEHANDLE hNote,
                     szMainSubject, 
                     MAXWORD))
     {
-        printf ("Error: unable to set OriginalSubject field in note.\n");
+        PRINTLOG ("Error: unable to set OriginalSubject field in note.\n");
     }
     return (error);
 }
@@ -868,28 +865,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
  
     } /* end if */
 } /* ProcessArgs */
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

@@ -38,6 +38,7 @@
 #include "nsfdb.h"
 #include "nsfdata.h"
 #include "osmisc.h"
+#include "printLog.h"
 
 /* Directory Independence API files */
 #include "dirctx.h"
@@ -74,20 +75,20 @@ void printStatus(FILE *f, STATUS error);
 
 static void near PASCAL help()
 {
-	printf("Find a directory entry and print requested information about it.\n\n");
-	printf(" -d			Domain Name\n");
-	printf(" -s			Server Name\n");
-	printf(" -f			flags which control the behavior, for more information please see DirCtxSetFlags in the documentation\n");
-	printf(" -n			Name of the entry to find (will match on Notes distinguished name,\n");
-	printf("            abbreviated name, common name, first name, last name, short name, \n");
-	printf("            group name, server name, or internet address).\n");
-	printf(" -i			Item{,Item} one or more items to return (omit for $$DIR_ITEMS_ALL_DOMINO) Add a plus sign '+' to display operational attributes\n");
-	printf(" -t			Ojbect Type - one of:\n\t\t\t\t"
+	PRINTLOG("Find a directory entry and print requested information about it.\n\n");
+	PRINTLOG(" -d			Domain Name\n");
+	PRINTLOG(" -s			Server Name\n");
+	PRINTLOG(" -f			flags which control the behavior, for more information please see DirCtxSetFlags in the documentation\n");
+	PRINTLOG(" -n			Name of the entry to find (will match on Notes distinguished name,\n");
+	PRINTLOG("            abbreviated name, common name, first name, last name, short name, \n");
+	PRINTLOG("            group name, server name, or internet address).\n");
+	PRINTLOG(" -i			Item{,Item} one or more items to return (omit for $$DIR_ITEMS_ALL_DOMINO) Add a plus sign '+' to display operational attributes\n");
+	PRINTLOG(" -t			Ojbect Type - one of:\n\t\t\t\t"
 						"anyperson\n\t\t\t\t"
 						"dominoperson\n\t\t\t\t"
 						"anygroup\n\t\t\t\t"
 						"dominogroup\n");
-	printf(" -g			Group Type - one of:\n\t\t\t\t"
+	PRINTLOG(" -g			Group Type - one of:\n\t\t\t\t"
 						"0 = multi-purpose groups only\n\t\t\t\t"
 						"1 = mail-only groups\n\t\t\t\t"
 						"2 = acl-only groups\n\t\t\t\t"
@@ -159,7 +160,7 @@ int main(int argc, char *argv[])
 	if (DirCtxGetDomain(hCtx, args.szDomainName) == NOERROR &&
 		DirCtxGetDirectoryServer(hCtx, args.szServerName) == NOERROR)
 	{
-		printf("Found '%lu' matches for '%s' in domain '%s' through server '%s'.\n\n",
+		PRINTLOG("Found '%lu' matches for '%s' in domain '%s' through server '%s'.\n\n",
 			   DirCollectionGetNumEntries(hCollection), args.szName, args.szDomainName, args.szServerName);									 
 	}
 
@@ -228,7 +229,7 @@ int processArgs (int nargc, const char * const *nargv, ARG_STRUCT *args)
 						const int len = strlen(token);
 						if (avail_len < len)
 						{
-							printf("Sorry, too many -i Items.\n");
+							PRINTLOG("Sorry, too many -i Items.\n");
 							return 1;
 						}
 
@@ -309,7 +310,7 @@ int getOpt (int nargc, const char * const *nargv, const char *ostr, char** popta
 			if ((p = strrchr(*nargv, '/')) != NULL)
 				p = *nargv;
 			if (p != NULL)
-				printf("%s: illegal option -- %c\n", p, optopt);
+				PRINTLOG("%s: illegal option -- %c\n", p, optopt);
 		}
 		return(BADCH);
 	}
@@ -326,7 +327,7 @@ int getOpt (int nargc, const char * const *nargv, const char *ostr, char** popta
 			if ((p = strrchr(*nargv, '/')) != NULL)
 				p = *nargv;
 			if (opterr && p != NULL)
-				printf("%s: option requires an argument -- %c\n", p, optopt);
+				PRINTLOG("%s: option requires an argument -- %c\n", p, optopt);
 			return(BADCH);
 		}
 		else                            /* white space */

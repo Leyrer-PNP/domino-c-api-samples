@@ -79,7 +79,7 @@ extern "C" {
 #include <oleods.h>
 #include <idtable.h>
 #include <osmisc.h>
-
+#include <printLog.h>
 #include <lapiplat.h>
 
 
@@ -157,9 +157,6 @@ static  struct
 
 static  DWORD   dwUnknownClassCount = 0;
 
-/* Local function prototypes */
-void PrintAPIError (STATUS);
-
 int main(int argc, char *argv[])
 {
     STATUS      Error =  NOERROR;
@@ -170,11 +167,11 @@ int main(int argc, char *argv[])
 
 	  if (Error = NotesInitExtended (argc, argv))
 	 {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
 	 }
 
-    fprintf( stdout, "NSF_DUMP Utility\n" );
+    PRINTLOG( "NSF_DUMP Utility\n" );
 
     dumpfile = stdout;
 
@@ -214,7 +211,7 @@ int main(int argc, char *argv[])
     if (Error = NSFDbOpen( szFilename, &hDB ))
     {
       fprintf( stderr, "Error: unable to open '%s.'\n", szFilename );
-	  PrintAPIError (Error);
+	  PRINTERROR (Error,"NSFDbOpen");
       NotesTerm();
       return (1);
     }
@@ -222,7 +219,7 @@ int main(int argc, char *argv[])
     if (Error = DumpDBHeaderData( hDB, szFilename ))
     {
       NSFDbClose( hDB );
-      PrintAPIError (Error);
+      PRINTERROR (Error,"DumpDBHeaderData");
       NotesTerm();
       return (1);
     }
@@ -241,7 +238,7 @@ int main(int argc, char *argv[])
       {
         fprintf( stderr,
              "Error encountered searching for design notes.\n" );
-       PrintAPIError (Error);
+       PRINTERROR (Error,"NSFSearch");
        NotesTerm();
        return (1);
       }
@@ -256,7 +253,7 @@ int main(int argc, char *argv[])
                              NULL, NULL ))
       {
        fprintf( stderr,"Error encountered searching for data notes.\n" );
-       PrintAPIError (Error);
+       PRINTERROR (Error,"NSFSearch");
        NotesTerm();
        return (1);
       }
@@ -271,7 +268,7 @@ int main(int argc, char *argv[])
       {
         fprintf( stderr, "Error encountered searching for deleted notes.\n");
         NSFDbClose(hDB);
-        PrintAPIError (Error);
+        PRINTERROR (Error,"DumpDelStub");
         NotesTerm();
         return (1);
       }
@@ -290,7 +287,7 @@ int main(int argc, char *argv[])
       {
         fprintf( stderr, "Error encountered searching for profile information.\n");
         NSFDbClose(hDB);
-        PrintAPIError (Error);
+        PRINTERROR (Error,"NSFProfileEnum");
         NotesTerm();
         return (1);
       }
@@ -300,11 +297,11 @@ int main(int argc, char *argv[])
 
     fflush(dumpfile);
 
-    fprintf( stdout, "\n\nNSF_DUMP: Done.\n" );
+    PRINTLOG( "\n\nNSF_DUMP: Done.\n" );
     if ( stdout != dumpfile )
     fclose(dumpfile);
     if (Error == NOERROR)
-      printf("\nProgram completed successfully.\n");
+      PRINTLOG("\nProgram completed successfully.\n");
       NotesTerm();
       return (0);
 }
@@ -1958,37 +1955,6 @@ void LNPUBLIC PrintNotesActions ( char FAR *      pBuffer,
 
     return;
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-				error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

@@ -1,4 +1,4 @@
-/****************************************************************************
+pri/****************************************************************************
 
     PROGRAM:    find_dbs
 
@@ -40,6 +40,7 @@
 #include <misc.h>
 #endif
 
+#include <printLog.h>
 #include <lapiplat.h>
 
 /* Function prototypes */
@@ -49,7 +50,6 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *);
 VOID print_usage (void);
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                                char *server, char *directory);
-void PrintAPIError (STATUS);
 
 #define  STRING_LENGTH  256
 
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 													directory,
                                        full_netpath))
 	     {
-		      PrintAPIError (error);
+		      PRINTERROR (error,"OSPathNetConstruct");
 		      NotesTerm();
 		      return (1);
 	     }
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen (full_netpath, &dir_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbOpen");
         NotesTerm();
         return (1);
     }
@@ -150,7 +150,7 @@ call an action routine. */
         NULL))             /* returned ending date (unused) */
 
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"NSFSearch");
             NSFDbClose (dir_handle);
             NotesTerm();
             return (1);
@@ -160,7 +160,7 @@ call an action routine. */
 
     if (error = NSFDbClose (dir_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbClose");
         NotesTerm();
         return (1);
     }
@@ -170,7 +170,7 @@ call an action routine. */
     NotesTerm();
 
 /* End of main routine. */
-    printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 
 /* End of intro program. */
 
@@ -282,7 +282,7 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 
 /* Print a blank line to start this display. */
 
-    printf ("\n");
+    PRINTLOG ("\n");
 
 /* Get the header at the beginning of the summary buffer. */
 
@@ -300,7 +300,7 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 
 	 if (item_count > MAX_ITEMS)
 	 {
-		 printf("ERROR: Number of items has exceeded boundary of defined array.\n");
+		 PRINTLOG("ERROR: Number of items has exceeded boundary of defined array.\n");
 		 return (0);
 	 }
 
@@ -329,7 +329,7 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
         item_name[name_length[i]] = '\0';
         summary_position += name_length[i];
 
-        printf ("%s:  ", item_name);
+        PRINTLOG ("%s:  ", item_name);
 
 /* Get the data type of this item. */
 
@@ -404,7 +404,7 @@ handles. */
 
 /* Print the item. */
 
-        printf ("%s\n", item_text);
+        PRINTLOG ("%s\n", item_text);
 
 /* Advance to next item in the summary. */
 
@@ -453,27 +453,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         strcpy(directory, argv[2]);
     } /* end if */
 } /* ProcessArgs */
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}

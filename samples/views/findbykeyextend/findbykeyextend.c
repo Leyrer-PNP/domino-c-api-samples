@@ -1,10 +1,10 @@
 /****************************************************************************
 
-    PROGRAM:    twokey
+    PROGRAM:    findbykeyextend
 
-    FILE:       twokey.c
+    FILE:       findbykeyextend.c
 
-    SYNTAX:     twokey  <First Key Value>  <Second Key Value>
+    SYNTAX:     findbykeyextend <nsf file name> <View name> <First Key Value>  <Second Key Value>
 
     DESCRIPTION:
    This program finds the documents in a view that have a primary key 
@@ -35,6 +35,7 @@
 #include <miscerr.h>
 #include <editods.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -61,7 +62,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                                char *Key2, 
                                char *dbFileName,
                                char *ViewName);
-void PrintAPIError (STATUS);
 
 
 int main (int argc, char *argv[])
@@ -95,15 +95,14 @@ int main (int argc, char *argv[])
    ITEM           Item;
    WORD           Word;
    double         Double, dValue=0;
-
+   
 /* Initialize Domino and Notes */
  
    if (error = NotesInitExtended(argc, argv))
    {
-      printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+      PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error)
       return (1);
    }
-
 /* allocating memory for input keys 
    Do NOT forget to free it later */
 
@@ -111,7 +110,7 @@ int main (int argc, char *argv[])
 
    if (Key1 == NULL) 
    {
-      printf("Error: Out of memory when allocating Key1.\n");
+      PRINTLOG("Error: Out of memory when allocating Key1.\n");
       returnCode=1;
       goto exit1;
    }
@@ -122,7 +121,7 @@ int main (int argc, char *argv[])
 
    if (TranslatedKey == NULL)    
    {
-      printf("Error: Out of memory when allocating TranslatedKey.\n");
+      PRINTLOG("Error: Out of memory when allocating TranslatedKey.\n");
       returnCode=1;
       goto exit1;
    }
@@ -133,7 +132,7 @@ int main (int argc, char *argv[])
 
    if (Key2 == NULL)    
    {
-      printf("Error: Out of memory when allocating Key2.\n");
+      PRINTLOG("Error: Out of memory when allocating Key2.\n");
       returnCode=1;
       goto exit1;
    }
@@ -196,7 +195,7 @@ int main (int argc, char *argv[])
 
    if (pKey == NULL)    
    {
-      printf("Error: Out of memory.\n");
+      PRINTLOG("Error: Out of memory.\n");
       returnCode=1;
       goto exit1;
    }
@@ -239,18 +238,41 @@ int main (int argc, char *argv[])
 /* Search through the collection for the notes whose sort 
    column values match the given search keys: */
 
-   error = NIFFindByKey(
-       hCollection,
-       pKey,          /* refer to key   */
-       FIND_CASE_INSENSITIVE,     /* match rules */
-       &posCollection, /* where match begins (return) */
-       &NumNotesMatch);/* how many match (return) */
+	do
+	{
+	  error = NIFFindByKeyExtended2(
+	        hCollection,
+	        pKey,        /* refer to key   */
+	        FIND_CASE_INSENSITIVE | FIND_EQUAL | FIND_AND_READ_MATCHES,   /* match rules */
+	        READ_MASK_NOTEID,    /* info we want */
+	        &posCollection, /* where match begins (return) */
+	        &NumNotesMatch, /* how many match (return) */
+	        &signal_flag,
+	        &hBuffer,
+	        NULL); 
+			
+	  if (hBuffer == NULLHANDLE)
+       {
+         PRINTLOG ("\nEmpty buffer returned .\n");
+         goto exit1;
+       }
+	 
+       /* Obtain a pointer to the buffer of entry IDs and relevancy scores. */
+       pNoteID = (NOTEID *) OSLockObject (hBuffer);
+	   PRINTLOG ("\n");
+       for (i=0; i<NumNotesMatch; i++)
+           PRINTLOG ("Note count is %lu. \t noteID  is: %lX\n", 
+             ++NoteCount, pNoteID[i]);
+   
+       OSUnlockObject (hBuffer);
 
-       
+       OSMemFree (hBuffer);
+
+   }  while (signal_flag & SIGNAL_MORE_TO_DO);  
 
    if (ERR(error) == ERR_NOT_FOUND) 
    {
-      printf ("\nKey not found in the collection.\n");
+      PRINTLOG ("\nKey not found in the collection.\n");
       error=NOERROR;
       goto exit1;
    }
@@ -259,48 +281,7 @@ int main (int argc, char *argv[])
       goto exit1;
 
   
-   do
-   {
-
-  /* Read entries in the collection */
-
-      if (error = NIFReadEntries(
-        hCollection,         /* handle to this collection           */
-        &posCollection,      /* where to start in collection        */
-        (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
-                                      /* order to use when skipping */
-        FirstTime ? 0L : 1L, /* number to skip i                    */
-        NAVIGATE_NEXT,       /* order to use when reading           */
-        NumNotesMatch - NoteCount,  /* max number to read           */
-        READ_MASK_NOTEID,    /* info we want                        */
-        &hBuffer,            /* handle to info (return)             */
-        NULL,                /* length of buffer (return)           */
-        NULL,                /* entries skipped (return)            */
-        &NumNotesFound,      /* entries read (return)               */
-        &signal_flag))       /* signal and share warnings (return)  */
-         goto exit1;
-
-      if (hBuffer == NULLHANDLE)
-      {
-         printf ("\nEmpty buffer returned by NIFReadEntries.\n");
-         goto exit1;
-      }
-
-      pNoteID = (NOTEID *) OSLockObject (hBuffer);
-
-      printf ("\n");
-      for (i=0; i<NumNotesFound; i++)
-          printf ("Note count is %lu. \t noteID  is: %lX\n", 
-             ++NoteCount, pNoteID[i]);
    
-      OSUnlockObject (hBuffer);
-
-      OSMemFree (hBuffer);
-
-      if (FirstTime)
-          FirstTime = FALSE;
-
-   }  while (signal_flag & SIGNAL_MORE_TO_DO);
    
 
 exit1:
@@ -323,12 +304,13 @@ exit1:
       free(pKey);
 
    if (error)
-      PrintAPIError(error);
+      PRINTERROR(error,"NIFReadEntries");
 
    NotesTerm();
 
-   if (returnCode==NOERROR && error==NOERROR)
-      printf("\nProgram completed successfully.\n");
+   if (returnCode==NOERROR && error==NOERROR) {
+      PRINTLOG("\nProgram completed successfully.\n");
+   }
 
    if (returnCode)
       return(returnCode);
@@ -383,26 +365,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 } /* ProcessArgs */
 
 
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 

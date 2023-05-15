@@ -39,11 +39,11 @@
 #include <osfile.h>
 #include <mail.h>
 #include <mailserv.h> 
+#include <printLog.h>
 
 #include <oooapi.h>
 
 /* Local function prototypes */
-void PrintAPIError (STATUS);
 STATUS getCurrDate(char* stDate, char *enDate);
 
 #define MAIL_MAILSERVER_ITEM "MailServer"
@@ -78,7 +78,7 @@ int main (int argc, char *argv[])
 
         if (argc != 3)
         {
-          printf( "\nUsage:  %s <user's mail database filename> <user name> \n", argv[0] );
+          PRINTLOG( "\nUsage:  %s <user's mail database filename> <user name> \n", argv[0] );
           return (0);
         }
 
@@ -90,7 +90,7 @@ int main (int argc, char *argv[])
         memset(szStartAway, '\0', sizeof(szStartAway));
         memset(szEndAway, '\0', sizeof(szEndAway));
         getCurrDate(szStartAway, szEndAway);
-        printf("Start date[ %s ]- End date[ %s ]\n", szStartAway, szEndAway);
+        PRINTLOG("Start date[ %s ]- End date[ %s ]\n", szStartAway, szEndAway);
         fflush(stdout);
 
         strcpy(pGeneralMessage,szOwnerName);
@@ -100,14 +100,14 @@ int main (int argc, char *argv[])
 
         if ( error = NotesInitExtended (argc, argv) )
         {
-            printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+            PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
             fflush(stdout);
             return (1);
         }
 
         if (!OSGetEnvironmentString(MAIL_MAILSERVER_ITEM, szServerName, MAXUSERNAME))
         {
-           printf ("\nUnable to get mail server name ...\n\n ");
+           PRINTLOG ("\nUnable to get mail server name ...\n\n ");
            fflush(stdout);
            strcpy(szServerName,"");
            NotesTerm();
@@ -119,7 +119,7 @@ int main (int argc, char *argv[])
 
         if (error = MailOpenMessageFile(szMailFilePath, &hMailFile))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"MailOpenMessageFile");
             NotesTerm();
             return (1);
         }
@@ -127,7 +127,7 @@ int main (int argc, char *argv[])
 /* at add-in initialization */
         if (error = OOOInit())
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOInit");
             goto EXIT2;
         }
 
@@ -140,41 +140,41 @@ int main (int argc, char *argv[])
                                        &hOOOContext,
                                        &pOOOContext))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOStartOperation");
             goto EXIT1;
 
         }
 
         if ( error = OOOGetState(pOOOContext,&retVersion,&retState))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOGetState");
             goto EXIT1;
         }
 
         switch( retVersion )
         {
                 case OOO_CONFIG_AGENT:
-                        printf("The version (agent, service) of the out of office functionality is agent\n");
+                        PRINTLOG("The version (agent, service) of the out of office functionality is agent\n");
                         break;
                 case OOO_CONFIG_SERVICE:
-                        printf("The version (agent, service) of the out of office functionality is service\n");
+                        PRINTLOG("The version (agent, service) of the out of office functionality is service\n");
                         break;
         }
 
         switch ( retState )
         {
                 case OOO_STATE_DISABLED:
-                        printf("The state (disabled, enabled) of the out of office functionality is disabled\n");
+                        PRINTLOG("The state (disabled, enabled) of the out of office functionality is disabled\n");
                         break;
                 case OOO_STATE_ENABLED:
-                        printf("The state (disabled, enabled) of the out of office functionality is enabled\n");
+                        PRINTLOG("The state (disabled, enabled) of the out of office functionality is enabled\n");
                         break;
 
         }
 
         if (OOOSetExcludeInternet(pOOOContext,TRUE))
         {
-           PrintAPIError (error);
+           PRINTERROR (error,"OOOSetExcludeInternet");
            goto EXIT1;
 
         }
@@ -182,18 +182,18 @@ int main (int argc, char *argv[])
 
         if (OOOGetExcludeInternet(pOOOContext,&bExcludeInternet))
         {
-           PrintAPIError (error);
+           PRINTERROR (error,"OOOGetExcludeInternet");
            goto EXIT1;
 
         }
 
         if (bExcludeInternet)
         {
-           printf("Gets ExcludeInternet is TRUE\n");
+           PRINTLOG("Gets ExcludeInternet is TRUE\n");
         }
         else 
         {
-          printf("Gets ExcludeInternet is FALSE\n");
+          PRINTLOG("Gets ExcludeInternet is FALSE\n");
         }
 
         strcpy (timetext, szStartAway);
@@ -207,7 +207,7 @@ int main (int argc, char *argv[])
         if (error = ConvertTextToTIMEDATE(NULL,NULL,
                                           &text_pointer,(WORD) strlen(szStartAway),&tdStartAway))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"ConvertTextToTIMEDATE");
             goto EXIT1;
 
         }
@@ -225,63 +225,63 @@ int main (int argc, char *argv[])
                       (WORD) strlen(timetext),
                       &tdEndAway))
         {
-           PrintAPIError (error);
+           PRINTERROR (error,"ConvertTextToTIMEDATE");
            goto EXIT1;
 
         }
 
         if (error = OOOSetAwayPeriod(pOOOContext, tdStartAway, tdEndAway))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOSetAwayPeriod");
             goto EXIT1;
 
         }
 
         if (error = OOOEnable(pOOOContext, TRUE))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOEnable");
             goto EXIT1;
 
         }
 
         if (OOOSetGeneralSubject(pOOOContext,pGeneralSubject,TRUE))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOSetGeneralSubject");
             goto EXIT1;
 
         }
 
         if (OOOGetGeneralSubject(pOOOContext,pGeneralSubject))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOGetGeneralSubject");
             goto EXIT1;
 
         }
 
-        printf("Gets OOO General Subject:\n");
-        printf("%s\n",pGeneralSubject);
+        PRINTLOG("Gets OOO General Subject:\n");
+        PRINTLOG("%s\n",pGeneralSubject);
         fflush(stdout);
 
         if (OOOSetGeneralMessage(pOOOContext,pGeneralMessage,sizeof(pGeneralMessage)))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOSetGeneralMessage");
             goto EXIT1;
         }
 
 
         if (OOOGetGeneralMessage(pOOOContext,pGeneralMessage,&pGeneralMessageLen))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOGetGeneralMessage");
             goto EXIT1;
         }
 
-        printf("Gets OOO General Message:\n");
-        printf("%s ",pGeneralMessage);
+        PRINTLOG("Gets OOO General Message:\n");
+        PRINTLOG("%s ",pGeneralMessage);
         fflush(stdout);
 
         if (error = OOOGetAwayPeriod(pOOOContext,&tdStartAway,&tdEndAway))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOGetAwayPeriod");
             goto EXIT1;
         }
 
@@ -289,31 +289,31 @@ int main (int argc, char *argv[])
                             timetext, MAXALPHATIMEDATE,
                             &TimeStringLen))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"ConvertTIMEDATEToText");
             goto EXIT1;
         }
 
         timetext[TimeStringLen] = '\0';
-        printf("%s to ", timetext);
+        PRINTLOG("%s to ", timetext);
 
 
         if (error = ConvertTIMEDATEToText(NULL, NULL,&tdEndAway,
                             timetext, MAXALPHATIMEDATE,
                             &TimeStringLen))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"ConvertTIMEDATEToText");
             goto EXIT1;
         }
 
         timetext[TimeStringLen] = '\0';
-        printf("%s.", timetext);
+        PRINTLOG("%s.", timetext);
 
 
         if (hOOOContext && pOOOContext)
         {
             if (error = OOOEndOperation(hOOOContext, pOOOContext))
             {
-                PrintAPIError (error);
+                PRINTERROR (error,"OOOEndOperation");
                 goto EXIT1;
             }
         }
@@ -322,7 +322,7 @@ int main (int argc, char *argv[])
 EXIT1:
         if (error = OOOTerm())
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OOOTerm");
             NotesTerm();
             return (1);
         }
@@ -331,14 +331,14 @@ EXIT2:
         {
            if (error = MailCloseMessageFile(hMailFile))
            {
-               PrintAPIError (error);
+               PRINTERROR (error,"MailCloseMessageFile");
                NotesTerm();
                return (1);
            }
         }
 
     /* End of subroutine. */
-        printf("\nProgram completed successfully.\n");
+        PRINTLOG("\nProgram completed successfully.\n");
         fflush(stdout);
         NotesTerm();
         return (0);
@@ -367,27 +367,4 @@ STATUS getCurrDate(char *stDate, char *enDate)
        sprintf(enDate, "%02d/%02d/%d", time->tm_mday, time->tm_mon + 1, time->tm_year + 1900);
 #endif
        return NOERROR;
-}
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
 }

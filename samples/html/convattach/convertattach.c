@@ -28,6 +28,7 @@
 #include "nsfnote.h"
 #include "osmem.h"
 #include "osmisc.h"
+#include "printLog.h"
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -81,7 +82,6 @@ FILE *m_pLogFile = NULL;
 
 /*Function Defination*/
 int convert(char c);
-void PrintAPIError(STATUS err);
 void PrintSeperator(void);
 void PrintLogInfo(const char*);
 STATUS TryNote(char *DatabaseName, NOTEID ViewID, WORD *ErrCode);
@@ -238,8 +238,8 @@ ExitTermProcess:
 ExitStartUp:
 	if(rslt)
 	{
-		PrintAPIError(rslt);
-		printf("%s\n", "error occur, check the log file");
+		PRINTERROR(rslt,"HTMLProcessInitialize");
+		PRINTLOG("%s\n", "error occur, check the log file");
 		return EXIT_FAILURE;
 	}
 
@@ -256,7 +256,7 @@ ExitStartUp:
 		m_pLogFile = NULL;
 	}
 	NotesTerm();
-	printf("%s\n", "Sucess to execute this sample");
+	PRINTLOG("%s\n", "Sucess to execute this sample");
 	return EXIT_SUCCESS;
 }
 
@@ -547,7 +547,7 @@ STATUS PutRefs(HTMLHANDLE cvtr)
 							if(rslt = NSFItemInfo(m_NoteHandle, "$FILE", 
 								(WORD)strlen("$FILE"), &item_BlockID, &Value_DataType, 
 								&Value_BlockID, &Value_Lenth))
-								PrintAPIError(rslt);
+								PRINTERROR(rslt,"NSFItemInfo");
 						}
 						else
 						{
@@ -555,13 +555,13 @@ STATUS PutRefs(HTMLHANDLE cvtr)
 							if(rslt = NSFItemInfoNext(m_NoteHandle, Prev_Item_BlockID,
 								"$FILE",(WORD)strlen("$FILE"), &item_BlockID, &Value_DataType,
 								&Value_BlockID, &Value_Lenth))
-								PrintAPIError(rslt);
+								PRINTERROR(rslt,"NSFItemInfoNext");
 						}
 						if( rslt = NSFNoteExtractFileExt(m_NoteHandle, item_BlockID, AttachFileName,
 							NULL, NTEXT_FTYPE_FLAT))
-							PrintAPIError(rslt);
+							PRINTERROR(rslt,"NSFNoteExtractFileExt");
 						if(rslt = HTMLSetReferenceText(cvtr, refi, AttachFileName))
-							PrintAPIError(rslt);
+							PRINTERROR(rslt,"HTMLSetReferenceText");
 					}
 				}
 				break;
@@ -661,7 +661,7 @@ STATUS PutText(HTMLHANDLE cvtr)
 	if (TextLength != ExpectedTextLength) 
 	{
 		PrintLogInfo("Error: The text length Got is not equal to the expected");
-		printf("%s\n", "Error: The text length Got is not equal to the expected");
+		PRINTLOG("%s\n", "Error: The text length Got is not equal to the expected");
 		//not fatal error, continue
 	}
 	
@@ -790,13 +790,6 @@ char* GetReferenceType(HTMLAPI_URLTargetComponent tgt)
 		break;
 	}
 	return "UnKnown";
-}
-
-void PrintAPIError(STATUS err)
-{
-	char szErrorString[BuufferSize];
-	OSLoadString(NULL, ERR(err), szErrorString, BuufferSize-1);
-	fprintf(m_pLogFile, "%s, %s\n", "The error is:", szErrorString);
 }
 
 void PrintSeperator(void)

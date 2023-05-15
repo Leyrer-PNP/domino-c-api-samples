@@ -37,7 +37,7 @@
 #include <nsfdb.h>
 #include <nsfdata.h>
 #include <osfile.h>
-
+#include <printLog.h>
 #include <lapiplat.h>
 
 #if defined(OS390) && (__STRING_CODE_SET__==ISO8859-1 /* ascii compile */)
@@ -87,10 +87,10 @@ STATUS LNPUBLIC NotesMain(int argc, char far *argv[])
     {
 #if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
         OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, argv[0], MAXWORD, XLATE_prog_name, sizeof(XLATE_prog_name));
-        printf( "\nUsage:  %s  [server name - optional] <database filename>\n", XLATE_prog_name);
+        PRINTLOG( "\nUsage:  %s  [server name - optional] <database filename>\n", XLATE_prog_name);
 
 #else
-        printf( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
+        PRINTLOG( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
 #endif
         return (0);
     }
@@ -133,9 +133,9 @@ STATUS LNPUBLIC NotesMain(int argc, char far *argv[])
 #if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
     OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXWORD, XLATE_path_name, sizeof(XLATE_path_name));
     OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, title, MAXWORD, XLATE_title, sizeof(XLATE_title));
-    printf ("\n\n\nThe title for the database, %s, is:\n\n%s\n", XLATE_path_name, XLATE_title);
+    PRINTLOG ("\n\n\nThe title for the database, %s, is:\n\n%s\n", XLATE_path_name, XLATE_title);
 #else
-    printf ("\n\n\nThe title for the database, %s, is:\n\n%s\n\n", path_name, title);
+    PRINTLOG ("\n\n\nThe title for the database, %s, is:\n\n%s\n\n", path_name, title);
 #endif /* OS390, ebcdic compile */
 
     /* Close the database. */
@@ -144,7 +144,7 @@ STATUS LNPUBLIC NotesMain(int argc, char far *argv[])
         return (ERR(error));
 
     /* End of subroutine. */
-    printf("\nProgram completed successfully\n");
+    PRINTLOG("\nProgram completed successfully\n");
     return (NOERROR);
 }
 

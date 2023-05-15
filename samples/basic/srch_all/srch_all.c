@@ -50,6 +50,7 @@ extern "C" {
 #include <nsferr.h>
 #include <idtable.h>            /* IDCreateTable */
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -66,7 +67,6 @@ extern "C" {
 
 STATUS LNPUBLIC AddIDUnique (void far *, SEARCH_MATCH far *, ITEM_TABLE far *);
 STATUS LNPUBLIC ChangeCategory (void far *, DWORD);
-void PrintAPIError (STATUS);
 void  LNPUBLIC  ProcessArgs (char *DBFileName);
 
 
@@ -111,7 +111,7 @@ int main (int argc, char *argv[])
 
     if (argc != 2)
     {
-        printf ("\nUsage:  %s  <db filename>  \n", argv[0]);
+        PRINTLOG ("\nUsage:  %s  <db filename>  \n", argv[0]);
         return (NOERROR);
     }
     
@@ -121,7 +121,7 @@ int main (int argc, char *argv[])
 	 /* Initialize Notes */
 	if (error = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	}
 
@@ -130,7 +130,7 @@ int main (int argc, char *argv[])
 
     if (error = NSFDbOpen (szDBName, &hDB))
     {
-        printf ("Error: unable to open database '%s'.\n", szDBName);
+        PRINTLOG ("Error: unable to open database '%s'.\n", szDBName);
            return (ERR(error));
     }
 
@@ -143,7 +143,7 @@ int main (int argc, char *argv[])
 
     if (error = IDCreateTable(sizeof(NOTEID), &hNoteIDTable))
     {
-        printf ("Error: unable to create ID table.\n");
+        PRINTLOG ("Error: unable to create ID table.\n");
         NSFDbClose (hDB);
         return (ERR(error));
     }
@@ -160,7 +160,7 @@ int main (int argc, char *argv[])
         NULL))          /* returned ending date (unused) */
 
     {
-        printf ("Error: unable to search database.\n");
+        PRINTLOG ("Error: unable to search database.\n");
         IDDestroyTable(hNoteIDTable);
         NSFDbClose (hDB);
         return (ERR(error));
@@ -171,7 +171,7 @@ int main (int argc, char *argv[])
                             ChangeCategory, /* called for each ID */
                             &hDB))          /* arg passed to func */
     {
-        printf ("Error: unable to enumerate documents in ID table.\n");
+        PRINTLOG ("Error: unable to enumerate documents in ID table.\n");
     }
 
     IDDestroyTable(hNoteIDTable);
@@ -179,7 +179,7 @@ int main (int argc, char *argv[])
     NSFDbClose (hDB);
 
     if (error == NOERROR)
-       printf("\nProgram completed successfully.\n");
+       PRINTLOG("\nProgram completed successfully.\n");
 
     NotesTerm();
     return (0); 
@@ -215,16 +215,16 @@ STATUS LNPUBLIC AddIDUnique
 
     if (error = IDInsert(hNoteIDTable, SearchMatch.ID.NoteID, &flagOK))
     {
-        printf ("Error: unable to insert note ID into table.\n");
+        PRINTLOG ("Error: unable to insert note ID into table.\n");
         return (ERR(error));
     }
     if (flagOK == TRUE)
     {
-        printf ("\tInserted note %lX into table.\n", SearchMatch.ID.NoteID);
+        PRINTLOG ("\tInserted note %lX into table.\n", SearchMatch.ID.NoteID);
     }
     else
     {
-        printf ("\tNote %lX is already in table.\n", SearchMatch.ID.NoteID);
+        PRINTLOG ("\tNote %lX is already in table.\n", SearchMatch.ID.NoteID);
     }
 
     return (NOERROR);
@@ -246,7 +246,7 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
     char        field_text[500];
 
 
-    printf ("\tProcessing note %lX.\n", NoteID);
+    PRINTLOG ("\tProcessing note %lX.\n", NoteID);
 
     hDB = *( (DBHANDLE far *)phDB );
 
@@ -256,7 +256,7 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
             0,
             &hNote))
     {
-        printf ("Error: unable to open note.\n");
+        PRINTLOG ("Error: unable to open note.\n");
         return (ERR(error));
     }
 
@@ -272,7 +272,7 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
 
     if (!field_found)
     {
-        printf ("%s field not found in this note.\n",ITEM_NAME_CATEGORIES);
+        PRINTLOG ("%s field not found in this note.\n",ITEM_NAME_CATEGORIES);
         NSFNoteClose (hNote);
         return (NOERROR);
     }
@@ -300,7 +300,7 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
                         ITEM_NAME_CATEGORIES, 
                         (WORD) strlen(ITEM_NAME_CATEGORIES)))
         {
-            printf ("Error: unable to delete item '%s' from note.\n",ITEM_NAME_CATEGORIES);
+            PRINTLOG ("Error: unable to delete item '%s' from note.\n",ITEM_NAME_CATEGORIES);
             NSFNoteClose (hNote);
             return (ERR(error));
         }
@@ -309,7 +309,7 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
                         CATEGORIES_VALUE_Q, 
                         (WORD) strlen(CATEGORIES_VALUE_Q)))
         {
-            printf ("Error: unable to set item '%s' to value '%s' in note.\n",
+            PRINTLOG ("Error: unable to set item '%s' to value '%s' in note.\n",
                     ITEM_NAME_CATEGORIES, CATEGORIES_VALUE_Q);
             NSFNoteClose (hNote);
             return (ERR(error));
@@ -323,7 +323,7 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
                         ITEM_NAME_CATEGORIES, 
                         (WORD) strlen(ITEM_NAME_CATEGORIES)))
         {
-            printf ("Error: unable to delete item '%s' from note.\n",ITEM_NAME_CATEGORIES);
+            PRINTLOG ("Error: unable to delete item '%s' from note.\n",ITEM_NAME_CATEGORIES);
             NSFNoteClose (hNote);
             return (ERR(error));
         }
@@ -332,7 +332,7 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
                         CATEGORIES_VALUE_R, 
                         (WORD) strlen(CATEGORIES_VALUE_R)))
         {
-            printf ("Error: unable to set item '%s' to value '%s' in note.\n",
+            PRINTLOG ("Error: unable to set item '%s' to value '%s' in note.\n",
                     ITEM_NAME_CATEGORIES, CATEGORIES_VALUE_R);
             NSFNoteClose (hNote);
             return (ERR(error));
@@ -341,49 +341,19 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
 
     if (error = NSFNoteUpdate (hNote, 0))
     {
-        printf ("Error: unable to update note.\n");
+        PRINTLOG ("Error: unable to update note.\n");
         NSFNoteClose (hNote);
         return (ERR(error));
     }
 
     if (error = NSFNoteClose (hNote))
     {
-        printf ("Error: unable to close.\n");
+        PRINTLOG ("Error: unable to close.\n");
         return (ERR(error));
     }
 
     return (NOERROR);
 }
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
-
 
 /************************************************************************
 

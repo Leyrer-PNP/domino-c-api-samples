@@ -43,6 +43,7 @@
 #include <nif.h>
 
 #include <osmisc.h>
+#include <printLog.h>
 
 /* local include files */
 #include "cdfile.h"
@@ -53,8 +54,6 @@
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                              char *szText); 
-
-void PrintAPIError (STATUS);
 
 /**************************************************************************
 
@@ -84,7 +83,7 @@ int main(int argc, char *argv[])
 
 	if (nErr = NotesInitExtended (argc, argv))
 	{
-		printf("\n Unable to initialize Notes.\n");
+		PRINTLOG("\n Unable to initialize Notes.\n");
 		return (1);
 	}
 
@@ -101,8 +100,8 @@ int main(int argc, char *argv[])
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to create CompoundText context.\n" );
-	    PrintAPIError (nErr);  
+        PRINTLOG( "Error: unable to create CompoundText context.\n" );
+	    PRINTERROR (nErr,"CompoundTextCreate");  
 	    NotesTerm();
 		return (1);
     }
@@ -119,8 +118,8 @@ int main(int argc, char *argv[])
  
    if (nErr != NOERROR)
    {
-       printf( "Error: unable to define CompoundText style no. 1.\n" );
-	   PrintAPIError (nErr);  
+       PRINTLOG( "Error: unable to define CompoundText style no. 1.\n" );
+	   PRINTERROR (nErr,"CompoundTextDefineStyle");  
 	   NotesTerm();
 	   return (1);
    }
@@ -137,9 +136,9 @@ int main(int argc, char *argv[])
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to Add text to CompoundText context .\n" );
+        PRINTLOG( "Error: unable to Add text to CompoundText context .\n" );
         CompoundTextDiscard (hCompound);
-	    PrintAPIError (nErr);  
+	    PRINTERROR (nErr,"CompoundTextAddTextExt");  
 	    NotesTerm();
 		return (1);
     }
@@ -157,9 +156,9 @@ int main(int argc, char *argv[])
              
     if (nErr != NOERROR)
     {
-        printf("Error: unable to close compound text context.\n");
+        PRINTLOG("Error: unable to close compound text context.\n");
         CompoundTextDiscard (hCompound);
-	    PrintAPIError (nErr);  
+	    PRINTERROR (nErr,"CompoundTextClose");  
 	    NotesTerm();
 		return (1);
     }
@@ -170,17 +169,17 @@ int main(int argc, char *argv[])
 
         if (strlen( szTempFileName ) == 0)
         {
-            printf( "Error: no buffer and no file created.\n");
-      	    PrintAPIError (nErr);  
+            PRINTLOG( "Error: no buffer and no file created.\n");
+      	    PRINTERROR (nErr,"CompoundTextClose");  
     	    NotesTerm();
     	    return (PKG_ADDIN);
         }
             
         if (rename(szTempFileName, szCDFileName) == 0)
         {
-            printf("Error: unable to rename temp file '%s' to '%s'.\n", 
+            PRINTLOG("Error: unable to rename temp file '%s' to '%s'.\n", 
                     szTempFileName, szCDFileName );
-      	    PrintAPIError (nErr);  
+      	    PRINTERROR (nErr,"CompoundTextClose");  
     	    NotesTerm();
     	    return (PKG_ADDIN);
         }
@@ -196,7 +195,7 @@ int main(int argc, char *argv[])
 
     if (pData == NULL)
     {
-        printf( "Error: unable to lock compount text buffer.\n" );
+        PRINTLOG( "Error: unable to lock compount text buffer.\n" );
 		NotesTerm();
 		return (0); 
     }
@@ -205,7 +204,7 @@ int main(int argc, char *argv[])
 
     if (pCDFile == (FILE*)NULL)
     {
-        printf( "Error: unable to open output file '%s'.\n", szCDFileName );
+        PRINTLOG( "Error: unable to open output file '%s'.\n", szCDFileName );
 		NotesTerm();
 		return (0); 
     }
@@ -216,24 +215,24 @@ int main(int argc, char *argv[])
 
     if (sRetVal != sBufferSize)
     {
-        printf( "Error: did not write %d bytes to output file.\n", 
+        PRINTLOG( "Error: did not write %d bytes to output file.\n", 
                 sBufferSize);
     }
     else
     {
-        printf( "Wrote %d bytes to file %s.\n", sRetVal, szCDFileName );
+        PRINTLOG( "Wrote %d bytes to file %s.\n", sRetVal, szCDFileName );
     }
 
     if (fclose( pCDFile ))
     {
-        printf("Error: unable to close output file '%s'.\n", szCDFileName);
+        PRINTLOG("Error: unable to close output file '%s'.\n", szCDFileName);
     }
     
     OSUnlockObject( hCDBuffer );
 
     OSMemFree( hCDBuffer );
 
-    printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 	NotesTerm();
 	return (0); 
 }
@@ -276,32 +275,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 #endif
 } /* ProcessArgs */
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}

@@ -52,6 +52,7 @@
 #include <idtable.h>
 #include <lapiplat.h>
 #include "dxlexport.h"
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -70,11 +71,11 @@ int main(int argc, char *argv[])
 
 	if (error = NotesInitExtended (argc, argv))
 	{
-		fprintf( stdout, "\n Unable to initialize Notes.\n");
+		PRINTLOG( "\n Unable to initialize Notes.\n");
 		return (1);
 	} 
 
-    fprintf( stdout, "DXLEXPORT Utility\n" );
+    PRINTLOG(  "DXLEXPORT Utility\n" );
 
     expOptions.pOutputFile = stdout;
 
@@ -104,11 +105,11 @@ int main(int argc, char *argv[])
 	if(expOptions.pOutputFile == NULL)			/* Assign pOutputFile to stdout if not specified. */
 		expOptions.pOutputFile = stdout;
 
-    fprintf( stdout, "dxlexport: exporting '%s'\n", path_name );
+    PRINTLOG( "dxlexport: exporting '%s'\n", path_name );
 
     if (error = NSFDbOpen( path_name, &hDB ))	/* Open the Domino/Notes Database */
     {
-		fprintf( stdout, "Error: unable to open '%s.'\n", path_name );
+		PRINTLOG(  "Error: unable to open '%s.'\n", path_name );
 		PrintAPIError (error); 
 		NotesTerm();
 		return (1);
@@ -131,11 +132,11 @@ int main(int argc, char *argv[])
 
     fflush(expOptions.pOutputFile);
 
-    fprintf( stdout, "\n\nDXLEXPORT: Done.\n" );
+    PRINTLOG(  "\n\nDXLEXPORT: Done.\n" );
     if ( stdout != expOptions.pOutputFile ) 
 		fclose(expOptions.pOutputFile);
     if (error == NOERROR)
-      printf("\nProgram completed successfully.\n");
+      PRINTLOG("\nProgram completed successfully.\n");
     NotesTerm();
     return (0);
 }
@@ -208,7 +209,7 @@ STATUS LNPUBLIC ExportData( struct ExportOptions *expOptions, DBHANDLE hDB )
 	}
 	else
 		/* Should not get here, this is an invalid request for what to export */
-		fprintf( stdout, "\nInvalid request on what to Export\n");
+		PRINTLOG(  "\nInvalid request on what to Export\n");
 
 	/*
 	 * Find out if there are any errors to report.
@@ -388,9 +389,13 @@ void LNCALLBACK DXLExportStreamFunc ( const BYTE *bytes, DWORD length, void far 
 	
 	numberWritten = fwrite( bytes, sizeof(BYTE), length, tmpCtx->pOutputFile);
 	if( numberWritten != length )
-		fprintf( stdout, "Error: Did not write specified bytes required %d\n", length );
+	{
+		PRINTLOG(  "Error: Did not write specified bytes required %d\n", length );
+	}
 	else
+	{
 		tmpCtx->totalBytesWritten += numberWritten;
+	}
 
 
 	return;
@@ -414,11 +419,11 @@ void LNCALLBACK CheckDXLErrorLog( DXLEXPORTHANDLE hDXLExport)
 		propValue = eDxlExportResultLog;
 		if(DXLGetExporterProperty(hDXLExport, propValue, &hMem))
 		{
-			fprintf( stdout, "\nNot Able to Retrieve Error Log Information!!!\n");
+			PRINTLOG( "\nNot Able to Retrieve Error Log Information!!!\n");
 			return;
 		}
 		pData = (char *)OSMemoryLock(hMem);
-		fprintf( stdout, "\nResultLog = %s\n", pData);
+		PRINTLOG( "\nResultLog = %s\n", pData);
 		OSMemoryUnlock(hMem);
 		OSMemoryFree(hMem);
 	}
@@ -505,7 +510,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 				/* open the file and assign to dump file pointer */
 				if ((expOptions->pOutputFile = fopen(argv[0],"w+")) == NULL)
 				{
-					fprintf( stdout, 
+					PRINTLOG(  
                        "Error: dump output file could not be opened.\n");
 					return (ERR_INVALID_ARGS);
 				}                
@@ -521,7 +526,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 				break;
 			
             default:    /* Invalid Option Specified */
-                fprintf ( stdout, "Didn't understand option %s\n", argv[0]);
+                PRINTLOG ( "Didn't understand option %s\n", argv[0]);
 				PrintUsage();
 				return(ERR_INVALID_ARGS);
             }
@@ -538,7 +543,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 				{
 					if(sscanf(expOptions->noteSpec+2, "%x", &expOptions->noteID) != 1 || expOptions->noteID == 0)
 					{
-						fprintf( stdout, "\nCouldn't parse noteid '%s'\n", expOptions->noteSpec);
+						PRINTLOG( "\nCouldn't parse noteid '%s'\n", expOptions->noteSpec);
 						PrintUsage();
 						return(ERR_INVALID_ARGS);
 					}
@@ -548,7 +553,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 			}
 			else
 			{
-				fprintf ( stdout, "Too many args: %s\n", argv[0]);
+				PRINTLOG ( "Too many args: %s\n", argv[0]);
 				PrintUsage();
 				return(ERR_INVALID_ARGS);
 			}
@@ -556,7 +561,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
     }
 	if(expOptions->fileDatabase == NULL)
 	{
-		fprintf( stdout, "\nYou must specify a Database Name to export from. \n");
+		PRINTLOG( "\nYou must specify a Database Name to export from. \n");
 		PrintUsage();
 		return(ERR_INVALID_ARGS);
 	}
@@ -571,18 +576,18 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 *************************************************************************/
 void    LNPUBLIC  PrintUsage()
 {
-    fprintf( stdout, "\nUSAGE : dxlexport [options] dbpath [notespec]\n" );
-	fprintf( stdout, "\ndbpath    - is relative to the Domino data directory\n");
-	fprintf( stdout, "notespec  - is either a design element name, or a hex noteid (ie. 0x211a)\n");
-	fprintf( stdout, "\noptions : \n");
-	fprintf( stdout, "         -a Write all notes in the database (including acl and design elements)\n");
-	fprintf( stdout, "         -c <number> Write all notes with the given note class(es).\n");
-	fprintf( stdout, "         -d <file> Write a DOCTYPE declaration using the given file\n");
-	fprintf( stdout, "         -l Write acl elements only.\n");
-	fprintf( stdout, "         -n Write all notes as <note>.\n");
-	fprintf( stdout, "         -o <file> Write the DXL to the file (default is standard out)\n");
-	fprintf( stdout, "         -s <server> Use the database on the specified Domino server\n");
-	fprintf( stdout, "         -r Write rich text items as uninterpreted data (<itemdata>) \n");
+    PRINTLOG(  "\nUSAGE : dxlexport [options] dbpath [notespec]\n" );
+	PRINTLOG( "\ndbpath    - is relative to the Domino data directory\n");
+	PRINTLOG( "notespec  - is either a design element name, or a hex noteid (ie. 0x211a)\n");
+	PRINTLOG( "\noptions : \n");
+	PRINTLOG( "         -a Write all notes in the database (including acl and design elements)\n");
+	PRINTLOG( "         -c <number> Write all notes with the given note class(es).\n");
+	PRINTLOG( "         -d <file> Write a DOCTYPE declaration using the given file\n");
+	PRINTLOG( "         -l Write acl elements only.\n");
+	PRINTLOG( "         -n Write all notes as <note>.\n");
+	PRINTLOG( "         -o <file> Write the DXL to the file (default is standard out)\n");
+	PRINTLOG( "         -s <server> Use the database on the specified Domino server\n");
+	PRINTLOG( "         -r Write rich text items as uninterpreted data (<itemdata>) \n");
    
     return;
 }
@@ -613,7 +618,7 @@ void PrintAPIError (STATUS api_error)
                              sizeof(error_text));
 
     /* Print it. */
-    fprintf (stdout, "\n%s\n", error_text);
+    PRINTLOG ("\n%s\n", error_text);
 
 }
 

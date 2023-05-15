@@ -42,12 +42,10 @@
 #include <nsfnote.h>
 #include <log.h>
 #include <osmem.h>
-#include <osfile.h>   
+#include <osfile.h>
+#include <printLog.h>
 
 #define Recover_DB			"recover.nsf"		/*recovered DB name*/
-
-/* local function prototypes */
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -123,7 +121,7 @@ int main(int argc, char *argv[])
 	    				   fullpath))
 	    	{
 		    	printf("========ERR: Can not Construct OSPathNet\n");
-		        PrintAPIError(error);
+		        PRINTERROR(error,"OSPathNetConstruct");
 			goto EXIT;
 		}
 	}
@@ -142,7 +140,7 @@ int main(int argc, char *argv[])
 									&retNonDataMod))
 	{
 		printf("========error when open DB\n");
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbOpenExtended");
 		goto EXIT;
 	}
 	printf("\n========open the database:%s successfully\n", fullpath); 
@@ -160,7 +158,7 @@ int main(int argc, char *argv[])
 					      &dwBuffer,&size))
 			{
 				printf("\n========Error in getting DB2INFO %d, error is:", infotype[i]);
-				PrintAPIError(error);
+				PRINTERROR(error,"NSFDB2GetInfo");
 				goto EXIT;				
 			}
 			else
@@ -175,7 +173,7 @@ int main(int argc, char *argv[])
 				      buffer,&size))
 			{
 				printf("\n========Error in getting DB2INFO %d, error is:", infotype[i]);
-				PrintAPIError(error);
+				PRINTERROR(error,"NSFDB2GetInfo");
 				goto EXIT;				
 			}
 			else
@@ -200,7 +198,7 @@ int main(int argc, char *argv[])
 	if( error )
 	{
 		printf("\n========Error in execute NSFDB2ReconnectNotesDatabase!\n");
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDB2ReconnectNotesDatabase");
 		goto EXIT;
 	}
 	
@@ -214,7 +212,7 @@ int main(int argc, char *argv[])
 	link file can be deleted, the means the recover process is done successfully*/
 	if(error = NSFDbClose (db_handle))
 	 {
-	      PrintAPIError(error);
+	      PRINTERROR(error,"NSFDbClose");
 	      goto EXIT;
 	   
 	 }
@@ -228,7 +226,7 @@ int main(int argc, char *argv[])
 	if( error )
 	{
 		printf("\n========Error: can not recover!\n");
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDB2ReconnectNotesDatabase");
 		goto EXIT;
 	}
 	
@@ -240,7 +238,7 @@ int main(int argc, char *argv[])
   	if(error = NSFDbDelete(fullpath))
 	{
 		printf("\n========Error: can not execute NSFDBDelete!\n");
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbDelete");
 		goto EXIT;
 	}
 	
@@ -260,28 +258,3 @@ int main(int argc, char *argv[])
       NotesTerm();
       return (1);
 }
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\nERR:   *** %s\n\n\n", error_text);
-
-}
-

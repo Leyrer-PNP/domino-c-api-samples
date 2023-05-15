@@ -39,6 +39,7 @@
 #include <osmem.h>
 #include <nif.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -57,7 +58,6 @@ STATUS FindFirstNoteInfo (DBHANDLE, ORIGINATORID *, NOTEID *, short *);
 STATUS AssimilateTextFromNote (DBHANDLE, NOTEID, DHANDLE);
 STATUS AddDocLink(DBHANDLE, NOTEID, ORIGINATORID, DHANDLE);
 STATUS AddRenderedNote(DBHANDLE, NOTEID, DHANDLE);
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -96,15 +96,15 @@ int main(int argc, char *argv[])
 
 if (nErr = NotesInitExtended (argc, argv))
  {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
  }
     
    /* Open the database. */
     if ( (nErr = NSFDbOpen (DBNAME, &hDB)) != NOERROR )
     {
-        printf( "Error: unable to open database, %s.\n", DBNAME);
-		PrintAPIError (nErr);  
+        PRINTLOG( "Error: unable to open database, %s.\n", DBNAME);
+		PRINTERROR (nErr,"NSFDbOpen");  
         NotesTerm();     
         return (1);
     }
@@ -113,9 +113,9 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if ( (nErr = NSFNoteCreate (hDB, &hNote)) != NOERROR )
     {
-        printf( "Error: unable to create new document in database.\n" );
+        PRINTLOG( "Error: unable to create new document in database.\n" );
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"NSFNoteCreate");  
         NotesTerm();     
         return (1);
     }
@@ -130,10 +130,10 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to set text in item '%s'.\n", FIELD_FORM );
+        PRINTLOG( "Error: unable to set text in item '%s'.\n", FIELD_FORM );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"NSFItemSetText");  
         NotesTerm();     
         return (1);
     }
@@ -144,10 +144,10 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if ( (nErr = NSFItemSetTime (hNote, "TIME_DATE", &timedate)) != NOERROR )
     {
-        printf( "Error: unable to set time in item 'TIME_DATE'.\n" );
+        PRINTLOG( "Error: unable to set time in item 'TIME_DATE'.\n" );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"NSFItemSetTime");  
         NotesTerm();     
         return (1);
     }
@@ -163,10 +163,10 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to create CompoundText context for 'RICH_TEXT'.\n" );
+        PRINTLOG( "Error: unable to create CompoundText context for 'RICH_TEXT'.\n" );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"CompoundTextCreate");  
         NotesTerm();     
         return (1);
     }
@@ -179,7 +179,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"AddMiscText");  
         NotesTerm();     
         return (1);
     }
@@ -196,7 +196,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"FindFirstNoteInfo");  
         NotesTerm();     
         return (1);
     }
@@ -209,11 +209,11 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to assimilate text from note.\n");
+        PRINTLOG("Error: unable to assimilate text from note.\n");
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"AssimilateTextFromNote");  
         NotesTerm();     
         return (1);
     }
@@ -231,7 +231,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"AddDocLink");  
         NotesTerm();     
         return (1);
     }
@@ -243,11 +243,11 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to add rendered note to text context.\n");
+        PRINTLOG("Error: unable to add rendered note to text context.\n");
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"AddRenderedNote");  
         NotesTerm();     
         return (1);
     }
@@ -266,11 +266,11 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to close compound text context.\n");
+        PRINTLOG("Error: unable to close compound text context.\n");
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"CompoundTextClose");  
         NotesTerm();     
         return (1);
     }
@@ -279,10 +279,10 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if ( (nErr = NSFNoteUpdate (hNote, 0)) != NOERROR )
     {
-        printf("Error: unable to update new note to the database.\n");
+        PRINTLOG("Error: unable to update new note to the database.\n");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"NSFNoteUpdate");  
         NotesTerm();     
         return (1);
     }
@@ -291,24 +291,24 @@ if (nErr = NotesInitExtended (argc, argv))
     if ( (nErr = NSFNoteClose (hNote)) != NOERROR )
     {
         NSFDbClose (hDB);
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"NSFNoteClose");  
         NotesTerm();     
         return (1);
     }
 
-    printf("\nNew note successfully created.\n");
+    PRINTLOG("\nNew note successfully created.\n");
 
    /* Close the database */
 
     if ( (nErr = NSFDbClose (hDB)) != NOERROR )
 	{
-		PrintAPIError (nErr);  
+		PRINTERROR (nErr,"NSFDbClose");  
         NotesTerm();     
         return (1);
 	}
 
    /* End of subroutine. */
-    printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
         NotesTerm();     
         return (0);
 }
@@ -352,7 +352,7 @@ STATUS AddMiscText (DHANDLE hCompound)
  
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to define CompoundText style no. 1.\n" );
+        PRINTLOG( "Error: unable to define CompoundText style no. 1.\n" );
         return (nErr);
     }
 
@@ -368,7 +368,7 @@ STATUS AddMiscText (DHANDLE hCompound)
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to Add text to CompoundText context .\n" );
+        PRINTLOG( "Error: unable to Add text to CompoundText context .\n" );
         return (nErr);
     }
           
@@ -383,7 +383,7 @@ STATUS AddMiscText (DHANDLE hCompound)
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to define CompoundText style no. 2.\n");       
+        PRINTLOG("Error: unable to define CompoundText style no. 2.\n");       
         return (nErr);
     }
    
@@ -397,7 +397,7 @@ STATUS AddMiscText (DHANDLE hCompound)
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to add paragraph to Comp Text context.\n");       
+        PRINTLOG("Error: unable to add paragraph to Comp Text context.\n");       
         return (nErr);
     }
    
@@ -417,7 +417,7 @@ STATUS AddMiscText (DHANDLE hCompound)
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to define compound text style no.3\n");
+        PRINTLOG("Error: unable to define compound text style no.3\n");
         return (nErr);
     }
    
@@ -442,7 +442,7 @@ STATUS AddMiscText (DHANDLE hCompound)
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to add para to compound text context.\n");
+        PRINTLOG("Error: unable to add para to compound text context.\n");
     }
 
     return (nErr);
@@ -486,7 +486,7 @@ STATUS FindFirstNoteInfo (DBHANDLE hDB, ORIGINATORID *pViewOID,
     nErr = NIFFindView (hDB, VIEWNAME, &ViewNoteID);
     if (nErr != NOERROR)
     {
-        printf("Error: unable to find view '%s' in database.\n", VIEWNAME);
+        PRINTLOG("Error: unable to find view '%s' in database.\n", VIEWNAME);
         return (nErr);
     }
    
@@ -494,7 +494,7 @@ STATUS FindFirstNoteInfo (DBHANDLE hDB, ORIGINATORID *pViewOID,
     nErr = NSFNoteOpen (hDB, ViewNoteID, 0, &hViewNote);
     if (nErr != NOERROR)
     {
-        printf("Error: unable to open view note.\n");
+        PRINTLOG("Error: unable to open view note.\n");
         return (nErr);
     }
 
@@ -505,7 +505,7 @@ STATUS FindFirstNoteInfo (DBHANDLE hDB, ORIGINATORID *pViewOID,
     nErr = NSFNoteClose(hViewNote);
     if (nErr != NOERROR)
     {
-        printf("Error: unable to close view note.\n");
+        PRINTLOG("Error: unable to close view note.\n");
         return (nErr);
     }
    
@@ -515,7 +515,7 @@ STATUS FindFirstNoteInfo (DBHANDLE hDB, ORIGINATORID *pViewOID,
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to open collection.\n");
+        PRINTLOG("Error: unable to open collection.\n");
         return (nErr);
     }
    
@@ -528,7 +528,7 @@ STATUS FindFirstNoteInfo (DBHANDLE hDB, ORIGINATORID *pViewOID,
                           &dwEntriesRet, NULL);
     if (nErr != NOERROR)
     {
-        printf("Error: unable to read entries in collection.\n");
+        PRINTLOG("Error: unable to read entries in collection.\n");
 		NIFCloseCollection (hCollection);
         return (nErr);
     }
@@ -557,7 +557,7 @@ STATUS FindFirstNoteInfo (DBHANDLE hDB, ORIGINATORID *pViewOID,
     }
     else
     {
-        printf("no entries in view.\n");
+        PRINTLOG("no entries in view.\n");
     }
 
     nErr = NIFCloseCollection (hCollection);
@@ -590,7 +590,7 @@ STATUS AssimilateTextFromNote (DBHANDLE hDB, NOTEID IDNote, DHANDLE hCompound)
     nErr = NSFNoteOpen (hDB, IDNote, 0, &hOldNote);
     if (nErr != NOERROR)
     {
-        printf("Error: unable to open note to assimilate text from.\n");
+        PRINTLOG("Error: unable to open note to assimilate text from.\n");
         return (nErr);
     }
    
@@ -604,7 +604,7 @@ STATUS AssimilateTextFromNote (DBHANDLE hDB, NOTEID IDNote, DHANDLE hCompound)
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to assimilate text from item into context.\n");
+        PRINTLOG("Error: unable to assimilate text from item into context.\n");
         return (nErr);
     }
    
@@ -655,7 +655,7 @@ STATUS AddDocLink (DBHANDLE hDB, NOTEID IDNote,
     nErr = NSFNoteOpen (hDB, IDNote, 0, &hOldNote);
     if (nErr != NOERROR)
     {
-        printf("Error: unable to open note identified by doc link.\n");
+        PRINTLOG("Error: unable to open note identified by doc link.\n");
         return (nErr);
     }
    
@@ -670,7 +670,7 @@ STATUS AddDocLink (DBHANDLE hDB, NOTEID IDNote,
     nErr = NSFDbReplicaInfoGet (hDB, &DBReplica);
     if (nErr != NOERROR)
     {
-        printf("Error: unable to get replia info from database.\n");
+        PRINTLOG("Error: unable to get replia info from database.\n");
         return (nErr);
     }
    
@@ -696,7 +696,7 @@ STATUS AddDocLink (DBHANDLE hDB, NOTEID IDNote,
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to add doc link to Compound Text context.\n");
+        PRINTLOG("Error: unable to add doc link to Compound Text context.\n");
     }
        
     return (nErr);
@@ -731,7 +731,7 @@ STATUS AddRenderedNote (DBHANDLE hDB, NOTEID IDNote, DHANDLE hCompound)
     nErr = NSFNoteOpen (hDB, IDNote, 0, &hOldNote);
     if (nErr != NOERROR)
     {
-        printf("Error: unable to open note\n");
+        PRINTLOG("Error: unable to open note\n");
         return (nErr);
     }
    
@@ -748,7 +748,7 @@ STATUS AddRenderedNote (DBHANDLE hDB, NOTEID IDNote, DHANDLE hCompound)
  
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to define CompoundText style no. 1.\n" );
+        PRINTLOG( "Error: unable to define CompoundText style no. 1.\n" );
         return (nErr);
     }
 
@@ -765,7 +765,7 @@ STATUS AddRenderedNote (DBHANDLE hDB, NOTEID IDNote, DHANDLE hCompound)
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to Add text to CompoundText context .\n" );
+        PRINTLOG( "Error: unable to Add text to CompoundText context .\n" );
         return (nErr);
     }
           
@@ -777,7 +777,7 @@ STATUS AddRenderedNote (DBHANDLE hDB, NOTEID IDNote, DHANDLE hCompound)
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to Add rendered note to CompoundText context .\n" );
+        PRINTLOG( "Error: unable to Add rendered note to CompoundText context .\n" );
         return (nErr);
     }
 
@@ -786,33 +786,4 @@ STATUS AddRenderedNote (DBHANDLE hDB, NOTEID IDNote, DHANDLE hCompound)
     NSFNoteClose (hOldNote);
     
     return (nErr);
-}
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-				error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
 }

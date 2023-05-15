@@ -32,6 +32,7 @@
 #include <kfm.h>
 #include <textlist.h>
 #include <nsfdb.h>
+#include<printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -40,7 +41,6 @@
 
 /* local function prototypes */
 
-void PrintAPIError (STATUS);  /*print out the error returned by API*/
 int  verify(char*, char*);			  /*verify the test result*/
 
 int main(int argc, char* argv[])
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 	
 	if (err = NotesInitExtended (argc, argv))
 	{
-	    PrintAPIError(err);
+	    PRINTERROR(err,"NotesInitExtended");
 	    return 1;
 	 }
 	
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 	        
 	                                 DB_NAME, fullpath_name))
 	        {
-	        	PrintAPIError(err);
+	        	PRINTERROR(err,"OSPathNetConstruct");
 			goto EXIT;
 	        }
 	        	printf("======Construct os netpath successfully\n");
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 								  &retDataMod, 
 								  &retNonDataMod))
 	{
-		PrintAPIError(err);
+		PRINTERROR(err,"NSFDbOpenExtended");
 		goto EXIT;	
 	}
 	
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 	
 	if( err = NSFDbIsDB2( db_handle, &isDB2) )	
 	{	
-		PrintAPIError(err);
+		PRINTERROR(err,"NSFDbIsDB2");
 		goto EXIT;
 	}
 	else
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
 			if(err = NSFDB2GetInfo(db_handle, infotype[i],
 					      &dwBuffer,&size))
 			{
-				PrintAPIError(err);
+				PRINTERROR(err,"NSFDB2GetInfo");
 				goto EXIT;				
 			}
 			else
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
 			if(err = NSFDB2GetInfo(db_handle, infotype[i],
 				      buffer,&size))
 			{
-				PrintAPIError(err);
+				PRINTERROR(err,"NSFDB2GetInfo");
 				goto EXIT;				
 			}
 			else
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 					     ServerInfo[i],
 					     buffer, &size))
 			{
-				PrintAPIError(err);
+				PRINTERROR(err,"NSFDB2GetServerInfo");
 				goto EXIT;
 			}
 			else
@@ -246,7 +246,7 @@ take it offline*/
 	NULL 					/*(for future use)*/
 	))                
 	{
-		PrintAPIError(err);
+		PRINTERROR(err,"NSFDB2FastCopy");
 		goto EXIT;
 	}	
 	else
@@ -268,27 +268,6 @@ EXIT:
 	NotesTerm();
 	return (1);
 	
-}
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n ERROR:  *** %s\n\n\n", error_text);
-
 }
 
 int verify(char *targetdb, char *server_name)

@@ -7,7 +7,7 @@
     DESCRIPTION:
         This file contains routines that print the contents of
         Query and Action records to the dumpfile. These routines
-        mostly just dump structures defined in HCL C API for Domino and  
+        mostly just dump structures defined in HCL C API for Domino and
 		Notes header file queryods.h.
 
         Note: #ifdef APITESTMODE is for internal use only.  

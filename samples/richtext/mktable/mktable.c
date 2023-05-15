@@ -42,6 +42,7 @@
 #include <osfile.h>
 #include <textlist.h>
 #include <stdnames.h>
+#include <printLog.h>
 
 #include "mktable.h"
 
@@ -87,14 +88,14 @@ int main(int argc, char *argv[])
 
 	if (error = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	}
 
     db_name = (char *) malloc(LINEOTEXT);
     if (db_name == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         NotesTerm();
         return (0);
     }
@@ -180,7 +181,7 @@ int main(int argc, char *argv[])
 
     if (pre_conversion_pabdef_ptr == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         NotesTerm();
         return (0);
     }
@@ -250,8 +251,8 @@ int main(int argc, char *argv[])
                     &cd_buf_ptr,  /* ptr to begin of Rich Text Buf   */
                     &cd_buf_cnt))/* current offset in to Buf        */
     {
-        printf("\nMKTABLE ERROR - Table and\\or Text too big or");
-        printf(" dimension out of range!\n");
+        PRINTLOG("\nMKTABLE ERROR - Table and\\or Text too big or");
+        PRINTLOG(" dimension out of range!\n");
         goto Exit;
     }
     else
@@ -310,8 +311,8 @@ int main(int argc, char *argv[])
                     textlist_ptr, PLNREDCR10,
                     &post_conversion_pabdef_ptr, &cd_buf_ptr, &cd_buf_cnt))
     {
-        printf("\nMKTABLE ERROR - Table and\\or Text too big or");
-        printf(" dimension out of range!\n");
+        PRINTLOG("\nMKTABLE ERROR - Table and\\or Text too big or");
+        PRINTLOG(" dimension out of range!\n");
         goto Exit;
     }
     else
@@ -337,8 +338,8 @@ int main(int argc, char *argv[])
              NULL, PLNREDCR10,
              &post_conversion_pabdef_ptr, &cd_buf_ptr, &cd_buf_cnt))
     {
-        printf("\nMKTABLE ERROR - Table and\\or Text too big or");
-        printf(" dimension out of range!\n");
+        PRINTLOG("\nMKTABLE ERROR - Table and\\or Text too big or");
+        PRINTLOG(" dimension out of range!\n");
         goto Exit;
     }
 
@@ -394,7 +395,7 @@ Exit: /* ERROR HANDLING */
     }
 
     if (!error)
-	  printf ("\nProgram completed successfully.\n");
+	  PRINTLOG ("\nProgram completed successfully.\n");
 
     NotesTerm();
     return (error);

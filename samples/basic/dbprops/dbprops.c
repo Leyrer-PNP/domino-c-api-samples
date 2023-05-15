@@ -58,8 +58,7 @@
 #include <osmisc.h>
 #include <ostime.h>
 #include <ctype.h>
-
-void PrintAPIError (STATUS);
+#include <printLog.h>
 
 #define  STRING_LENGTH  256
 
@@ -148,17 +147,17 @@ int main(int argc, char *argv[])
 
    if (!usage)
    {
-      printf( "\n Usage: dbprops <action> \n");
-      printf( "\n action: SET   - Set new database title and properties\n");
-      printf( "         RESET - Reset old database title and propertis\n");
-      printf( "         GET   - Get current database title and properties\n");
+      PRINTLOG( "\n Usage: dbprops <action> \n");
+      PRINTLOG( "\n action: SET   - Set new database title and properties\n");
+      PRINTLOG( "         RESET - Reset old database title and propertis\n");
+      PRINTLOG( "         GET   - Get current database title and properties\n");
 
       return (0);
    }
 
    if (error = NotesInitExtended (argc, argv))
    {
-      printf("\n Unable to initialize Notes.\n");
+      PRINTLOG("\n Unable to initialize Notes.\n");
       return (1);
    }
 
@@ -166,7 +165,7 @@ int main(int argc, char *argv[])
 /* Open the input database */
    if (error = NSFDbOpen (path_name, &db_handle))
    {
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFDbOpen");
       NotesTerm();
       return (1);
    }
@@ -175,7 +174,7 @@ int main(int argc, char *argv[])
 	if (error = NSFDbReplicaInfoGet( db_handle, &dbrepInfo ))
 	{
 		NSFDbClose (db_handle);
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFDbReplicaInfoGet");
 		NotesTerm();
 		return (1);
 	}
@@ -193,15 +192,19 @@ int main(int argc, char *argv[])
    db_info[0] = '\0';
 
    if (rset)
-      printf("\n\n *** MODIFIED database settings ***");
+   {
+      PRINTLOG("\n\n *** MODIFIED database settings ***");
+   }
    else
-      printf("\n\n *** CURRENT database settings ***");
+   {
+      PRINTLOG("\n\n *** CURRENT database settings ***");
+   }
 
 /* Get the output database information buffer */
    if (error = NSFDbInfoGet (db_handle, db_info))
    {
        NSFDbClose (db_handle);
-       PrintAPIError (error);
+       PRINTERROR (error,"NSFDbInfoGet");
        NotesTerm();
        return (1);
    }
@@ -213,7 +216,7 @@ int main(int argc, char *argv[])
       if (error = NSFDbInfoSet (db_handle, db_info))
       {
          NSFDbClose (db_handle);
-         PrintAPIError (error);
+         PRINTERROR (error,"NSFDbInfoSet");
          NotesTerm();
          return (1);
       }
@@ -222,7 +225,7 @@ int main(int argc, char *argv[])
       if ( error = NSFDbReplicaInfoSet(db_handle, &dbrepInfo))
 		{
          NSFDbClose (db_handle);
-         PrintAPIError (error);
+         PRINTERROR (error,"NSFDbReplicaInfoSet");
          NotesTerm();
          return (1);
 		}
@@ -230,41 +233,41 @@ int main(int argc, char *argv[])
 
 /* Get the current title of the database */
    NSFDbInfoParse (db_info, INFOPARSE_TITLE, current_title, NSF_INFO_SIZE - 1);
-   printf ("\n\n  The current title for database, \"%s\", is:\n\n   \"%s\"\n", path_name, current_title);
+   PRINTLOG ("\n\n  The current title for database, \"%s\", is:\n\n   \"%s\"\n", path_name, current_title);
 
 /* Display the current replication settings */
-   printf("\n\n  The following replication properties are currently set:\n\n");
-   printf("   Database Replica ID    = %#010lx - %#010lx\n", dbrepInfo.ID.Innards[1], dbrepInfo.ID.Innards[0] );
+   PRINTLOG("\n\n  The following replication properties are currently set:\n\n");
+   PRINTLOG("   Database Replica ID    = %#010lx - %#010lx\n", dbrepInfo.ID.Innards[1], dbrepInfo.ID.Innards[0] );
 
    wRepFlags = dbrepInfo.Flags & REPLFLG_PRIORITY_INVMASK;
    wPriority = REPL_GET_PRIORITY(dbrepInfo.Flags);
 
-   printf("   Database Flags         = " );
+   PRINTLOG("   Database Flags         = " );
 
    if (wRepFlags & REPLFLG_DISABLE)
-      printf("DISABLE ");
+      PRINTLOG("DISABLE ");
    if (wRepFlags & REPLFLG_IGNORE_DELETES)
-      printf("IGNORE_DELETES ");
+      PRINTLOG("IGNORE_DELETES ");
    if (wRepFlags & REPLFLG_HIDDEN_DESIGN)
-      printf("HIDDEN_DESIGN ");
+      PRINTLOG("HIDDEN_DESIGN ");
    if (wRepFlags & REPLFLG_DO_NOT_CATALOG)
-      printf("DO_NOT_CATALOG ");
+      PRINTLOG("DO_NOT_CATALOG ");
    if (wRepFlags & REPLFLG_CUTOFF_DELETE)
-      printf("CUTOFF_DELETE ");
+      PRINTLOG("CUTOFF_DELETE ");
    if (wRepFlags & REPLFLG_NEVER_REPLICATE)
-      printf("NEVER_REPLICATE ");
+      PRINTLOG("NEVER_REPLICATE ");
    if (wRepFlags & REPLFLG_ABSTRACT)
-      printf("ABSTRACT ");
+      PRINTLOG("ABSTRACT ");
    if (wRepFlags & REPLFLG_DO_NOT_BROWSE)
-      printf("DO_NOT_BROWSE ");
+      PRINTLOG("DO_NOT_BROWSE ");
    if (wRepFlags & REPLFLG_NO_CHRONOS)
-      printf("NO_CHRONOS ");
+      PRINTLOG("NO_CHRONOS ");
 
-   printf("\n   Database Rep Priority  = %s\n",
+   PRINTLOG("\n   Database Rep Priority  = %s\n",
    wPriority == 0 ? "Low"     : (wPriority == 1 ? "Medium"  :
                                 (wPriority == 2 ? "High"    : "Unknown")));
 
-   printf("   DB Rep Cutoff Interval = %d Days\n", dbrepInfo.CutoffInterval );
+   PRINTLOG("   DB Rep Cutoff Interval = %d Days\n", dbrepInfo.CutoffInterval );
 
    ConvertTIMEDATEToText( NULL,
                           NULL,
@@ -274,7 +277,7 @@ int main(int argc, char *argv[])
                           &wLen );
    szTimedate[wLen] = '\0';
 
-   printf("   DB Rep Cutoff Date     = %s\n\n", szTimedate );
+   PRINTLOG("   DB Rep Cutoff Date     = %s\n\n", szTimedate );
 
 
 /* In order to change the database title or any other component
@@ -301,7 +304,7 @@ int main(int argc, char *argv[])
                      set_db_flags,
                      MAXWORD))
          {
-             PrintAPIError (error);
+             PRINTERROR (error,"NSFItemSetText");
              NSFNoteClose (hIconNote);
              NSFDbClose (db_handle);
              NotesTerm();
@@ -311,7 +314,7 @@ int main(int argc, char *argv[])
 /* Update the note in the database */
          if (error = NSFNoteUpdate (hIconNote, 0))
          {
-             PrintAPIError (error);
+             PRINTERROR (error,"NSFNoteUpdate");
              NSFNoteClose (hIconNote);
              NSFDbClose (db_handle);
              NotesTerm();
@@ -322,7 +325,7 @@ int main(int argc, char *argv[])
 /* Get the DESIGN_FLAGS ($Flags) values */
       if (NSFItemGetText(hIconNote, DESIGN_FLAGS, db_flags, sizeof (db_flags)))
       {
-         printf("\n  The following database properties are currently set:\n\n");
+         PRINTLOG("\n  The following database properties are currently set:\n\n");
 
          i=0;
          while (db_flags[i] != '\0')
@@ -331,37 +334,37 @@ int main(int argc, char *argv[])
             {
                case CHFLAG_NOUNREAD_MARKS:
                {
-                  printf("   \"Don't maintain unread marks\"\n");
+                  PRINTLOG("   \"Don't maintain unread marks\"\n");
                   break;
                }
                case CHFLAG_FORM_BUCKET_OPT:
                {
-                  printf("   \"Document table bitmap optimization\"\n");
+                  PRINTLOG("   \"Document table bitmap optimization\"\n");
                   break;
                }
                case CHFLAG_MAINTAIN_LAST_ACCESSED:
                {
-                  printf("   \"Maintain last accessed property\"\n");
+                  PRINTLOG("   \"Maintain last accessed property\"\n");
                   break;
                }
                case CHFLAG_DELETES_ARE_SOFT:
                {
-                  printf("   \"Allow soft deletions\"\n");
+                  PRINTLOG("   \"Allow soft deletions\"\n");
                   break;
                }
                case CHFLAG_DISABLE_RESPONSE_INFO:
                {
-                  printf("   \"Don't support specialized response hierarchy\"\n");
+                  PRINTLOG("   \"Don't support specialized response hierarchy\"\n");
                   break;
                }
                case CHFLAG_LARGE_UNKTABLE:
                {
-                  printf("   \"Allow more fields in database\"\n");
+                  PRINTLOG("   \"Allow more fields in database\"\n");
                   break;
                }
                default:
                {
-                  printf("   UNKNOWN database property\n");
+                  PRINTLOG("   UNKNOWN database property\n");
                   break;
                }
             }
@@ -369,19 +372,23 @@ int main(int argc, char *argv[])
          }
       }
       else
-         printf("\n  There are no DESIGN_FLAGS currently set in the ICON note.\n");
+      {
+         PRINTLOG("\n  There are no DESIGN_FLAGS currently set in the ICON note.\n");
+      }
 
       NSFNoteClose(hIconNote);
    }
    else
-      printf("\n  Unable to open ICON note.\n");
+   {
+      PRINTLOG("\n  Unable to open ICON note.\n");
+   }
 
 /* if there was no ICON note, do nothing */
 
 /* Close the database */
    if (error = NSFDbClose (db_handle))
    {
-       PrintAPIError (error);
+       PRINTERROR (error,"NSFDbClose");
        NotesTerm();
        return (1);
    }
@@ -389,37 +396,7 @@ int main(int argc, char *argv[])
    fflush(stdout);
 
 /* End of program */
-   printf("\n\n Program completed successfully.\n");
+   PRINTLOG("\n\n Program completed successfully.\n");
    NotesTerm();
    return (0);
-}
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-      error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
 }

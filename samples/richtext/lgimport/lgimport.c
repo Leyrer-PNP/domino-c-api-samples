@@ -70,6 +70,7 @@
 #include <osmisc.h>
 
 #include <lapiplat.h>
+#include <printLog.h>
 
 /* local includes  */
 
@@ -89,8 +90,6 @@ STATUS LNPUBLIC ImportCD(char *szModulePath,
 STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
                                    char  *pszImportFile,
                                    char  *pszItemName);
-
-void PrintAPIError (STATUS);
 
 /* function specification for Domino and Notes DLLs    */
 
@@ -144,15 +143,15 @@ int main(int argc, char *argv[])
 	 usError = NotesInitExtended (argc, argv);
 	 if (usError)
 	 {
-		 printf("Error: Unable to initialize Notes.\n");
+		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
 	 }
 
     if (argc != 4 && argc != 5)
     {
-        printf("\nUsage: \n\tlgimport <NSF Filename>");
-        printf(" <Import/Export DLL Name> <Import File Path>");
-        printf(" <Second DLL Name> (if necessary)\n");
+        PRINTLOG("\nUsage: \n\tlgimport <NSF Filename>");
+        PRINTLOG(" <Import/Export DLL Name> <Import File Path>");
+        PRINTLOG(" <Second DLL Name> (if necessary)\n");
         return(0);
     }
 
@@ -174,7 +173,7 @@ int main(int argc, char *argv[])
 
     if (usError = ImportCD(szModPath, szFilePath, achTempName, szDLL))
     {
-        printf("\nUnable to create temporary file. Terminating...\n");
+        PRINTLOG("\nUnable to create temporary file. Terminating...\n");
         goto Done;
     }
 
@@ -183,8 +182,8 @@ int main(int argc, char *argv[])
 
     if (usError = NSFDbOpen(szNSFFile, &hDbNSFFile))
     {
-        printf("\nCannot open database '%s'. Terminating...\n", szNSFFile);
-		  PrintAPIError(usError);
+        PRINTLOG("\nCannot open database '%s'. Terminating...\n", szNSFFile);
+		  PRINTERROR(usError,"NSFDbOpen");
         goto Done;
     }
 
@@ -192,9 +191,9 @@ int main(int argc, char *argv[])
 
     if (usError = NSFNoteCreate(hDbNSFFile, &hNewNote))
     {
-        printf("\nCannot create new note. Terminating...\n");
+        PRINTLOG("\nCannot create new note. Terminating...\n");
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(usError);
+		  PRINTERROR(usError,"NSFNoteCreate");
         goto Done;
     }
 
@@ -205,11 +204,11 @@ int main(int argc, char *argv[])
                                  "Simple Form",
                                  (WORD) strlen("Simple Form")))
     {
-        printf("\nError while setting Form name. Terminating...\n");
+        PRINTLOG("\nError while setting Form name. Terminating...\n");
 
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(usError);
+		  PRINTERROR(usError,"NSFItemSetText");
         goto Done;
     }
 
@@ -217,10 +216,10 @@ int main(int argc, char *argv[])
 
     if (usError = AppendImportItem(hNewNote, achTempName, "Body"))
     {
-        printf("\nError while adding rich text.  Terminating...\n");
+        PRINTLOG("\nError while adding rich text.  Terminating...\n");
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(usError);
+		  PRINTERROR(usError,"AppendImportItem");
         goto Done;
     }
 
@@ -228,10 +227,10 @@ int main(int argc, char *argv[])
 
     if (usError = NSFNoteUpdate(hNewNote, 0))
     {
-        printf("\nError writing new Note. Terminating..\n");
+        PRINTLOG("\nError writing new Note. Terminating..\n");
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(usError);
+		  PRINTERROR(usError,"NSFNoteUpdate");
         goto Done;
     }
 
@@ -239,8 +238,8 @@ int main(int argc, char *argv[])
 
     if (usError = NSFNoteClose(hNewNote))
 	 {
-        printf("\nUnable to close Note.  Terminating..\n");
-	     PrintAPIError(usError);
+        PRINTLOG("\nUnable to close Note.  Terminating..\n");
+	     PRINTERROR(usError,"NSFNoteClose");
 		  goto Done;
 	 }
 
@@ -249,16 +248,16 @@ int main(int argc, char *argv[])
 
     if (usError = NSFDbClose(hDbNSFFile))
 	 {
-		  printf("\nError closing database '%s'. Terminating...\n, szNSFFile");
-		  PrintAPIError(usError);
+		  PRINTLOG("\nError closing database '%s'. Terminating...\n, szNSFFile");
+		  PRINTERROR(usError,"NSFDbClose");
 		  goto Done;
 	 }
 
-	 printf("\nAll Done!\n");
+	 PRINTLOG("\nAll Done!\n");
 
 	 NotesTerm();
 
-	 printf("\nProgram completed successfully.\n");
+	 PRINTLOG("\nProgram completed successfully.\n");
 
 	 return(0);
 
@@ -305,7 +304,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
 
     if (Error = OSLoadLibrary (ModuleName, (DWORD)0, &hmod, &ProcAddress))
     {
-        printf ("OSLoadLibrary failed.\n");
+        PRINTLOG ("OSLoadLibrary failed.\n");
         goto Done;
     }
 
@@ -319,7 +318,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
     /* data.                                                            */
 
       strcpy (EditImportData.OutputFileName, TempName);
-      printf ("\nTemp filename is %s.\n", EditImportData.OutputFileName);
+      PRINTLOG ("\nTemp filename is %s.\n", EditImportData.OutputFileName);
 
     /* Assign the default fontid */
 
@@ -350,7 +349,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
         SecondDLLName,                      /* 2nd DLL, if needed.      */
         FileName))                          /* File to import.          */
         {
-            printf ("Call to DLL Entry point failed.\n");
+            PRINTLOG ("Call to DLL Entry point failed.\n");
             goto Done;
         }
 
@@ -466,7 +465,7 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
 
     if (bError == FALSE)
     {
-        printf ("Error adding paragraph record.  Terminating...");
+        PRINTLOG ("Error adding paragraph record.  Terminating...");
         free (pCDBuffer);
         close (CDFileFD);
         unlink (pszCDFile);
@@ -485,7 +484,7 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
 
     if (bError == FALSE)
     {
-        printf ("Error adding paragraph definition record.  Terminating...");
+        PRINTLOG ("Error adding paragraph definition record.  Terminating...");
         free (pCDBuffer);
         close (CDFileFD);
         unlink (pszCDFile);
@@ -506,7 +505,7 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
     if (bError == FALSE)
 
     {
-        printf ("Error adding paragraph reference record.  Terminating...");
+        PRINTLOG ("Error adding paragraph reference record.  Terminating...");
         free (pCDBuffer);
         close (CDFileFD);
         unlink (pszCDFile);
@@ -649,29 +648,3 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
 
     return (NOERROR);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

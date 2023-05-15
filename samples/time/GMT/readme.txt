@@ -7,7 +7,8 @@ All rights reserved.
 
 PROGRAM
 -------
-GMT - convert time to GMT,extracting ticks , datetime, timezone and DST from current time
+GMT - convert time to GMT,extracting ticks , datetime, timezone and DST from current time and
+      convertTIMEDATEtoRFC3339Date - converts Notes TIMEDATE to RFC339 TIMEDATE(e.g. 2022-05-03T06:48:54.92Z)
 
 ENVIRONMENTS
 ------------
@@ -59,4 +60,7 @@ TIMEDATEs match - VERIFIED
 hour : 9 minute : 52 second : 12
  hour : 4 minute : 22 second : 12
  hour : 9 minute : 52 second : 12
-
+Test of ConvertTIMEDATEtoRFC3339Date
+Notes TIMEDATE = 04-05-2022 12:12:08 PM
+RFC339 TIMEDATE = 2022-05-04T06:42:08.67Z
+Successfully converted Notes TIMEDATE to RFC339 TIMEDATE.

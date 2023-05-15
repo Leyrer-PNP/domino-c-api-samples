@@ -105,7 +105,7 @@
 #include <fsods.h>
 #include <rsrcods.h>
 #include <osmisc.h>
-
+#include <printLog.h>
 
 /*
  * Local header files
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 
 if (sError = NotesInitExtended (argc, argv))
  {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
  }
 
@@ -233,9 +233,13 @@ Exit1:
     fclose( pTraceFile );
 
     if (!sError)
-      printf("Program completed successfully.\n");
+    {
+      PRINTLOG("Program completed successfully.\n");
+    }
     else
-      printf("This program encountered an error.  Please see trace file makeform.err!\n");
+    {
+      PRINTLOG("This program encountered an error.  Please see trace file makeform.err!\n");
+    }
       NotesTerm();
       return (1);
 

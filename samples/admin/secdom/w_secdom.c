@@ -20,6 +20,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <printLog.h>
 
 
 
@@ -43,12 +44,12 @@ int winAuthenticate(char *userName, char *domain, char *password)
    char  *lpMsgBuf;
    HANDLE phToken;
 	
-   printf("\n Executing Windows-specific authentication for user %s in domain %s\n",userName,domain);
+   PRINTLOG("\n Executing Windows-specific authentication for user %s in domain %s\n",userName,domain);
 
    if (LogonUser(userName,domain,password,LOGON32_LOGON_NETWORK,
                  LOGON32_PROVIDER_DEFAULT,&phToken))
    {
-      printf(" ** Successful return from Windows-specific authentication \n");
+      PRINTLOG(" ** Successful return from Windows-specific authentication \n");
       return NOERROR;
    }
    else
@@ -61,8 +62,8 @@ int winAuthenticate(char *userName, char *domain, char *password)
                     (LPTSTR) &lpMsgBuf,
                     0,
                     NULL);
-      printf("***** Error from Windows-specific authentication: ***\n");
-      printf("      %s\n",lpMsgBuf);
+      PRINTLOG("***** Error from Windows-specific authentication: ***\n");
+      PRINTLOG("      %s\n",lpMsgBuf);
       LocalFree(lpMsgBuf);
       return -1;
    }

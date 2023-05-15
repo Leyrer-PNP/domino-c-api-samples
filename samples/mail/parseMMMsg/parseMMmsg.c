@@ -41,6 +41,7 @@
 #include <mime.h>
 #include <mimedir.h>
 #include <mimeods.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -71,7 +72,6 @@ char *pszHeaderName[]=
 
 
 /* function prototypes */
-void   PrintAPIError (STATUS);
 STATUS LNPUBLIC EnumProc(void far *, SEARCH_MATCH far *, ITEM_TABLE far *);
 STATUS LNPUBLIC ParseMIMEMsg( NOTEHANDLE); 
 STATUS LNPUBLIC ScanMIMEMsgBody( NOTEHANDLE, HMIMEDIRECTORY, PMIMEENTITY, int );
@@ -97,14 +97,14 @@ int main(int argc, char * argv[])
     error = NotesInitExtended (argc, argv);
     if ( error != NOERROR )
     {
-        printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
         goto exit;
     }
 
     if ( argc > 2 )
     {   
-        printf ("Error: incorrect syntax.\n");
-        printf ("\nUsage:%s  <database>\n", argv[0]);
+        PRINTLOG ("Error: incorrect syntax.\n");
+        PRINTLOG ("\nUsage:%s  <database>\n", argv[0]);
         NotesTerm();
         return NOERROR;
     }
@@ -124,7 +124,7 @@ int main(int argc, char * argv[])
     error = NSFDbOpen(szDbName, &hDB);
     if ( error )
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFDbOpen");
         goto exit;
     }
 
@@ -139,7 +139,7 @@ int main(int argc, char * argv[])
                 &wdc, &wdc, &wdc, &wdc); 
     if ( error != NOERROR )
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFFormulaCompile");
         goto exit;
     }
 
@@ -155,7 +155,7 @@ int main(int argc, char * argv[])
                 NULL);
     if ( error != NOERROR ) 
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFSearch");
         goto exit;
     }     
 
@@ -169,46 +169,17 @@ exit:
 
     if ( error )
     {
-       printf( "\n Fail to parse mime messages.\n" );
+       PRINTLOG( "\n Fail to parse mime messages.\n" );
        return (1);
     }
     else
     {    
-      printf ( "\n succeed return.\n" );
+      PRINTLOG ( "\n succeed return.\n" );
       return (NOERROR);
     }
 
 }
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 
 /************************************************************************
 
@@ -241,9 +212,9 @@ STATUS  LNPUBLIC  EnumProc(void far *phDB, SEARCH_MATCH far *pSearchMatch, ITEM_
         return (NOERROR);
 
     /* Print the note ID. */
-    printf ( "\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    printf ( "Note ID is: [%lX].\n", SearchMatch.ID.NoteID);
+    PRINTLOG ( "\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    PRINTLOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    PRINTLOG ( "Note ID is: [%lX].\n", SearchMatch.ID.NoteID);
 
     fflush(stdout);
     /* Open the note. */
@@ -258,15 +229,15 @@ STATUS  LNPUBLIC  EnumProc(void far *phDB, SEARCH_MATCH far *pSearchMatch, ITEM_
     /* skip the note if it has no mime content */
     if ( NSFNoteHasMIMEPart(hNote) )
     {
-       printf(  "============================================================\n");
+       PRINTLOG(  "============================================================\n");
        error = ParseMIMEMsg( hNote );
        if ( error != NOERROR )
        {
-          printf( "Error when output MIME part content to file.\n" );
+          PRINTLOG( "Error when output MIME part content to file.\n" );
           return( error );        
        }
     
-       printf(  "============================================================\n");
+       PRINTLOG(  "============================================================\n");
     fflush(stdout);
     }
 
@@ -302,7 +273,7 @@ STATUS  LNPUBLIC  ParseMIMEMsg(NOTEHANDLE hNote )
     error = MIMEOpenDirectory(hNote, &hMD);
     if (error != NOERROR)
     {
-       PrintAPIError(error);
+       PRINTERROR(error,"MIMEOpenDirectory");
        goto done;
     }
 
@@ -310,49 +281,49 @@ STATUS  LNPUBLIC  ParseMIMEMsg(NOTEHANDLE hNote )
     error = MIMEGetRootEntity(hMD, &pMERoot);
     if (error != NOERROR)
     {
-       PrintAPIError(error);
+       PRINTERROR(error,"MIMEGetRootEntity");
        goto done;
     }
 
     /* Check the message type.
     We don't parse this note if it is not a multi part message */
     if ( MIMEEntityIsDiscretePart(pMERoot) == TRUE )
-        printf( "This is not neither a message nor a multipart.\n");
+        PRINTLOG( "This is not neither a message nor a multipart.\n");
  
     if ( MIMEEntityIsMessagePart(pMERoot) == TRUE )
-        printf(  "This is a message part.\n" );
+        PRINTLOG(  "This is a message part.\n" );
 
     fflush(stdout);
     if ( MIMEEntityIsMultiPart(pMERoot) == TRUE)
     {
-        printf( "This is a multipart message:\n\n");
-        printf( "Header:\n");
+        PRINTLOG( "This is a multipart message:\n\n");
+        PRINTLOG( "Header:\n");
         fflush(stdout);
         /* first print the header to the output file. */
         for ( i=0; mszHeaderList[i]; i++ )
         {
              if (MIMEEntityGetHeader(pMERoot,mszHeaderList[i]) != NULL)
-                 printf(  "\t[%s : %s]\n", pszHeaderName[i],
+                 PRINTLOG(  "\t[%s : %s]\n", pszHeaderName[i],
                         MIMEEntityGetHeader(pMERoot, mszHeaderList[i]) );
              fflush(stdout);
         }
 
         /* 2nd print the body text to the output file. */
-        printf(  "\nBody:\n");  
+        PRINTLOG(  "\nBody:\n");  
 
         iContentType = MIMEEntityContentType(pMERoot);
         iSubType = MIMEEntityContentSubtype(pMERoot);
 
         GetSymbolName(iContentType, szName, &iNameLen);
-        printf(  "Content-Type: %s/",  szName );
+        PRINTLOG(  "Content-Type: %s/",  szName );
         GetSymbolName(iSubType, szName, &iNameLen);
-        printf(  "%s\n", szName );
+        PRINTLOG(  "%s\n", szName );
         fflush(stdout);
 
         error = ScanMIMEMsgBody( hNote, hMD, pMERoot, 0 );
         if ( error != NOERROR )
         {
-           printf( "Error when scan the multi part mime body item.\n" );
+           PRINTLOG( "Error when scan the multi part mime body item.\n" );
            goto done;
         }
     } 
@@ -397,7 +368,7 @@ STATUS  LNPUBLIC  ScanMIMEMsgBody( NOTEHANDLE hNote, HMIMEDIRECTORY hMD, PMIMEEN
     error = MIMEGetFirstSubpart( hMD, pME, &pMEChild );
     if ( error != NOERROR )
     {
-       PrintAPIError(error);
+       PRINTERROR(error,"MIMEGetFirstSubpart");
        return (1);        
     }
 
@@ -412,12 +383,12 @@ STATUS  LNPUBLIC  ScanMIMEMsgBody( NOTEHANDLE hNote, HMIMEDIRECTORY hMD, PMIMEEN
     while ( iContentType  != 0 )
     {
         for ( i=0; i<iDepth; i++ )
-            printf(  "\t" );        
+            PRINTLOG(  "\t" );        
         fflush(stdout);
         GetSymbolName(iContentType, szName, &iNameLen);
-        printf(  "Content-Type: %s/",  szName );
+        PRINTLOG(  "Content-Type: %s/",  szName );
         GetSymbolName(iSubType, szName, &iNameLen);
-        printf(  "%s\n", szName );
+        PRINTLOG(  "%s\n", szName );
         fflush(stdout);
 
         /* to see if the body includes attachment */
@@ -426,7 +397,7 @@ STATUS  LNPUBLIC  ScanMIMEMsgBody( NOTEHANDLE hNote, HMIMEDIRECTORY hMD, PMIMEEN
                                        &dwPartFlags );
         if ( error != NOERROR )
         {
-           PrintAPIError(error);
+           PRINTERROR(error,"MIMEGetEntityPartFlags");
            return(1);
         }
 
@@ -445,8 +416,8 @@ STATUS  LNPUBLIC  ScanMIMEMsgBody( NOTEHANDLE hNote, HMIMEDIRECTORY hMD, PMIMEEN
                 OSUnlock(hTypeParam);  
 
                 for ( i=0; i<iDepth; i++ )
-                     printf(  "\t" );
-                printf(  "********Have an attachment :[%s]\n",  pczParaName );      
+                     PRINTLOG(  "\t" );
+                PRINTLOG(  "********Have an attachment :[%s]\n",  pczParaName );      
                 fflush(stdout);
                 OSMemFree(hTypeParam);
             }

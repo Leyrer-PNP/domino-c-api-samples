@@ -45,6 +45,7 @@ The parameters are as follows:
 #include <osmisc.h>
 #include <names.h>
 #include <nsferr.h>
+#include <printLog.h>
 
 /* Local include files */
 
@@ -192,7 +193,7 @@ database as a document. */
 
 /* End of function. */
 
-	printf("\nProgram completed successfully.\n");
+	PRINTLOG("\nProgram completed successfully.\n");
 	return (ERR_NO_ERROR);
 }
 
@@ -920,9 +921,9 @@ This truncates the field. */
 
 #if defined (LINUX)
 	if (!removeSpecialChar(field_contents))
-		printf("%s\n", field_contents);
+		PRINTLOG("%s\n", field_contents);
 #else
-	printf("%s\n", field_contents);
+	PRINTLOG("%s\n", field_contents);
 #endif
 	return (ERR_NO_ERROR);
 

@@ -30,10 +30,7 @@
 #include "lapicinc.h"
 #endif
 #include "lapiplat.h"
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
-
+#include "printLog.h"
 
 /* Program declaration */
 int main(int argc, char *argv[])
@@ -69,7 +66,7 @@ int main(int argc, char *argv[])
     
 	if(argc != 3)
 	{
-		printf( "\nUsage:  %s  <server name> <domain>\n", argv[0] );
+		PRINTLOG( "\nUsage:  %s  <server name> <domain>\n", argv[0] );
 		return (0);
 	}
 
@@ -97,7 +94,7 @@ int main(int argc, char *argv[])
 
 	error = SECKFMOpen (&hKFC, UserS1ID, PASSWORD, SECKFM_open_All, 0, NULL);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECKFMOpen");
         NotesTerm();
         return (1);
 
@@ -113,19 +110,19 @@ int main(int argc, char *argv[])
 			   NULL);
 	
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfPut");
 
         NotesTerm();
         return (1);
 
 	}
-	printf("Put ID file using the hKFC...OK\n");
+	PRINTLOG("Put ID file using the hKFC...OK\n");
 
 	SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
 
     error = SECKFMOpen (&hKFC, UserS2ID, PASSWORD, SECKFM_open_All, 0, NULL);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECKFMOpen");
 		NotesTerm();
 		return (1);
 
@@ -140,18 +137,18 @@ int main(int argc, char *argv[])
 			   0,
 			   NULL);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfPut");
         NotesTerm();
         return (1);
 
 	}
 
-	printf("Put ID file using local file name and hKFC - only hKFC should be used...OK\n");
+	PRINTLOG("Put ID file using local file name and hKFC - only hKFC should be used...OK\n");
 	SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
 
     error = SECKFMOpen (&hKFC, UserS3ID, PASSWORD, SECKFM_open_All, 0, NULL);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECKFMOpen");
 		NotesTerm();
 		return (1);
 
@@ -168,13 +165,13 @@ int main(int argc, char *argv[])
 			   NULL);
 
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfPut");
 		NotesTerm();
 		return (1);
 
 	}
 
-	printf("Put ID file using local file name...OK\n");
+	PRINTLOG("Put ID file using local file name...OK\n");
 	SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
 
 	/* Get id file to local file name and hKFC */
@@ -187,12 +184,12 @@ int main(int argc, char *argv[])
 			0,
 			NULL);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfGet");
 		NotesTerm();
 		return (1);
 
 	}
-	printf("Get id file to local file name and hKFC...OK\n");
+	PRINTLOG("Get id file to local file name and hKFC...OK\n");
 
 
 	SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
@@ -208,13 +205,13 @@ int main(int argc, char *argv[])
 			0,
 			NULL);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfGet");
         NotesTerm();
         return (1);
 
 	}
 
-	printf("Get id file to just hKFC...OK\n");
+	PRINTLOG("Get id file to just hKFC...OK\n");
 	SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
 
 
@@ -229,13 +226,13 @@ int main(int argc, char *argv[])
 			0,
 			NULL);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfGet");
         NotesTerm();
         return (1);
 
 	}
 
-	printf("Get id file to just local file name...OK\n");
+	PRINTLOG("Get id file to just local file name...OK\n");
 
 	SECKFMOpen (&hKFC2, UserS1ID, PASSWORD, SECKFM_open_All, 0, NULL);
 
@@ -249,12 +246,12 @@ int main(int argc, char *argv[])
 			NULL, 
 			&VaultFlags);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 
 	}
-	printf("Sync the hKFC with the ID file in the Vault and write new hKFC...OK\n");
+	PRINTLOG("Sync the hKFC with the ID file in the Vault and write new hKFC...OK\n");
 
 	/* Sync the ID file with the ID file in the Vault */
 	error = SECidfSync (UserNameS1, PASSWORD,
@@ -266,12 +263,12 @@ int main(int argc, char *argv[])
 			NULL, 
 			&VaultFlags);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 
 	}
-	printf("Sync the ID file with the ID file in the Vault ...OK\n");
+	PRINTLOG("Sync the ID file with the ID file in the Vault ...OK\n");
 
 	/* Sync the hKFC with the ID file in the Vault and hKFC */
 	error = SECidfSync (UserNameS1, PASSWORD,
@@ -283,12 +280,12 @@ int main(int argc, char *argv[])
 			NULL, 
 			&VaultFlags);
 	if ( error ){
-		PrintAPIError (error);
+		PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 
 	}
-	printf("Sync the hKFC with the ID file in the Vault and hKFC...OK\n");
+	PRINTLOG("Sync the hKFC with the ID file in the Vault and hKFC...OK\n");
 
 	SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
 
@@ -302,29 +299,7 @@ int main(int argc, char *argv[])
     NotesTerm();
 
     /* End of intro program. */
-	printf("\nProgram completed successfully.\n");
+	PRINTLOG("\nProgram completed successfully.\n");
     return (0);
 }
 
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-	/* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-}

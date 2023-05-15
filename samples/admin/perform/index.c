@@ -26,6 +26,7 @@
 #include <ostime.h>
 #include <misc.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 /* Local function prototypes */
 void PrintAPIError (STATUS);
@@ -55,17 +56,17 @@ int main (int argc, char *argv[])
 
    if (argc != 3)
       {
-      printf ("\nUsage:  INDEX  <database pathname>  <name of view>\n");
+      PRINTLOG ("\nUsage:  INDEX  <database pathname>  <name of view>\n");
       return(0);
       }
    db_path = argv[1];
    view_name = argv[2];
 
-   printf ("\n***** INDEX Test Begins ******\n");
+   PRINTLOG ("\n***** INDEX Test Begins ******\n");
 
    if (error = NotesInitExtended (argc, argv))
       {
-      printf("\nUnable to initialize Notes.\n");
+      PRINTLOG("\nUnable to initialize Notes.\n");
       return(1);
       }
 
@@ -125,7 +126,7 @@ Done1:
 
    time_delta= TimeDateDifference (&LastTime, &StartTime);
  
-   printf ("It took %i seconds to index\n", time_delta);
+   PRINTLOG ("It took %i seconds to index\n", time_delta);
  
 /* End of subroutine. */
 

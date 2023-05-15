@@ -26,15 +26,13 @@
 #include <osfile.h>  		
 #include <kfm.h>     					
 #include <textlist.h>
+#include<printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
 
 #define 	LINEOTEXT			256
-
-/* local function prototypes */
-void PrintAPIError (STATUS);
 
 
 int main(int argc, char *argv[])
@@ -85,7 +83,7 @@ int main(int argc, char *argv[])
 	        
 	                                   DB_NAME, fullpath))
 	    {
-	        PrintAPIError(error);
+	        PRINTERROR(error,"OSPathNetConstruct");
 		goto EXIT;
 	    }
 	}
@@ -98,7 +96,7 @@ int main(int argc, char *argv[])
 	if ( error = NSFDbOpenExtended (fullpath, 0, NULLHANDLE, NULL ,
        &hDB, &retDataMod, &retNonDataMod))
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbOpenExtended");
 		goto EXIT;
 	}
 		
@@ -109,7 +107,7 @@ int main(int argc, char *argv[])
 	if(error = NSFDB2GetInfo(hDB, DB2NSF_INFO_TABLESPACE_NAME,
 			      buffer,&size))
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDB2GetInfo");
 		goto EXIT;		
 	}
 	else
@@ -124,7 +122,7 @@ int main(int argc, char *argv[])
 					NULL);
 	if( error )
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDB2ListNSFDB2Databases");
 		goto EXIT;
 	}
 	
@@ -150,7 +148,7 @@ int main(int argc, char *argv[])
 		if(error)
 		{
 			printf("\n========error in ListGetText, i = %d\n", i);
-			PrintAPIError(error);
+			PRINTERROR(error,"ListGetText");
 		}
 		else
 		{
@@ -167,7 +165,7 @@ int main(int argc, char *argv[])
 
  if(error = NSFDbClose (hDB))
  {
-      PrintAPIError(error);
+      PRINTERROR(error,"NSFDbClose");
       goto EXIT;
  }
 /* End of main routine */
@@ -180,28 +178,3 @@ int main(int argc, char *argv[])
 	NotesTerm();
 	return (1);		
 }
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n ERROR:  *** %s\n\n\n", error_text);
-
-}
-

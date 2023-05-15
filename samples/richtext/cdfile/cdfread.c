@@ -6,16 +6,21 @@
 
     SYNTAX:     cdfread
 
-    PURPOSE:    Demonstrate function CompoundTextAssimilateFile.
+    PURPOSE:    Demonstrate function CompoundTextAssimilateFile
+                and CompoundTextAssimilateBuffer
 
     DESCRIPTION:
         This creates a new data note in the database, richtext.nsf 
         and fills in the rich text field of the note with the 
-        compound text from a CD file, cd_recs.inp.  
+        compound text from a CD file, cd_recs.inp using the
+        CompoundTextAssimilateFile API. Also, it reads the CD file
+        contents in a buffer and then adds the contents of the buffer
+        to the compound text context using the CompoundTextAssimilateBuffer
+        API and then update the notes document with this data.
         
         A CD file is a file containing Domino and Notes rich text data. 
-		This data must be in Domino and Notes Canonical format. Use the 
-		companion program "cdfwrite" to create this CD file.
+        This data must be in Domino and Notes Canonical format. Use the
+        companion program "cdfwrite" to create this CD file.
         
         The database used in this program has a form named 
         "RichTextForm".  This form contains a time/date field named,
@@ -44,6 +49,7 @@
 #include <fontid.h>
 #include <osmem.h>
 #include <nif.h>
+#include <printLog.h>
 
 #include <osmisc.h>
 
@@ -55,7 +61,7 @@
     #define DHANDLE HANDLE 
 #endif
 
-void PrintAPIError (STATUS);
+#define BUFF_SIZE 1024
 
 /************************************************************************
 
@@ -72,10 +78,15 @@ int main(int argc, char *argv[])
     NOTEHANDLE  hNote;          /* note handle */
     TIMEDATE    timedate;       /* a time/date field */
     DHANDLE       hCompound;      /* handle to CompoundText context */
+    FILE        *pCDFile;       /* file stream */
+    char        *pszCDFileName = CD_FILENAME;   /* pointer to CD file */
+    char        szBuffer[BUFF_SIZE] = {0};        /* buffer */
+    char        *pszBuffer = szBuffer;              /* pointer to buffer */
+    SIZE_T      sRetVal;                        /* return value from fread() */
 
     if (nErr = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -84,8 +95,8 @@ int main(int argc, char *argv[])
 
     if ( (nErr = NSFDbOpen (szPathName, &hDB)) != NOERROR )
     {
-        printf( "Error: unable to open database '%s'.\n", szPathName );
-        PrintAPIError (nErr);  
+        PRINTLOG( "Error: unable to open database '%s'.\n", szPathName );
+        PRINTERROR (nErr,"NSFDbOpen");  
         NotesTerm();
         return (1);
     }
@@ -94,9 +105,9 @@ int main(int argc, char *argv[])
 
     if ( (nErr = NSFNoteCreate (hDB, &hNote)) != NOERROR )
     {
-        printf( "Error: unable to create new document in database.\n" );
+        PRINTLOG( "Error: unable to create new document in database.\n" );
         NSFDbClose (hDB);
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr,"NSFNoteCreate");  
         NotesTerm();
         return (1);
     }
@@ -108,10 +119,10 @@ int main(int argc, char *argv[])
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to set text in item '%s'.\n", FIELD_FORM );
+        PRINTLOG( "Error: unable to set text in item '%s'.\n", FIELD_FORM );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr,"NSFItemSetText");  
         NotesTerm();
         return (1);
     }
@@ -122,10 +133,10 @@ int main(int argc, char *argv[])
 
     if ( (nErr = NSFItemSetTime (hNote, "TIME_DATE", &timedate)) != NOERROR )
     {
-        printf( "Error: unable to set time in item 'TIME_DATE'.\n" );
+        PRINTLOG( "Error: unable to set time in item 'TIME_DATE'.\n" );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr,"NSFItemSetTime");  
         NotesTerm();
         return (1);
     }
@@ -142,10 +153,72 @@ int main(int argc, char *argv[])
 
     if (nErr != NOERROR)
     {
-        printf( "Error: unable to create CompoundText context for 'RICH_TEXT'.\n" );
+        PRINTLOG( "Error: unable to create CompoundText context for 'RICH_TEXT'.\n" );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr,"CompoundTextCreate");  
+        NotesTerm();
+        return (1);
+    }
+
+    /* Open the CD file. */
+    pCDFile = fopen( pszCDFileName, "r" );
+
+    if (pCDFile == NULL)
+    {
+        PRINTLOG( "Error: unable to open file '%s'.\n", pszCDFileName );
+        CompoundTextDiscard (hCompound);
+        NSFNoteClose (hNote);
+        NSFDbClose (hDB);
+        NotesTerm();
+        return (1);
+    }
+
+    /* Read the contents of the file in a buffer. */
+    sRetVal = fread( szBuffer, sizeof(char), sizeof(szBuffer)-1, pCDFile );
+
+    if (ferror(pCDFile))
+    {
+        PRINTLOG("Error: unable to read file '%s'.\n", pszCDFileName );
+        fclose (pCDFile);
+        CompoundTextDiscard (hCompound);
+        NSFNoteClose (hNote);
+        NSFDbClose (hDB);
+        NotesTerm();
+        return (1);
+    }
+    else if(!sRetVal)
+    {
+        PRINTLOG("Error: There is no data in the file '%s'.\n", pszCDFileName );
+        fclose (pCDFile);
+        CompoundTextDiscard (hCompound);
+        NSFNoteClose (hNote);
+        NSFDbClose (hDB);
+        NotesTerm();
+        return (1);
+    }
+
+    /* Close the file */
+    if (fclose( pCDFile ))
+    {
+        PRINTLOG("Error: unable to close file '%s'.\n", pszCDFileName);
+        CompoundTextDiscard (hCompound);
+        NSFNoteClose (hNote);
+        NSFDbClose (hDB);
+        NotesTerm();
+        return (1);
+    }
+
+    /* Add the data from the buffer to compound text context. */
+    nErr = CompoundTextAssimilateBuffer(hCompound,(void *) pszBuffer,(DWORD) sizeof(szBuffer));
+
+    if (nErr != NOERROR)
+    {
+        PRINTLOG( "Error: unable to add compound text from Buffer to CompoundText context .\n" );
+        CompoundTextDiscard (hCompound);
+        NSFNoteClose (hNote);
+        NSFDbClose (hDB);
+        PrintAPIError (nErr,"CompoundTextAssimilateBuffer");
         NotesTerm();
         return (1);
     }
@@ -159,12 +232,12 @@ int main(int argc, char *argv[])
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to assimilate CD record from file '%s'.\n",
+        PRINTLOG("Error: unable to assimilate CD record from file '%s'.\n",
                     CD_FILENAME);
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr,"CompoundTextAssimilateFile");  
         NotesTerm();
         return (1);
     }
@@ -183,11 +256,11 @@ int main(int argc, char *argv[])
 
     if (nErr != NOERROR)
     {
-        printf("Error: unable to close compound text context.\n");
+        PRINTLOG("Error: unable to close compound text context.\n");
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr,"CompoundTextClose");  
         NotesTerm();
         return (1);
     }
@@ -196,10 +269,10 @@ int main(int argc, char *argv[])
 
     if ( (nErr = NSFNoteUpdate (hNote, 0)) != NOERROR )
     {
-        printf("Error: unable to update new note to the database.\n");
+        PRINTLOG("Error: unable to update new note to the database.\n");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr,"NSFNoteUpdate");  
         NotesTerm();
         return (1);
     }
@@ -208,55 +281,25 @@ int main(int argc, char *argv[])
     if ( (nErr = NSFNoteClose (hNote)) != NOERROR )
     {
         NSFDbClose (hDB);
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr,"NSFNoteClose");  
         NotesTerm();
         return (1);
     }
 
-    printf("New note successfully created.\n");
+    PRINTLOG("New note successfully created.\n");
 
    /* Close the database */
 
     if ( (nErr = NSFDbClose (hDB)) != NOERROR )
 	{
-        PrintAPIError (nErr);  
+        PRINTERROR (nErr, NSFDbClose);
         NotesTerm();
         return (1);
 	}
 
    /* End of subroutine. */
-    printf("\nProgram completed successfully\n");
+    PRINTLOG("\nProgram completed successfully\n");
     NotesTerm();
     return (0); 
 
-}
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
 }

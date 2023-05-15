@@ -1,5 +1,5 @@
 #
-# makefile for Notes API sample program TWOKEY
+# makefile for Notes API sample program findbykeyextend
 # Windows 32-bit version using Microsoft Visual Studio 2010 compiler and linker.
 #
 # This makefile assumes that the INCLUDE and LIB environment variables

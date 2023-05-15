@@ -21,6 +21,7 @@ SYNTAX:		sharedirectory
 #include "osmisc.h"
 #include "miscerr.h"
 #include "oserr.h"
+#include "PRINTLOG.h"
 
 void PrintAPIError (STATUS);
 
@@ -47,12 +48,12 @@ int main(int argc, char *argv[])
 
 	if (OSGetSharedDataDirectory (szShareDirectory) == 0)
 	{
-		printf("OSGetSharedDataDirectory failed.\n");
+		PRINTLOG("OSGetSharedDataDirectory failed.\n");
 	}
 	else
 	{
-		printf("The shared data directory of the multi-user Notes client is \"%s\".\n", szShareDirectory);
-		printf("Program completed successfully.\n");
+		PRINTLOG("The shared data directory of the multi-user Notes client is \"%s\".\n", szShareDirectory);
+		PRINTLOG("Program completed successfully.\n");
 	}
 	NotesTerm();
 	return (0);

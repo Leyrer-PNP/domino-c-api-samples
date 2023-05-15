@@ -31,9 +31,7 @@
 #include "misc.h"
 #include "secerr.h"
 #include "bsafe.h"
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
+#include "printLog.h"
 
 /* Notes API subroutine */
 int main (int argc, char *argv[])
@@ -47,46 +45,58 @@ int main (int argc, char *argv[])
 
 	if (error = NotesInitExtended (argc, argv))
 	 {
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	 }
 
 	if(error = SECHashPassword (strlen ("viking"), (BYTE*) "viking",
 		52, &Digest2Len, Digest2, 0, NULL))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"SECHashPassword");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
 										Digest2Len, Digest2, 0, NULL);
 
 	if (Verify != NOERROR)
-		printf("Verify good password fail.\n");
+	{
+		PRINTLOG("Verify good password fail.\n");
+	}
 	else
-		printf("Verify good password pass.\n");
+	{
+		PRINTLOG("Verify good password pass.\n");
+	}
 						   	 
 	Verify = SECVerifyPassword(strlen ("viking2"), (BYTE*)"viking2", Digest2Len, Digest2, 0, NULL);
 	
 	if (Verify != ERR_SECURE_BADPASSWORD)
-		printf("Verify bad password fail.\n");
+	{
+		PRINTLOG("Verify bad password fail.\n");
+	}
 	else
-		printf("Verify bad password pass.\n");
+	{
+		PRINTLOG("Verify bad password pass.\n");
+	}
 
 	if(error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
 					SEC_pwddigest_V1, 0, NULL,
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"SECHashPassword3");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
 								Digest3Len, Digest3, 0, NULL);
 
 	if (Verify != NOERROR)
-		printf("Verify good password fail.\n");
+	{
+		PRINTLOG("Verify good password fail.\n");
+	}
 	else
-		printf("Verify good password pass.\n");
+	{
+		PRINTLOG("Verify good password pass.\n");
+	}
 						   	 
 
 	if(error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
@@ -94,64 +104,52 @@ int main (int argc, char *argv[])
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"SECHashPassword3");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
 								Digest3Len, Digest3, 0, NULL);
 
 	if (Verify != NOERROR)
-		printf("Verify good password fail.\n");
+	{
+		PRINTLOG("Verify good password fail.\n");
+	}
 	else
-		printf("Verify good password pass.\n");
+	{
+		PRINTLOG("Verify good password pass.\n");
+	}
 
 	if(error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
 					SEC_pwddigest_V3, SEC_ai_HMAC_SHA1, NULL,
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"SECHashPassword3");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking", Digest3Len, Digest3, 0, NULL);
 
 	if (Verify != NOERROR)
-		printf("Verify good password fail.\n");
+	{
+		PRINTLOG("Verify good password fail.\n");
+	}
 	else
-		printf("Verify good password pass.\n");
+	{
+		PRINTLOG("Verify good password pass.\n");
+	}
 
 	Verify = SECVerifyPassword(strlen ("viking2"), (BYTE*)"viking2", Digest3Len, Digest3, 0, NULL);
 	
 	if (Verify != ERR_SECURE_BADPASSWORD)
-		printf("Verify bad password fail.\n");
+	{
+		PRINTLOG("Verify bad password fail.\n");
+	}
 	else
-		printf("Verify bad password pass.\n");
+	{
+		PRINTLOG("Verify bad password pass.\n");
+	}
 
 	NotesTerm();
 
 	return	0;
 }
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

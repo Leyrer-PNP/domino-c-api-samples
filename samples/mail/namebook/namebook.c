@@ -39,12 +39,12 @@
 #include <editods.h>
 #include <oserr.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
 
-void PrintAPIError (STATUS);
  
 /************************************************************************
 
@@ -73,8 +73,8 @@ int main (int argc, char *argv[])
     if (argc<1 || argc>2)
     {
 Syntax:
-        printf ("Syntax: namebook  [option]\n");
-        printf (
+        PRINTLOG ("Syntax: namebook  [option]\n");
+        PRINTLOG (
         "where [option] = TITLES or nothing.\n");
         return NOERROR;
     }
@@ -88,7 +88,7 @@ Syntax:
             wOption = NAME_GET_AB_TITLES | NAME_DEFAULT_TITLES ;
         else
         {
-            printf ("Error: unrecognized option '%s'\n", szOptions);
+            PRINTLOG ("Error: unrecognized option '%s'\n", szOptions);
             goto Syntax;
         }
     }
@@ -96,7 +96,7 @@ Syntax:
 
     if (error=NotesInitExtended (argc, argv))
     {
-       printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
+       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
        return (1);
     }
     
@@ -104,14 +104,14 @@ Syntax:
     if (!OSGetEnvironmentString("MailServer", szServer, MAXUSERNAME))
     {
         NotesTerm();
-        printf("\nError in getting mail server name. Exiting");
+        PRINTLOG("\nError in getting mail server name. Exiting");
         return (1);
     }
     /* get the port name from notes.ini */
     if (!OSGetEnvironmentString("Ports", szPortName, MAXPATH))
     {
         NotesTerm();
-        printf("\nError in getting port name. Exiting");
+        PRINTLOG("\nError in getting port name. Exiting");
         return (1);
     }
 
@@ -128,7 +128,7 @@ Syntax:
     /* If there are no entries, return. */
     if (!wCount) 
     {
-        printf ("No entries in NAMES.\n");
+        PRINTLOG ("No entries in NAMES.\n");
         goto Bye;
     }
 
@@ -151,7 +151,7 @@ Syntax:
         OSPathNetParse(szNetPathName, achPort, achServer, achFile);
 
         /* process components */
-        printf("Entry %d\n\tPort = %s\n\tServer = %s\n\tFile = %s\n",
+        PRINTLOG("Entry %d\n\tPort = %s\n\tServer = %s\n\tFile = %s\n",
                 (wEntry+1), achPort, achServer, achFile);
 
         if (wOption & NAME_GET_AB_TITLES)
@@ -159,7 +159,7 @@ Syntax:
             /* Advance to title. */
             pszReturn += wEntryLen+1;
             wEntryLen = strlen(pszReturn);
-            printf ("\tTitle = '%s'\n", pszReturn);
+            PRINTLOG ("\tTitle = '%s'\n", pszReturn);
         }
           
         /* Advance pointer to next entry. */
@@ -172,38 +172,7 @@ Syntax:
 
 Bye:
     if (error)
-        PrintAPIError (error);  
+        PRINTERROR (error,"OSPathNetConstruct");  
     NotesTerm();
     return(error);
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

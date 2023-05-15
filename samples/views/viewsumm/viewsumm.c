@@ -30,6 +30,7 @@
 #include <misc.h>
 #include <miscerr.h>
 #include <editods.h>
+#include <printLog.h>
 
 #include <osmisc.h>
 
@@ -46,7 +47,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                             char *DBFileName, char *ViewName); 
 STATUS PrintSummary (BYTE *);
 STATUS ExtractTextList (BYTE *, char *);
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 
    if (error = NotesInitExtended (argc, argv))
    {
-       printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
        return (1);
    }
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (DBFileName, &hDB))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbOpen");  
        NotesTerm();
        return (1);
    } 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
          &ViewID))
    {
       NSFDbClose (hDB);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFFindView");  
       NotesTerm();
       return (1);
    }
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
          NULLHANDLE))    /* handle to selected list (return) */
    {
       NSFDbClose (hDB);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFOpenCollection");  
       NotesTerm();
       return (1);
    }
@@ -166,7 +166,7 @@ arranged in the order of the bits in the READ_MASKs. */
       {
          NIFCloseCollection (hCollection);
          NSFDbClose (hDB);
-         PrintAPIError (error);  
+         PRINTERROR (error,"NIFReadEntries");  
          NotesTerm();
          return (1);
       }
@@ -177,7 +177,7 @@ arranged in the order of the bits in the READ_MASKs. */
       {
          NIFCloseCollection (hCollection);
          NSFDbClose (hDB);
-         printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+         PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
          NotesTerm();
          return (0); 
       }
@@ -190,7 +190,7 @@ the resulting pointer to the type we need. */
 /* Start a loop that extracts the info about each collection entry from
 the information buffer. */
 
-      printf ("\n");
+      PRINTLOG ("\n");
       for (i = 1; i <= EntriesFound; i++)
       {
 
@@ -215,7 +215,7 @@ the main pointer over the summary. */
 /* If this entry is a category, say so. */
 
          if (NOTEID_CATEGORY & EntryID)
-            printf ("CATEGORY: ");
+            PRINTLOG ("CATEGORY: ");
 
 /* Call a local function to print the summary buffer. */
 
@@ -225,7 +225,7 @@ the main pointer over the summary. */
             OSMemFree (hBuffer);
             NIFCloseCollection (hCollection);
             NSFDbClose (hDB);
-            PrintAPIError (error);  
+            PRINTERROR (error,"PrintSummary");  
             NotesTerm();
             return (1);
          }
@@ -253,7 +253,7 @@ the main pointer over the summary. */
    if (error = NIFCloseCollection(hCollection))
    {
       NSFDbClose (hDB);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFCloseCollection");  
       NotesTerm();
       return (1);
    }
@@ -262,14 +262,14 @@ the main pointer over the summary. */
 
    if (error = NSFDbClose (hDB))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbClose");  
        NotesTerm();
        return (1);
    }
 
 /* End of subroutine. */
 
-   printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
    NotesTerm();
    return (0); 
 }
@@ -341,7 +341,7 @@ The information in a view summary is as follows:
 
    if (ItemCount > MAX_ITEMS)
    {
-      printf (
+      PRINTLOG (
          "Summary contains %d items - only printing the first %d items\n",
          ItemCount, MAX_ITEMS);
       ItemCount = MAX_ITEMS;
@@ -368,7 +368,7 @@ holder and go on to the next item in the pSummary. */
 
       if (ItemLength[i] == 0)
       {
-         printf ("  *  ");
+         PRINTLOG ("  *  ");
          continue;
       }
       else if (ItemLength[i] >= MAX_ITEM_LEN)
@@ -443,7 +443,7 @@ handles. */
 
 /* Print the item. (Add spaces so next item is separated.) */
 
-      printf ("%s    ", ItemText);
+      PRINTLOG ("%s    ", ItemText);
 
 /* Advance to next item in the pSummary. */
 
@@ -455,7 +455,7 @@ handles. */
 
 /* Print final line feed to end this pSummary display. */
 
-   printf ("\n");
+   PRINTLOG ("\n");
 
 /* End of function */
 
@@ -567,34 +567,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
          
     } /* end if */
 } /* ProcessArgs */
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
-
-

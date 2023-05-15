@@ -66,12 +66,11 @@
 #include <viewfmt.h>
 #include <colorid.h>
 #include <miscerr.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -178,11 +177,11 @@ int main(int argc, char *argv[])
 		       *  interest.
 		       */
 
-    printf("HCL Notes API\nmakeview sample program\n");
+    PRINTLOG("HCL Notes API\nmakeview sample program\n");
 
     if (sError = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -193,7 +192,7 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen( szFileName, &hDB ))
     {
-	printf("Error: unable to open database '%s'.\n", szFileName );
+	PRINTLOG("Error: unable to open database '%s'.\n", szFileName );
 	goto Exit2;
     }
 
@@ -203,9 +202,9 @@ int main(int argc, char *argv[])
 
     if ((sError = NIFFindView(hDB, szViewName, &ViewNoteID)) != ERR_NOT_FOUND)
     {
-	printf("Error: View named '%s' already exists in database.\n",
+	PRINTLOG("Error: View named '%s' already exists in database.\n",
 		szViewName );
-	printf("Error: Duplicates not allowed.\n" );
+	PRINTLOG("Error: Duplicates not allowed.\n" );
 	goto Exit3;
     }
 
@@ -216,7 +215,7 @@ int main(int argc, char *argv[])
     sError = NSFNoteCreate( hDB, &hNote );
     if (sError) 
     {
-	printf("Error: unable to create note in database.\n" );
+	PRINTLOG("Error: unable to create note in database.\n" );
 	goto Exit3;
     }
     
@@ -239,7 +238,7 @@ int main(int argc, char *argv[])
 			     MAXWORD );
     if (sError)
     {
-	printf("Error: unable to set text item '%s' in view note.\n",
+	PRINTLOG("Error: unable to set text item '%s' in view note.\n",
 		VIEW_TITLE_ITEM );
 	goto Exit4;
     }
@@ -259,7 +258,7 @@ int main(int argc, char *argv[])
 
     if (sError)
     {
-	printf("Error: unable to compile selection formula '%s'.\n", 
+	PRINTLOG("Error: unable to compile selection formula '%s'.\n", 
 		szSelFormula );
 	goto Exit4;
     }    
@@ -279,7 +278,7 @@ int main(int argc, char *argv[])
 
     if (sError)
     {
-	printf("Error: unable to compile column 1 formula '%s'.\n", 
+	PRINTLOG("Error: unable to compile column 1 formula '%s'.\n", 
 		szFormula_1 );
 	goto Exit5;
     }    
@@ -294,7 +293,7 @@ int main(int argc, char *argv[])
 		    wItemName_1_Len );
     if (sError)
     {
-	printf("Error: unable to set summary item '%s'.\n", 
+	PRINTLOG("Error: unable to set summary item '%s'.\n", 
 		szItemName_1 );
 	goto Exit5;
     }    
@@ -303,7 +302,7 @@ int main(int argc, char *argv[])
     sError = NSFFormulaMerge( hFormula_1, hSelFormula );
     if (sError)
     {
-	printf("Error: unable to merge column 1 formula into selection formula.\n");
+	PRINTLOG("Error: unable to merge column 1 formula into selection formula.\n");
 	goto Exit5;
     }
     
@@ -322,7 +321,7 @@ int main(int argc, char *argv[])
 				&wdc, &wdc );
     if (sError)
     {
-	printf("Error: unable to compile column 2 formula '%s'.\n", 
+	PRINTLOG("Error: unable to compile column 2 formula '%s'.\n", 
 		szFormula_2 );
 	goto Exit5;
     }    
@@ -338,14 +337,14 @@ int main(int argc, char *argv[])
 				     wItemName_2_Len );
     if (sError)
     {
-	printf("Error: unable to merge column 2 item name into selection formula.\n");
+	PRINTLOG("Error: unable to merge column 2 item name into selection formula.\n");
 	goto Exit5;
     }    
 
     sError = NSFFormulaMerge( hFormula_2, hSelFormula );
     if (sError)
     {
-	printf("Error: unable to merge formula 2 into view selection formula.\n");
+	PRINTLOG("Error: unable to merge formula 2 into view selection formula.\n");
 	goto Exit5;
     }
 
@@ -365,7 +364,7 @@ int main(int argc, char *argv[])
 
     if (sError)
     {
-	printf("Error: unable to compile formula for column 3: '%s'.\n", 
+	PRINTLOG("Error: unable to compile formula for column 3: '%s'.\n", 
 		szFormula_3 );
 	goto Exit5;
     }
@@ -381,7 +380,7 @@ int main(int argc, char *argv[])
 
     if (sError)
     {
-	printf("Error: unable to merge col 3 item name into selection formula.\n");
+	PRINTLOG("Error: unable to merge col 3 item name into selection formula.\n");
 	goto Exit5;
     }
 
@@ -389,7 +388,7 @@ int main(int argc, char *argv[])
 
     if (sError)
     {
-	printf("Error: unable to merge col 3 formula into selection formula.\n");
+	PRINTLOG("Error: unable to merge col 3 formula into selection formula.\n");
 	goto Exit5;
     }
 
@@ -402,7 +401,7 @@ int main(int argc, char *argv[])
                                      wConflictName_Len);
     if (sError)
     {
-        printf("Error: unable to merge $Conflict item name into selection formula.\n");
+        PRINTLOG("Error: unable to merge $Conflict item name into selection formula.\n");
         goto Exit5;
     }
 
@@ -411,7 +410,7 @@ int main(int argc, char *argv[])
                                      wRefName_Len);
     if (sError)
     {
-        printf("Error: unable to merge $REF item name into selection formula.\n");
+        PRINTLOG("Error: unable to merge $REF item name into selection formula.\n");
         goto Exit5;
     }
 
@@ -422,7 +421,7 @@ int main(int argc, char *argv[])
     sError = NSFFormulaGetSize( hSelFormula, &wSelFormulaLen );
     if (sError)
     {
-	printf("Error: unable to get size of selection formula.\n" );
+	PRINTLOG("Error: unable to get size of selection formula.\n" );
 	goto Exit5;
     }
 
@@ -443,7 +442,7 @@ int main(int argc, char *argv[])
 
     if (sError) 
     {
-	printf("Error: unable to append item '%s' to view note.\n",
+	PRINTLOG("Error: unable to append item '%s' to view note.\n",
 		VIEW_FORMULA_ITEM );
 	goto Exit4;
     }
@@ -496,7 +495,7 @@ int main(int argc, char *argv[])
 
     if (sError = OSMemAlloc( 0, wViewFormatBufLen, &hViewFormatBuffer ))
     {
-	printf("Error: unable to allocate %d bytes memory.\n", 
+	PRINTLOG("Error: unable to allocate %d bytes memory.\n", 
 		wViewFormatBufLen);
 	goto Exit5;
     }
@@ -726,7 +725,7 @@ int main(int argc, char *argv[])
 
     if (sError) 
     {
-	printf("Error: unable to append item '%s' to view note.\n", 
+	PRINTLOG("Error: unable to append item '%s' to view note.\n", 
 		VIEW_VIEW_FORMAT_ITEM );
 	goto Exit5;
     }
@@ -759,7 +758,7 @@ int main(int argc, char *argv[])
 
     if (sError = OSMemAlloc( 0, wCollationBufLen, &hCollationBuffer ))
     {
-	printf( "Error: unable to allocate %d bytes memory.\n", 
+	PRINTLOG( "Error: unable to allocate %d bytes memory.\n", 
 		wCollationBufLen);
 	goto Exit5;
     }
@@ -858,7 +857,7 @@ int main(int argc, char *argv[])
 
     if (sError)
     {
-	printf("Error: unable to append Collation item to view note.\n");
+	PRINTLOG("Error: unable to append Collation item to view note.\n");
 	goto Exit5;
     }
     
@@ -871,12 +870,12 @@ int main(int argc, char *argv[])
 		   
     if (sError)
     {
-	printf("Error: unable to update view note in database.\n" );
+	PRINTLOG("Error: unable to update view note in database.\n" );
     }
     else
     {
-	printf("Successfully created view note in database.\n" );
-	printf("\nProgram completed successfully.\n" );
+	PRINTLOG("Successfully created view note in database.\n" );
+	PRINTLOG("\nProgram completed successfully.\n" );
     }
 
 
@@ -912,38 +911,7 @@ Exit3:
 
 Exit2:
 
-    PrintAPIError (sError);  
+    PRINTERROR (sError,"NSFDbOpen");  
     NotesTerm();
     return (sError); 
-
-}
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
 }

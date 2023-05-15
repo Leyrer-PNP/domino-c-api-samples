@@ -69,6 +69,7 @@
 #include <oserr.h>
 #include <stdnames.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -119,8 +120,6 @@ STATUS InsertJavaAppletAttachment(NOTEHANDLE hNote,
                                WORD FAR *pwItemSize,
                                WORD wBufferSize);
 
-void PrintAPIError (STATUS);
-
 /*
  *  Body of main program
  */
@@ -141,7 +140,7 @@ int main (int argc, char *argv[])
 
     if (sError = NotesInitExtended (argc, argv))
     {
-       printf("\n Unable to initialize Notes.\n");
+       PRINTLOG("\n Unable to initialize Notes.\n");
        return (1);
     }
 
@@ -186,7 +185,7 @@ int main (int argc, char *argv[])
                                 CodeString,
                                 HOST_STREAM))
      {
-        printf("Error: Couldn't find the class file at %s\n",CodeStringFullPath);
+        PRINTLOG("Error: Couldn't find the class file at %s\n",CodeStringFullPath);
         goto exitCloseNote;
      }
 
@@ -207,10 +206,14 @@ exitCloseDB:
 
 
 exit0:
-    if (sError)
-       PrintAPIError(sError); 
-    else   
-       printf ("\nProgram completed successfully.\n");
+	if (sError)
+	{
+		PRINTERROR(sError, "NSFNoteUpdate");
+	}
+	else
+	{
+		PRINTLOG("\nProgram completed successfully.\n");
+	}
 
     NotesTerm();
     return(sError);

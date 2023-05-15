@@ -14,8 +14,8 @@ itemmisc - HCL C API for Domino and Notes Sample Program.
 
 PURPOSE
 -------
-This program modifies an item value in a document and then copies the item to another document 
-in the same view and renames it. It also checks that the documents in the view have a $Readers field.
+This program modifies an item value with modified length in a document and compares the modified item values are equal.
+It copies the item to another document in the same view and renames it. It also checks that the documents in the view have a $Readers field.
 
 
 ENVIRONMENTS
@@ -66,20 +66,29 @@ If the program runs correctly, it should display:
 
  Note id [0x8f6] has reader field.
  Before Modifying Item's value: This is a line of simple text.
+ NSFItemRealloc returned successfully.
+ ITEM Value is modified successfully and values are equal.
  Modified Item's value: This is a line of modified simple text.
 
  Note id [0x8fa] has no reader field.
  Copied doc [0x8f6] modified Item value to doc [0x8fa],
  Value of item is: [This is a line of modified simple text.] Item Name: [plainText].
 
+ Modified item [plainText] value using NSFItemSetTextSummary flag[0],
+ Item value type[1280], Length [34], Item value [This is summary value modification]
 
 CHECKING THE RESULTS
 --------------------
-
  Note id [0x8f6] has reader field.
  Before Modifying Item's value: This is a line of simple text.
+ NSFItemRealloc returned successfully.
+ ITEM Value is modified successfully and values are equal.
  Modified Item's value: This is a line of modified simple text.
 
  Note id [0x8fa] has no reader field.
  Copied doc [0x8f6] modified Item value to doc [0x8fa],
  Value of item is: [This is a line of modified simple text.] Item Name: [plainText].
+
+ Modified item [plainText] value using NSFItemSetTextSummary flag[0],
+ Item value type[1280], Length [34], Item value [This is summary value modification]
+

@@ -36,6 +36,7 @@
 #include <miscerr.h>
 #include <oserr.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #define  STRING_LENGTH  256
 #define  OUTFILE  "query.tmp"
@@ -43,7 +44,6 @@
 /* Function prototypes for local functions. */
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *szDBFileName);
-void PrintAPIError (STATUS);
 BOOL LNPUBLIC NSFQueryTest (DHANDLE hDB);
 
 /************************************************************************
@@ -70,14 +70,14 @@ int main(int argc, char *argv[])
 
 	if (error = NotesInitExtended (argc, argv))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"NotesInitExtended");
 		return (1);
 	}
 
 	outFile = fopen (OUTFILE, "w");
 	if (!outFile)
 	{
-		printf("Error opening the file %s.", OUTFILE);
+		PRINTLOG("Error opening the file %s.", OUTFILE);
 		return (1);
 	}
 	else
@@ -92,28 +92,28 @@ int main(int argc, char *argv[])
 
 	if (error = NSFDbOpen (szDBFileName, &hDB))
 	{
-		PrintAPIError (error);  
+		PRINTERROR (error,"NSFDbOpen");  
 		NotesTerm();
 		return (1);
 	}
 
-	printf("Testing NSFQueryDBExt2:\n");
-	printf("-----------------------\n");
+	PRINTLOG("Testing NSFQueryDBExt2:\n");
+	PRINTLOG("-----------------------\n");
 
 	if (NSFQueryTest (hDB))
 	{
-		printf("NSFQueryDBExt2 was successful.\n");
+		PRINTLOG("NSFQueryDBExt2 was successful.\n");
 	}
 	else
 	{
-		printf("NSFQueryDBExt2 failed.\n");
+		PRINTLOG("NSFQueryDBExt2 failed.\n");
 	}
 
 	/* Close the database. */
 
 	if (error = NSFDbClose (hDB))
 	{
-		PrintAPIError (error);  
+		PRINTERROR (error,"NSFDbClose");  
 		NotesTerm();
 		return (1);
 	}
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 	NotesTerm ();
 	if (error == NOERROR)
 	{
-		printf("\nProgram completed successfully.\n");
+		PRINTLOG("\nProgram completed successfully.\n");
 		return (0);
 	}
 }
@@ -156,7 +156,7 @@ BOOL LNPUBLIC NSFQueryTest (DHANDLE hDB)
 	inFile = fopen (OUTFILE, "r");
 	if (!inFile)
 	{
-		printf("Error opening the file %s.", OUTFILE);
+		PRINTLOG("Error opening the file %s.", OUTFILE);
 		return FALSE;
 	}
 	else
@@ -180,7 +180,7 @@ BOOL LNPUBLIC NSFQueryTest (DHANDLE hDB)
 			if (hRetExplain != NULLMEMHANDLE)
 			{
 				char *explain = (char *)OSMemoryLock(hRetExplain);
-				printf("%s\n", explain);
+				PRINTLOG("%s\n", explain);
 				OSMemoryUnlock(hRetExplain);
 				OSMemoryFree(hRetExplain);
 				hRetExplain = NULLMEMHANDLE;
@@ -204,7 +204,7 @@ BOOL LNPUBLIC NSFQueryTest (DHANDLE hDB)
 	return TRUE;
 
 errout:
-	PrintAPIError (error);
+	PRINTERROR (error,"NSFQueryDBExt2");
 	return FALSE;
 }
 
@@ -228,7 +228,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *szDBFileName)
 { 
 	if (argc != 2)  
 	{
-		printf("Enter name of database: ");      
+		PRINTLOG("Enter name of database: ");      
 		fflush(stdout);
 		fgets(szDBFileName, STRING_LENGTH-1, stdin);
 	}
@@ -237,28 +237,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *szDBFileName)
 		strncpy(szDBFileName, argv[1], STRING_LENGTH-1);
 	} /* end if */
 } /* ProcessArgs */
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:
-	This function prints the error message associated
-	with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-{
-	STATUS  string_id = ERR(api_error);
-	char    szErrorText[256] = {0};
-	WORD    wTextLen = 0;
-
-	/* Get the message for the error code from the resource string table. */
-
-	wTextLen = OSLoadString (NULLHANDLE, string_id, szErrorText,sizeof(szErrorText));
-
-	/* Print it. */
-
-	fprintf (stderr, "\n%s.\n", szErrorText);
-}

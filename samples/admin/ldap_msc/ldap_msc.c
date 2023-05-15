@@ -36,6 +36,7 @@
 #include "osmisc.h"
 #include "ldap.h"
 #include "ldap_msc.h"
+#include "printLog.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -161,7 +162,7 @@ int main(int argc, char *argv[])
     mods[ 5 ] = NULL;
 
 	
-    printf("\n  Modifcation results:\n\n");
+    PRINTLOG("\n  Modifcation results:\n\n");
 
     /* Add the entry */
     if (( rc = ldap_add_s( ld, dn, mods )) != LDAP_SUCCESS )
@@ -181,7 +182,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-         printf( "\tAdded entry \"%s\".\n", dn );
+         PRINTLOG( "\tAdded entry \"%s\".\n", dn );
     }
     free_mods( mods );
 
@@ -191,7 +192,7 @@ int main(int argc, char *argv[])
          /* If entry does not exist, fine.  Ignore this error. */
          if ( rc == LDAP_NO_SUCH_OBJECT )
          {
-              printf( "\tEntry \"%s\" is not in the directory.  "
+             PRINTLOG( "\tEntry \"%s\" is not in the directory.  "
               "\n\t  No need to delete.\n", ndn );
          }
          else
@@ -203,7 +204,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-          printf( "\tDeleted entry \"%s\".\n", ndn );
+         PRINTLOG( "\tDeleted entry \"%s\".\n", ndn );
     }
 
     /* Do the RDN modification operation */
@@ -214,13 +215,13 @@ int main(int argc, char *argv[])
          return( 1 );
     }
 
-    printf( "\tThe RDN modification operation was successful.\n \tEntry...\n"
+    PRINTLOG( "\tThe RDN modification operation was successful.\n \tEntry...\n"
             "\t  \"%s\" \n\tHas been changed to...\n"
             "\t  \"%s\" \n", dn, ndn );
 
 
     /* Perform search */
-    printf("\n  Search results:\n\n");
+    PRINTLOG("\n  Search results:\n\n");
 
     if ( ldap_search_s( ld, SEARCHBASE, LDAP_SCOPE_SUBTREE,
                         FILTER, NULL, 0, &result ) != LDAP_SUCCESS )
@@ -240,7 +241,7 @@ int main(int argc, char *argv[])
     {
          if ( (sdn = ldap_get_dn( ld, e )) != NULL )
          {
-             printf( "\tdn: %s\n", sdn );
+             PRINTLOG( "\tdn: %s\n", sdn );
              ldap_memfree( sdn );
          }
          for ( a = ldap_first_attribute( ld, e, &ber );
@@ -250,7 +251,7 @@ int main(int argc, char *argv[])
              {
                  for ( j = 0; vals[j] != NULL; j++ )
                  {
-                     printf( "\t%s: %s\n", a, vals[j] );
+                     PRINTLOG( "\t%s: %s\n", a, vals[j] );
                  }
                  ldap_value_free( vals );
              }
@@ -261,7 +262,7 @@ int main(int argc, char *argv[])
     ldap_msgfree( result );
 
     /* compare the value "person" against the objectclass attribute */
-    printf("\n  Comparison results:\n\n");
+    PRINTLOG("\n  Comparison results:\n\n");
 
     compAttribute = "objectclass";
     compValue = "person";
@@ -272,11 +273,11 @@ int main(int argc, char *argv[])
     switch ( rc )
     {
          case LDAP_COMPARE_TRUE:
-             printf( "\tThe value \"person\" is contained in the objectclass "
+             PRINTLOG( "\tThe value \"person\" is contained in the objectclass "
                      "attribute.\n" );
              break;
          case LDAP_COMPARE_FALSE:
-             printf( "\tThe value \"person\" is not contained in the objectclass "
+             PRINTLOG( "\tThe value \"person\" is not contained in the objectclass "
                      "attribute.\n" );
              break;
          default:
@@ -292,11 +293,11 @@ int main(int argc, char *argv[])
     switch ( rc )
     {
          case LDAP_COMPARE_TRUE:				
-             printf( "\tThe value \"xyzzy\" is contained in the objectclass "
+             PRINTLOG( "\tThe value \"xyzzy\" is contained in the objectclass "
                      "attribute.\n" );
              break;
          case LDAP_COMPARE_FALSE:
-             printf( "\tThe value \"xyzzy\" is not contained in the objectclass "
+             PRINTLOG( "\tThe value \"xyzzy\" is not contained in the objectclass "
                      "attribute.\n" );
              break;
          default:
@@ -305,7 +306,7 @@ int main(int argc, char *argv[])
 
     ldap_unbind_s( ld );
     NotesTerm();
-    printf ("\nProgram completed successfully.\n");
+    PRINTLOG ("\nProgram completed successfully.\n");
     return 0;
 }
 

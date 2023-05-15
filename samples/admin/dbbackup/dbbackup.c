@@ -26,6 +26,7 @@
 #include "osfile.h"
 #include "osmem.h"
 #include "win32io.h"
+#include "printLog.h"
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -76,7 +77,7 @@ VOID main (int argc, char *argv[])
    /* Get the pathname of the database from the command line. */
    if (argc != 3)
    {
-      printf( "\nUsage:  dbbackup  <database filename> <output filename>\n");
+      PRINTLOG( "\nUsage:  dbbackup  <database filename> <output filename>\n");
       exit (EXIT_SUCCESS);
    }
 
@@ -86,7 +87,7 @@ VOID main (int argc, char *argv[])
    /* Initialize Notes */
    if (NotesInitExtended (argc, argv))
    {
-      printf ("\nError initializing Notes.\n");
+      PRINTLOG ("\nError initializing Notes.\n");
       exit (EXIT_FAILURE);
    }
 
@@ -131,8 +132,8 @@ VOID main (int argc, char *argv[])
    }
    if(!Logged)
    {
-      printf("\n  Database '%s' is not currently logged ...\n", path_name);
-      printf("\n  Resulting backup file '%s' WILL NOT BE RECOVERABLE!!!\n", backup_file);
+      PRINTLOG("\n  Database '%s' is not currently logged ...\n", path_name);
+      PRINTLOG("\n  Resulting backup file '%s' WILL NOT BE RECOVERABLE!!!\n", backup_file);
    }
 
    /* Open the database file at the OS level */
@@ -356,8 +357,8 @@ VOID main (int argc, char *argv[])
    /* Terminate Notes. */
    NotesTerm();
 
-   printf("\nThe backup file created is %s\n",backup_file);
-   printf ("\nProgram completed successfully\n");
+   PRINTLOG("\nThe backup file created is %s\n",backup_file);
+   PRINTLOG ("\nProgram completed successfully\n");
 
    /* End of main program. */
    exit (EXIT_SUCCESS);

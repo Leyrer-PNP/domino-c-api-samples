@@ -58,6 +58,7 @@ extern "C" {
 #include <editods.h>            /* CDFONTTABLE */
 
 #include <lapiplat.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -68,8 +69,6 @@ extern "C" {
 STATUS LNPUBLIC AddIDUnique (void *, SEARCH_MATCH *, ITEM_TABLE *);
 STATUS LNPUBLIC ProcessOneNote( void *, DWORD );
 STATUS LNPUBLIC PrintFontTable( char*, WORD, DWORD, void* );
-void PrintAPIError (STATUS);
-
 
 /************************************************************************
 
@@ -88,7 +87,7 @@ int main(int argc, char *argv[])
 	 error = NotesInitExtended (argc, argv);
 	 if (error)
 	 {
-		 printf("Error: Unable to initialize Notes.\n");
+		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
 	 }
 
@@ -96,8 +95,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen( szDBName, &hDB ))
 	 {
-		 printf ("Error: unable to open database '%s'.\n", szDBName);
-		 PrintAPIError(error);
+		 PRINTLOG ("Error: unable to open database '%s'.\n", szDBName);
+		 PRINTERROR(error,"NSFDbOpen");
 		 NotesTerm();
 		 return(1);
 	 }
@@ -111,9 +110,9 @@ int main(int argc, char *argv[])
 
     if (error = IDCreateTable( sizeof(NOTEID), &hNoteIDTable ))
     {
-        printf( "Error: unable to create ID table.\n" );
+        PRINTLOG( "Error: unable to create ID table.\n" );
         NSFDbClose( hDB );
-		  PrintAPIError(error);
+		  PRINTERROR(error,"IDCreateTable");
 		  NotesTerm();
 		  return(1);
     }
@@ -130,10 +129,10 @@ int main(int argc, char *argv[])
         NULL ))         /* returned ending date (unused) */
 
     {
-        printf( "Error: unable to search database.\n" );
+        PRINTLOG( "Error: unable to search database.\n" );
         IDDestroyTable( hNoteIDTable );
         NSFDbClose( hDB );
-		  PrintAPIError(error);
+		  PRINTERROR(error,"NSFSearch");
 		  NotesTerm();
 		  return(1);
     }
@@ -143,10 +142,10 @@ int main(int argc, char *argv[])
                              ProcessOneNote, /* called for each ID */
                              &hDB ))         /* arg passed to func */
     {
-        printf( "Error: unable to enumerate documents in ID table.\n" );
+        PRINTLOG( "Error: unable to enumerate documents in ID table.\n" );
         IDDestroyTable( hNoteIDTable );
         NSFDbClose( hDB );
-		  PrintAPIError(error);
+		  PRINTERROR(error,"IDEnumerate");
 		  NotesTerm();
 		  return(1);
     }
@@ -154,7 +153,7 @@ int main(int argc, char *argv[])
     if (error =IDDestroyTable( hNoteIDTable ))
 	 {
 		 NSFDbClose( hDB );
-		 PrintAPIError(error);
+		 PRINTERROR(error,"IDDestroyTable");
 		 NotesTerm();
 		 return(1);
 	 }
@@ -162,7 +161,7 @@ int main(int argc, char *argv[])
     /* Close the database */
     if (error = NSFDbClose(hDB))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFDbClose");
 		 NotesTerm();
 		 return(1);
     }
@@ -171,7 +170,7 @@ int main(int argc, char *argv[])
 
 	 NotesTerm();
 
-	 printf("\nProgram completed successfully.\n");
+	 PRINTLOG("\nProgram completed successfully.\n");
 
 	 return(0);
 
@@ -201,7 +200,7 @@ STATUS LNPUBLIC AddIDUnique( void * phNoteIDTable,
 
     if (error = IDInsert( hNoteIDTable, SearchMatch.ID.NoteID, &flagOK ))
     {
-        printf( "Error: unable to insert note ID into table.\n" );
+        PRINTLOG( "Error: unable to insert note ID into table.\n" );
         return(error);
     }
    /* If flagOK == TRUE then we inserted note ID into table. Else, the
@@ -226,13 +225,13 @@ STATUS LNPUBLIC ProcessOneNote( void * phDB, DWORD NoteID )
     BLOCKID bhValue;
     DWORD   dwLength;
 
-    printf ("Processing note %lX.\n", NoteID);
+    PRINTLOG ("Processing note %lX.\n", NoteID);
 
     hDB = *( (DBHANDLE *)phDB );
 
     if (error = NSFNoteOpen( hDB, NoteID, 0, &hNote))
     {
-        printf( "Error: unable to open note.\n" );
+        PRINTLOG( "Error: unable to open note.\n" );
         return(error);
     }
 
@@ -254,7 +253,7 @@ STATUS LNPUBLIC ProcessOneNote( void * phDB, DWORD NoteID )
     }
     else if (error)
     {
-        printf( "Error: unable to access item %d.\n", ITEM_NAME_FONTS );
+        PRINTLOG( "Error: unable to access item %d.\n", ITEM_NAME_FONTS );
         NSFNoteClose( hNote );
         return(error);
     }
@@ -303,40 +302,14 @@ STATUS LNPUBLIC PrintFontTable( char  *RecordPtr,
     for (wIndex = 0; wIndex < cdFontTab.Fonts; wIndex++)
     {
         ODSReadMemory( &pItemValue, _CDFACE, &cdFace, 1 );
-        printf( "    Font %d:\n", wIndex );
-        printf( "       Face    = %d\n", cdFace.Face );
-        printf( "       Family  = %d\n", cdFace.Family );
-        printf( "       Name    = %s\n", cdFace.Name );
+        PRINTLOG( "    Font %d:\n", wIndex );
+        PRINTLOG( "       Face    = %d\n", cdFace.Face );
+        PRINTLOG( "       Family  = %d\n", cdFace.Family );
+        PRINTLOG( "       Name    = %s\n", cdFace.Name );
     }
 
     return (NOERROR);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

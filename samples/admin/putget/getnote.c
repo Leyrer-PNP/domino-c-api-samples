@@ -46,6 +46,7 @@ The parameters are as follows:
 #include <osmisc.h>
 #include <names.h>
 #include <nsferr.h>
+#include <printLog.h>
 
 /* Local include files */
 
@@ -549,9 +550,9 @@ warning. */
 
 #if defined (LINUX)
 	if (!removeSpecialChar(text_buffer))
-		printf("%s\n", text_buffer);
+		PRINTLOG("%s\n", text_buffer);
 #else
-	printf("%s\n", text_buffer);
+	PRINTLOG("%s\n", text_buffer);
 #endif
 
 /* Free the buffer that is holding the ASCII version of the field. */

@@ -9,17 +9,9 @@ import glob
 import getpass
 import subprocess
 import telnetlib
-import pysftp
 from collections import OrderedDict
 from collections import namedtuple
 
-"""
-NOTE:
-    1. Install python 2.7.18 or above 
-    2. This script needs pysftp module to be installed 
-       >pip install pysftp
-
-"""
 """
 This program is used to build the sample program .
 Following are the program logic,
@@ -309,8 +301,6 @@ class StreamFile:
         self.password = ''
         if (ip != ' ' and user != ''):
            self.password = getpass.getpass()
-        self.cnopt = pysftp.CnOpts()
-        self.cnopt.hostkeys = None
 
     def transferReport(self, remoteDir, fileName):
          
@@ -322,10 +312,6 @@ class StreamFile:
                print("Its a local run. No log transfer   ")
                print("***********************************")
                return
-            with pysftp.Connection(self.host, username=self.user, password=self.password, cnopts=self.cnopt) as sftp:
-                with sftp.cd(remoteDir):             # temporarily chdir to public
-                    sftp.put(fileName)  # upload file to public/ on remote
-
         except Exception as e:  #Exception handling
              print(str(e))
              raise

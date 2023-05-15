@@ -43,6 +43,7 @@
 #include <stdnames.h>
 #include <textlist.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -65,8 +66,6 @@ STATUS UpdateReaderList (NOTEHANDLE, READER_LIST,
                      DWORD *, DWORD *);
 void LNPUBLIC  ProcessArgs (int argc, char *argv[], 
                                char *FileName, char *ViewName, short *SetReaderList, WORD *NewPrivileges, char **TheRList, WORD *numEntries, short *FreeList);
-
-void PrintAPIError (STATUS);
 
 
 /************************************************************************
@@ -130,7 +129,7 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
        {
-       printf("\n Unable to initialize Notes.\n");
+       PRINTLOG("\n Unable to initialize Notes.\n");
        return(1);
        } 
 
@@ -145,7 +144,7 @@ int main(int argc, char *argv[])
 
     if (SetReaderList && ReaderList.NumEntries == 0)
     {
-      printf("\nError: No read access name list specified.\n");
+      PRINTLOG("\nError: No read access name list specified.\n");
       goto Done2;
     }
 
@@ -168,7 +167,7 @@ int main(int argc, char *argv[])
         {
         if (error == ERR_NOT_FOUND)
             {
-            printf("View '%s' cannot be found\n", ViewName);
+            PRINTLOG("View '%s' cannot be found\n", ViewName);
             error = NOERROR;
             }
         goto Done1;
@@ -249,7 +248,7 @@ int main(int argc, char *argv[])
                     {
                     OSLoadString(NULLHANDLE, ERR(error), String,
                                  sizeof(String)-1);
-                    printf("Error '%s' reading docment %#lX -- %s\n",
+                    PRINTLOG("Error '%s' reading docment %#lX -- %s\n",
                             String, *entry, " skipping it");
                     /* Since the error has been reported, we will
                        reset the error status and continue */
@@ -271,7 +270,7 @@ int main(int argc, char *argv[])
                     {
                     OSLoadString(NULLHANDLE, ERR(error), String,
                                  sizeof(String)-1);
-                    printf("Error '%s' writing document %#lX -- %s\n",
+                    PRINTLOG("Error '%s' writing document %#lX -- %s\n",
                            String, *entry, "skipping it");
                     /* Since the error has been reported, we will
                        reset the error status and continue */
@@ -315,14 +314,14 @@ Done2:
     if (!error)
         {
         if (NumUpdated)
-            printf("%lu documents had their privileges updated\n",
+            PRINTLOG("%lu documents had their privileges updated\n",
                    NumUpdated);
         if (NumNotUpdated)
-            printf("%lu documents already had the desired privileges\n",
+            PRINTLOG("%lu documents already had the desired privileges\n",
                    NumNotUpdated);
         }
     else
-       PrintAPIError(error);
+       PRINTERROR(error,"NSFDbOpen");
 
 
     /* Free the reader list */
@@ -584,29 +583,3 @@ tryagain:
 
   } /* end if */
 } /* ProcessArgs */
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

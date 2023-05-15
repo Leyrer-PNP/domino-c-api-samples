@@ -79,6 +79,7 @@ extern "C" {
 #include <viewfmt.h>
 #include <colorid.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #ifdef OS390
 #include <_Ascii_a.h>  /* NOTE: must be the LAST file included */
@@ -106,8 +107,6 @@ WORD           bDocNoteFound;
  */
 STATUS LNPUBLIC FindFirstNote(void *, SEARCH_MATCH *, ITEM_TABLE * );
 STATUS LNPUBLIC FindLayoutCount(WORD, WORD, char *, WORD, VOID *, DWORD, VOID * );
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -171,11 +170,11 @@ int main(int argc, char *argv[])
  * Start program.
  **************************************************************************
  */         
-    printf("HCL Notes API\nmakenav sample program\n");
+    PRINTLOG("HCL Notes API\nmakenav sample program\n");
 
 	if (sError = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	}
 
@@ -185,7 +184,7 @@ int main(int argc, char *argv[])
  */
     if (sError = NSFDbOpen( szFileName, &hDB ))
     {
-        printf("Error: unable to open database '%s'.\n", szFileName );
+        PRINTLOG("Error: unable to open database '%s'.\n", szFileName );
         goto Exit1;
     }
 
@@ -198,7 +197,7 @@ int main(int argc, char *argv[])
     {
        if (sError = NSFNoteOpen(hDB, ViewNoteID, 0, &hViewNote ))
       {
-         printf("Error: unable to open navigator view note in database.\n");
+         PRINTLOG("Error: unable to open navigator view note in database.\n");
          goto Exit2;
       }
     }
@@ -211,7 +210,7 @@ int main(int argc, char *argv[])
        sError = NSFNoteCreate( hDB, &hViewNote );
        if (sError) 
        {
-           printf("Error: unable to create note in database.\n" );
+           PRINTLOG("Error: unable to create note in database.\n" );
            goto Exit2;
       }
     
@@ -227,7 +226,7 @@ int main(int argc, char *argv[])
                               szNavViewName, MAXWORD );
        if (sError)
       {
-         printf("Error: unable to set text item '%s' in view note.\n",
+         PRINTLOG("Error: unable to set text item '%s' in view note.\n",
                    VIEW_TITLE_ITEM );
            goto Exit3;
       }
@@ -247,7 +246,7 @@ int main(int argc, char *argv[])
                                (DWORD)strlen(szDFlags ));
        if (sError) 
        {
-           printf("Error: unable to append item '%s' to view note.\n",
+           PRINTLOG("Error: unable to append item '%s' to view note.\n",
                    DESIGN_FLAGS );
            goto Exit3;
       }
@@ -285,7 +284,7 @@ int main(int argc, char *argv[])
                     &hDB,           /* argument to action routine */
                     NULL))              /* returned ending date (unused) */
    {
-      printf("Error: database search failed.\n");
+      PRINTLOG("Error: database search failed.\n");
       goto Exit3;
    }
 
@@ -294,7 +293,7 @@ int main(int argc, char *argv[])
  */
    if (bDocNoteFound == FALSE)
    {
-      printf("No new documents today. Navigator creation cancelled.\n" );
+      PRINTLOG("No new documents today. Navigator creation cancelled.\n" );
       goto Exit3;
    }
 
@@ -305,7 +304,7 @@ int main(int argc, char *argv[])
  */
     if (sError = NSFDbReplicaInfoGet (hDB, &DBReplica))
    {
-      printf("Error: could not retrieve DBID.\n");
+      PRINTLOG("Error: could not retrieve DBID.\n");
       goto Exit3;
    }
 
@@ -313,13 +312,13 @@ int main(int argc, char *argv[])
     {
        if (sError = NSFNoteOpen(hDB, MainViewID, 0, &hMainView ))
       {
-         printf("Error: unable to open MainView note in database.\n");
+         PRINTLOG("Error: unable to open MainView note in database.\n");
          goto Exit3;
       }
     }
    else
     {
-      printf("Error: unable to find MainView note in database.\n");
+      PRINTLOG("Error: unable to find MainView note in database.\n");
       goto Exit3;
    }
     NSFNoteGetInfo (hMainView, _NOTE_OID, &ViewOID);
@@ -337,7 +336,7 @@ int main(int argc, char *argv[])
    sError = NSFItemScan(hViewNote, FindLayoutCount, NULL );
     if ((sError) && (sError != ERR_ITEM_NOT_FOUND )) 
     {
-        printf("Error: unable to scan '%s' view note.\n", VIEWMAP_LAYOUT_ITEM );
+        PRINTLOG("Error: unable to scan '%s' view note.\n", VIEWMAP_LAYOUT_ITEM );
         goto Exit3;
     }
 
@@ -385,7 +384,7 @@ int main(int argc, char *argv[])
  */
     if (sError = OSMemAlloc( 0, wNavLayoutBufLen, &hNavLayoutBuffer ))
     {
-        printf("Error: unable to allocate %d bytes memory.\n", 
+        PRINTLOG("Error: unable to allocate %d bytes memory.\n", 
                 wNavLayoutBufLen);
         goto Exit3;
     }
@@ -510,7 +509,7 @@ int main(int argc, char *argv[])
     OSMemFree( hNavLayoutBuffer );
     if (sError) 
     {
-        printf("Error: unable to append item '%s' to view note.\n", 
+        PRINTLOG("Error: unable to append item '%s' to view note.\n", 
                 VIEWMAP_LAYOUT_ITEM );
         goto Exit3;
     }
@@ -523,11 +522,11 @@ int main(int argc, char *argv[])
                    
     if (sError)
     {
-        printf("Error: unable to update view note in database.\n" );
+        PRINTLOG("Error: unable to update view note in database.\n" );
     }
     else
     {
-        printf("Successfully created view note in database.\n" );
+        PRINTLOG("Successfully created view note in database.\n" );
     }
 
 
@@ -541,7 +540,7 @@ Exit2:
 
 Exit1:
 
-    PrintAPIError (sError);  
+    PRINTERROR (sError,"NSFNoteUpdate");  
     NotesTerm();
     return (sError); 
 
@@ -662,38 +661,6 @@ STATUS LNPUBLIC FindLayoutCount (   WORD  wUnused,
 
     return (NOERROR);
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif
-

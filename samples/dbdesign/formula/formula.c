@@ -52,12 +52,12 @@
 #include <osmem.h>
 #include <misc.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
 
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 
 	if (sError = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	}
 
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen (path_name, &hDb))
     {
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFDbOpen");  
         NotesTerm();
         return (1);
     } 
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteCreate(hDb, &hNote))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteCreate");  
         NotesTerm();
         return (1);
     }
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
                                  MAXWORD))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFItemSetText");  
         NotesTerm();
         return (1);
     }
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
                                   &dNumber))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFItemSetNumber");  
         NotesTerm();
         return (1);
     }
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteUpdate(hNote, 0))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteUpdate");  
         NotesTerm();
         return (1);
     }
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteClose(hNote))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteClose");  
         NotesTerm();
         return (1);
     }
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteOpen(hDb, note_id, OPEN_EXPAND, &hNote))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteOpen");  
         NotesTerm();
         return (1);
     }
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
                                    &wdc, &wdc))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFFormulaCompile");  
         NotesTerm();
         return (1);
     }
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
         OSUnlockObject(hFormula);
         OSMemFree(hFormula);
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFComputeStart");  
         NotesTerm();
         return (1);
     }
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
         OSUnlockObject(hFormula);
         OSMemFree(hFormula);
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFComputeEvaluate");  
         NotesTerm();
         return (1);
     }
@@ -316,11 +316,11 @@ int main(int argc, char *argv[])
                             &wTextNumLen );
             if (ERR(sError))
             {
-                printf("Error: unable to convert number to text.\n");
+                PRINTLOG("Error: unable to convert number to text.\n");
             }
             else
             {
-                printf( "The number is: %s\n", szTextNum);
+                PRINTLOG( "The number is: %s\n", szTextNum);
             }
          
             break;
@@ -338,18 +338,18 @@ int main(int argc, char *argv[])
                                     pNumber, szTextNum,
                                     MAXALPHANUMBER, &wTextNumLen ))
                 {
-                    printf( "Error: unable to convert number to text.\n" );
+                    PRINTLOG( "Error: unable to convert number to text.\n" );
                 }
                 else
                 {
-                    printf( "The number is: %s\n", szTextNum );
+                    PRINTLOG( "The number is: %s\n", szTextNum );
                 }
             }
             break;
 
         case TYPE_INVALID_OR_UNKNOWN:
         default:
-            printf( "TYPE_INVALID_OR_UNKNOWN : %x\n", wDataType );
+            PRINTLOG( "TYPE_INVALID_OR_UNKNOWN : %x\n", wDataType );
             break;
 
     }
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
     if (sError = NSFComputeStop(hCompute))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFComputeStop");  
         NotesTerm();
         return (1);
     }
@@ -381,44 +381,13 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbClose (hDb))
 	{
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFDbClose");  
         NotesTerm();
         return (1);
 	}
 
 /* End of program. */
-    printf("\nProgram completed successfully\n"); 
+    PRINTLOG("\nProgram completed successfully\n"); 
     NotesTerm();
-    return (0); 
-
-}
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
+    return (0);
 }

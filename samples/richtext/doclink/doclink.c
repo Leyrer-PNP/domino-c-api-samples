@@ -40,6 +40,7 @@
 #include <colorid.h>
 
 #include <lapiplat.h>
+#include <printLog.h>
 
 void CreateBody(char **ppBuf, WORD *pLength);
 
@@ -54,8 +55,6 @@ void CreateDBLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
 
 void CreateAnchorLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
                    ORIGINATORID Note_OID, ORIGINATORID View_OID);
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -109,7 +108,7 @@ int main(int argc, char *argv[])
 	 error = NotesInitExtended (argc, argv);
 	 if (error)
 	 {
-		 printf("Error: Unable to initialize Notes.\n");
+		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
 	 }
 
@@ -120,7 +119,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen(szFileName1, &hDB))
 	 {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFDbOpen");
 		 NotesTerm();
 		 return(1);
 	 }
@@ -131,7 +130,7 @@ int main(int argc, char *argv[])
 
     if (error = NIFFindView (hDB, szViewName, &ViewNoteID))
     {
-		  PrintAPIError(error);
+		  PRINTERROR(error,"NIFFindView");
         NSFDbClose(hDB);             /* Close database            */
 		  NotesTerm();
 		  return(1);
@@ -143,7 +142,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteOpen (hDB, ViewNoteID, 0, &hViewNote))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteOpen");
         NSFDbClose(hDB);             /* Close database            */
 		  NotesTerm();
 		  return(1);
@@ -161,7 +160,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hViewNote))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteClose");
         NSFDbClose(hDB);             /* Close database            */
 		  NotesTerm();
 		  return(1);
@@ -173,7 +172,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate(hDB, &hNote))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFNoteCreate");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -188,7 +187,7 @@ int main(int argc, char *argv[])
                                SubjectText1,            /* Text to set */
                                sizeof(SubjectText1)))   /* Text length */
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFItemSetText");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -208,7 +207,7 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFItemAppend");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -224,7 +223,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteUpdate(hNote, 0))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFNoteUpdate");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -242,7 +241,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hNote))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFNoteClose");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -254,7 +253,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbReplicaInfoGet (hDB, &DBReplica))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFDbReplicaInfoGet");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -266,7 +265,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose(hDB))
 	 {
-	    PrintAPIError(error);
+	    PRINTERROR(error,"NSFDbClose");
 		 NotesTerm();
 		 return(1);
 	 }
@@ -277,7 +276,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen(szFileName2, &hDB))
 	 {
-	    PrintAPIError(error);
+	    PRINTERROR(error,"NSFDbOpen");
 		 NotesTerm();
 		 return(1);
 	 }
@@ -288,7 +287,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate(hDB, &hNote2))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFNoteCreate");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -303,7 +302,7 @@ int main(int argc, char *argv[])
                                SubjectText2,            /* Text to set */
                                sizeof(SubjectText2)))   /* Text length */
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFItemSetText");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -327,7 +326,7 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFItemAppend");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -351,7 +350,7 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFItemAppend");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -375,7 +374,7 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFItemAppend");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -400,7 +399,7 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFItemAppend");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -416,7 +415,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteUpdate(hNote2, 0))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFNoteUpdate");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -428,7 +427,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hNote2))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFNoteClose");
 		 NSFDbClose(hDB);             /* Close database            */
 		 NotesTerm();
 		 return(1);
@@ -441,7 +440,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose(hDB))
     {
-		 PrintAPIError(error);
+		 PRINTERROR(error,"NSFDbClose");
 		 NotesTerm();
 		 return(1);
     }
@@ -452,7 +451,7 @@ int main(int argc, char *argv[])
 
 	 NotesTerm();
 
-	 printf("\nProgram completed successfully.\n");
+	 PRINTLOG("\nProgram completed successfully.\n");
 
 	 return(0);
 
@@ -1948,29 +1947,3 @@ void CreateAnchorLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     *pLength = 2*ODSLength(_CDPARAGRAPH)+ODSLength(_CDTEXT)+wTextLength+(ODSLength(_CDLINKEXPORT2)+wAnchorTextLength+wAnchorTextLength1+4);
 
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

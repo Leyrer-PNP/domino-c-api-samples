@@ -37,6 +37,7 @@ extern "C" {
 #include <nsfsearc.h>
 #include <nsferr.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 
 /* Function prototypes */
@@ -54,8 +55,6 @@ STATUS LNPUBLIC field_action (    /* called for every field */
             VOID far *,
             DWORD,
             VOID far *);
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -77,7 +76,7 @@ int main(int argc, char *argv[])
    
    if (error = NotesInitExtended (argc, argv))
    {
-	   printf("\n Unable to initialize Notes.\n");
+	   PRINTLOG("\n Unable to initialize Notes.\n");
        return (1);
    }
 
@@ -86,7 +85,7 @@ int main(int argc, char *argv[])
    
    if (error = NSFDbOpen (db_filename, &db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbOpen");  
        NotesTerm();
        return (1); 
    }
@@ -107,7 +106,7 @@ int main(int argc, char *argv[])
 
          {
          NSFDbClose (db_handle);
-         PrintAPIError (error);  
+         PRINTERROR (error,"NSFSearch");  
          NotesTerm();
          return (1); 
          }
@@ -116,14 +115,14 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbClose (db_handle))
    {
-         PrintAPIError (error);  
+         PRINTERROR (error,"NSFDbClose");  
          NotesTerm();
          return (1); 
    }
 
 
 /* End of main routine. */
-   printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
    NotesTerm();
    return (0); 
 
@@ -171,7 +170,7 @@ but is shown here in case a starting date was used in the search. */
 
 /* Print the note ID. */
 
-    printf ("\nNote ID is: %lX.\n", SearchMatch.ID.NoteID);
+    PRINTLOG ("\nNote ID is: %lX.\n", SearchMatch.ID.NoteID);
 
 /* Open the note. */
 
@@ -274,7 +273,7 @@ of it. We do this in order to treat the name as a standard C string. */
 
 /* Print the field name and data type. */
 
-    printf ("Found field named \"%s\" with data type \"%s\".\n",
+    PRINTLOG ("Found field named \"%s\" with data type \"%s\".\n",
         item_name, ascii_datatype);
 
 /* End of subroutine. */
@@ -282,36 +281,6 @@ of it. We do this in order to treat the name as a standard C string. */
     return (NOERROR);
 
 }
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

@@ -31,11 +31,12 @@
 #include <miscerr.h>
 #include <oserr.h>
 #include <osmisc.h>
+#include <printLog.h>
+
 
 /* Function prototypes for local functions. */
 
 BOOL LNPUBLIC NSFQueryTest ();
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -54,27 +55,27 @@ int main(int argc, char *argv[])
 
 	if (error = NotesInitExtended (argc, argv))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"NotesInitExtended");
 		return (1);
 	}
 
-	printf("Testing NSFQueryDBAddArgs:\n");
-	printf("--------------------------\n");
+	PRINTLOG("Testing NSFQueryDBAddArgs:\n");
+	PRINTLOG("--------------------------\n");
 
 	if (NSFQueryTest ())
 	{
-		printf("NSFQueryDBAddArgs was successful.\n");
+		PRINTLOG("NSFQueryDBAddArgs was successful.\n");
 	}
 	else
 	{
-		printf("NSFQueryDBAddArgs failed.\n");
+		PRINTLOG("NSFQueryDBAddArgs failed.\n");
 	}
 
 	/* End of subroutine. */
 	NotesTerm ();
 	if (error == NOERROR)
 	{
-		printf("\nProgram completed successfully.\n");
+		PRINTLOG("\nProgram completed successfully.\n");
 		return (0);
 	}
 }
@@ -104,7 +105,7 @@ BOOL LNPUBLIC NSFQueryTest ()
 	STATUS error = NOERROR;
 	MEMHANDLE hTestArgList = NULLMEMHANDLE;	/* To store argument list */
     
-	printf("Building argument list:\n");
+	PRINTLOG("Building argument list:\n");
 	for (start = 0; start < 3; start++)
 	{
 		if (start == 0)
@@ -139,8 +140,8 @@ BOOL LNPUBLIC NSFQueryTest ()
 		{
 			for (dwIndex=0; dwIndex<argList->numargs; dwIndex++)
 			{
-				printf("Value: %s\t",argList->QArgs[dwIndex].Value);
-				printf("Length: %d\n", argList->QArgs[dwIndex].length);
+				PRINTLOG("Value: %s\t",argList->QArgs[dwIndex].Value);
+				PRINTLOG("Length: %d\n", argList->QArgs[dwIndex].length);
 			}
 		}
 		OSMemoryUnlock(hTestArgList);
@@ -154,31 +155,6 @@ BOOL LNPUBLIC NSFQueryTest ()
 	return TRUE;
 
 errout:
-	PrintAPIError (error);
+	PRINTERROR (error,"NSFQueryDBAddArgs");
 	return FALSE;
-}
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:
-	This function prints the error message associated
-	with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-{
-	STATUS  string_id = ERR(api_error);
-	char    szErrorText[256] = {0};
-	WORD    wTextLen = 0;
-
-	/* Get the message for the error code from the resource string table. */
-
-	wTextLen = OSLoadString (NULLHANDLE, string_id, szErrorText,sizeof(szErrorText));
-
-	/* Print it. */
-
-	fprintf (stderr, "\n%s.\n", szErrorText);
 }

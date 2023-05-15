@@ -22,6 +22,10 @@ activity -  A HCL C API for Domino and Notes program that reads the binary recor
 	    retrieve the contents of the binary records using the Activity Logging API.
 	    Please refer to the Domino documentation for a complete description of
 	    activity logging.
+	    Set ENVACTIVITY_AUTO OS environment variable to get the consistent output.
+	    As log.nsf has variable number of records based on user activity, so in-order 
+	    to maintain consistent output for automation validation, setting 
+	    this environment to 1 will provide consistent output. 
 
 ENVIRONMENTS
 ------------
@@ -64,6 +68,9 @@ RUNNING activity:
 The command line of activity is  -
 
     activity <servername>
+
+Set this environment varialbe as follows for automation only.
+set ENVACTIVITY_AUTO=1
 
 EXAMPLE:
 

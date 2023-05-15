@@ -33,6 +33,7 @@
 #include <editdflt.h>
 #include <colorid.h>
 #include <nsferr.h>
+#include <printLog.h>
 
 #include <lapiplat.h>
 
@@ -57,7 +58,6 @@
 STATUS LNPUBLIC print_doc (DBHANDLE, NOTEID);
 STATUS add_rich_text (short, NOTEHANDLE);
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_name);
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 	error = NotesInitExtended (argc, argv);
 	if (error)
 	{
-	   printf("Error: Unable to initialize Notes.\n");
+	   PRINTLOG("Error: Unable to initialize Notes.\n");
 		return (1);
 	}
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (path_name, &db_handle))
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbOpen");
 		NotesTerm();
       return (1);
    }
@@ -114,11 +114,11 @@ int main(int argc, char *argv[])
    {
       if (error == NOERROR)
       {
-         printf ("\n\nA database Policy Document (Help-About document) exists ");
-         printf ("in this database.\n");
-         printf ("Program will not attempt to create any documents.\n\n");
+         PRINTLOG ("\n\nA database Policy Document (Help-About document) exists ");
+         PRINTLOG ("in this database.\n");
+         PRINTLOG ("Program will not attempt to create any documents.\n\n");
       }
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbGetSpecialNoteID");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -131,11 +131,11 @@ int main(int argc, char *argv[])
    {
       if (error == NOERROR)
       {
-         printf ("\n\nA database Help Document (Help-Using document) exists ");
-         printf ("in this database.\n");
-         printf ("Program will not attempt to create any documents.\n\n");
+         PRINTLOG ("\n\nA database Help Document (Help-Using document) exists ");
+         PRINTLOG ("in this database.\n");
+         PRINTLOG ("Program will not attempt to create any documents.\n\n");
       }
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbGetSpecialNoteID");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFNoteCreate");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 
    if (error != NOERROR)
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"add_rich_text");
       NSFNoteClose (note_handle);
 		NSFDbClose(db_handle);
 		NotesTerm();
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteUpdate (note_handle, 0))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFNoteUpdate");
       NSFNoteClose (note_handle);
 		NSFDbClose(db_handle);
 		NotesTerm();
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteClose (note_handle))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFNoteClose");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFNoteCreate");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 
    if (error != NOERROR)
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"add_rich_text");
       NSFNoteClose (note_handle);
 		NSFDbClose(db_handle);
 		NotesTerm();
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteUpdate (note_handle, 0))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFNoteUpdate");
       NSFNoteClose (note_handle);
 		NSFDbClose(db_handle);
 		NotesTerm();
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteClose (note_handle))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFNoteClose");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
                                       SPECIAL_ID_NOTE | NOTE_CLASS_INFO,
                                       &note_ID))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbGetSpecialNoteID");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 
    if (error = print_doc (db_handle, note_ID))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"print_doc");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
                                       SPECIAL_ID_NOTE | NOTE_CLASS_HELP,
                                       &note_ID))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbGetSpecialNoteID");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
 
    if (error = print_doc (db_handle, note_ID))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"print_doc");
 		NSFDbClose(db_handle);
 		NotesTerm();
       return (1);
@@ -284,13 +284,13 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbClose (db_handle))
    {
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbClose");
 		NotesTerm();
       return (1);
    }
 
 /* End of subroutine. */
-   printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
 	NotesTerm();
 	return (0);
 }
@@ -454,7 +454,7 @@ STATUS LNPUBLIC print_doc (
 
 /* Print the note ID. */
 
-   printf ("\n\n       ************* Note ID is: %lX. *************\n",
+   PRINTLOG ("\n\n       ************* Note ID is: %lX. *************\n",
       note_ID);
 
 /* Open the note. */
@@ -484,7 +484,7 @@ found" versus a real error. */
    if (error)
    {
       if (ERR(error) == ERR_ITEM_NOT_FOUND)
-         printf ("\n Error:  $BODY field not found \n");
+         PRINTLOG ("\n Error:  $BODY field not found \n");
       NSFNoteClose (note_handle);
       return (error);
    }
@@ -518,7 +518,7 @@ text string.) */
 
 /* Print the text of the $BODY field. */
 
-   printf ("\nThe text in this document is:\n\n%s\n", field_text);
+   PRINTLOG ("\nThe text in this document is:\n\n%s\n", field_text);
 
 /* Unlock and free the text buffer. */
 
@@ -566,29 +566,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     } /* end if */
 
 } /* ProcessArgs */
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

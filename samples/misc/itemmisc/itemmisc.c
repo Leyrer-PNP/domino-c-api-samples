@@ -6,8 +6,11 @@
 
     PURPOSE:    This program demonstrates how to use below APIs,
                 NSFItemCopyAndRename,
-		NSFItemModifyValue,
-		NSFNoteHasReadersField
+                NSFItemModifyValue,
+                NSFNoteHasReadersField,
+                NSFItemRealloc, 
+                NSFItemSetTextSummary, 
+                NSFItemTextEqual and NSFItemQueryEx.
                 
 
     SYNTAX:     itemmisc (db) ("view") 
@@ -16,10 +19,10 @@
     DESCRIPTION:
         Given an existing database and a view name, this program modifies the
         existing item (plain_text) value and copies the same from one document 
-	to another & renames it. It checks whether documents in the given view 
-	has readers field in set or not.
-	This program uses simple.nsf, which has two docs in a view and all manipulation 
-	are done based on that two documents.
+        to another & renames it. It checks whether documents in the given view 
+        has readers field in set or not.
+        This program uses simple.nsf, which has two docs in a view and all manipulation 
+        are done based on that two documents.
 
  **********************************************************************/
 
@@ -45,6 +48,7 @@
 #include <mail.h>
 #include <osmisc.h>
 #include <osmem.h>
+#include <printLog.h>
 
 
 #if !defined(ND64) 
@@ -55,8 +59,21 @@
 
 #define DESIGN_READERS "$Readers"
 #define MOD_ITEM_NAME  "plainText"
+#define MOD_ITEM_VALUE "This is summary value modification"
 
-void PrintAPIError (STATUS);
+typedef struct {
+        WORD            ItemFlags;
+        char FAR *      szName;
+        WORD            cbName;
+        BLOCKID         bhItem;
+        WORD            wValueType;
+        BLOCKID         bhValue;
+        DWORD           cbValue;
+        WORD            iItem;          // sequence number for same-named items.
+        BYTE            DupItemID;
+        BYTE            SeqByte;
+} ItemInfo;
+
 
 STATUS AddItemReaders(NOTEHANDLE hNote);
 
@@ -79,8 +96,8 @@ STATUS AddItemReaders(NOTEHANDLE hNote);
          For every noteID in the buffer, 
             open the note,
               if the $Reader text list field exists
-	         print the note id 
-	      Modify the existing item value	 
+              print the note id 
+              Modify the existing item value	 
          unlock the buffer memory
          free the memory.
 
@@ -101,6 +118,8 @@ int main(int argc, char *argv[])
     BLOCKID bhItem;
     BLOCKID bhItemCopy;
     int nFieldLen;
+    ItemInfo info;
+    char *psItemValue=NULL;
 
     /********************************************************************/
     /* Read the command line arguments,
@@ -117,13 +136,13 @@ int main(int argc, char *argv[])
     }
     else
     {
-       printf("\n Invalid args: itemmisc <db> <view> \n");
+       PRINTLOG("\n Invalid args: itemmisc <db> <view> \n");
        return(1);
     }
 
     if (error = NotesInitExtended (argc, argv))
     {
-       printf("\n Unable to initialize Notes.\n");
+       PRINTLOG("\n Unable to initialize Notes.\n");
        return(1);
     } 
 
@@ -144,7 +163,7 @@ int main(int argc, char *argv[])
     {
         if (error == ERR_NOT_FOUND)
         {
-            printf("View '%s' cannot be found\n", viewName);
+            PRINTLOG("View '%s' cannot be found\n", viewName);
             error = NOERROR;
         }
         goto NIFErr;
@@ -188,12 +207,14 @@ int main(int argc, char *argv[])
         if (hBuffer != NULLHANDLE)
         {
             char string[512];
-            const char szItemname[LINEOFTEXT]="plain_text";
+            char szItemname[LINEOFTEXT]="plain_text";
             char szActValue[LINEOFTEXT]="";
             WORD wItemtype=TYPE_TEXT;
             const char szExpValue[LINEOFTEXT]="This is a line of modified simple text.";
             NOTEHANDLE hNoteFirstDoc, hNoteSecDoc;
-	    NOTEID *noteIDCpy;
+            NOTEID *noteIDCpy;
+            BLOCKID bhValue;
+            DWORD dwNewValueLen;
 
             NOTEID *entry = OSLock(NOTEID, hBuffer);
 
@@ -210,22 +231,21 @@ int main(int argc, char *argv[])
             if (error = NSFNoteOpen(hDB, *entry, 0, &hNoteFirstDoc))
             {
                 OSLoadString(NULLHANDLE, ERR(error), string, sizeof(string)-1);
-
-                printf("Error '%s' reading docment %#lX -- %s\n",
+                PRINTLOG("Error '%s' reading docment %#lX -- %s\n",
                         string, *entry, " skipping it");
 
                 /* Since the error has been reported, we will
                    reset the error status and continue */
                 error = NOERROR;
-		continue;
+                continue;
             }
 
-	    noteIDCpy=entry; /* Preserve it for later use */
+            noteIDCpy=entry; /* Preserve it for later use */
 
-	    /* Check given doc has readers field */
+            /* Check given doc has readers field */
             if (NSFNoteHasReadersField(hNoteFirstDoc, &hBlock))
             {
-               printf("\n Note id [%#lx] has reader field.", *entry);
+               PRINTLOG("\n Note id [%#lx] has reader field.", *entry);
             }
             else /* No readers field present */
             {
@@ -236,7 +256,7 @@ int main(int argc, char *argv[])
 
                if (NSFNoteHasReadersField(hNoteFirstDoc, &hBlock))
                {
-                   printf("\n Note id [%#lx] has reader field.", *entry);
+                   PRINTLOG("\n Note id [%#lx] has reader field.", *entry);
                }
             }
 
@@ -246,7 +266,7 @@ int main(int argc, char *argv[])
                                     strlen(szItemname),
                                     &bhItem,
                                     NULL,
-                                    NULL,
+                                    &bhValue,
                                     NULL))
             {
                goto DocErr;
@@ -254,10 +274,21 @@ int main(int argc, char *argv[])
 
             nFieldLen = NSFItemGetText(hNoteFirstDoc, szItemname, szActValue, LINEOFTEXT);
 
-            printf("\n Before Modifying Item's value: %s", szActValue);
+            PRINTLOG("\n Before Modifying Item's value: %s", szActValue);
             bhItemCopy=bhItem;
 
-	    /* This API is used to modify the item value */
+            /* Increase the value length by  strlen of new string */
+            dwNewValueLen = strlen(szExpValue)+1;
+            if((error = NSFItemRealloc(bhItem, &bhValue, dwNewValueLen)) == NOERROR)
+            {
+               PRINTLOG("\n NSFItemRealloc returned successfully.");
+            }
+            else
+            {
+                goto DocErr;
+            }
+
+            /* This API is used to modify the item value */
             if (error = NSFItemModifyValue(hNoteFirstDoc,
                                            bhItem,
                                            ITEM_SUMMARY,
@@ -266,10 +297,20 @@ int main(int argc, char *argv[])
                                            strlen(szExpValue)))
             {
                goto DocErr;
-	    }
+            }
+
+            if (NSFItemTextEqual(hNoteFirstDoc, (char *)szItemname, (char*)szExpValue, strlen(szExpValue), FALSE))
+            {
+               PRINTLOG("\n ITEM Value is modified successfully and values are equal.");
+            }
+            else
+            {
+               PRINTLOG("\n ITEM values are not equal.");
+            }
+
             nFieldLen = NSFItemGetText(hNoteFirstDoc, szItemname, szActValue, LINEOFTEXT);
 
-            printf("\n Modified Item's value: %s \n", szActValue);
+            PRINTLOG("\n Modified Item's value: %s \n", szActValue);
 
             /* Update the Notes handler to get the changes reflected in nsf */
             if (error = NSFNoteUpdate(hNoteFirstDoc,UPDATE_FORCE ))
@@ -291,28 +332,25 @@ int main(int argc, char *argv[])
             {
                 OSLoadString(NULLHANDLE, ERR(error), string, sizeof(string)-1);
 
-                printf("Error '%s' reading docment %#lX -- %s\n",
+                PRINTLOG("Error '%s' reading docment %#lX -- %s\n",
                         string, *entry, " skipping it");
 
-                /* Since the error has been reported, we will
-                   reset the error status and continue */
-                error = NOERROR;
                 goto DocErr;
             }
 
 	    /* Check for second doc has readers field */
             if (NSFNoteHasReadersField(hNoteSecDoc, &hBlock))
             {
-                printf("\n Note id [%#lx] has reader field.", *entry);
+                PRINTLOG("\n Note id [%#lx] has reader field.", *entry);
             }
             else
             {
-               printf("\n Note id [%#lx] has no reader field.", *entry);
+               PRINTLOG("\n Note id [%#lx] has no reader field.", *entry);
             }
 
-	    /* Copy the item from the first document to the second document
-	     * here bhItemCopy is an item from the document 1. Now we are copying
-	     * the same to document 2*/
+            /* Copy the item from the first document to the second document
+             * here bhItemCopy is an item from the document 1. Now we are copying
+             * the same to document 2*/
             if (error=NSFItemCopyAndRename(hNoteSecDoc, bhItemCopy, MOD_ITEM_NAME))
             {
                 goto DocSecErr;
@@ -325,9 +363,50 @@ int main(int argc, char *argv[])
             }
 
             nFieldLen = NSFItemGetText(hNoteSecDoc, MOD_ITEM_NAME, szActValue, LINEOFTEXT);
-            printf("\n Copied doc [%#lx] modified Item value to doc [%#lx],\n", *noteIDCpy, *entry);
-	    printf(" Value of item is: [%s] Item Name: [%s].\n", szActValue, MOD_ITEM_NAME);
-                    
+            PRINTLOG("\n Copied doc [%#lx] modified Item value to doc [%#lx],\n", *noteIDCpy, *entry);
+            PRINTLOG(" Value of item is: [%s] Item Name: [%s].\n", szActValue, MOD_ITEM_NAME);
+
+	    
+            /* Modify the ITEM value using NSFItemSetTextSummary API */
+            if (error = NSFItemSetTextSummary(hNoteSecDoc, MOD_ITEM_NAME, (char*)MOD_ITEM_VALUE, (WORD)strlen(MOD_ITEM_VALUE), FALSE))
+            {
+                goto DocSecErr;
+            }
+
+            /* get item info */
+            if (error = NSFItemInfo(hNoteSecDoc,
+                                    MOD_ITEM_NAME,
+                                    strlen(MOD_ITEM_NAME),
+                                    &info.bhItem,
+                                    NULL,
+                                    NULL,
+                                    NULL))
+            {
+               goto DocSecErr;
+            }
+
+            /* Query thr item to get the item info using NSFItemQueryExt API*/
+            NSFItemQueryEx(
+                           hNoteSecDoc,
+                           info.bhItem,
+                           szItemname,      /* Get the Item Name */
+                           sizeof(szItemname),  /* provide the size of buffer */
+                           &info.cbName,
+                           &info.ItemFlags,
+                           &info.wValueType,
+                           &info.bhValue,
+                           &info.cbValue,
+                           &info.SeqByte,
+                           &info.DupItemID
+                          );
+            szItemname[info.cbName]='\0';
+            PRINTLOG("\n Modified item [%s] value using NSFItemSetTextSummary flag[%d],", szItemname, info.ItemFlags);
+            psItemValue = OSLockBlock(char, info.bhValue)+sizeof(WORD);
+            memset(szActValue, 0, sizeof(szActValue));
+            strncpy(szActValue, psItemValue, info.cbValue-sizeof(WORD));
+            PRINTLOG("\n Item value type[%d], Length [%d], Item value [%s]", info.wValueType, info.cbValue-sizeof(WORD), szActValue);
+            OSUnlockBlock(info.bhValue);
+
 DocSecErr:
             /* Close the Note handle */
             NSFNoteClose(hNoteSecDoc);
@@ -338,7 +417,7 @@ DocErr:
             {
                 OSLoadString(NULLHANDLE, ERR(error), string,
                                  sizeof(string)-1);
-                printf("Error '%s' writing document %#lX -- %s\n",
+                PRINTLOG("Error '%s' writing document %#lX -- %s\n",
                         string, *entry, "skipping it");
                 /* Since the error has been reported, we will
                    reset the error status and continue */
@@ -373,7 +452,7 @@ NIFErr:
 DBErr:
     if (error)
     {
-       PrintAPIError(error);
+       PRINTERROR(error,"NSFDbOpen");
     }
 
     NotesTerm();
@@ -431,27 +510,3 @@ STATUS AddItemReaders(NOTEHANDLE hNote)
 
     return error;
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

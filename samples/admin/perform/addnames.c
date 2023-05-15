@@ -33,10 +33,7 @@
 #include <ostime.h>
 #include <misc.h>
 #include <osmisc.h>
-
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
+#include <printLog.h>
 
 /* HCL C API for Notes/Domino subroutine */
 
@@ -69,17 +66,17 @@ int main (int argc, char *argv[])
 
    if (argc != 3)
       {
-      printf ("\nUsage:  ADDNAMES  <database pathname>  <number of names>\n");
+      PRINTLOG ("\nUsage:  ADDNAMES  <database pathname>  <number of names>\n");
       return(0);
       }
    db_path = argv[1];
    transactions = atoi(argv[2]);
 
-   printf ("\n***** ADDNAMES Test Begins ******\n");
+   PRINTLOG ("\n***** ADDNAMES Test Begins ******\n");
 
    if (error = NotesInitExtended (argc, argv))
       {
-      printf("\nUnable to initialize Notes.\n");
+      PRINTLOG("\nUnable to initialize Notes.\n");
       return(1);
       }
 
@@ -184,7 +181,7 @@ Done2:
 Done1:
    if (error)
    {
-      PrintAPIError(error);
+      PRINTERROR(error,"NSFDbOpen");
       NotesTerm();
       return(1);
    }
@@ -197,7 +194,7 @@ Done1:
 
    time_delta= TimeDateDifference (&LastTime, &StartTime);
 
-   printf ("It took %i seconds to add %i names\n", time_delta, transactions);
+   PRINTLOG ("It took %i seconds to add %i names\n", time_delta, transactions);
 
 /* ************************************************** */
 /* End of subroutine. */
@@ -206,28 +203,3 @@ Done1:
    NotesTerm();
    return(0);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

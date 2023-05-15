@@ -32,6 +32,7 @@
 #include "nsfnote.h"
 #include "osmem.h"
 #include "osmisc.h"
+#include "printLog.h"
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -85,7 +86,6 @@ FILE *m_pLogFile = NULL;
 
 /*Function Defination*/
 int convert(char c);
-void PrintAPIError(STATUS err);
 void PrintSeperator(void);
 void PrintLogInfo(const char*);
 STATUS TryNote(char *DatabaseName, NOTEID ViewID, WORD *ErrCode);
@@ -242,8 +242,8 @@ ExitTermProcess:
 ExitStartUp:
 	if(rslt)
 	{
-		PrintAPIError(rslt);
-		printf("%s\n", "error occur, check the log file");
+		PRINTERROR(rslt,"HTMLProcessInitialize");
+		PRINTLOG("%s\n", "error occur, check the log file");
 		return EXIT_FAILURE;
 	}
 
@@ -260,7 +260,7 @@ ExitStartUp:
 		m_pLogFile = NULL;
 	}
 	NotesTerm();
-	printf("%s\n", "Sucess to execute this sample");
+	PRINTLOG("%s\n", "Sucess to execute this sample");
 	return EXIT_SUCCESS;
 }
 
@@ -765,13 +765,6 @@ char* GetReferenceType(HTMLAPI_URLTargetComponent tgt)
 		break;
 	}
 	return "UnKnown";
-}
-
-void PrintAPIError(STATUS err)
-{
-	char szErrorString[BuufferSize];
-	OSLoadString(NULL, ERR(err), szErrorString, BuufferSize-1);
-	fprintf(m_pLogFile, "%s, %s\n", "The error is:", szErrorString);
 }
 
 int convert(char c)

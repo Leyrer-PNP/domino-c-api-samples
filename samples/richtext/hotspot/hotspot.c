@@ -193,6 +193,7 @@
 #include <stdnames.h>
 #include <agents.h>
 #include <kfm.h>
+#include <printLog.h>
 
 /*
  *  Local includes
@@ -266,7 +267,7 @@ int main(int argc, char *argv[])
 
 	if (sError = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	}
 
@@ -379,7 +380,7 @@ int main(int argc, char *argv[])
 	}
 
 
-    printf ("\nProgram completed successfully.\n");
+    PRINTLOG ("\nProgram completed successfully.\n");
 
     /* Return normally.  */
 	NotesTerm();
@@ -1520,7 +1521,7 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
 
     if (sError )
     { 
-       printf("Error: Error in AgentLSTextFormat.\n");
+       PRINTLOG("Error: Error in AgentLSTextFormat.\n");
        goto Exit1;
     }
 
@@ -1529,7 +1530,7 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
     if (hErrorBuffer)
     {
        pFormattedLS=OSLock(char,hErrorBuffer);
-       printf("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
+       PRINTLOG("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
        OSUnlock(hErrorBuffer);
        sError=1;
        goto Exit1;
@@ -1703,5 +1704,5 @@ void PrintAPIError (STATUS api_error)
 
     /* Print it. */
 
-    printf ("\n%s\n", error_text);
+    PRINTLOG ("\n%s\n", error_text);
 }

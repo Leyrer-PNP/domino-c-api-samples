@@ -83,6 +83,7 @@
 #include <kfm.h>
 #include <acl.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -144,7 +145,7 @@ int main (int argc, char *argv[])
     /*  Process arguments. */
     if (argc < 6)
     { 
-        printf ("Usage: %s <server> <dest database> <src directory>  <filenmae> <count>\n",
+        PRINTLOG ("Usage: %s <server> <dest database> <src directory>  <filenmae> <count>\n",
                 argv[0]);
         goto Exit0;
     }
@@ -157,7 +158,7 @@ int main (int argc, char *argv[])
 	/* Initialize Notes */
 	if (error = NotesInitExtended (argc, argv))
 	{
-		printf("\n Unable to initialize Notes.\n");
+		PRINTLOG("\n Unable to initialize Notes.\n");
 		return (1);
 	}
 
@@ -175,6 +176,7 @@ int main (int argc, char *argv[])
 	strcpy(szFilenamePath, "/");
 #else
 	strcpy(szFilenamePath, "c:\\");
+	PRINTLOG("PRINT FILE PATH LOCATION %s ......\n", szFilenamePath)
 #endif
 
 	strcat(szFilenamePath, argv[3]);
@@ -204,7 +206,7 @@ int main (int argc, char *argv[])
 
 	if (hFile == 0)
 	{
-		printf("Error: unable to open file '%s' for write.\n", szFilenamePath);
+		PRINTLOG("Error: unable to open file '%s' for write.\n", szFilenamePath);
 		exit(1);
 	}
 
@@ -216,13 +218,13 @@ int main (int argc, char *argv[])
 
 	l_count = count / (LINE_LEN + 2);
 	c_count = count % (LINE_LEN + 2);
-	printf("Writing %ld lines plus %ld characters.\n", l_count, c_count);
+	PRINTLOG("Writing %ld lines plus %ld characters.\n", l_count, c_count);
 
 	for (i = 0; i < l_count; i++)
 	{
 		if (write(hFile, line, LINE_LEN + 1) == -1)
 		{
-			printf("Error: write.\n");
+			PRINTLOG("Error: write.\n");
 			close(hFile);
 			exit(1);
 		}
@@ -230,14 +232,14 @@ int main (int argc, char *argv[])
 	
 	if (write(hFile, line, (unsigned)c_count) == -1)
 	{
-		printf("Error: write.\n");
+		PRINTLOG("Error: write.\n");
 		close(hFile);
 		exit(1);
 	}
 	
 	close(hFile);
 	
-	printf("Created ASCII file '%s' containing %ld characters.\n",
+	PRINTLOG("Created ASCII file '%s' containing %ld characters.\n",
 		szFilenamePath, count);
 
 
@@ -262,6 +264,7 @@ int main (int argc, char *argv[])
 				}
 			}
 		}
+		PRINTLOG("TEMP file location %d.\n", usFileCount);
 		closedir(dirHandle);
 	}
 #else
@@ -272,7 +275,7 @@ int main (int argc, char *argv[])
 	hFind = FindFirstFile (szFileSpec, &FileFindData);
 	if (INVALID_HANDLE_VALUE == hFind)
     {
-        printf ("Error: no files found matching '%s'\n", szFileSpec);
+        PRINTLOG ("Error: no files found matching '%s'\n", szFileSpec);
         goto Exit1;
     }
 
@@ -284,13 +287,13 @@ int main (int argc, char *argv[])
             goto Exit1;
         }
         usFileCount++;
-
+		PRINTLOG("&&&&&&&&&&&&&&&&&&&&TEMP file location %d.\n", usFileCount);
 
 	}  while (FindNextFile (hFind, &FileFindData));
 	
 #endif
 
-    printf ("%s: successfully processed %d files.\n", argv[0], usFileCount);
+    PRINTLOG ("%s: successfully processed %d files.\n", argv[0], usFileCount);
 	
 Exit1:
     NSFDbClose (hDb);
@@ -314,13 +317,14 @@ STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
 {
     STATUS  error ;
     char    fullpath_name[MAXPATH];
+	PRINTLOG("**************pull path of text file %s.\n", fullpath_name);
 
     if (strlen (pServer) != 0) /* remote server specified */
     {
         error = OSPathNetConstruct (NULL, pServer, pNsfName, fullpath_name);
         if (error != NOERROR)
         {
-            printf ("Error: unable to construct network path to database.\n");
+            PRINTLOG ("Error: unable to construct network path to database.\n");
             return (error);
         }
     }
@@ -331,14 +335,14 @@ STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
 
     if (strlen (fullpath_name) > MAXPATH)
     {
-        printf ("Error: Database full path name: '%s'\n is longer than %i\n",
+        PRINTLOG ("Error: Database full path name: '%s'\n is longer than %i\n",
                 fullpath_name, MAXPATH);
         return (ERR_BIGRICH_DBOPEN);
     }
 
     if (error = NSFDbOpen (fullpath_name, phDb))
     {
-        printf ("Error: unable to open database '%s'.\n", fullpath_name);
+        PRINTLOG ("Error: unable to open database '%s'.\n", fullpath_name);
         return (error);
     }
     return (NOERROR);
@@ -352,6 +356,7 @@ STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
                 the specified file in the body of the new note.
 
 *************************************************************************/
+//PRINTLOG("111111111111111111111111111.\n")
 
 STATUS  LNPUBLIC  ProcessOneFile(DBHANDLE    hDb, char * szAsciiFileName,
                                                  char * szDirectory)
@@ -363,54 +368,57 @@ STATUS  LNPUBLIC  ProcessOneFile(DBHANDLE    hDb, char * szAsciiFileName,
 
     /* Format the qualified input file name. */
 
+	PRINTLOG("222222222222222222222.\n");
+
     strcpy (szFullFilePath, szDirectory);
+	PRINTLOG("print path %s and %s .\n", szFullFilePath, szDirectory);
 #if defined (LINUX)
 	strcat(szFullFilePath, "/");
 #else
 	strcat(szFullFilePath, "\\");
 #endif
-   
     strcat (szFullFilePath, szAsciiFileName);
+	PRINTLOG("PRINT FILE LOCATION AND FILE NAME %s.\n", szAsciiFileName);
 
     /* Create a new data note. */
 
     if (error = NSFNoteCreate (hDb, &hNote))
     {
-        printf ("Error: unable to create note.\n");
+        PRINTLOG ("Error: unable to create note.\n");
         goto Exit0;
     }
-
+	PRINTLOG("444444444444444444444444.\n");
     /* Append Form item to the note: "MainTopic" */
     if (error = AppendFormItem (hNote))  goto Exit1;
-
+	PRINTLOG("555555555555555555555555555.\n");
     /* Append From item to note = name of user. Author Names data type. */
     if (error = AppendFromItem (hNote)) goto Exit1;
-
+	PRINTLOG("666666666666666666666666666.\n");
     /* Append Categories Item to note = the directory name specified */
     if (error = AppendCategoriesItem (hNote, szDirectory)) goto Exit1;
-
+	PRINTLOG("7777777777777777777777777777777777.\n");
     /* Append Body Item to note containing text from the file */
     if (error = AppendBodyItem (hNote, szFullFilePath)) goto Exit1;
-
+	PRINTLOG("88888888888888888888888888888888.\n");
     /* Append Subject item to note = name of ascii file */
     if (error = AppendSubjectItem (hNote, szAsciiFileName))  goto Exit1;
-
+	PRINTLOG("99999999999999999999999999999999999999.\n");
     /* Add the entire new note (with all items) to the database. */
 
     if (error = NSFNoteUpdate (hNote, 0))
     {
-        printf ("Error: unable to update note to disk.\n");
+        PRINTLOG ("Error: unable to update note to disk.\n");
     }
     else
     {
-        printf ("big_rich: created note from file '%s'.\n", szAsciiFileName);
+        PRINTLOG ("big_rich: created note from file '%s'.\n", szAsciiFileName);
     }
 
 Exit1:
     /*  Close the new note. */
     if (error2 = NSFNoteClose (hNote))
     {
-        printf ("Error: unable to close note.\n");
+        PRINTLOG ("Error: unable to close note.\n");
         if (error == NOERROR) error = error2;
     }
 Exit0:
@@ -432,7 +440,7 @@ STATUS  LNPUBLIC  AppendFormItem (NOTEHANDLE  hNote)
                     "Main Topic",
                     MAXWORD))
     {
-        printf ("Error: unable to set text in Form field.\n");
+        PRINTLOG ("Error: unable to set text in Form field.\n");
     }
     return (error);
 }
@@ -451,7 +459,7 @@ STATUS LNPUBLIC AppendFromItem (NOTEHANDLE  hNote)
     /* Get Current User name */
     if (error = SECKFMGetUserName (szDocAuthor))
     {
-        printf ("Error: unable to get current user name.\n");
+        PRINTLOG ("Error: unable to get current user name.\n");
         return (error);
     }
 
@@ -464,7 +472,7 @@ STATUS LNPUBLIC AppendFromItem (NOTEHANDLE  hNote)
                     szDocAuthor,
                     (DWORD) strlen (szDocAuthor)))
     {
-        printf ("Error: unable to set From item in note.\n");
+        PRINTLOG ("Error: unable to set From item in note.\n");
     }
     return (error);
 }
@@ -495,7 +503,7 @@ STATUS  LNPUBLIC  AppendCategoriesItem (NOTEHANDLE hNote, char * szFullPath)
                     szCategories,
                     MAXWORD))
     {
-        printf ("Error: unable to set text in Categories field.\n");
+        PRINTLOG ("Error: unable to set text in Categories field.\n");
     }
     return (error);
 }
@@ -530,7 +538,7 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFullFilePath)
                         BIGRICH_ITEM_BODY,  /* "Body" */
                         &hCompound))
     {
-        printf ("Error: unable to create Compound Text context.\n");
+        PRINTLOG ("Error: unable to create Compound Text context.\n");
         return (error);
     }
 
@@ -541,7 +549,7 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFullFilePath)
     if (error = CompoundTextDefineStyle (hCompound, "", &Style,
                                          &dwStyleID))
     {
-        printf ("Error: unable to define Compound Text style.\n");
+        PRINTLOG ("Error: unable to define Compound Text style.\n");
         CompoundTextDiscard (hCompound);
         return (error);
     }
@@ -559,7 +567,7 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFullFilePath)
                         /* don't specify any paragraph directive: 1K each */
                         NULLHANDLE))            /* CLS translation table */
     {
-        printf("Error: unable to add text from file '%s' to Compound Text.\n",
+        PRINTLOG("Error: unable to add text from file '%s' to Compound Text.\n",
                                  szFullFilePath);
         CompoundTextDiscard (hCompound);
         return (error);
@@ -568,7 +576,7 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFullFilePath)
     /* Close the compound text context. This adds the CD text to the note. */
     if (error = CompoundTextClose (hCompound, 0, 0L, NULL, 0))
     {
-        printf ("Error: unable to add Compound Text to document.\n");
+        PRINTLOG ("Error: unable to add Compound Text to document.\n");
         CompoundTextDiscard (hCompound);
     }
 
@@ -589,7 +597,7 @@ STATUS LNPUBLIC AppendSubjectItem( NOTEHANDLE hNote, char * szAsciiFileName)
                     szAsciiFileName,
                     MAXWORD))
     {
-        printf ("Error: unable to set Subject field in note.\n");
+        PRINTLOG ("Error: unable to set Subject field in note.\n");
     }
     return (error);
 }
