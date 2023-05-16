@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-        PrintAPIError (nErr,"CompoundTextAssimilateBuffer");
+        PRINTERROR (nErr,"CompoundTextAssimilateBuffer");
         NotesTerm();
         return (1);
     }

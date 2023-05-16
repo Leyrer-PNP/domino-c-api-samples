@@ -534,7 +534,7 @@ STATUS  AppendMIMEPart(NOTEHANDLE hNote)
                                      &hCtx);
      if (error)
      {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
      }
 
@@ -546,11 +546,11 @@ STATUS  AppendMIMEPart(NOTEHANDLE hNote)
 
      if (error = NSFMimePartAppendFileToStream(hCtx, ATTACHMENT_NAME)) 
      {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFMimePartAppendFileToStream");
         error = NSFMimePartCloseStream(hCtx, TRUE);
         if ( error )
         {
-             PrintAPIError(error);
+             PRINTERROR(error,"NSFMimePartCloseStream");
              return (1);
         }
         return (1);
@@ -559,7 +559,7 @@ STATUS  AppendMIMEPart(NOTEHANDLE hNote)
      error = NSFMimePartCloseStream(hCtx, TRUE);
      if ( error )
      {
-         PrintAPIError(error);
+         PRINTERROR(error,"NSFMimePartCloseStream");
          return (1);
      }      
 
