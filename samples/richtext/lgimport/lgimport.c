@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     {
         PRINTLOG("\nCannot create new note. Terminating...\n");
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PRINTERROR(usError,"NSFNoteCreate");
+        PRINTERROR(usError,"NSFNoteCreate");
         goto Done;
     }
 
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PRINTERROR(usError,"NSFItemSetText");
+        PRINTERROR(usError,"NSFItemSetText");
         goto Done;
     }
 
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
         PRINTLOG("\nError while adding rich text.  Terminating...\n");
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PRINTERROR(usError,"AppendImportItem");
+        PRINTERROR(usError,"AppendImportItem");
         goto Done;
     }
 
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
         PRINTLOG("\nError writing new Note. Terminating..\n");
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PRINTERROR(usError,"NSFNoteUpdate");
+        PRINTERROR(usError,"NSFNoteUpdate");
         goto Done;
     }
 
@@ -238,8 +238,8 @@ int main(int argc, char *argv[])
 
     if (usError = NSFNoteClose(hNewNote))
 	 {
-        PRINTLOG("\nUnable to close Note.  Terminating..\n");
-	     PRINTERROR(usError,"NSFNoteClose");
+		  PRINTLOG("\nUnable to close Note.  Terminating..\n");
+		  PRINTERROR(usError,"NSFNoteClose");
 		  goto Done;
 	 }
 

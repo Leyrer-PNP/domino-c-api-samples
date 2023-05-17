@@ -238,7 +238,7 @@ VOID main (int argc, char *argv[])
       {
 		 PRINTLOG("\n The recovered backup file is %s\n",InFile);
 		 PRINTLOG("\n The database to be restored is %s\n",ResDb);
-         PRINTLOG("\n\n Restoring database from recovered backup file ...\n");
+		 PRINTLOG("\n\n Restoring database from recovered backup file ...\n");
          if(err = RestoreDbs(InFile, ResDb))
          {
             PRINTLOG("\nError restoring %s \n", ResDb);
@@ -791,17 +791,17 @@ STATUS CheckDb(char * BUPath)
 			break;
 
 	   case TRANSLOG_STYLE_CIRCULAR:
-         PRINTLOG("\n  Transactional logging type is 'CIRCULAR'.\n");
-		   break;
+			PRINTLOG("\n  Transactional logging type is 'CIRCULAR'.\n");
+			break;
 
 	   case TRANSLOG_STYLE_LINEAR:
-		   PRINTLOG("\n  Transactional logging type is 'LINEAR'.\n");
-		   break;
+			PRINTLOG("\n  Transactional logging type is 'LINEAR'.\n");
+			break;
 	
 	   default:
-		   unkown = 1;
+			unkown = 1;
 			PRINTLOG("\n  Transactional logging type is 'UNKOWN'.\n");
-		   break;
+			break;
 	}
 
 	if(unkown)

@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     PRINTLOG(  "\n\nDXLIMPORT: Done.\n" );
     
     if (error == NOERROR)
-      printf("\nProgram completed successfully.\n");
+      PRINTLOG("\nProgram completed successfully.\n");
     NotesTerm();
     return (0);
 }

@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     if(!ProcessArgs(argc, argv, pname, achInFileName))
     {
         PRINTLOG( "\nUsage:  %s  <Input file> <Target database> [options]\n", argv[0] );
-		PRINTLOG("\nOptions: -s ServerName\n"); 
+        PRINTLOG("\nOptions: -s ServerName\n"); 
         return (0);
     }
 	
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 	if(error && ERR(error) != ERR_EXISTS)
 		{
 		PRINTERROR (error,"NSFDbCreate");
-        goto cleanup;
+		goto cleanup;
 		}
     
 	/* open the db. */

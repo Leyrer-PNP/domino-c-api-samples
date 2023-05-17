@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
 	error = SECKFMOpen (&hKFC, UserS1ID, PASSWORD, SECKFM_open_All, 0, NULL);
 	if ( error ){
-		PRINTERROR (error,"SECKFMOpen");
+        PRINTERROR (error,"SECKFMOpen");
         NotesTerm();
         return (1);
 
@@ -110,8 +110,7 @@ int main(int argc, char *argv[])
 			   NULL);
 	
 	if ( error ){
-		PRINTERROR (error,"SECidfPut");
-
+        PRINTERROR (error,"SECidfPut");
         NotesTerm();
         return (1);
 
@@ -137,7 +136,7 @@ int main(int argc, char *argv[])
 			   0,
 			   NULL);
 	if ( error ){
-		PRINTERROR (error,"SECidfPut");
+        PRINTERROR (error,"SECidfPut");
         NotesTerm();
         return (1);
 
@@ -205,7 +204,7 @@ int main(int argc, char *argv[])
 			0,
 			NULL);
 	if ( error ){
-		PRINTERROR (error,"SECidfGet");
+        PRINTERROR (error,"SECidfGet");
         NotesTerm();
         return (1);
 
@@ -226,7 +225,7 @@ int main(int argc, char *argv[])
 			0,
 			NULL);
 	if ( error ){
-		PRINTERROR (error,"SECidfGet");
+        PRINTERROR (error,"SECidfGet");
         NotesTerm();
         return (1);
 
@@ -246,7 +245,7 @@ int main(int argc, char *argv[])
 			NULL, 
 			&VaultFlags);
 	if ( error ){
-		PRINTERROR (error,"SECidfSync");
+        PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 
@@ -263,7 +262,7 @@ int main(int argc, char *argv[])
 			NULL, 
 			&VaultFlags);
 	if ( error ){
-		PRINTERROR (error,"SECidfSync");
+        PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 
@@ -280,7 +279,7 @@ int main(int argc, char *argv[])
 			NULL, 
 			&VaultFlags);
 	if ( error ){
-		PRINTERROR (error,"SECidfSync");
+        PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 

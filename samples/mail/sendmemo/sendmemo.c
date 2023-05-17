@@ -342,10 +342,10 @@ Done1:
     NSFDbClose(hMailBox);
 
 Done:
-	if (error)
-	{
-		PRINTERROR(error, "NSFDbOpen");
-	}
+    if (error)
+    {
+        PRINTERROR(error, "NSFDbOpen");
+    }
     else
     {
         printf ("%s: successfully deposited memo '%s' in '%s'.\n",

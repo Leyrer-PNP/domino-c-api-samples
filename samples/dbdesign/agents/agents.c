@@ -158,7 +158,6 @@ Exit1:
 Exit0:
 	if (error)
 	{
-
 		PRINTERROR(error, "NSFDbOpen");
 
 	}
@@ -217,7 +216,6 @@ SELECT @All";
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT ))
         goto Exit0;
-
     /* $Title */
     if (error = SetAgentTitle(hAgent, szAGENT_MANUAL))
         goto Exit1;

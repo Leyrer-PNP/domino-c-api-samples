@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (path_name, &db_handle))
 	{
-		PRINTERROR(error,"NSFDbOpen");
-		NotesTerm();
+      PRINTERROR(error,"NSFDbOpen");
+      NotesTerm();
       return (1);
    }
 
@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
          PRINTLOG ("in this database.\n");
          PRINTLOG ("Program will not attempt to create any documents.\n\n");
       }
-		PRINTERROR(error,"NSFDbGetSpecialNoteID");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"NSFDbGetSpecialNoteID");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -135,9 +135,9 @@ int main(int argc, char *argv[])
          PRINTLOG ("in this database.\n");
          PRINTLOG ("Program will not attempt to create any documents.\n\n");
       }
-		PRINTERROR(error,"NSFDbGetSpecialNoteID");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"NSFDbGetSpecialNoteID");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -145,9 +145,9 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
    {
-		PRINTERROR(error,"NSFNoteCreate");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"NSFNoteCreate");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -161,10 +161,10 @@ int main(int argc, char *argv[])
 
    if (error != NOERROR)
    {
-		PRINTERROR(error,"add_rich_text");
+      PRINTERROR(error,"add_rich_text");
       NSFNoteClose (note_handle);
-		NSFDbClose(db_handle);
-		NotesTerm();
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -172,10 +172,10 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteUpdate (note_handle, 0))
    {
-		PRINTERROR(error,"NSFNoteUpdate");
+      PRINTERROR(error,"NSFNoteUpdate");
       NSFNoteClose (note_handle);
-		NSFDbClose(db_handle);
-		NotesTerm();
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -183,9 +183,9 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteClose (note_handle))
    {
-		PRINTERROR(error,"NSFNoteClose");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"NSFNoteClose");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -193,9 +193,9 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
    {
-		PRINTERROR(error,"NSFNoteCreate");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"NSFNoteCreate");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -209,10 +209,10 @@ int main(int argc, char *argv[])
 
    if (error != NOERROR)
    {
-		PRINTERROR(error,"add_rich_text");
+      PRINTERROR(error,"add_rich_text");
       NSFNoteClose (note_handle);
-		NSFDbClose(db_handle);
-		NotesTerm();
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -220,10 +220,10 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteUpdate (note_handle, 0))
    {
-		PRINTERROR(error,"NSFNoteUpdate");
+      PRINTERROR(error,"NSFNoteUpdate");
       NSFNoteClose (note_handle);
-		NSFDbClose(db_handle);
-		NotesTerm();
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -231,9 +231,9 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteClose (note_handle))
    {
-		PRINTERROR(error,"NSFNoteClose");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"NSFNoteClose");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -246,17 +246,17 @@ int main(int argc, char *argv[])
                                       SPECIAL_ID_NOTE | NOTE_CLASS_INFO,
                                       &note_ID))
    {
-		PRINTERROR(error,"NSFDbGetSpecialNoteID");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"NSFDbGetSpecialNoteID");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
    if (error = print_doc (db_handle, note_ID))
    {
-		PRINTERROR(error,"print_doc");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"print_doc");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -266,17 +266,17 @@ int main(int argc, char *argv[])
                                       SPECIAL_ID_NOTE | NOTE_CLASS_HELP,
                                       &note_ID))
    {
-		PRINTERROR(error,"NSFDbGetSpecialNoteID");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"NSFDbGetSpecialNoteID");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
    if (error = print_doc (db_handle, note_ID))
    {
-		PRINTERROR(error,"print_doc");
-		NSFDbClose(db_handle);
-		NotesTerm();
+      PRINTERROR(error,"print_doc");
+      NSFDbClose(db_handle);
+      NotesTerm();
       return (1);
    }
 
@@ -284,8 +284,8 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbClose (db_handle))
    {
-		PRINTERROR(error,"NSFDbClose");
-		NotesTerm();
+      PRINTERROR(error,"NSFDbClose");
+      NotesTerm();
       return (1);
    }
 

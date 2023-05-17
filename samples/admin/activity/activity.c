@@ -139,13 +139,13 @@ STATUS LNCALLBACK ActionRoutine(
 {
 	char *pactivitybuf = (char *)pActivityRecord;
 	ITEM_TABLE itemtable;
-	ITEM* 	items;
-	char* name;
+	ITEM* 	items=NULL;
+	char* name=NULL;
 	char timestr[MAXALPHATIMEDATE + 1] = {0};
 	WORD  timelen;
 	char numstr[MAXALPHANUMBER + 1] = {0};
 	WORD  numlen;
-	LIST *plist;
+	LIST *plist=NULL;
 	WORD listentries;
 	USHORT type;
 	int* pcounter = (int *)pUserData;

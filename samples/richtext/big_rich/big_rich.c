@@ -287,7 +287,6 @@ int main (int argc, char *argv[])
             goto Exit1;
         }
         usFileCount++;
-		PRINTLOG("&&&&&&&&&&&&&&&&&&&&TEMP file location %d.\n", usFileCount);
 
 	}  while (FindNextFile (hFind, &FileFindData));
 	
@@ -317,7 +316,6 @@ STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
 {
     STATUS  error ;
     char    fullpath_name[MAXPATH];
-	PRINTLOG("**************pull path of text file %s.\n", fullpath_name);
 
     if (strlen (pServer) != 0) /* remote server specified */
     {
@@ -356,7 +354,6 @@ STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
                 the specified file in the body of the new note.
 
 *************************************************************************/
-//PRINTLOG("111111111111111111111111111.\n")
 
 STATUS  LNPUBLIC  ProcessOneFile(DBHANDLE    hDb, char * szAsciiFileName,
                                                  char * szDirectory)
@@ -367,8 +364,6 @@ STATUS  LNPUBLIC  ProcessOneFile(DBHANDLE    hDb, char * szAsciiFileName,
     STATUS        error2;     /* return code from API calls in exit path */
 
     /* Format the qualified input file name. */
-
-	PRINTLOG("222222222222222222222.\n");
 
     strcpy (szFullFilePath, szDirectory);
 	PRINTLOG("print path %s and %s .\n", szFullFilePath, szDirectory);
@@ -387,22 +382,16 @@ STATUS  LNPUBLIC  ProcessOneFile(DBHANDLE    hDb, char * szAsciiFileName,
         PRINTLOG ("Error: unable to create note.\n");
         goto Exit0;
     }
-	PRINTLOG("444444444444444444444444.\n");
     /* Append Form item to the note: "MainTopic" */
     if (error = AppendFormItem (hNote))  goto Exit1;
-	PRINTLOG("555555555555555555555555555.\n");
     /* Append From item to note = name of user. Author Names data type. */
     if (error = AppendFromItem (hNote)) goto Exit1;
-	PRINTLOG("666666666666666666666666666.\n");
     /* Append Categories Item to note = the directory name specified */
     if (error = AppendCategoriesItem (hNote, szDirectory)) goto Exit1;
-	PRINTLOG("7777777777777777777777777777777777.\n");
     /* Append Body Item to note containing text from the file */
     if (error = AppendBodyItem (hNote, szFullFilePath)) goto Exit1;
-	PRINTLOG("88888888888888888888888888888888.\n");
     /* Append Subject item to note = name of ascii file */
     if (error = AppendSubjectItem (hNote, szAsciiFileName))  goto Exit1;
-	PRINTLOG("99999999999999999999999999999999999999.\n");
     /* Add the entire new note (with all items) to the database. */
 
     if (error = NSFNoteUpdate (hNote, 0))

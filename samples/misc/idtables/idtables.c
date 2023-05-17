@@ -1278,8 +1278,3 @@ void PrintUsage(void)
 }
 
 
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-
-

@@ -95,9 +95,8 @@ int main (int argc, char *argv[])
    ITEM           Item;
    WORD           Word;
    double         Double, dValue=0;
-   
 /* Initialize Domino and Notes */
- 
+
    if (error = NotesInitExtended(argc, argv))
    {
       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error)

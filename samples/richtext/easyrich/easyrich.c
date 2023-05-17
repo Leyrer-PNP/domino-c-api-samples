@@ -104,7 +104,7 @@ if (nErr = NotesInitExtended (argc, argv))
     if ( (nErr = NSFDbOpen (DBNAME, &hDB)) != NOERROR )
     {
         PRINTLOG( "Error: unable to open database, %s.\n", DBNAME);
-		PRINTERROR (nErr,"NSFDbOpen");  
+        PRINTERROR (nErr,"NSFDbOpen");  
         NotesTerm();     
         return (1);
     }
@@ -115,7 +115,7 @@ if (nErr = NotesInitExtended (argc, argv))
     {
         PRINTLOG( "Error: unable to create new document in database.\n" );
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"NSFNoteCreate");  
+        PRINTERROR (nErr,"NSFNoteCreate");  
         NotesTerm();     
         return (1);
     }
@@ -133,7 +133,7 @@ if (nErr = NotesInitExtended (argc, argv))
         PRINTLOG( "Error: unable to set text in item '%s'.\n", FIELD_FORM );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"NSFItemSetText");  
+        PRINTERROR (nErr,"NSFItemSetText");  
         NotesTerm();     
         return (1);
     }
@@ -147,7 +147,7 @@ if (nErr = NotesInitExtended (argc, argv))
         PRINTLOG( "Error: unable to set time in item 'TIME_DATE'.\n" );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"NSFItemSetTime");  
+        PRINTERROR (nErr,"NSFItemSetTime");  
         NotesTerm();     
         return (1);
     }
@@ -166,7 +166,7 @@ if (nErr = NotesInitExtended (argc, argv))
         PRINTLOG( "Error: unable to create CompoundText context for 'RICH_TEXT'.\n" );
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"CompoundTextCreate");  
+        PRINTERROR (nErr,"CompoundTextCreate");  
         NotesTerm();     
         return (1);
     }
@@ -179,7 +179,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"AddMiscText");  
+        PRINTERROR (nErr,"AddMiscText");  
         NotesTerm();     
         return (1);
     }
@@ -196,7 +196,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"FindFirstNoteInfo");  
+        PRINTERROR (nErr,"FindFirstNoteInfo");  
         NotesTerm();     
         return (1);
     }
@@ -213,7 +213,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"AssimilateTextFromNote");  
+        PRINTERROR (nErr,"AssimilateTextFromNote");  
         NotesTerm();     
         return (1);
     }
@@ -231,7 +231,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"AddDocLink");  
+        PRINTERROR (nErr,"AddDocLink");  
         NotesTerm();     
         return (1);
     }
@@ -247,7 +247,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"AddRenderedNote");  
+        PRINTERROR (nErr,"AddRenderedNote");  
         NotesTerm();     
         return (1);
     }
@@ -270,7 +270,7 @@ if (nErr = NotesInitExtended (argc, argv))
         CompoundTextDiscard (hCompound);
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"CompoundTextClose");  
+        PRINTERROR (nErr,"CompoundTextClose");  
         NotesTerm();     
         return (1);
     }
@@ -282,7 +282,7 @@ if (nErr = NotesInitExtended (argc, argv))
         PRINTLOG("Error: unable to update new note to the database.\n");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"NSFNoteUpdate");  
+        PRINTERROR (nErr,"NSFNoteUpdate");  
         NotesTerm();     
         return (1);
     }
@@ -291,7 +291,7 @@ if (nErr = NotesInitExtended (argc, argv))
     if ( (nErr = NSFNoteClose (hNote)) != NOERROR )
     {
         NSFDbClose (hDB);
-		PRINTERROR (nErr,"NSFNoteClose");  
+        PRINTERROR (nErr,"NSFNoteClose");  
         NotesTerm();     
         return (1);
     }
@@ -302,7 +302,7 @@ if (nErr = NotesInitExtended (argc, argv))
 
     if ( (nErr = NSFDbClose (hDB)) != NOERROR )
 	{
-		PRINTERROR (nErr,"NSFDbClose");  
+        PRINTERROR (nErr,"NSFDbClose");  
         NotesTerm();     
         return (1);
 	}
@@ -529,7 +529,7 @@ STATUS FindFirstNoteInfo (DBHANDLE hDB, ORIGINATORID *pViewOID,
     if (nErr != NOERROR)
     {
         PRINTLOG("Error: unable to read entries in collection.\n");
-		NIFCloseCollection (hCollection);
+        NIFCloseCollection (hCollection);
         return (nErr);
     }
    

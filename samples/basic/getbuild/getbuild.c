@@ -66,7 +66,7 @@ if (error = NotesInitExtended (argc, argv))
     if (NOERROR != error)
     {
 		PRINTLOG("Error: unable to open database '%s'.\n", db_filename);
-      	PRINTERROR (error,"NSFDbOpen");  
+		PRINTERROR (error,"NSFDbOpen");  
 		NotesTerm();
 		return (1); 
 

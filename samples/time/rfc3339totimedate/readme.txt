@@ -13,6 +13,7 @@ rfc3339totimedate - Sample shows the user to understand the usage of
 
 ENVIRONMENTS
 ------------
+windows (32-bit)
 Windows (64-bit)
 Linux 64bit
 

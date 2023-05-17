@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
     if (error = ImportCD(szModPath, szFilePath, achTempName, szDLL))
     {
         PRINTLOG("\nUnable to create temporary file. Terminating...\n");
-		  PRINTERROR(error,"ImportCD");
+        PRINTERROR(error,"ImportCD");
         goto Done;
     }
 
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
     if (error = LoadCD(achTempName, &hImpBuffer, &dwImpBufLen))
     {
         PRINTLOG("\nUnable to process temp file properly. Terminating...\n");
-		  PRINTERROR(error,"LoadCD");
+        PRINTERROR(error,"LoadCD");
         goto Done;
     }
 
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
     if (error = NSFDbOpen(szNSFFile, &hDbNSFFile))
     {
         PRINTLOG("\nCannot open database '%s'. Terminating...\n", szNSFFile);
-		  PRINTERROR(error,"NSFDbOpen");
+        PRINTERROR(error,"NSFDbOpen");
         goto Done;
     }
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     {
         PRINTLOG("\nCannot create new note. Terminating...\n");
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PRINTERROR(error,"NSFNoteCreate");
+        PRINTERROR(error,"NSFNoteCreate");
         goto Done;
     }
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PRINTERROR(error,"NSFItemSetText");
+        PRINTERROR(error,"NSFItemSetText");
         goto Done;
     }
 
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
         OSMemFree(hImpBuffer);     /* ERROR - Free up the Import buffer. */
-		  PRINTERROR(error,"AddRichText");
+        PRINTERROR(error,"AddRichText");
         goto Done;
     }
 
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
         OSMemFree(hImpBuffer);     /* Free up the Import buffer.         */
-		  PRINTERROR(error,"NSFNoteUpdate");
+        PRINTERROR(error,"NSFNoteUpdate");
         goto Done;
     }
 
@@ -229,8 +229,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hNewNote))
 	 {
-		  PRINTLOG("\nUnable to close Note.  Terminating..\n");
-		  PRINTERROR(error,"NSFNoteClose");
+        PRINTLOG("\nUnable to close Note.  Terminating..\n");
+        PRINTERROR(error,"NSFNoteClose");
         goto Done;
 	 }
 
@@ -239,8 +239,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose(hDbNSFFile))
 	 {
-		  PRINTLOG("\nError closing database '%s'. Terminating...\n, szNSFFile");
-		  PRINTERROR(error,"NSFDbClose");
+        PRINTLOG("\nError closing database '%s'. Terminating...\n, szNSFFile");
+        PRINTERROR(error,"NSFDbClose");
         goto Done;
 	 }
 
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 
 	if (unlink(achTempName))
 	 {
-		  PRINTLOG("\nError deleting temporary file %s\n", achTempName);
+        PRINTLOG("\nError deleting temporary file %s\n", achTempName);
         goto Done;
 	 }
 
@@ -401,7 +401,7 @@ STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
     if ( (pCDFile = fopen(FileName, "r+b")) == NULL)
     {
         PRINTLOG ("Open of '%s' failed.\n", FileName);
-		error = ERR_NOEXIST;
+        error = ERR_NOEXIST;
         goto Done;
     }
 

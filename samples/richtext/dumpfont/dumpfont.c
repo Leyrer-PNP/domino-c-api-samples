@@ -112,9 +112,9 @@ int main(int argc, char *argv[])
     {
         PRINTLOG( "Error: unable to create ID table.\n" );
         NSFDbClose( hDB );
-		  PRINTERROR(error,"IDCreateTable");
-		  NotesTerm();
-		  return(1);
+        PRINTERROR(error,"IDCreateTable");
+        NotesTerm();
+        return(1);
     }
 
     if (error = NSFSearch(
@@ -132,9 +132,9 @@ int main(int argc, char *argv[])
         PRINTLOG( "Error: unable to search database.\n" );
         IDDestroyTable( hNoteIDTable );
         NSFDbClose( hDB );
-		  PRINTERROR(error,"NSFSearch");
-		  NotesTerm();
-		  return(1);
+        PRINTERROR(error,"NSFSearch");
+        NotesTerm();
+        return(1);
     }
 
     /*  Loop over note IDs in the table. Call ProcessOneNote on each. */
@@ -145,9 +145,9 @@ int main(int argc, char *argv[])
         PRINTLOG( "Error: unable to enumerate documents in ID table.\n" );
         IDDestroyTable( hNoteIDTable );
         NSFDbClose( hDB );
-		  PRINTERROR(error,"IDEnumerate");
-		  NotesTerm();
-		  return(1);
+        PRINTERROR(error,"IDEnumerate");
+        NotesTerm();
+        return(1);
     }
 
     if (error =IDDestroyTable( hNoteIDTable ))

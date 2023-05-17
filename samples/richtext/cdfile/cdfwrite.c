@@ -100,9 +100,9 @@ int main(int argc, char *argv[])
 
     if (nErr != NOERROR)
     {
-        PRINTLOG( "Error: unable to create CompoundText context.\n" );
-	    PRINTERROR (nErr,"CompoundTextCreate");  
-	    NotesTerm();
+		PRINTLOG( "Error: unable to create CompoundText context.\n" );
+		PRINTERROR (nErr,"CompoundTextCreate");  
+		NotesTerm();
 		return (1);
     }
 
@@ -118,10 +118,10 @@ int main(int argc, char *argv[])
  
    if (nErr != NOERROR)
    {
-       PRINTLOG( "Error: unable to define CompoundText style no. 1.\n" );
-	   PRINTERROR (nErr,"CompoundTextDefineStyle");  
-	   NotesTerm();
-	   return (1);
+		PRINTLOG( "Error: unable to define CompoundText style no. 1.\n" );
+		PRINTERROR (nErr,"CompoundTextDefineStyle");  
+		NotesTerm();
+		return (1);
    }
 
    nErr = CompoundTextAddTextExt (
@@ -136,10 +136,10 @@ int main(int argc, char *argv[])
 
     if (nErr != NOERROR)
     {
-        PRINTLOG( "Error: unable to Add text to CompoundText context .\n" );
-        CompoundTextDiscard (hCompound);
-	    PRINTERROR (nErr,"CompoundTextAddTextExt");  
-	    NotesTerm();
+		PRINTLOG( "Error: unable to Add text to CompoundText context .\n" );
+		CompoundTextDiscard (hCompound);
+		PRINTERROR (nErr,"CompoundTextAddTextExt");  
+		NotesTerm();
 		return (1);
     }
 
@@ -156,10 +156,10 @@ int main(int argc, char *argv[])
              
     if (nErr != NOERROR)
     {
-        PRINTLOG("Error: unable to close compound text context.\n");
-        CompoundTextDiscard (hCompound);
-	    PRINTERROR (nErr,"CompoundTextClose");  
-	    NotesTerm();
+		PRINTLOG("Error: unable to close compound text context.\n");
+		CompoundTextDiscard (hCompound);
+		PRINTERROR (nErr,"CompoundTextClose");  
+		NotesTerm();
 		return (1);
     }
 
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
     if (pData == NULL)
     {
-        PRINTLOG( "Error: unable to lock compount text buffer.\n" );
+		PRINTLOG( "Error: unable to lock compount text buffer.\n" );
 		NotesTerm();
 		return (0); 
     }
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 
     if (pCDFile == (FILE*)NULL)
     {
-        PRINTLOG( "Error: unable to open output file '%s'.\n", szCDFileName );
+		PRINTLOG( "Error: unable to open output file '%s'.\n", szCDFileName );
 		NotesTerm();
 		return (0); 
     }
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 
     OSMemFree( hCDBuffer );
 
-    PRINTLOG("\nProgram completed successfully.\n");
+	PRINTLOG("\nProgram completed successfully.\n");
 	NotesTerm();
 	return (0); 
 }

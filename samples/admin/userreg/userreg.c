@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
    if (error)
    {
       PRINTLOG("Error: unable to register a new user. Error:%x\n", error);
-		PRINTERROR(error,"REGNewWorkstation");
+      PRINTERROR(error,"REGNewWorkstation");
       if (FullDBPath[0] != '\0')
          PRINTLOG ("Error occurred in file %s\n", FullDBPath);
       NotesTerm();
@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
    if (error)
    {
       PRINTLOG("Error: unable to recertify a new user. Error:%x\n", error);
-		PRINTERROR(error,"REGReCertifyID");
+      PRINTERROR(error,"REGReCertifyID");
       if (FullDBPath[0] != '\0')
          PRINTLOG ("Error occurred in file %s\n", FullDBPath);
       NotesTerm();
@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
    if (error = OSPathNetConstruct(NULL, ServName, NA_NAME, FullDBPath))
    {
       PRINTLOG("Error: unable to construct network path to N&A book.\n");
-		PRINTERROR(error,"OSPathNetConstruct");
+      PRINTERROR(error,"OSPathNetConstruct");
       NotesTerm();
       return (1);
    }
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
    if (error = NSFDbOpen (FullDBPath, &hNABook))
    {
       PRINTLOG("Error: unable to open N&A book '%s'.\n", FullDBPath);
-  		PRINTERROR(error,"NSFDbOpen");
+      PRINTERROR(error,"NSFDbOpen");
       NotesTerm();
       return (1);
    }
@@ -443,8 +443,8 @@ int main(int argc, char *argv[])
                                         &NoteID))
    {
       PRINTLOG("Unable to find orgainizational certifier entry in N&A book.\n");
-  		PRINTERROR(error,"REGFindAddressBookEntry");
-		NSFDbClose(hNABook);
+      PRINTERROR(error,"REGFindAddressBookEntry");
+      NSFDbClose(hNABook);
       NotesTerm();
       return (1);
    }
@@ -461,8 +461,8 @@ int main(int argc, char *argv[])
                                        &NoteID))
    {
       PRINTLOG("Unable to find orgainizational unit certifier entry in N&A book.\n");
-  		PRINTERROR(error,"REGFindAddressBookEntry");
-		NSFDbClose(hNABook);
+      PRINTERROR(error,"REGFindAddressBookEntry");
+      NSFDbClose(hNABook);
       NotesTerm();
       return (1);
    }

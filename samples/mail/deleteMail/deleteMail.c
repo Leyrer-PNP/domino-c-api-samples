@@ -88,7 +88,6 @@ int main(int argc, char * argv[])
         PRINTLOG ("Error: incorrect syntax.\n");
         PRINTLOG ("\nUsage:%s <serverName> <database>\n", argv[0]);
         PRINTLOG("\nServerName is optional\n");
-	fflush(stdout);
         NotesTerm();
         return 0;
     }
@@ -103,7 +102,6 @@ int main(int argc, char * argv[])
    	if (!OSGetEnvironmentString("MAILSERVER", szServerName, MAXUSERNAME))
  	{
                PRINTLOG ("\nUnable to get mail server name ...\n\n ");
-	       fflush(stdout);
                strcpy(szServerName,"");
    	}
         strncpy( szDbName, argv[1], MAX_DB_NAME-1); 
@@ -113,7 +111,6 @@ int main(int argc, char * argv[])
         PRINTLOG ("Error: incorrect syntax.\n");
         PRINTLOG ("\nUsage:%s <serverName> <database>\n", argv[0]);
         PRINTLOG("\nserverName is optional\n");
-	fflush(stdout);
 
         NotesTerm();
         return 0;
@@ -127,7 +124,6 @@ int main(int argc, char * argv[])
 
     /* Open the DB */
     PRINTLOG("\n db path %s", szDbPath);
-    fflush(stdout);
     error = NSFDbOpen (szDbPath, &hDB);
     if ( error )
     {
@@ -177,13 +173,11 @@ exit:
     if ( error )
     {
        PRINTLOG( " Fail to get doc from %s.\n", szDbName);
-       fflush(stdout);
        return (1);
     }
     else
     {    
       PRINTLOG ( "succeed return docs deleted [%d].\n", docCount );
-      fflush(stdout);
       return (NOERROR);
     }
 }
@@ -216,7 +210,6 @@ STATUS  LNPUBLIC  EnumProc(void far *phDB, SEARCH_MATCH far *pSearchMatch, ITEM_
 
     /* Print the note ID. */
     PRINTLOG ("Note ID is: [%lX].\n", SearchMatch.ID.NoteID);
-    fflush(stdout);
 
     /* Delete Note */
     error = NSFNoteDelete(*(DBHANDLE far *)phDB, SearchMatch.ID.NoteID, 0);

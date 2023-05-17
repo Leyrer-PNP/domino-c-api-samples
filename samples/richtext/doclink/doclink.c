@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     if (error = NIFFindView (hDB, szViewName, &ViewNoteID))
     {
 		  PRINTERROR(error,"NIFFindView");
-        NSFDbClose(hDB);             /* Close database            */
+		  NSFDbClose(hDB);             /* Close database            */
 		  NotesTerm();
 		  return(1);
     }
@@ -142,8 +142,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteOpen (hDB, ViewNoteID, 0, &hViewNote))
     {
-        PRINTERROR(error,"NSFNoteOpen");
-        NSFDbClose(hDB);             /* Close database            */
+		  PRINTERROR(error,"NSFNoteOpen");
+		  NSFDbClose(hDB);             /* Close database            */
 		  NotesTerm();
 		  return(1);
     }
@@ -160,8 +160,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hViewNote))
     {
-        PRINTERROR(error,"NSFNoteClose");
-        NSFDbClose(hDB);             /* Close database            */
+		  PRINTERROR(error,"NSFNoteClose");
+		  NSFDbClose(hDB);             /* Close database            */
 		  NotesTerm();
 		  return(1);
     }
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose(hDB))
 	 {
-	    PRINTERROR(error,"NSFDbClose");
+		 PRINTERROR(error,"NSFDbClose");
 		 NotesTerm();
 		 return(1);
 	 }

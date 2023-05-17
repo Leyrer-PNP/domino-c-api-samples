@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
 
 	if (error = NotesInitExtended (argc, argv))
 	{
-     PRINTLOG("\n Unable to initialize Notes.\n");
-     return (1);
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
 	}
 
 /* Open the input database. */
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
         PRINTERROR (error,"NSFDbOpen");  
         NotesTerm();
         return (1);
-    } 
+	}
 
     PRINTLOG("\nOpened \"%s\" as the input database", input_path); 
 

@@ -88,9 +88,9 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen (input_path, &input_handle))
 		{
-		PRINTERROR (error,"NSFDbOpen");  
-		NotesTerm();
-		return (1);
+         PRINTERROR (error,"NSFDbOpen");  
+         NotesTerm();
+         return (1);
 		} 
 
     PRINTLOG("\nOpened \"%s\" as the input database", input_path); 
@@ -99,18 +99,18 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbCreate (output_path, DBCLASS_NOTEFILE, TRUE))
     {
-        NSFDbClose (input_handle);
-	    PRINTERROR (error,"NSFDbCreate");  
-	    NotesTerm();
-	    return (1);
+         NSFDbClose (input_handle);
+         PRINTERROR (error,"NSFDbCreate");  
+         NotesTerm();
+         return (1);
     }
 
     if (error = NSFDbOpen (output_path, &output_handle))
     {
-        NSFDbClose (input_handle);
-	    PRINTERROR (error,"NSFDbOpen");  
-	    NotesTerm();
-	    return (1);
+         NSFDbClose (input_handle);
+         PRINTERROR (error,"NSFDbOpen");  
+         NotesTerm();
+         return (1);
     }
  
     PRINTLOG("\nCreated \"%s\" as the output database\n", output_path); 
@@ -122,31 +122,31 @@ a replica copy of the source database. */
 
     if (error = NSFDbReplicaInfoGet (input_handle, &replica_info))
     {
-        NSFDbClose (input_handle);
-        NSFDbClose (output_handle);
-	    PRINTERROR (error,"NSFDbReplicaInfoGet");  
-	    NotesTerm();
-	    return (1);
+         NSFDbClose (input_handle);
+         NSFDbClose (output_handle);
+         PRINTERROR (error,"NSFDbReplicaInfoGet");  
+         NotesTerm();
+         return (1);
     }
 
     if (error = NSFDbReplicaInfoSet (output_handle, &replica_info))
     {
-        NSFDbClose (input_handle);
-        NSFDbClose (output_handle);
-	    PRINTERROR (error,"NSFDbReplicaInfoSet");  
-	    NotesTerm();
-	    return (1);
+         NSFDbClose (input_handle);
+         NSFDbClose (output_handle);
+         PRINTERROR (error,"NSFDbReplicaInfoSet");  
+         NotesTerm();
+         return (1);
     }
 
 /* Copy the ACL from the input database to the output database. */
 
     if (error = NSFDbCopyACL (input_handle, output_handle))
     {
-        NSFDbClose (input_handle);
-        NSFDbClose (output_handle);
-	    PRINTERROR (error,"NSFDbCopyACL");  
-	    NotesTerm();
-	    return (1);
+         NSFDbClose (input_handle);
+         NSFDbClose (output_handle);
+         PRINTERROR (error,"NSFDbCopyACL");  
+         NotesTerm();
+         return (1);
     }
 
 /* Set a time/date structure that will determine the date of the earliest
@@ -178,9 +178,9 @@ specified to indicate that we do not want any cutoff date.  */
         {
             NSFDbClose (input_handle);
             NSFDbClose (output_handle);
-	        PRINTERROR (error,"NSFDbGetModifiedNoteTable");  
-	        NotesTerm();
-	        return (1);
+            PRINTERROR (error,"NSFDbGetModifiedNoteTable");  
+            NotesTerm();
+            return (1);
         }
     num_scanned = 0L;
     num_entries = IDEntries (idtable_p);
@@ -195,9 +195,9 @@ specified to indicate that we do not want any cutoff date.  */
                 IDDestroyTable (idtable_p);
                 NSFDbClose (input_handle);
                 NSFDbClose (output_handle);
-		        PRINTERROR (error,"NSFDbCopyNote");  
-			    NotesTerm();
-			    return (1);
+                PRINTERROR (error,"NSFDbCopyNote");  
+                NotesTerm();
+                return (1);
             }
     IDDestroyTable (idtable_p);
                        
@@ -223,11 +223,11 @@ specified to indicate that we do not want any cutoff date.  */
    
     if (error = NSFDbInfoGet (output_handle, output_db_info))
     {
-        NSFDbClose (input_handle);
-        NSFDbClose (output_handle);
-	    PRINTERROR (error,"NSFDbInfoGet");  
-        NotesTerm();
-        return (1);
+         NSFDbClose (input_handle);
+         NSFDbClose (output_handle);
+         PRINTERROR (error,"NSFDbInfoGet");  
+         NotesTerm();
+         return (1);
     }
 
 /* Add the database title to the database information buffer */
@@ -235,11 +235,11 @@ specified to indicate that we do not want any cutoff date.  */
     NSFDbInfoModify (output_db_info, INFOPARSE_TITLE, output_title);
     if (error = NSFDbInfoSet (output_handle, output_db_info))
     {
-        NSFDbClose (input_handle);
-        NSFDbClose (output_handle);
-	    PRINTERROR (error,"NSFDbInfoSet");  
-        NotesTerm();
-        return (1);
+         NSFDbClose (input_handle);
+         NSFDbClose (output_handle);
+         PRINTERROR (error,"NSFDbInfoSet");  
+         NotesTerm();
+         return (1);
     }
 
 /* If creating a new database from a template, in order to change
@@ -268,17 +268,17 @@ specified to indicate that we do not want any cutoff date.  */
 
     if (error = NSFDbClose (input_handle))
         {
-        NSFDbClose (output_handle);
-	    PRINTERROR (error,"NSFDbClose");  
-        NotesTerm();
-        return (1);
+         NSFDbClose (output_handle);
+         PRINTERROR (error,"NSFDbClose");  
+         NotesTerm();
+         return (1);
         }
 
     if (error = NSFDbClose (output_handle))
 	{
-	    PRINTERROR (error,"NSFDbClose");  
-        NotesTerm();
-        return (1);
+         PRINTERROR (error,"NSFDbClose");  
+         NotesTerm();
+         return (1);
 	}
 
    PRINTLOG("\n Done.\n"); 

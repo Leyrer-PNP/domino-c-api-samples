@@ -233,7 +233,7 @@ STATUS LNPUBLIC find_my_data
 
     if (ERR(error) == ERR_ITEM_NOT_FOUND)
     {
-		PRINTLOG ("\nField %s was NOT found in this note.\n", MY_FIELD_NAME);
+        PRINTLOG ("\nField %s was NOT found in this note.\n", MY_FIELD_NAME);
         NSFNoteClose (note_handle);
         return (NOERROR);
     }

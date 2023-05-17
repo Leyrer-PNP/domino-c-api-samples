@@ -416,7 +416,7 @@ STATUS  LNPUBLIC  ScanMIMEMsgBody( NOTEHANDLE hNote, HMIMEDIRECTORY hMD, PMIMEEN
                 OSUnlock(hTypeParam);  
 
                 for ( i=0; i<iDepth; i++ )
-                     PRINTLOG(  "\t" );
+                PRINTLOG(  "\t" );
                 PRINTLOG(  "********Have an attachment :[%s]\n",  pczParaName );      
                 fflush(stdout);
                 OSMemFree(hTypeParam);

@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     if(!ProcessArgs(argc, argv, pname, &NoteID, achOutFileName))
     {
         PRINTLOG( "\nUsage:  %s  <database filename> <hex NoteID> <Output file> [options]\n", argv[0] );
-		PRINTLOG("\nOptions: -s ServerName\n"); 
+        PRINTLOG("\nOptions: -s ServerName\n"); 
         return (0);
 
     }
