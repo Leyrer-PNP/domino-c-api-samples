@@ -318,7 +318,7 @@ STATUS LNPUBLIC ImportXMLData( DBHANDLE hDB, struct ImportOptions *impOptions)
 		/* iDxlResultLog */
 		propValue = iResultLog;
 		if(DXLGetImporterProperty(hDXLImport, propValue, &hMem))
-			PRINTLOG( "\nUnable to Get Error Log Information...\n");
+		PRINTLOG( "\nUnable to Get Error Log Information...\n");
 		pData = (char *)OSMemoryLock(hMem);
 		PRINTLOG( "\nResultLog = %s\n", pData);
 		OSMemoryUnlock(hMem);
