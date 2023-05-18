@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
    {
       PRINTLOG("Error: unable to register new organizational certifier.\n");
       if (FullDBPath[0] != '\0')
-         PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+		PRINTLOG ("Error occurred in file %s\n", FullDBPath);
 		PRINTERROR(error,"REGNewCertifier");
 		NotesTerm();
       return (1);
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
    if (error = GetCertCtx(ORG_CERT_ID, &hCertCtx, PASSWORD))
    {
       PRINTERROR(error,"GetCertCtx");
-		NotesTerm();
+      NotesTerm();
       return (1);
    }
 
@@ -239,7 +239,6 @@ int main(int argc, char *argv[])
                                         error occurred */
 
    PRINTLOG ("\n\n");
-  
    if (error)
    {
       PRINTLOG("Error: unable to register new organizational unit certifier.\n");
@@ -247,7 +246,7 @@ int main(int argc, char *argv[])
          PRINTLOG ("Error occurred in file %s\n", FullDBPath);
       SECKFMFreeCertifierCtx (hCertCtx);
       PRINTERROR(error,"REGNewCertifier");
-		NotesTerm();
+      NotesTerm();
       return (1);
    }
 
@@ -361,7 +360,7 @@ int main(int argc, char *argv[])
    if (error)
    {
       PRINTLOG("Error: unable to register a new user. Error:%x\n", error);
-      PRINTERROR(error,"REGNewWorkstation");
+         PRINTERROR(error,"REGNewWorkstation");
       if (FullDBPath[0] != '\0')
          PRINTLOG ("Error occurred in file %s\n", FullDBPath);
       NotesTerm();

@@ -226,9 +226,9 @@ if (sError = NotesInitExtended (argc, argv))
     {
         NSFDbClose (hOrigDB);
         NSFDbClose (hDB);
-	    PRINTERROR (sError,"NSFDbReplicaInfoSet");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbReplicaInfoSet");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -239,9 +239,9 @@ if (sError = NotesInitExtended (argc, argv))
     {
         NSFDbClose (hOrigDB);
         NSFDbClose (hDB);
-	    PRINTERROR (sError,"NSFDbCopyACL");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbCopyACL");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -272,9 +272,9 @@ if (sError = NotesInitExtended (argc, argv))
             IDDestroyTable (pIDTable);
             NSFDbClose (hOrigDB);
             NSFDbClose (hDB);
-		    PRINTERROR (sError,"NSFDbGetModifiedNoteTable");  
-			NotesTerm();
-			return (1);
+            PRINTERROR (sError,"NSFDbGetModifiedNoteTable");  
+            NotesTerm();
+            return (1);
         }
 
     NumScanned = 0L;
@@ -290,9 +290,9 @@ if (sError = NotesInitExtended (argc, argv))
                 IDDestroyTable (pIDTable);
                 NSFDbClose (hOrigDB);
                 NSFDbClose (hDB);
-			    PRINTERROR (sError,"NSFDbCopyNote");  
-				NotesTerm();
-				return (1);
+                PRINTERROR (sError,"NSFDbCopyNote");  
+                NotesTerm();
+                return (1);
             }
     IDDestroyTable (pIDTable);
                        
@@ -314,7 +314,7 @@ if (sError = NotesInitExtended (argc, argv))
          NSFDbClose(hDB);            /* Close database            */
 	     PRINTERROR (sError,"NSFNoteCreate");  
 	     NotesTerm();
-		 return (1);
+	     return (1);
     }
 
 /*
