@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
                     OSUnlockBlock(ValueBlockID);
                     NSFNoteClose(hNote);
                     NSFDbClose(hDB);
-                    PRINTERROR (sError,"NSFFormulaDecompile");  
+                    PRINTERROR(sError,"NSFFormulaDecompile");  
                     NotesTerm();
                     return (1);
                 }

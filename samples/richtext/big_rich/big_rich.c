@@ -176,7 +176,6 @@ int main (int argc, char *argv[])
 	strcpy(szFilenamePath, "/");
 #else
 	strcpy(szFilenamePath, "c:\\");
-	PRINTLOG("PRINT FILE PATH LOCATION %s ......\n", szFilenamePath)
 #endif
 
 	strcat(szFilenamePath, argv[3]);
@@ -264,7 +263,6 @@ int main (int argc, char *argv[])
 				}
 			}
 		}
-		PRINTLOG("TEMP file location %d.\n", usFileCount);
 		closedir(dirHandle);
 	}
 #else
@@ -366,14 +364,12 @@ STATUS  LNPUBLIC  ProcessOneFile(DBHANDLE    hDb, char * szAsciiFileName,
     /* Format the qualified input file name. */
 
     strcpy (szFullFilePath, szDirectory);
-	PRINTLOG("print path %s and %s .\n", szFullFilePath, szDirectory);
 #if defined (LINUX)
 	strcat(szFullFilePath, "/");
 #else
 	strcat(szFullFilePath, "\\");
 #endif
     strcat (szFullFilePath, szAsciiFileName);
-	PRINTLOG("PRINT FILE LOCATION AND FILE NAME %s.\n", szAsciiFileName);
 
     /* Create a new data note. */
 
