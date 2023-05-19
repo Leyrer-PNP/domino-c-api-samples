@@ -172,8 +172,8 @@ int main(int argc, char *argv[])
         PRINTLOG("Error: unable to allocate %d bytes memory.\n", wBuffLen);
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
-	    NotesTerm();
-	    return (0); 
+        NotesTerm();
+        return (0); 
     }    
               
     /* Keep a pointer to our current position in the buffer. */

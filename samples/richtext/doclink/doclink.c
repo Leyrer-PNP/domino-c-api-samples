@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen(szFileName2, &hDB))
 	 {
-	    PRINTERROR(error,"NSFDbOpen");
+		 PRINTERROR(error,"NSFDbOpen");
 		 NotesTerm();
 		 return(1);
 	 }

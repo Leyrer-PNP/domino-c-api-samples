@@ -193,9 +193,9 @@ int main(int argc, char *argv[])
    {
       PRINTLOG("Error: unable to register new organizational certifier.\n");
       if (FullDBPath[0] != '\0')
-		PRINTLOG ("Error occurred in file %s\n", FullDBPath);
-		PRINTERROR(error,"REGNewCertifier");
-		NotesTerm();
+      PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+      PRINTERROR(error,"REGNewCertifier");
+      NotesTerm();
       return (1);
    }
 
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
       PRINTLOG("Error: unable to register a new user. Error:%x\n", error);
          PRINTERROR(error,"REGNewWorkstation");
       if (FullDBPath[0] != '\0')
-         PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+      PRINTLOG ("Error occurred in file %s\n", FullDBPath);
       NotesTerm();
       return (1);
    }

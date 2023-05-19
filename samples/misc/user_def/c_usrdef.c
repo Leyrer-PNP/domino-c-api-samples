@@ -158,7 +158,7 @@ exitFreeDBFile:
 
 exit0:
     if (error)
-       PRINTERROR (error,"(char *) malloc");
+    PRINTERROR (error,"(char *) malloc");
     NotesTerm();
     return(error);
 

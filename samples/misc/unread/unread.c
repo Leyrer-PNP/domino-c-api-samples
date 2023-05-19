@@ -208,7 +208,7 @@ int main (int argc, char *argv[])
 
 exit0:
    if (status)
-      PRINTERROR (status,"NSFDbOpen");
+   PRINTERROR (status,"NSFDbOpen");
    NotesTerm();
    return(status);
 

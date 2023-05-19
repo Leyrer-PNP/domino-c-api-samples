@@ -108,8 +108,8 @@ db_filename="richtext.nsf";
         &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
 
     {
-		  PRINTERROR(error,"NSFFormulaCompile");
-		  NotesTerm();
+        PRINTERROR(error,"NSFFormulaCompile");
+        NotesTerm();
         NSFDbClose (db_handle);
         return (1);
     }
@@ -129,8 +129,8 @@ note found, the routine print_fields is called. */
         NULL))            /* returned ending date (unused) */
 
     {
-		  PRINTERROR(error,"NSFSearch");
-		  NotesTerm();
+        PRINTERROR(error,"NSFSearch");
+        NotesTerm();
         NSFDbClose (db_handle);
         return (1);
     }
@@ -143,8 +143,8 @@ note found, the routine print_fields is called. */
 
     if (error = NSFDbClose (db_handle))
     {
-		  PRINTERROR(error,"NSFDbClose");
-		  NotesTerm();
+        PRINTERROR(error,"NSFDbClose");
+        NotesTerm();
         return (1);
     }
 

@@ -251,7 +251,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID
         {
 		PRINTERROR (Error,"OSPathNetConstruct");
 		return FALSE;
-		}
+        }
 
   return TRUE;  
 } /* ProcessArgs */
