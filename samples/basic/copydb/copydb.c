@@ -73,9 +73,7 @@ int main(int argc, char *argv[])
     NOTEHANDLE  hIconNote;          /* handle to the icon note */
     STATUS      error = NOERROR;    /* return status from API calls */
 
-    ProcessArgs (argc, argv, 
-                 input_path, output_path, output_title);
-
+    ProcessArgs (argc, argv, input_path, output_path, output_title);
 
 	if (error = NotesInitExtended (argc, argv))
 	{

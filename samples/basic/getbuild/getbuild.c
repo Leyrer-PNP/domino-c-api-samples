@@ -45,14 +45,13 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 int main(int argc, char *argv[])
 {
     
-    char		*db_filename;				/* pathname of source database */
-	DBHANDLE	db_handle;                  /* database handle */
-    WORD        wbuild;
+    char		*db_filename;               /* pathname of source database */
+    DBHANDLE		db_handle;              /* database handle */
+    WORD		wbuild;
     STATUS		error = NOERROR;            /* error code from C API for Domino and Notes calls */
     char		database_name[STRING_LENGTH];
-
-	db_filename = database_name;
-	ProcessArgs(argc, argv, db_filename);
+    db_filename = database_name;
+    ProcessArgs(argc, argv, db_filename);
 
 if (error = NotesInitExtended (argc, argv))
  {

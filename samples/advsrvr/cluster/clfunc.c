@@ -89,20 +89,18 @@ STATUS GetServerCluster ( char FAR *pServerName,  /* server name */
                           char FAR *pClusterName  /* returned cluster name */
                         )
 {
-	WORD        wNumListEntries = 0;
+    WORD        wNumListEntries = 0;
     WORD        wBufferLen = 0;
     void FAR    *lpList;
     char        *pBuffer;
-
-    char		achClusterName[MAXUSERNAME];
-	DHANDLE       hList=NULLHANDLE;
-
-   	char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
-    STATUS  nError;
+    char        achClusterName[MAXUSERNAME];
+    DHANDLE     hList=NULLHANDLE;
+    char        szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
+    STATUS      nError;
     
-   	/* Canonicalize the servername if it isn't already done.  
-     * The NSPingServer should use a canonicalized servername as input
-     */
+    /* Canonicalize the servername if it isn't already done.  
+    * The NSPingServer should use a canonicalized servername as input
+    */
     nError = DNCanonicalize( 0L, NULL, pServerName, (char FAR*)szCanonServerName, 
      	    						MAXUSERNAME, NULL);
     if (nError != NOERROR)
@@ -229,7 +227,7 @@ STATUS GetDBMarks ( char FAR *pServerName,  /* database server name */
 {
     STATUS      nError;
     DHANDLE       hDb;            /* NSFDbOpenExtended parameters */
-	TIMEDATE    dataNoteMod;
+    TIMEDATE    dataNoteMod;
     TIMEDATE    nonDataNoteMod;
 
     char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
@@ -463,8 +461,8 @@ STATUS CreateAndCopyDB ( char FAR *pServerName, /* source server name */
                        )
 {
     STATUS  nError;
-   	char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Source Name */
-   	char    szCanonServerDest[MAXUSERNAME]; /* Canonicalized Dest. Name  */
+    char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Source Name */
+    char    szCanonServerDest[MAXUSERNAME]; /* Canonicalized Dest. Name  */
     char    szNetPathName[MAXPATH];         /* Network Path of Source Db */
     char    szNetPathDest[MAXPATH];         /* Network Path of Dest. Db */
     DBHANDLE hCopyDb = NULLHANDLE;          /* returned DB handle */

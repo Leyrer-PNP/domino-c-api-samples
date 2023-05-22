@@ -62,8 +62,7 @@ int main(int argc, char *argv[])
     char        far *text_pointer;              /* pointer to timetext */
     STATUS        error = NOERROR;              /* return status from API calls */
 
-    ProcessArgs (argc, argv, 
-             input_path, output_path, output_title);
+    ProcessArgs (argc, argv, input_path, output_path, output_title);
 
 	if (error = NotesInitExtended (argc, argv))
 	{

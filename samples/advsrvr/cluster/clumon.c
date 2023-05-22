@@ -1310,8 +1310,8 @@ void dspClusterInfo(HWND hDlg, char *szServerName, DWORD dwClusterFlags)
 		 * block of code.
 		 */
         nError = GetServerClusterMates( (LPSTR)szServerName, 
-        								(DWORD)CLUSTER_LOOKUP_NOCACHE,
-        								 &hClusterList);
+				 (DWORD)CLUSTER_LOOKUP_NOCACHE,
+				 &hClusterList);
     
         /* If the server is in a restricted or unavailable state then we can
          * still continue because it will still return the cluster info to us.
@@ -1335,14 +1335,14 @@ void dspClusterInfo(HWND hDlg, char *szServerName, DWORD dwClusterFlags)
 	    for (i = 0; i < (int) wNumListEntries; i++)
     	{
         	nError = ListGetText( lpClusterList, FALSE, (WORD) i, 
-									FAR &pBuffer, &wBufferLen );
+					 FAR &pBuffer, &wBufferLen );
 	        if (!nError)
     	   	{
 				/* Update the Cluster Mates dialog list box */
    			    memcpy(szClusterInfo, pBuffer, wBufferLen);
 				szClusterInfo[wBufferLen] = '\0';
-                SendDlgItemMessage (hDlg, CLUSTERMATES_LIST, LB_ADDSTRING, 
-               						0, (LPARAM) ((LPSTR)szClusterInfo));
+				SendDlgItemMessage (hDlg, CLUSTERMATES_LIST, LB_ADDSTRING, 
+				0, (LPARAM) ((LPSTR)szClusterInfo));
             }
 	        else
            	{
