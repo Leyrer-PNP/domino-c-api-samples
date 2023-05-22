@@ -646,18 +646,18 @@ STATUS  LNPUBLIC  AppendCategoriesItem (NOTEHANDLE hNote)
 
     RETURNS:   
         NOERROR or status returned from a HCL C API for Domino and 
-		Notes function call.
+        Notes function call.
 
 *************************************************************************/
 
 STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFileName)
 {
     STATUS          error;
-    DHANDLE           hCompound;      /* Compound Text context */
+    DHANDLE         hCompound;      /* Compound Text context */
     COMPOUNDSTYLE   Style;
     DWORD           dwStyleID;
-	char            szBlank[] = "";
-	char            szNewlineDelimiter[] = "\r\n";
+    char            szBlank[] = "";
+    char            szNewlineDelimiter[] = "\r\n";
 
     /* Create compound text context. This initializes hCompound. */
     if (error = CompoundTextCreate (hNote, 

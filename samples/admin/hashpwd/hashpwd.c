@@ -56,7 +56,7 @@ int main (int argc, char *argv[])
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
-										Digest2Len, Digest2, 0, NULL);
+		Digest2Len, Digest2, 0, NULL);
 
 	if (Verify != NOERROR)
 	{
@@ -87,7 +87,7 @@ int main (int argc, char *argv[])
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
-								Digest3Len, Digest3, 0, NULL);
+		Digest3Len, Digest3, 0, NULL);
 
 	if (Verify != NOERROR)
 	{
@@ -108,7 +108,7 @@ int main (int argc, char *argv[])
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
-								Digest3Len, Digest3, 0, NULL);
+		Digest3Len, Digest3, 0, NULL);
 
 	if (Verify != NOERROR)
 	{

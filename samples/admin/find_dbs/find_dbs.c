@@ -112,8 +112,8 @@ int main(int argc, char *argv[])
 /* Compose the full network pathname to the directory. */
 
         if (error = OSPathNetConstruct(NULL,
-							                  server,
-													directory,
+                                       server,
+                                       directory,
                                        full_netpath))
 	     {
 		      PRINTERROR (error,"OSPathNetConstruct");

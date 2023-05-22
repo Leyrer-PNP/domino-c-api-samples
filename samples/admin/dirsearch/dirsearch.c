@@ -53,8 +53,8 @@
 
 /*	Global data */
 int     opterr = 1;             /* if error message should be printed */
-int		optind = 1;             /* index into parent argv vector */
-int		optopt = 1;             /* character checked for validity */
+int     optind = 1;             /* index into parent argv vector */
+int     optopt = 1;             /* character checked for validity */
 
 typedef struct {
 	char szServerName [MAXUSERNAME+1];

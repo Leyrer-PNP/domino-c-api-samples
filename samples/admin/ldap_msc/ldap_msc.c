@@ -332,7 +332,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *HOST, 
                          char *SEARCHBASE, 
                          char *DN,
-						 char *PASSWORD)
+                         char *PASSWORD)
 { 
 	if (argc != 5)
     {       

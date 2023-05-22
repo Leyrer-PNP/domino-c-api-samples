@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
     char szReplVersion[] = "1";
     
     WORD   wdc;           /* "We Don't Care" - Used to receive data that */
-           /* we don't care about that is returned by     */
-           /* NSFFormulaCompile.                          */
+                          /* we don't care about that is returned by     */
+                          /* NSFFormulaCompile.                          */
 
     WORD wItemLength;
     WORD wTextBufferLength = TEXTLIST_BUFFER_LENGTH;

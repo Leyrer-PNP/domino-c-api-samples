@@ -115,19 +115,18 @@ VOID main (int argc, char *argv[])
          strcpy(InFile, argv[2]);
          if (!strcmp(RecOpt,"RECOVER") || !strcmp(RecOpt,"NOTE"))
          {
-            usage=1;													
+            usage=1;
             flags = 1;
-				if (!strcmp(RecOpt,"NOTE"))
-					NoteInfo = 1;
+            if (!strcmp(RecOpt,"NOTE"))
+            NoteInfo = 1;
          }
-			else if (!strcmp(RecOpt,"CHECK"))
-			{
-            usage=1;													
-			}
+         else if (!strcmp(RecOpt,"CHECK"))
+         {
+            usage=1;
+         }
          /* Ensure null termination */
         InFile[strlen(&InFile[0])+1] = '\0';
-
-		}
+   }
 
       if (argc == 4)
       {
@@ -320,10 +319,10 @@ STATUS LNPUBLIC NoteCallback(DWORD state_flags, void far *userParm, NOTE_RESTORE
 
    STATUS   err= NOERROR;
    NOTE_RESTORE_CALLBACK_INFO info;
-	char     timebuffer[MAXALPHATIMEDATE + 1];
+   char     timebuffer[MAXALPHATIMEDATE + 1];
    WORD     timelength;
    char     EventString[MAXPATHLENGTH + 100];
-	char     note_action[25]="";
+   char     note_action[25]="";
 
 
    memcpy( (char*)&info, (char*)pinfo, sizeof(NOTE_RESTORE_CALLBACK_INFO) );
@@ -351,17 +350,16 @@ STATUS LNPUBLIC NoteCallback(DWORD state_flags, void far *userParm, NOTE_RESTORE
 		     strcpy(note_action, "Unknown");
 	   }
 
-		sprintf(EventString, "\n\tNote information for backup file %s\n\t\tStarted at: %s\n\t\tInfoSize: %d\n\t\tNoteID: %lX\n\t\tNoteHandle: %d\n\t\tUser Name: %s\n\t\tAction: %s\n\t\tFinished at",
-			 info.PathName,
-			 timebuffer,
-			 info.InfoSize,
-          info.NoteId,
-			 info.hNote,
-			 info.UserName,
-	       note_action);
-
-  	   EventLog(LogFD, EventString);
-   }
+	   sprintf(EventString, "\n\tNote information for backup file %s\n\t\tStarted at: %s\n\t\tInfoSize: %d\n\t\tNoteID: %lX\n\t\tNoteHandle: %d\n\t\tUser Name: %s\n\t\tAction: %s\n\t\tFinished at",
+		   info.PathName,
+		   timebuffer,
+		   info.InfoSize,
+		   info.NoteId,
+		   info.hNote,
+		   info.UserName,
+		   note_action);
+		   EventLog(LogFD, EventString);
+	}
 	return err;
 }
 
@@ -382,7 +380,7 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
 {
    STATUS   err= NOERROR;
    char     EventString[MAXPATHLENGTH + 100];
-	unsigned short int index = 0;
+   unsigned short int index = 0;
    unsigned short int errindex = 0;
 
 
@@ -399,7 +397,7 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
       offline then replaced with its recovered backup file. */
 
 	if(Rflags)
-      Rflags = DBRECOVER_ZAP_ID;
+	  Rflags = DBRECOVER_ZAP_ID;
 
 	if(RNoteInfo)
 	{
@@ -421,15 +419,15 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
    {
 		/* Although this sample was designed to pass a 'list' containing
 		   only one database name via the BUPath parameter of
-			NSFRecoverDatabases, the following loops are included to
-			illustrate how to handle a 'list' containing multiple database
-			names along with the required imbedded NULLs. */
+		   NSFRecoverDatabases, the following loops are included to
+		   illustrate how to handle a 'list' containing multiple database
+		   names along with the required imbedded NULLs. */
 
 		while (BUPath[0] != '\0')
 		{
-         PRINTLOG("\n Backup file recovered.\n");
-         sprintf(EventString, "Backup file %s recovery complete", BUPath);
-         EventLog(LogFD, EventString);
+			PRINTLOG("\n Backup file recovered.\n");
+			sprintf(EventString, "Backup file %s recovery complete", BUPath);
+			EventLog(LogFD, EventString);
 			BUPath += strlen(BUPath) + 1;
 		}
    }
@@ -441,11 +439,11 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
 			if(errindex ==index)
 			{
 				PRINTLOG("\nError recovering backup file %s\n", BUPath);
-            sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
+				sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
 				BUPath,
 				print_api_error(err));
 				EventLog(LogFD, EventString);
-         }
+			}
 			BUPath += strlen(BUPath) + 1;
 		}
    }
@@ -593,16 +591,16 @@ STATUS DoArchiveLogs(void)
 
    if (LogType == TRANSLOG_STYLE_CIRCULAR || LogType == TRANSLOG_STYLE_LINEAR)
    {
-		switch(LogType)
-		{
-		   case TRANSLOG_STYLE_CIRCULAR:
-            PRINTLOG("\n  Transactional logging is 'CIRCULAR'.\n");
-				break;
+	switch(LogType)
+	{
+	   case TRANSLOG_STYLE_CIRCULAR:
+			PRINTLOG("\n  Transactional logging is 'CIRCULAR'.\n");
+			break;
 
-         case TRANSLOG_STYLE_LINEAR:
-            PRINTLOG("\n  Transactional logging is 'LINEAR'.\n");
-				break;
-		}
+	   case TRANSLOG_STYLE_LINEAR:
+			PRINTLOG("\n  Transactional logging is 'LINEAR'.\n");
+			break;
+	}
       return 1;
    }
 
@@ -725,7 +723,6 @@ void EventLog(int LogFD, char * outstring)
 /************************************************************************
 
    FUNCTION:  EventLog
-	
    PURPOSE:   Write a record to the log file.
 
 ************************************************************************/
@@ -756,7 +753,7 @@ STATUS CheckDb(char * BUPath)
 
    FUNCTION:  CheckDb
 
-	PURPOSE:   Check to see if a new backup file is needed.
+   PURPOSE:   Check to see if a new backup file is needed.
 
    INPUTS:    BUPath - Path to backup file.
 
@@ -769,9 +766,9 @@ STATUS CheckDb(char * BUPath)
    char     EventString2[MAXPATHLENGTH + 100];
    DWORD    ComfortSpan = 0;  /* For 'CIRCULAR' or 'ARCHIVE' type logging. */
 /*   DWORD    ComfortSpan = 65536;  For 'CIRCULAR' type logging only */
-	DWORD    BackupNeeded;
+   DWORD    BackupNeeded;
    WORD     LogType;
-	int      unkown = 0;
+   int      unkown = 0;
 
 
    /* If the "check" option has been chosen, we'll determine the
@@ -787,7 +784,7 @@ STATUS CheckDb(char * BUPath)
 	   case TRANSLOG_STYLE_ARCHIVE:
          PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
          if (ComfortSpan)
-            PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
+			PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
 			break;
 
 	   case TRANSLOG_STYLE_CIRCULAR:

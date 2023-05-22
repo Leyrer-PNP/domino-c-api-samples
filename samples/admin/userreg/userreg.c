@@ -130,8 +130,8 @@ int main(int argc, char *argv[])
    char     MailServName[MAXUSERNAME + 1]; /* mail server name */
    char     FullDBPath[MAXPATH];  /* complete pathname for Name and Address
                                      Book */
-	char		ServLocation[MAXLOCATIONNAME] = "Sales LAB";
-	char		WorkLocation[MAXLOCATIONNAME] = "323 West";
+   char     ServLocation[MAXLOCATIONNAME] = "Sales LAB";
+   char     WorkLocation[MAXLOCATIONNAME] = "323 West";
 
    HCERTIFIER hCertCtx;
    DBHANDLE hNABook;              /* handle to name and address book */
@@ -152,12 +152,12 @@ int main(int argc, char *argv[])
 
    FullDBPath[0] = '\0';
 
-	error = NotesInitExtended (argc, argv);
-	if (error)
-	{
-	   PRINTLOG("Error: Unable to initialize Notes.\n");
-		return (1);
-	}
+   error = NotesInitExtended (argc, argv);
+   if (error)
+   {
+      PRINTLOG("Error: Unable to initialize Notes.\n");
+      return (1);
+   }
 
    PRINTLOG ("\n");
    /* Create and register new organizational certifier - ABCorp */
