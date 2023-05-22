@@ -68,9 +68,9 @@ HTMLHANDLE	cvtr = NULL;
 MEMHANDLE hRef = 0;
 HTMLAPIReference *pRef = 0;
 const char* HTMLOption[4] = {	"ForceSectionExpand=1", 
-					"RowAtATimeTableAlt=1", 
-					"ForceOutlineExpand=1", 
-					NULL};
+				"RowAtATimeTableAlt=1", 
+				"ForceOutlineExpand=1", 
+				NULL};
 //DWORD fullTextLength = 100;
 DWORD fileNumber =0;
 //char  text[fullTextLength+1];
