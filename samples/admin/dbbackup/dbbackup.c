@@ -94,7 +94,7 @@ VOID main (int argc, char *argv[])
    /* Open the database we're going to backup */
    if (err = NSFDbOpen(path_name, &hDB))
    {
-      print_api_error (err);
+      PRINTERROR (err,"NSFDbOpen");
       NotesTerm();
       exit (EXIT_FAILURE);
    }
@@ -102,7 +102,7 @@ VOID main (int argc, char *argv[])
    /* And get its full path so we can open it at the OS level */
    if (err = NSFDbPathGet(hDB, NULL, FullPath))
    {
-      print_api_error (err);
+      PRINTERROR (err,"NSFDbPathGet");
       NSFDbClose(hDB);
       NotesTerm();
       exit (EXIT_FAILURE);
@@ -115,7 +115,7 @@ VOID main (int argc, char *argv[])
                             &FileSizeLow,
                             &FileSizeHigh))
    {
-      print_api_error (err);
+      PRINTERROR (err,"NSFBackupStart");
       NSFDbClose(hDB);
       NotesTerm();
       exit (EXIT_FAILURE);
@@ -124,7 +124,7 @@ VOID main (int argc, char *argv[])
    /* Check to see if DB is being logged. */
    if (err = NSFDbGetLogInfo(hDB, 0L, &Logged, &LogID, &DbIID, &LogExtent))
    {
-      print_api_error (err);
+      PRINTERROR (err,"NSFDbGetLogInfo");
       NSFBackupEnd(hDB, BackupContext, BACKUPEND_ABORT);
       NSFDbClose(hDB);
       NotesTerm();
@@ -139,7 +139,7 @@ VOID main (int argc, char *argv[])
    /* Open the database file at the OS level */
    if (err = SysFileOpenRead(FullPath, &srcfd))
    {
-      print_api_error (err);
+      PRINTERROR (err,"SysFileOpenRead");
       NSFBackupEnd(hDB, BackupContext, BACKUPEND_ABORT);
       NSFDbClose(hDB);
       NotesTerm();
@@ -149,7 +149,7 @@ VOID main (int argc, char *argv[])
    /* Move file pointer to begining of file */
    if (err = SysFileSeek(srcfd, 0, 0))
    {
-      print_api_error (err);
+      PRINTERROR (err,"SysFileSeek");
       SysFileClose(srcfd);
       NSFBackupEnd(hDB, BackupContext, BACKUPEND_ABORT);
       NSFDbClose(hDB);
@@ -161,7 +161,7 @@ VOID main (int argc, char *argv[])
       do not overwrite it if it already exists */
    if (err = SysFileCreate(backup_file, &dstfd))
    {
-      print_api_error (err);
+      PRINTERROR (err,"SysFileCreate");
       SysFileClose(srcfd);
       NSFBackupEnd(hDB, BackupContext, BACKUPEND_ABORT);
       NSFDbClose(hDB);
@@ -173,7 +173,7 @@ VOID main (int argc, char *argv[])
       writing to the destination file */
    if (err = OSMemAlloc(MEM_SHARE, BUFFER_SIZE, &hBuffer))
    {
-      print_api_error (err);
+      PRINTERROR (err,"OSMemAlloc");
       SysFileClose(dstfd);
       SysFileDelete(backup_file);
       SysFileClose(srcfd);
@@ -249,7 +249,7 @@ VOID main (int argc, char *argv[])
    /* If the copy hit a problem clean up */
    if (err)
    {
-      print_api_error (err);
+      PRINTERROR (err,"OSMemAlloc");
       OSUnlockObject(hBuffer);
       OSMemFree(hBuffer);
       SysFileDelete(backup_file);
@@ -270,7 +270,7 @@ VOID main (int argc, char *argv[])
                                         &InfoSizeLow,
                                         &InfoSizeHigh))
    {
-      print_api_error (err);
+      PRINTERROR (err,"NSFBackupGetChangeInfoSize");
       OSUnlockObject(hBuffer);
       OSMemFree(hBuffer);
       SysFileDelete(backup_file);
@@ -288,7 +288,7 @@ VOID main (int argc, char *argv[])
                                            InfoSizeLow,
                                            InfoSizeHigh))
    {
-      print_api_error (err);
+      PRINTERROR (err,"NSFBackupStartApplyChangeInfo");
       OSUnlockObject(hBuffer);
       OSMemFree(hBuffer);
       SysFileDelete(backup_file);
@@ -309,7 +309,7 @@ VOID main (int argc, char *argv[])
                                            BUFFER_SIZE,
                                            &FilledSize))
       {
-         print_api_error (err);
+         PRINTERROR (err,"NSFBackupGetNextChangeInfo");
          NSFBackupEndApplyChangeInfo(ApplyInfoContext, APPLYEND_ABORT);
          OSUnlockObject(hBuffer);
          OSMemFree(hBuffer);
@@ -326,7 +326,7 @@ VOID main (int argc, char *argv[])
                                              Buffer,
                                              FilledSize))
       {
-         print_api_error (err);
+         PRINTERROR (err,"NSFBackupApplyNextChangeInfo");
          NSFBackupEndApplyChangeInfo(ApplyInfoContext, APPLYEND_ABORT);
          OSUnlockObject(hBuffer);
          OSMemFree(hBuffer);

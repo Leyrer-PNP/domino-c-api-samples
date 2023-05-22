@@ -86,7 +86,7 @@ extern "C" {
 #include <lapicinc.h>
 #endif
 
-	#if !defined(ND64) 
+#if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
 
