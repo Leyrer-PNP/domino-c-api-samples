@@ -425,10 +425,10 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
 
         while (BUPath[0] != '\0')
         {
-			PRINTLOG("\n Backup file recovered.\n");
-			sprintf(EventString, "Backup file %s recovery complete", BUPath);
-			EventLog(LogFD, EventString);
-			BUPath += strlen(BUPath) + 1;
+            PRINTLOG("\n Backup file recovered.\n");
+            sprintf(EventString, "Backup file %s recovery complete", BUPath);
+            EventLog(LogFD, EventString);
+            BUPath += strlen(BUPath) + 1;
         }
     }
     else
@@ -438,11 +438,11 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
             errindex++;
             if(errindex ==index)
             {
-				PRINTLOG("\nError recovering backup file %s\n", BUPath);
-				sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
-				BUPath,
-				print_api_error(err));
-				EventLog(LogFD, EventString);
+                PRINTLOG("\nError recovering backup file %s\n", BUPath);
+                sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
+                BUPath,
+                print_api_error(err));
+                EventLog(LogFD, EventString);
             }
             BUPath += strlen(BUPath) + 1;
         }
