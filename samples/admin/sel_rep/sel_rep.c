@@ -158,9 +158,9 @@ if (sError = NotesInitExtended (argc, argv))
                 szFileName,
                 szFullPathName))
     {
-	    PRINTERROR (sError,"OSPathNetConstruct");  
-		NotesTerm();
-		return (1);
+        PRINTERROR (sError,"OSPathNetConstruct");  
+        NotesTerm();
+        return (1);
     }
  
 /*
@@ -168,11 +168,11 @@ if (sError = NotesInitExtended (argc, argv))
  */
 
     if (sError = NSFDbOpen(szFullPathName, &hOrigDB))
-	{
-	    PRINTERROR (sError,"NSFDbOpen");  
-		NotesTerm();
-		return (1);
-	}
+    {
+        PRINTERROR (sError,"NSFDbOpen");  
+        NotesTerm();
+        return (1);
+    }
 
     PRINTLOG ("\nCreating replica database.\n");
 
@@ -186,17 +186,17 @@ if (sError = NotesInitExtended (argc, argv))
 
     {
         NSFDbClose(hOrigDB);
-	    PRINTERROR (sError,"NSFDbCreate");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbCreate");  
+        NotesTerm();
+        return (1);
     }
 
     if (sError = NSFDbOpen(szFileName, &hDB))
     {
         NSFDbClose(hOrigDB);
-	    PRINTERROR (sError,"NSFDbOpen");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbOpen");  
+        NotesTerm();
+        return (1);
     }
 
 
@@ -210,9 +210,9 @@ if (sError = NotesInitExtended (argc, argv))
     {
         NSFDbClose (hOrigDB);
         NSFDbClose (hDB);
-	    PRINTERROR (sError,"NSFDbReplicaInfoGet");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbReplicaInfoGet");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -312,9 +312,9 @@ if (sError = NotesInitExtended (argc, argv))
     if (sError = NSFNoteCreate(hDB, &hNote))
     {
          NSFDbClose(hDB);            /* Close database            */
-	     PRINTERROR (sError,"NSFNoteCreate");  
-	     NotesTerm();
-	     return (1);
+         PRINTERROR (sError,"NSFNoteCreate");  
+         NotesTerm();
+         return (1);
     }
 
 /*
@@ -343,9 +343,9 @@ if (sError = NotesInitExtended (argc, argv))
                                MAXUSERNAME+1, &retUserNameLen))
     {
         NSFDbClose(hDB);            /* Close database            */
-	    PRINTERROR (sError,"REGGetIDInfo");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"REGGetIDInfo");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -358,9 +358,9 @@ if (sError = NotesInitExtended (argc, argv))
                                 MAXWORD))
     {
         NSFDbClose(hDB);            /* Close database            */
-	    PRINTERROR (sError,"NSFItemSetText");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFItemSetText");  
+        NotesTerm();
+        return (1);
     }
 
     
@@ -374,9 +374,9 @@ if (sError = NotesInitExtended (argc, argv))
                                 MAXWORD))
     {
         NSFDbClose(hDB);            /* Close database            */
-	    PRINTERROR (sError,"NSFItemSetText");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFItemSetText");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -387,11 +387,11 @@ if (sError = NotesInitExtended (argc, argv))
  */
 
     if (sError = OSMemAlloc (0, wTextBufferLength, &hMem))
-	{
-		PRINTERROR (sError,"OSMemAlloc");  
-		NotesTerm();
-		return (FALSE);
-	}
+    {
+        PRINTERROR (sError,"OSMemAlloc");  
+        NotesTerm();
+        return (FALSE);
+    }
 
    
 /*
@@ -400,9 +400,9 @@ if (sError = NotesInitExtended (argc, argv))
     
     if ((pBuffer = (BYTE*)OSLockObject(hMem)) == NULL)
     {
-	   OSMemFree (hMem);
-	   NotesTerm();
-	   return (FALSE);
+        OSMemFree (hMem);
+        NotesTerm();
+        return (FALSE);
     }
 
 /*

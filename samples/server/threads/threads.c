@@ -298,8 +298,8 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 
          /* let's sleep until at least one thread starts */
 
-         while (semaphore == 0)
-                SLEEP(1000L);
+    while (semaphore == 0)
+        SLEEP(1000L);
 
 
       /*

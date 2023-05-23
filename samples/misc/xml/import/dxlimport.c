@@ -73,12 +73,12 @@
 
 int main(int argc, char *argv[])
 {
-    STATUS		error =  NOERROR;
+	STATUS		error =  NOERROR;
 	struct		ImportOptions	impOptions;
 	DBHANDLE	hDB;
 
-	char       pname[MAXPATH] = "";         /* buffer to store the input path to database */
-	char       *path_name;					/* pathname of database */
+	char		pname[MAXPATH] = "";         /* buffer to store the input path to database */
+	char		*path_name;					/* pathname of database */
 	
 
 	if (error = NotesInitExtended (argc, argv))
@@ -103,13 +103,13 @@ int main(int argc, char *argv[])
 
 	path_name = impOptions.fileDatabase;		/* Assign Database to Import */
 
-	if (impOptions.serverName != NULL)			/* Check to see if user supplied a servername */
+    if (impOptions.serverName != NULL)			/* Check to see if user supplied a servername */
     {
-		if (error = OSPathNetConstruct( NULL, impOptions.serverName, impOptions.fileDatabase, pname))
+        if (error = OSPathNetConstruct( NULL, impOptions.serverName, impOptions.fileDatabase, pname))
         {
              PrintAPIError(error);
-			 NotesTerm();
-			 return(1);
+             NotesTerm();
+             return(1);
         }
         path_name = pname;
     }
@@ -155,15 +155,15 @@ int main(int argc, char *argv[])
 *************************************************************************/
 STATUS LNPUBLIC ImportXMLData( DBHANDLE hDB, struct ImportOptions *impOptions)
 {
-	STATUS					error = NOERROR;
+	STATUS				error = NOERROR;
 	DXL_IMPORT_PROPERTY		propValue;			/* DXL Import Property Values */
 	DXLLOGOPTION			logAction;			/* DXL Log Option Values */
-	Xml_Validation_Option	valOption;			/* XML Validation Options */
+	Xml_Validation_Option		valOption;			/* XML Validation Options */
 	DXLIMPORTHANDLE			hDXLImport;			/* DXL Import Handle */
 	DXLIMPORTOPTION			setGetValue;		/* DXL Import Option Values */
-	MEMHANDLE				hMem;				/* Memory Handle needed to view the log for any errors */
-	char					*pData;				/* Pointer to log information if any */
-	struct ImportContext	impCtx;				/* Information needed to pass to the reader function */
+	MEMHANDLE			hMem;			/* Memory Handle needed to view the log for any errors */
+	char				*pData;			/* Pointer to log information if any */
+	struct ImportContext		impCtx;		/* Information needed to pass to the reader function */
 	
 	/* Assign the DXLIMPORTHANDLE for this Import Session */
 	if(error = DXLCreateImporter (&hDXLImport))
@@ -340,7 +340,7 @@ DWORD LNCALLBACK DXLReaderFunc(unsigned char *pBuffer, const DWORD MaxToRead, vo
 {
 	DWORD bytesReturned = 0;
 	DWORD numread = 0;
-    DWORD bytesToCopy = 0;
+	DWORD bytesToCopy = 0;
     
 	struct ImportContext *tmpCtx = (struct ImportContext*)impCtx;
 

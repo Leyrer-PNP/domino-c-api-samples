@@ -57,18 +57,18 @@ int main(int argc, char *argv[])
 {
     LDAP          *ld;
     char          *dn, *ndn, *nrdn;
-    int		      i;
-    int		      rc;
-    LDAPMod	      **mods;
+    int          i;
+    int          rc;
+    LDAPMod          **mods;
 
     char          *a, *sdn;
     char          **vals;
-    int           j;
-    LDAPMessage   *result, *e;
-    BerElement    *ber;
+    int          j;
+    LDAPMessage          *result, *e;
+    BerElement          *ber;
 	
     char          *compAttribute, *compValue;
-    struct        berval bvalue;
+    struct          berval bvalue;
 
     /* Values used in creating the entry */
     char *objectclass_values[] = { "top", "person", "organizationalPerson",
@@ -329,10 +329,10 @@ free_mods( LDAPMod **mods )
 
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                         char *HOST, 
-                         char *SEARCHBASE, 
-                         char *DN,
-                         char *PASSWORD)
+                             char *HOST, 
+                             char *SEARCHBASE, 
+                             char *DN,
+                             char *PASSWORD)
 { 
 	if (argc != 5)
     {       

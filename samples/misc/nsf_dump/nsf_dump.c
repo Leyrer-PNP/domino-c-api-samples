@@ -141,14 +141,14 @@ static  struct
 }   NoteClassTable[NUM_NOTE_CLASSES] =
     {
       NOTE_CLASS_DOCUMENT,                 szNOTE_CLASS_DOCUMENT,     0,
-      NOTE_CLASS_INFO,                             szNOTE_CLASS_INFO,       0,
-      NOTE_CLASS_FORM,                             szNOTE_CLASS_FORM,       0,
-      NOTE_CLASS_VIEW,                             szNOTE_CLASS_VIEW,       0,
-      NOTE_CLASS_ICON,                             szNOTE_CLASS_ICON,       0,
+      NOTE_CLASS_INFO,                     szNOTE_CLASS_INFO,         0,
+      NOTE_CLASS_FORM,                     szNOTE_CLASS_FORM,         0,
+      NOTE_CLASS_VIEW,                     szNOTE_CLASS_VIEW,         0,
+      NOTE_CLASS_ICON,                     szNOTE_CLASS_ICON,         0,
       NOTE_CLASS_DESIGN,                   szNOTE_CLASS_DESIGN,       0,
-      NOTE_CLASS_ACL,                              szNOTE_CLASS_ACL,        0,
+      NOTE_CLASS_ACL,                      szNOTE_CLASS_ACL,          0,
       NOTE_CLASS_HELP_INDEX,               szNOTE_CLASS_HELP_INDEX,   0,
-      NOTE_CLASS_HELP,                             szNOTE_CLASS_HELP,       0,
+      NOTE_CLASS_HELP,                     szNOTE_CLASS_HELP,         0,
       NOTE_CLASS_FILTER,                   szNOTE_CLASS_FILTER,       0,
       NOTE_CLASS_FIELD,                    szNOTE_CLASS_FIELD,        0,
       NOTE_CLASS_REPLFORMULA,              szNOTE_CLASS_REPLFORMULA,  0,
@@ -236,8 +236,7 @@ int main(int argc, char *argv[])
                              DumpOneNote,
                              NULL, NULL ))
       {
-        fprintf( stderr,
-             "Error encountered searching for design notes.\n" );
+       fprintf( stderr,"Error encountered searching for design notes.\n" );
        PRINTERROR (Error,"NSFSearch");
        NotesTerm();
        return (1);

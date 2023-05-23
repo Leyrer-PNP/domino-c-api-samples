@@ -60,26 +60,26 @@ int main(int argc, char *argv[])
 {
 	/* Local data declarations */
 
-	char		pname[MAXPATH] = "";         /* buffer to store the input path to database */
-	char		*path_name;                  /* pathname of database */
-	char		*server_name;                /* server name where database lives*/
-	char		*db_name;                    /* name of database */
+	char			pname[MAXPATH] = "";         /* buffer to store the input path to database */
+	char			*path_name;                  /* pathname of database */
+	char			*server_name;                /* server name where database lives*/
+	char			*db_name;                    /* name of database */
 	int			ArgNum = 0;
 	int			i = 0;	
 
 	DBHANDLE		hDB;
 	STATUS			error = NOERROR;
 
-	char			*UNIDTable,			*NoteIDTable;
+	char			*UNIDTable,		*NoteIDTable;
 	NOTEID			ID;
 
 	DHANDLE			hNoteIDTable,		hUNIDTable;
 	DHANDLE			hIDTable;
-	DHANDLE			hInfoTable,			hInfoTableByUNID;
-	DWORD			InfoTableLength,	InfoTableLengthByUNID;
-	char			*InfoTable,			*InfoTableByUNID;
+	DHANDLE			hInfoTable,		hInfoTableByUNID;
+	DWORD			InfoTableLength,		InfoTableLengthByUNID;
+	char			*InfoTable,		*InfoTableByUNID;
 	NOTEID			id[MaxNoteNum],		idByUNID[MaxNoteNum];
-	OID				oid[MaxNoteNum],	oidByUNID[MaxNoteNum];
+	OID			oid[MaxNoteNum],		oidByUNID[MaxNoteNum];
 	BOOL			First;
 	NOTEHANDLE              noteHandle;
 	BOOL                    bFieldFound;

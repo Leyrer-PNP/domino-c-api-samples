@@ -94,11 +94,11 @@ int main(int argc, char *argv[])
     short       NoteFound;      /* indicates whether a data note exists */
     NOTEID      FirstNoteID;    /* note id of first data note */
 
-if (nErr = NotesInitExtended (argc, argv))
- {
-     PRINTLOG("\n Unable to initialize Notes.\n");
-     return (1);
- }
+    if (nErr = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
     
    /* Open the database. */
     if ( (nErr = NSFDbOpen (DBNAME, &hDB)) != NOERROR )

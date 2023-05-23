@@ -165,8 +165,8 @@ int main(int argc, char *argv[])
    if (argc < 3 || argc > 7)
    {
        PrintUsage();
-         NotesTerm();
-         return (0);
+       NotesTerm();
+       return (0);
    }
 
    /* Get OS information for string parsing */
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
       {
          PrintUsage();
          NotesTerm();
-           return (0);
+         return (0);
       }
       switch (temp_str[1])
       {
@@ -1139,7 +1139,7 @@ Exit:   /* ERROR HANDLING */
    }
    PRINTERROR(error,"IDDestroyTable");
    NotesTerm();
-    return(1);
+   return(1);
 }
 
 BOOL LNPUBLIC IDScanBackTest(DHANDLE* hTable, DWORD id)

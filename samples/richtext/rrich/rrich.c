@@ -72,24 +72,24 @@ int main(int argc, char *argv[])
     db_filename = argv[1];
 
   Start by calling Notes Init.  */
-db_filename="richtext.nsf";
+    db_filename="richtext.nsf";
 
-	 error = NotesInitExtended (argc, argv);
-	 if (error)
-	 {
+    error = NotesInitExtended (argc, argv);
+    if (error)
+    {
 		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
-	 }
+    }
 
 /* Open the database. */
 
     if (error = NSFDbOpen (db_filename, &db_handle))
-	 {
+    {
 		 PRINTLOG ("Error: unable to open database '%s'.\n", db_filename);
 		 PRINTERROR(error,"NSFDbOpen");
 		 NotesTerm();
 		 return(1);
-	 }
+    }
 
 /* Write an ASCII selection formula. */
 
@@ -212,7 +212,7 @@ but is shown here in case a starting date was used in the search. */
 /* Print the note ID. */
 
     PRINTLOG ("\n\n       ************* Note ID is: %lX. *************\n",
-        SearchMatch.ID.NoteID);
+    SearchMatch.ID.NoteID);
 
 /* Open the note. */
 

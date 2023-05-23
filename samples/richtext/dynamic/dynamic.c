@@ -80,11 +80,11 @@ int main(int argc, char *argv[])
     STATUS          error = NOERROR;  /* return code from API calls */
 
     
-	if (error = NotesInitExtended (argc, argv))
-	{
+    if (error = NotesInitExtended (argc, argv))
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	 }
+    }
 
 
     /* Open the database. */

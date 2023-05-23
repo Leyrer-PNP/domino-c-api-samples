@@ -84,17 +84,15 @@ int main(int argc, char *argv[])
     char       	pname[MAXPATH] = "";         /* buffer to store the input path to database */
     DBHANDLE   	db_handle = NULLHANDLE;		 /* database handle */
     STATUS     	error = NOERROR;             /* error code from API calls */
-	IMPORTCONTEXT Ctx;
-	char achInFileName[MAXPATH+1];
-	NOTEHANDLE hNote = NULLHANDLE;
-	HARCHIVEDOCUMENT hDoc = NULLHANDLE;
+    IMPORTCONTEXT Ctx;
+    char achInFileName[MAXPATH+1];
+    NOTEHANDLE hNote = NULLHANDLE;
+    HARCHIVEDOCUMENT hDoc = NULLHANDLE;
 
+    memset(&Ctx, 0, sizeof(IMPORTCONTEXT));
 
-	memset(&Ctx, 0, sizeof(IMPORTCONTEXT));
-
-
-	error = NotesInitExtended (argc, argv);
-	if (error)
+    error = NotesInitExtended (argc, argv);
+    if (error)
     {
       fprintf (stderr, "\nError initializing Notes.\n");
       return (1);
@@ -263,7 +261,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileNa
 
 /************************************************************************
 
-	CALLBACK:   NoteImportCallback
+    CALLBACK:   NoteImportCallback
 
     PURPOSE:    This is the callback that ArchiveDocumentImport uses to retrieve 
 				data from the note.
@@ -290,7 +288,7 @@ DWORD far PASCAL NoteImportCallback
 
 /************************************************************************
 
-	CALLBACK:   AttachImportCallback
+    CALLBACK:   AttachImportCallback
 
     PURPOSE:    This is the callback that ArchiveRestoreDocument uses to retrieve 
 				data from attachment.

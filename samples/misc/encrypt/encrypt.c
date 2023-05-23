@@ -484,8 +484,8 @@ STATUS DecryptAndReadNoteItem (DBHANDLE hDB, NOTEID dwNoteID, char *ItemName)
    STATUS     error;           /* return code from API calls */
    FLAG       fSealed;         /* Is not encrypted? */
    BOOL       FieldFound;
-    WORD          len;
-    char          ItemText[500];
+   WORD          len;
+   char          ItemText[500];
 
 
    if (error = NSFNoteOpen (

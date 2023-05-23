@@ -156,7 +156,7 @@ long CHatchWindow::HandleHatchPaint (
 long CHatchWindow::HandleHatchEscapeKey (
 	HWND		hWnd,
 	UINT		message,
-    WPARAM		wParam,
+	WPARAM		wParam,
 	LPARAM		lParam,
 	HWND		hParent
 ) {

@@ -95,19 +95,19 @@ int main(int argc, char *argv[])
 /* Get the command line parameters that the user entered. */
     ProcessArgs(argc, argv, server, directory);
 	
-	 if (strcmp(directory, "\"\""))
-	     strcpy(full_netpath, directory);
+    if (strcmp(directory, "\"\""))
+      strcpy(full_netpath, directory);
 
-	 error = NotesInitExtended (argc, argv);
+    error = NotesInitExtended (argc, argv);
 
-	 if (error)
-	 {
-	   fprintf (stderr, "\nError initializing Notes.\n");
-	   return (1);
-	 }
+    if (error)
+    {
+       fprintf (stderr, "\nError initializing Notes.\n");
+       return (1);
+    }
 
-	 if (strcmp (server, "\"\""))
-	 {
+    if (strcmp (server, "\"\""))
+    {
 
 /* Compose the full network pathname to the directory. */
 
@@ -115,11 +115,11 @@ int main(int argc, char *argv[])
                                        server,
                                        directory,
                                        full_netpath))
-	     {
-		      PRINTERROR (error,"OSPathNetConstruct");
-		      NotesTerm();
-		      return (1);
-	     }
+        {
+           PRINTERROR (error,"OSPathNetConstruct");
+           NotesTerm();
+           return (1);
+        }
 
     }
 
@@ -216,7 +216,7 @@ but is shown here in case a starting date was used in the search. */
 summary buffer. */
 
     if (error = print_file_summary (summary_info))
-		 return(error);
+        return(error);
 
 /* End of subroutine. */
 
@@ -298,11 +298,11 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 
 /* Check boundary of the array */
 
-	 if (item_count > MAX_ITEMS)
-	 {
-		 PRINTLOG("ERROR: Number of items has exceeded boundary of defined array.\n");
-		 return (0);
-	 }
+    if (item_count > MAX_ITEMS)
+    {
+        PRINTLOG("ERROR: Number of items has exceeded boundary of defined array.\n");
+        return (0);
+    }
 
 /* Advance the buffer pointer over the header. */
 
@@ -340,8 +340,8 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 form. The way in which we extract the item depends on its type.
 This program handles TEXT, NUMBER, and TIME. */
 
-        switch (datatype)
-        {
+    switch (datatype)
+    {
 
 /* Extract a text item from the summary. */
 

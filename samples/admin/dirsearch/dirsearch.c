@@ -114,11 +114,11 @@ int main(int argc, char *argv[])
 	error = NotesInitExtended (argc, argv);
 	
 	if (error)
-    {
-      fprintf (stderr, "\nError initializing Notes.\n");
-	  NotesTerm();
-      return (1);
-    }
+	{
+	fprintf (stderr, "\nError initializing Notes.\n");
+	NotesTerm();
+	return (1);
+	}
 
 	if (processArgs (argc, (const char * const *)argv, &args))
 	{

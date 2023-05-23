@@ -283,7 +283,7 @@ void    LNPUBLIC  DumpQueryTextterm (
 ) {
     char far *		p = RecordPtr;
     CDQUERYTEXTTERM	QTextTermRec;
-	int				index;
+    int				index;
 
     fprintf (dumpfile, "  CDQUERYTEXTTERM\n");
 
@@ -334,7 +334,7 @@ void    LNPUBLIC  DumpQueryByfield (
 ) {
     char far *		p = RecordPtr;
     CDQUERYBYFIELD	QByFieldRec;
-	char *			pName;
+    char *			pName;
     char			szTimedate[MAXALPHATIMEDATE+1];
     double			Number;
 
@@ -510,7 +510,7 @@ void    LNPUBLIC  DumpQueryByform (
 ) {
     char *			p = RecordPtr;
     CDQUERYBYFORM	QByFormRec;
-	WORD			index;
+    WORD			index;
 
     fprintf (dumpfile, "  CDQUERYBYFORM\n");
 
@@ -1439,7 +1439,7 @@ void    LNPUBLIC  DumpActionJavaAgent (
 
 /************************************************************************
 
-    FUNCTION:   PickApartTime
+	FUNCTION:   PickApartTime
 
 	PURPOSE:	Divide a time value into hours, minutes, seconds, and
 				milliseconds (NOT ticks!!)

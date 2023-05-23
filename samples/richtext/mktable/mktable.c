@@ -86,11 +86,11 @@ int main(int argc, char *argv[])
     void  *pre_conversion_pabdef_ptr;            /* pointer for the data format conversion memory allocation */
     int table_num;
 
-	if (error = NotesInitExtended (argc, argv))
-	{
+    if (error = NotesInitExtended (argc, argv))
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
     db_name = (char *) malloc(LINEOTEXT);
     if (db_name == NULL)

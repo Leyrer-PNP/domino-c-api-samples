@@ -84,22 +84,22 @@ int main(int argc, char *argv[])
 
     /*   Start by calling Notes Init.  */
 
-	 error = NotesInitExtended (argc, argv);
-	 if (error)
-	 {
+    error = NotesInitExtended (argc, argv);
+    if (error)
+    {
 		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
-	 }
+    }
 
     /*  Open the database. */
 
     if (error = NSFDbOpen( szDBName, &hDB ))
-	 {
+    {
 		 PRINTLOG ("Error: unable to open database '%s'.\n", szDBName);
 		 PRINTERROR(error,"NSFDbOpen");
 		 NotesTerm();
 		 return(1);
-	 }
+    }
 
     /*  Create ID table then call to NSFSearch.  NSFSearch will find
         all data notes and call the action routine, AddIDUnique, on each.
@@ -142,12 +142,12 @@ int main(int argc, char *argv[])
                              ProcessOneNote, /* called for each ID */
                              &hDB ))         /* arg passed to func */
     {
-        PRINTLOG( "Error: unable to enumerate documents in ID table.\n" );
-        IDDestroyTable( hNoteIDTable );
-        NSFDbClose( hDB );
-        PRINTERROR(error,"IDEnumerate");
-        NotesTerm();
-        return(1);
+		 PRINTLOG( "Error: unable to enumerate documents in ID table.\n" );
+		 IDDestroyTable( hNoteIDTable );
+		 NSFDbClose( hDB );
+		 PRINTERROR(error,"IDEnumerate");
+		 NotesTerm();
+		 return(1);
     }
 
     if (error =IDDestroyTable( hNoteIDTable ))

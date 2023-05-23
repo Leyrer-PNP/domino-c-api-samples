@@ -53,8 +53,8 @@ void
                 0,
                 &hHandler);
 
-        if (NOERROR != status)
-        {
+    if (NOERROR != status)
+     {
 #if defined (NT)
                 wsprintf (msgBuf, "Could not register extension handler - status: 0x%lX",
                         status);
@@ -63,9 +63,9 @@ void
                         status);
 #endif
                 ExtDisplayMessageBox (msgBuf, "ExtMgr Password");
-        }
+    }
 
-        return (status);
+    return (status);
 }
 
 /* Deregister extensions */

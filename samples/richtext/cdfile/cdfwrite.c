@@ -81,11 +81,11 @@ int main(int argc, char *argv[])
 
     szCDFileName = CD_FILENAME;
 
-	if (nErr = NotesInitExtended (argc, argv))
-	{
+    if (nErr = NotesInitExtended (argc, argv))
+    {
 		PRINTLOG("\n Unable to initialize Notes.\n");
 		return (1);
-	}
+    }
 
 
     /* process command line arguments or prompt user for arguments */

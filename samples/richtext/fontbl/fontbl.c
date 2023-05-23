@@ -127,11 +127,11 @@ int main(int argc, char *argv[])
    char FAR  *pCDBufferStart;
    DHANDLE hMem;
 
-	if (error = NotesInitExtended (argc, argv))
-	{
+    if (error = NotesInitExtended (argc, argv))
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
 
 /* Get the pathname of the database. */

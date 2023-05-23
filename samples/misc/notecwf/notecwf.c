@@ -84,20 +84,20 @@ int main(int argc, char *argv[])
 
     STATUS  error=0;        /* return code from API calls */
 
-	 error = NotesInitExtended (argc, argv);
-	 if (error)
-	 {
-		 PRINTLOG("Error: Unable to initialize Notes.\n");
-		 return (1);
-	 }
+    error = NotesInitExtended (argc, argv);
+    if (error)
+    {
+        PRINTLOG("Error: Unable to initialize Notes.\n");
+        return (1);
+    }
 
 /* Get the pathname of the database (Compute.nsf). */
     path_name = (char *) malloc(IO_LENGTH);
     if (path_name == NULL)
        {
         PRINTLOG("Error: Out of memory.\n");
-		  NotesTerm();
-		  return (0);
+        NotesTerm();
+        return (0);
        }
 
     if (argc != 2 && argc != 4)
@@ -112,21 +112,21 @@ int main(int argc, char *argv[])
 /* Open the database. */
     if (error = NSFDbOpen (path_name, &db_handle))
     {
-		 PRINTERROR(error,"NSFDbOpen");
-		 NotesTerm();
-		 return(1);
-	 }
+        PRINTERROR(error,"NSFDbOpen");
+        NotesTerm();
+        return(1);
+    }
 
 /* Finished with database name. */
     free(path_name);
 
     /* Create a note and add all input data to it. */
-        if (error = NSFNoteCreate (db_handle, &note_handle))
+    if (error = NSFNoteCreate (db_handle, &note_handle))
     {
-		  PRINTERROR(error,"NSFNoteCreate");
-		  NSFDbClose (db_handle);
-		  NotesTerm();
-		  return(1);
+        PRINTERROR(error,"NSFNoteCreate");
+        NSFDbClose (db_handle);
+        NotesTerm();
+        return(1);
     }
 
     /* process command line arguments or prompt for user input */
@@ -176,13 +176,13 @@ Item_Error:
 	 NotesTerm();
 
     if (error)
-	 {
-	     PRINTERROR(error,"NSFNoteUpdate");
-	     return(1);
-	 }
+    {
+        PRINTERROR(error,"NSFNoteUpdate");
+        return(1);
+    }
 
-	 PRINTLOG("\nProgram completed successfully.\n");
-	 return(0);
+    PRINTLOG("\nProgram completed successfully.\n");
+    return(0);
 
 }
 

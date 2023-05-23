@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
     /* Check arguments */
 		
-	 if (argc != 4 && argc != 5)
+    if (argc != 4 && argc != 5)
     {
         PRINTLOG("\nThe proper syntax is: \n\tIMPORTER.EXE <NSF Filename>");
         PRINTLOG(" <Import/Export DLL Path> <Import File Path> \n");
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 
 Done:
     NotesTerm();
-	 return (1);        /* Return Domino and Notes error code.  */
+    return (1);        /* Return Domino and Notes error code.  */
 }
 
 /************************************************************************
@@ -354,7 +354,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
 
 Done:
     /* Free the DLL and return */
-	OSFreeLibrary(hmod);
+    OSFreeLibrary(hmod);
     return error;
 }
 
@@ -409,7 +409,7 @@ STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
 	
 	fseek (pCDFile, 0L, SEEK_END);
 	CDFileLength = (DWORD) ftell(pCDFile);
-    fseek (pCDFile, 0L, SEEK_SET);
+	fseek (pCDFile, 0L, SEEK_SET);
 	
 	/* In this example imports must be < MAXONESGESIZE; error otherwise. */
 

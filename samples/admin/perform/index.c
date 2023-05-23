@@ -28,9 +28,6 @@
 #include <osmisc.h>
 #include <printLog.h>
 
-/* Local function prototypes */
-void PrintAPIError (STATUS);
-
 /* Notes API subroutine */
 
 int main (int argc, char *argv[])
@@ -113,7 +110,7 @@ Done2:
 Done1:
    if (error)
    {
-      PrintAPIError(error);
+      PRINTERROR(error,"NIFOpenCollection");
       NotesTerm();
       return(1);
    }
@@ -132,30 +129,5 @@ Done1:
 
    NotesTerm();
    return(0);
-}
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
 }
 

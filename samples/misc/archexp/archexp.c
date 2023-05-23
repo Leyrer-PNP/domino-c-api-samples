@@ -51,12 +51,12 @@ BOOL  LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteI
 
 STATUS far PASCAL NoteInitCallback(NOTEHANDLE hNote, STATUS retError, void *pUserCtx );
 STATUS far PASCAL AttachInitCallback(const char *szFileName, 
-									 DWORD dwFlags,
-									 DWORD dwDupIdx, 
-									 STATUS retError,
-									 void *pUserCtx, 
-									 DWORD dwUnused, 
-									const BYTE* pUnused);
+				 DWORD dwFlags,
+				 DWORD dwDupIdx, 
+				 STATUS retError,
+				 void *pUserCtx, 
+				 DWORD dwUnused, 
+				 const BYTE* pUnused);
 STATUS far PASCAL AttachOutputCallback(const BYTE *Buffer, DWORD BufferSize, BOOL bLastBuffer,  STATUS retError,void *pUserCtx );
 STATUS far PASCAL ArchiveDocumentCallback(HARCHIVEDOCUMENT hDoc, void *pUserCtx);
 
@@ -81,13 +81,13 @@ int main(int argc, char *argv[])
 {
     /* Local data declarations */
 
-    char       	pname[MAXPATH] = "";         /* buffer to store the input path to database */
-    DBHANDLE   	db_handle = NULLHANDLE;      /* database handle */
-    STATUS     	error = NOERROR;             /* error code from API calls */
-	NOTEID 	    NoteID;
-	DHANDLE		hIDTable = NULLHANDLE;
-	EXPORTCONTEXT Ctx;
-	char        achOutFileName[MAXPATH+1];
+    char        pname[MAXPATH] = "";         /* buffer to store the input path to database */
+    DBHANDLE        db_handle = NULLHANDLE;      /* database handle */
+    STATUS        error = NOERROR;             /* error code from API calls */
+    NOTEID        NoteID;
+    DHANDLE        hIDTable = NULLHANDLE;
+    EXPORTCONTEXT          Ctx;
+    char        achOutFileName[MAXPATH+1];
 
 
 	memset(&Ctx, 0, sizeof(EXPORTCONTEXT));
@@ -146,13 +146,13 @@ int main(int argc, char *argv[])
 	*   callback functions described below */
 		
 	if(error = ArchiveExportDatabase(	db_handle, 
-											hIDTable, 
-											0, 
-											NoteInitCallback,
-											AttachInitCallback,
-											AttachOutputCallback,
-											ArchiveDocumentCallback,
-											NULL, &Ctx))
+				hIDTable, 
+				0, 
+				NoteInitCallback,
+				AttachInitCallback,
+				AttachOutputCallback,
+				ArchiveDocumentCallback,
+				NULL, &Ctx))
 		{
 		PRINTERROR(error,"ArchiveExportDatabase");
 	   	goto cleanup;	   
@@ -259,7 +259,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID
 
 /************************************************************************
 
-	CALLBACK:   NoteInitCallback
+    CALLBACK:   NoteInitCallback
 
     PURPOSE:    Make initialization of a note export.
 
@@ -274,7 +274,7 @@ STATUS far PASCAL NoteInitCallback(NOTEHANDLE hNote,STATUS retError, void *pUser
 	if(retError)
 	{
 		if(hNote)
-			NSFNoteClose(hNote);
+		NSFNoteClose(hNote);
 		Error= retError;
 		goto cleanup;
 	}
@@ -287,23 +287,23 @@ cleanup:
 
 /************************************************************************
 
-	CALLBACK:   AttachInitCallback
+    CALLBACK:   AttachInitCallback
 
     PURPOSE:    Make initialization of attachment data export, such as open 
 	            the attachment output file.
 
     DESCRIPTION:
-				Called by ArchiveExportDatabase when attachment data begin 
-				to be exported.
+		Called by ArchiveExportDatabase when attachment data begin 
+		to be exported.
 *************************************************************************/
 
 STATUS far PASCAL AttachInitCallback(const char *szFileName, 
-									 DWORD dwFlags, 
-									 DWORD dwDupIdx, 
-									 STATUS retError,
-									 void *pUserCtx,	
-									 DWORD dwUnused, 
-									const BYTE* pUnused)
+				 DWORD dwFlags, 
+				 DWORD dwDupIdx, 
+				 STATUS retError,
+				 void *pUserCtx,
+				 DWORD dwUnused, 
+				 const BYTE* pUnused)
 {
 	STATUS Error = NOERROR;
 	EXPORTCONTEXT *pCtx = (EXPORTCONTEXT *)pUserCtx;	
@@ -332,13 +332,13 @@ cleanup:
 
 /************************************************************************
 
-	CALLBACK:   AttachOutputCallback
+    CALLBACK:   AttachOutputCallback
 
     PURPOSE:    Export the attachment data.
 
     DESCRIPTION:
-				Called by ArchiveExportDatabase when attachment data is 
-				being exported.
+		Called by ArchiveExportDatabase when attachment data is 
+		being exported.
 *************************************************************************/
 
 STATUS far PASCAL AttachOutputCallback(const BYTE *Buffer, DWORD BufferSize, BOOL bLastBuffer,  STATUS retError,void *pUserCtx)
@@ -369,7 +369,7 @@ cleanup:
 
 /************************************************************************
 
-	CALLBACK:   ArchiveDocumentCallback
+    CALLBACK:   ArchiveDocumentCallback
 
     PURPOSE:    Export the document data.
 

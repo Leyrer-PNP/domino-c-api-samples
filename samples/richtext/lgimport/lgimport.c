@@ -134,18 +134,18 @@ int main(int argc, char *argv[])
     char    achTempName[MAXPATH];
     char    *szModPath, *szFilePath, *szNSFFile, *szDLL;
 
-    DHANDLE       hNewNote;
+    DHANDLE     hNewNote;
     DBHANDLE    hDbNSFFile;
     STATUS      usError=0;
 
     /*   Start by calling Notes Init.  */
 
-	 usError = NotesInitExtended (argc, argv);
-	 if (usError)
-	 {
+    usError = NotesInitExtended (argc, argv);
+    if (usError)
+    {
 		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
-	 }
+    }
 
     if (argc != 4 && argc != 5)
     {
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 
 Done:
     NotesTerm();
-	 return(1);
+    return(1);
 }
 
 

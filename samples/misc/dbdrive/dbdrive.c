@@ -518,15 +518,15 @@ char       *pString;               /* Pointer to help parse input from file.*/
 #if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
             OSTranslate (OS_TRANSLATE_NATIVE_TO_LMBCS, pString, wLenString, pText, (MAX_BUFF_LEN - dwBufLen));
 #else
-			memmove(pText,
-				pString,
-				wLenString);            /* Copy to TEXT_LIST buffer. */
+	memmove(pText,
+	pString,
+	wLenString);            /* Copy to TEXT_LIST buffer. */
 #endif /* OS390, ebcdic compile */
 
-			wStringCount++;     /* Increment count of strings in text list.*/
-			*((WORD *) pTempList) = (wLenString); /* Set size of this string. */
-			pTempList += sizeof(WORD);  /* Increment ptr to string lengths. */
-			pText +=(wLenString);       /* Increment ptr to strings. */
+	wStringCount++;     /* Increment count of strings in text list.*/
+	*((WORD *) pTempList) = (wLenString); /* Set size of this string. */
+	pTempList += sizeof(WORD);  /* Increment ptr to string lengths. */
+	pText +=(wLenString);       /* Increment ptr to strings. */
 	    }
   
 	/*
@@ -616,7 +616,7 @@ char       *pString;               /* Pointer to help parse input from file.*/
 		__FileSeek(pDBQ->pFile, 0L, SEEK_SET);
 		
 		/* Read line from file   */
-		while ( __ReadLine( String, MAX_STRING_LEN-1, pDBQ->pFile) )
+	    while ( __ReadLine( String, MAX_STRING_LEN-1, pDBQ->pFile) )
 	    {
 			pString = strchr(String, ',');
 			wLenString = (WORD)(pString - String);
@@ -746,7 +746,7 @@ BOOL       DbFound = FALSE;
      
 	    pTempDBQ->DbName = pFileName;
 
-    	pDBQ = pTempDBQ;
+	    pDBQ = pTempDBQ;
 
     /*
      *  If this is the first database in this session's queue,
@@ -756,14 +756,14 @@ BOOL       DbFound = FALSE;
      */
      
 	    if (pSessionQ->pDatabaseQ == (DBQUEUE *) NULL)
-    	{
+	    {
 	        pSessionQ->pDatabaseQ = pDBQ;
-    	}
+	    }
 	    else
-    	{
+	    {
 	        pDBQ2->Next = pDBQ;
 	        pDBQ->Prev = pDBQ2;
-    	}
+	    }
 	}
 	*pDatabaseQ = (DBQUEUE *)pDBQ;
 	return (NOERROR);
@@ -813,7 +813,7 @@ STATUS LNPUBLIC CloseDatabases(DBQUEUE *pDatabaseQ)
      
 		if (pDatabaseQ->Next)
 		{
-			pDatabaseQ = pDatabaseQ->Next;
+            pDatabaseQ = pDatabaseQ->Next;
             __FreeMemory(pTempDBQ);      /* free up old queue entry. */
 		}
 	}

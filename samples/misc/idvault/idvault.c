@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
     /* Local data declarations */
          
     STATUS     error = NOERROR;             /* error code from API calls */
-	KFHANDLE	hKFC = NULLKFHANDLE;
-	KFHANDLE	hKFC2 = NULLKFHANDLE;
-    DBHANDLE  hDB;
+    KFHANDLE   hKFC = NULLKFHANDLE;
+    KFHANDLE   hKFC2 = NULLKFHANDLE;
+    DBHANDLE   hDB;
 
 	char    *ServerName;
 	char    *DomainName;
@@ -121,9 +121,9 @@ int main(int argc, char *argv[])
 
     error = SECKFMOpen (&hKFC, UserS2ID, PASSWORD, SECKFM_open_All, 0, NULL);
 	if ( error ){
-		PRINTERROR (error,"SECKFMOpen");
-		NotesTerm();
-		return (1);
+        PRINTERROR (error,"SECKFMOpen");
+        NotesTerm();
+        return (1);
 
 	}
 	/* Put ID file using local file name and hKFC - only hKFC should be used */
@@ -147,9 +147,9 @@ int main(int argc, char *argv[])
 
     error = SECKFMOpen (&hKFC, UserS3ID, PASSWORD, SECKFM_open_All, 0, NULL);
 	if ( error ){
-		PRINTERROR (error,"SECKFMOpen");
-		NotesTerm();
-		return (1);
+        PRINTERROR (error,"SECKFMOpen");
+        NotesTerm();
+        return (1);
 
 	}
 	
@@ -164,9 +164,9 @@ int main(int argc, char *argv[])
 			   NULL);
 
 	if ( error ){
-		PRINTERROR (error,"SECidfPut");
-		NotesTerm();
-		return (1);
+        PRINTERROR (error,"SECidfPut");
+        NotesTerm();
+        return (1);
 
 	}
 
@@ -183,9 +183,9 @@ int main(int argc, char *argv[])
 			0,
 			NULL);
 	if ( error ){
-		PRINTERROR (error,"SECidfGet");
-		NotesTerm();
-		return (1);
+        PRINTERROR (error,"SECidfGet");
+        NotesTerm();
+        return (1);
 
 	}
 	PRINTLOG("Get id file to local file name and hKFC...OK\n");

@@ -61,12 +61,12 @@
 
 int main(int argc, char *argv[])
 {
-    STATUS		error =  NOERROR;
+	STATUS		error =  NOERROR;
 	struct		ExportOptions	expOptions;
 	DBHANDLE	hDB;
 
-	char       pname[MAXPATH] = "";         /* buffer to store the input path to database */
-	char       *path_name;					/* pathname of database */
+	char		pname[MAXPATH] = "";         /* buffer to store the input path to database */
+	char		*path_name;					/* pathname of database */
 
 
 	if (error = NotesInitExtended (argc, argv))
@@ -91,13 +91,13 @@ int main(int argc, char *argv[])
 
 	path_name = expOptions.fileDatabase;		/* Assign Database to Export */
 
-	if (expOptions.serverName != NULL)			/* Check to see if user supplied a servername */
+    if (expOptions.serverName != NULL)			/* Check to see if user supplied a servername */
     {
-		if (error = OSPathNetConstruct( NULL, expOptions.serverName, expOptions.fileDatabase, pname))
+        if (error = OSPathNetConstruct( NULL, expOptions.serverName, expOptions.fileDatabase, pname))
         {
              PrintAPIError(error);
-			 NotesTerm();
-			 return(1);
+             NotesTerm();
+             return(1);
         }
         path_name = pname;
     }
@@ -137,8 +137,8 @@ int main(int argc, char *argv[])
 		fclose(expOptions.pOutputFile);
     if (error == NOERROR)
       PRINTLOG("\nProgram completed successfully.\n");
-    NotesTerm();
-    return (0);
+      NotesTerm();
+      return (0);
 }
 
 /************************************************************************
@@ -152,9 +152,9 @@ int main(int argc, char *argv[])
 STATUS LNPUBLIC ExportData( struct ExportOptions *expOptions, DBHANDLE hDB )
 {
 
-	STATUS					error = NOERROR;
+	STATUS				error = NOERROR;
 	DXLEXPORTHANDLE			hDXLExport;			/* Handle need for all DXL Export functions */
-	NOTEHANDLE				noteHandle;			/* Handle of specific note going to export */
+	NOTEHANDLE			noteHandle;			/* Handle of specific note going to export */
 
 
 	/* Assign the DXLEXPORTHANDLE for this Export Session */
@@ -230,9 +230,9 @@ STATUS LNPUBLIC ExportData( struct ExportOptions *expOptions, DBHANDLE hDB )
 *************************************************************************/
 STATUS LNPUBLIC ExportSetofNotes( struct ExportOptions *expOptions, DBHANDLE hDB )
 {
-	STATUS				error = NOERROR;
+	STATUS			error = NOERROR;
 	DXLEXPORTHANDLE		hDXLExport;
-	DHANDLE				hNoteIDTable;   /* table of Note IDs to modify */
+	DHANDLE			hNoteIDTable;   /* table of Note IDs to modify */
 
 	/*
 	 * Need to set up an ID Table which will contain a list of Note IDs that are to be exported.
@@ -242,10 +242,10 @@ STATUS LNPUBLIC ExportSetofNotes( struct ExportOptions *expOptions, DBHANDLE hDB
 
 	/* 
 	 * Call NSFSearch to find the notes that match the note classes we would like to export. 
-     * For each note found, the routine AddIdUnique is called.
+	* For each note found, the routine AddIdUnique is called.
 	 */
 
-	if (error = NSFSearch (
+    if (error = NSFSearch (
        hDB,						/* database handle */
        NULLHANDLE,				/* selection formula */
        NULL,					/* title of view in selection formula */
@@ -314,11 +314,11 @@ STATUS LNPUBLIC ExportSetofNotes( struct ExportOptions *expOptions, DBHANDLE hDB
 *************************************************************************/
 STATUS LNPUBLIC SetExportOptions(DXLEXPORTHANDLE hDXLExport, struct ExportOptions *expOptions)
 {
-	STATUS					error = NOERROR;
+	STATUS				error = NOERROR;
 	DXL_EXPORT_PROPERTY		propValue;
-	BOOL					setGetValue;
+	BOOL				setGetValue;
 	DXL_RICHTEXT_OPTION		richOpt;
-	char					bannerComment[100];
+	char				bannerComment[100];
 
 	
 	/*
@@ -410,8 +410,8 @@ void LNCALLBACK CheckDXLErrorLog( DXLEXPORTHANDLE hDXLExport)
 {
 
 	DXL_EXPORT_PROPERTY		propValue;
-	MEMHANDLE				hMem;
-	char					*pData;
+	MEMHANDLE			hMem;
+	char				*pData;
 
 	if(DXLExportWasErrorLogged(hDXLExport))
 	{
@@ -441,7 +441,7 @@ STATUS LNPUBLIC AddIDUnique
             ITEM_TABLE far *summary_info)
 {
    SEARCH_MATCH SearchMatch;
-   DHANDLE        hNoteIDTable;
+   DHANDLE      hNoteIDTable;
    STATUS       error;
    BOOL         flagOK;
 

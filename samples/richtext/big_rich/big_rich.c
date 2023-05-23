@@ -127,17 +127,17 @@ int main (int argc, char *argv[])
     char       * szServerName;    /* name of HCL Domino Server where DB resides */
     char       * szDbPathName;    /* pathname of database, e.g. "big_rich" */
     char       szDirectory[MAX_SIZE];     /* directory containing ASCII files */
-    char	   * szFileName;      /* filename to be created*/
-    char	   szFilenamePath[MAX_SIZE];
+    char       * szFileName;      /* filename to be created*/
+    char       szFilenamePath[MAX_SIZE];
 	
 
     DBHANDLE     hDb;             /* handle to database specified */
     char         szFileSpec[MAXPATH]; /* filespec = path\*.txt */
 	
-	unsigned long   count, l_count, c_count;
-	int             hFile;
-	unsigned long   i;
-	char            line[LINE_LEN + 1];
+    unsigned long   count, l_count, c_count;
+    int             hFile;
+    unsigned long   i;
+    char            line[LINE_LEN + 1];
 
     USHORT       usFileCount;
     STATUS       error = NOERROR; /* return code from API calls */
@@ -279,8 +279,7 @@ int main (int argc, char *argv[])
 
     do
     {
-		if (error = ProcessOneFile (hDb, FileFindData.cFileName, szDirectory))
-
+        if (error = ProcessOneFile (hDb, FileFindData.cFileName, szDirectory))
         {
             goto Exit1;
         }

@@ -23,8 +23,6 @@ SYNTAX:		sharedirectory
 #include "oserr.h"
 #include "PRINTLOG.h"
 
-void PrintAPIError (STATUS);
-
 /* Program declaration. */
 int main(int argc, char *argv[])
 {
@@ -39,7 +37,7 @@ int main(int argc, char *argv[])
 
 	if (error != NOERROR)
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NotesInitExtended");
 		return (1);
 	}
 
@@ -59,30 +57,3 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
-/*************************************************************************
-
-    FUNCTION:  PrintAPIError
-
-    PURPOSE:   This function prints the error message 
-               associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-	STATUS  string_id = ERR(api_error);
-	char    szErrorText[256] = {0};
-	WORD    wtext_len = 0;
-
-	/* Get the message for this error code from the resource string table. */
-
-	wtext_len = OSLoadString (NULLHANDLE,
-		string_id,
-		szErrorText,
-		sizeof(szErrorText));
-
-	/* Print error message. */
-	fprintf (stderr, "\n%s.\n", szErrorText);
-
-}

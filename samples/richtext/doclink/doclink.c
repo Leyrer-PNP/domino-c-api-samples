@@ -105,12 +105,12 @@ int main(int argc, char *argv[])
 
     /*   Start by calling Notes Init.  */
 
-	 error = NotesInitExtended (argc, argv);
-	 if (error)
-	 {
+    error = NotesInitExtended (argc, argv);
+    if (error)
+    {
 		 PRINTLOG("Error: Unable to initialize Notes.\n");
 		 return (1);
-	 }
+    }
 
 
     /*
@@ -118,11 +118,11 @@ int main(int argc, char *argv[])
      */
 
     if (error = NSFDbOpen(szFileName1, &hDB))
-	 {
+    {
 		 PRINTERROR(error,"NSFDbOpen");
 		 NotesTerm();
 		 return(1);
-	 }
+    }
 
     /*
      * Get the NoteID of the view note
