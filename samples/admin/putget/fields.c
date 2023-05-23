@@ -753,14 +753,6 @@ are). */
 	return (ERR_NO_ERROR);
 }
 
-
-
-
-
-
-
-
-
 /* This function puts a rich text field into a note. It converts line
 feeds characters into nulls as it does so, since Domino and Notes represents line
 feeds with nulls. */

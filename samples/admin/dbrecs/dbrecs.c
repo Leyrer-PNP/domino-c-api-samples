@@ -198,8 +198,8 @@ VOID main (int argc, char *argv[])
       }
    }
 
-	if (!strcmp(RecOpt,"CHECK"))
-   {
+    if (!strcmp(RecOpt,"CHECK"))
+    {
 	   PRINTLOG("\n Checking file to see if new backup is needed ...\n");
 	   if (err = CheckDb(InFile))
 	   {
@@ -208,7 +208,7 @@ VOID main (int argc, char *argv[])
 		   NotesTerm();
 		   exit (EXIT_FAILURE);
 	   }
-   }
+    }
 
    if (!strcmp(RecOpt,"RECOVER") || !strcmp(RecOpt, "RESTORE") || !strcmp(RecOpt, "NOTE"))
    {
@@ -396,58 +396,58 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
       In this case the original DB will be deleted when it is taken
       offline then replaced with its recovered backup file. */
 
-	if(Rflags)
-	  Rflags = DBRECOVER_ZAP_ID;
+    if(Rflags)
+    Rflags = DBRECOVER_ZAP_ID;
 
-	if(RNoteInfo)
-	{
-		sprintf(EventString, "\nRecovering backup file %s with CallBack", BUPath);
+    if(RNoteInfo)
+    {
+      sprintf(EventString, "\nRecovering backup file %s with CallBack", BUPath);
       EventLog(LogFD, EventString);
       err = NSFRecoverDatabasesWithCallback(BUPath, MyCallback, Rflags, &index, NULL, NoteCallback, 0);
-	}
-	else
-	{
-		if (!Rflags)
-		   sprintf(EventString, "Recovering backup file %s", BUPath);
-		else
-		   sprintf(EventString, "\nRecovering backup file %s", BUPath);
+    }
+    else
+    {
+        if (!Rflags)
+            sprintf(EventString, "Recovering backup file %s", BUPath);
+        else
+            sprintf(EventString, "\nRecovering backup file %s", BUPath);
       EventLog(LogFD, EventString);
       err = NSFRecoverDatabases(BUPath, MyCallback, Rflags, &index, NULL);
 	}
 
-   if (!err)
-   {
+    if (!err)
+    {
 		/* Although this sample was designed to pass a 'list' containing
 		   only one database name via the BUPath parameter of
 		   NSFRecoverDatabases, the following loops are included to
 		   illustrate how to handle a 'list' containing multiple database
 		   names along with the required imbedded NULLs. */
 
-		while (BUPath[0] != '\0')
-		{
+        while (BUPath[0] != '\0')
+        {
 			PRINTLOG("\n Backup file recovered.\n");
 			sprintf(EventString, "Backup file %s recovery complete", BUPath);
 			EventLog(LogFD, EventString);
 			BUPath += strlen(BUPath) + 1;
-		}
-   }
-   else
-   {
-		while (BUPath[0] != '\0')
-		{
-		   errindex++;
-			if(errindex ==index)
-			{
+        }
+    }
+    else
+    {
+        while (BUPath[0] != '\0')
+        {
+            errindex++;
+            if(errindex ==index)
+            {
 				PRINTLOG("\nError recovering backup file %s\n", BUPath);
 				sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
 				BUPath,
 				print_api_error(err));
 				EventLog(LogFD, EventString);
-			}
-			BUPath += strlen(BUPath) + 1;
-		}
-   }
-   return err;
+            }
+            BUPath += strlen(BUPath) + 1;
+        }
+    }
+    return err;
 }
 
 STATUS TakeDbsOffline(char * DbPath)
