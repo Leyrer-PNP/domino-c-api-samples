@@ -15,11 +15,6 @@
  * limitations under the License.
  *
 
-	STATUS LNPUBLIC NSFDB2ReconnectNotesDatabase(
-					const char far *FullPath,
-					const char far *String1,
-					DWORD  nsfid,
-					DWORD  flags);
     PROGRAM:    nsfdb2recon
 
     FILE:       nsfdb2recon.c

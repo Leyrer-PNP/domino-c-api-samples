@@ -21,8 +21,8 @@
 
     PURPOSE:    This program demonstrates how to use below APIs,
                 NSFItemCopyAndRename,
-		        NSFItemModifyValue,
-		        NSFNoteHasReadersField
+                NSFItemModifyValue,
+                NSFNoteHasReadersField
                 
 
     SYNTAX:     itemmisc (db) ("view") 
