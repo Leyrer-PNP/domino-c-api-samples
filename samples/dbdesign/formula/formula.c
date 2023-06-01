@@ -58,7 +58,6 @@
     #define DHANDLE HANDLE 
 #endif
 
-
 /************************************************************************
 
     FUNCTION:   main 
@@ -75,54 +74,54 @@ int main(int argc, char *argv[])
 
 /*  Local data declarations */
 
-    char        path_name[]="formula.nsf";   /* pathname of database */
-    DBHANDLE    hDb;            /* database handle      */
-    NOTEHANDLE  hNote;          /* Note handle.         */
+    char          path_name[]="formula.nsf";   /* pathname of database */
+    DBHANDLE      hDb;                         /* database handle      */
+    NOTEHANDLE    hNote;                       /* Note handle.         */
 
-    char        szFormula[] = "numberfield";
+    char          szFormula[] = "numberfield";
 
-    char       *pFormula;       /* pointer to compiled formula.    */
+    char          *pFormula;                   /* pointer to compiled formula.    */
     FORMULAHANDLE hFormula;
-    WORD        wFormulaLen;
+    WORD          wFormulaLen;
 
-    NOTEID      note_id;        /* Noteid for newly created note. */
+    NOTEID        note_id;                     /* Noteid for newly created note. */
 
-    DHANDLE       hResult;        /* Handle to results returned by  */
-                                /* NSFComputeEvaluate()           */
-    char       *pResult;        /* Pointer to results buffer.     */
-    WORD        wResultLen;     /* Length of result buffer.       */
+    DHANDLE       hResult;                     /* Handle to results returned by  */
+                                               /* NSFComputeEvaluate()           */
+    char          *pResult;                    /* Pointer to results buffer.     */
+    WORD          wResultLen;                  /* Length of result buffer.       */
 
-    HCOMPUTE    hCompute;       /* Handle to COMPUTE returned by  */
-                                /* NSFComputeStart()              */
-    BOOL        bModified;      /* Set to TRUE by NSFComputeEvaluate  */
-                                /*  if note modified by formula.      */
-    BOOL        bShouldDelete;  /* TRUE if formula indicates that the */
-                                /*   note should be deleted.          */
+    HCOMPUTE      hCompute;                    /* Handle to COMPUTE returned by  */
+                                               /* NSFComputeStart()              */
+    BOOL          bModified;                   /* Set to TRUE by NSFComputeEvaluate  */
+                                               /*  if note modified by formula.      */
+    BOOL          bShouldDelete;               /* TRUE if formula indicates that the */
+                                               /*   note should be deleted.          */
 
-    WORD        wdc;            /* "We Don't Care" - We're not interested 
-                                    in some of the info passed back by 
-                                    NSFFormulaCompile(), but the syntax
-                                    requires several word pointers. We  
-                                    pass the address of this word for all 
-                                    parameters we are not interested in.
-                                 */
+    WORD          wdc;                         /* "We Don't Care" - We're not interested 
+                                                  in some of the info passed back by 
+                                                  NSFFormulaCompile(), but the syntax
+                                                  requires several word pointers. We  
+                                                  pass the address of this word for all 
+                                                  parameters we are not interested in.
+                                               */
 
-    STATUS      sError = NOERROR;     /* error code from API calls */
+    STATUS        sError = NOERROR;            /* error code from API calls */
 
-    WORD        wDataType;
-    double      dNumber = BODY_TEMP;
-    RANGE      *pRange;
-    NUMBER     *pNumber;
-    WORD        wEntry;
-    char        szTextNum[MAXALPHANUMBER+1];
-    WORD        wTextNumLen;
+    WORD          wDataType;
+    double        dNumber = BODY_TEMP;
+    RANGE         *pRange;
+    NUMBER        *pNumber;
+    WORD          wEntry;
+    char          szTextNum[MAXALPHANUMBER+1];
+    WORD          wTextNumLen;
 
 
-	if (sError = NotesInitExtended (argc, argv))
-	{
-        PRINTLOG("\n Unable to initialize Notes.\n");
-        return (1);
-	}
+    if (sError = NotesInitExtended (argc, argv))
+    {
+       PRINTLOG("\n Unable to initialize Notes.\n");
+       return (1);
+    }
 
 
 /*
@@ -131,7 +130,7 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen (path_name, &hDb))
     {
-        PRINTERROR (sError,"NSFDbOpen");  
+        PRINTERROR (sError,"NSFDbOpen");
         NotesTerm();
         return (1);
     } 
@@ -144,7 +143,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteCreate(hDb, &hNote))
     {
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFNoteCreate");  
+        PRINTERROR (sError,"NSFNoteCreate");
         NotesTerm();
         return (1);
     }
@@ -160,7 +159,7 @@ int main(int argc, char *argv[])
                                  MAXWORD))
     {
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFItemSetText");  
+        PRINTERROR (sError,"NSFItemSetText");
         NotesTerm();
         return (1);
     }
@@ -174,7 +173,7 @@ int main(int argc, char *argv[])
                                   &dNumber))
     {
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFItemSetNumber");  
+        PRINTERROR (sError,"NSFItemSetNumber");
         NotesTerm();
         return (1);
     }
@@ -187,7 +186,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteUpdate(hNote, 0))
     {
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFNoteUpdate");  
+        PRINTERROR (sError,"NSFNoteUpdate");
         NotesTerm();
         return (1);
     }
@@ -205,7 +204,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteClose(hNote))
     {
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFNoteClose");  
+        PRINTERROR (sError,"NSFNoteClose");
         NotesTerm();
         return (1);
     }
@@ -217,7 +216,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteOpen(hDb, note_id, OPEN_EXPAND, &hNote))
     {
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFNoteOpen");  
+        PRINTERROR (sError,"NSFNoteOpen");
         NotesTerm();
         return (1);
     }
@@ -236,7 +235,7 @@ int main(int argc, char *argv[])
                                    &wdc, &wdc))
     {
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFFormulaCompile");  
+        PRINTERROR (sError,"NSFFormulaCompile");
         NotesTerm();
         return (1);
     }
@@ -256,7 +255,7 @@ int main(int argc, char *argv[])
         OSUnlockObject(hFormula);
         OSMemFree(hFormula);
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFComputeStart");  
+        PRINTERROR (sError,"NSFComputeStart");
         NotesTerm();
         return (1);
     }
@@ -278,7 +277,7 @@ int main(int argc, char *argv[])
         OSUnlockObject(hFormula);
         OSMemFree(hFormula);
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFComputeEvaluate");  
+        PRINTERROR (sError,"NSFComputeEvaluate");
         NotesTerm();
         return (1);
     }
@@ -372,7 +371,7 @@ int main(int argc, char *argv[])
     if (sError = NSFComputeStop(hCompute))
     {
         NSFDbClose (hDb);
-        PRINTERROR (sError,"NSFComputeStop");  
+        PRINTERROR (sError,"NSFComputeStop");
         NotesTerm();
         return (1);
     }
@@ -380,14 +379,15 @@ int main(int argc, char *argv[])
 /* Close the database. */
 
     if (sError = NSFDbClose (hDb))
-	{
-        PRINTERROR (sError,"NSFDbClose");  
+    {
+        PRINTERROR (sError,"NSFDbClose");
         NotesTerm();
         return (1);
-	}
+    }
 
 /* End of program. */
     PRINTLOG("\nProgram completed successfully\n"); 
     NotesTerm();
-    return (0);
+    return (0); 
+
 }

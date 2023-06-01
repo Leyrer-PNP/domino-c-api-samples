@@ -57,18 +57,18 @@ int main(int argc, char *argv[])
 {
     LDAP          *ld;
     char          *dn, *ndn, *nrdn;
-    int          i;
-    int          rc;
-    LDAPMod          **mods;
+    int           i;
+    int           rc;
+    LDAPMod       **mods;
 
     char          *a, *sdn;
     char          **vals;
-    int          j;
-    LDAPMessage          *result, *e;
-    BerElement          *ber;
-	
+    int           j;
+    LDAPMessage   *result, *e;
+    BerElement    *ber;
+
     char          *compAttribute, *compValue;
-    struct          berval bvalue;
+    struct        berval bvalue;
 
     /* Values used in creating the entry */
     char *objectclass_values[] = { "top", "person", "organizationalPerson",
@@ -108,41 +108,41 @@ int main(int argc, char *argv[])
 
     if (NotesInitExtended (argc, argv))
     {
-      fprintf (stderr, "\nError initializing Notes.\n");
-      return (1);
+        fprintf (stderr, "\nError initializing Notes.\n");
+        return (1);
     }
 
     /* get a handle to an LDAP connection */
     if ( (ld = ldap_init( HOST, PORT )) == NULL )
     {
-		perror( "ldap_init" );
-		NotesTerm();
-		return( 1 );
+        perror( "ldap_init" );
+        NotesTerm();
+        return( 1 );
     }
     /* authenticate to the directory as administrator */
     if ( ldap_simple_bind_s( ld, DN, PASSWORD ) != LDAP_SUCCESS )
-	{
-		ldap_perror( ld, "ldap_simple_bind_s" );
-		NotesTerm();
-		return( 1 );
+    {
+        ldap_perror( ld, "ldap_simple_bind_s" );
+        NotesTerm();
+        return( 1 );
     }
 
     if (( mods = ( LDAPMod ** ) malloc(( NMODS + 1 ) * sizeof( LDAPMod *)))
 	    == NULL )
-	{
-		fprintf( stderr, "Cannot allocate memory for mods array\n" );
-		NotesTerm();
-		return( 1 );
+    {
+        fprintf( stderr, "Cannot allocate memory for mods array\n" );
+        NotesTerm();
+        return( 1 );
     }
     /* Construct the array of values to add */
     for ( i = 0; i < NMODS; i++ )
-	{
-		if (( mods[ i ] = ( LDAPMod * ) malloc( sizeof( LDAPMod ))) == NULL )
-		{
-			fprintf( stderr, "Cannot allocate memory for mods element\n" );
-			NotesTerm();
-			return( 1 );
-		}
+    {
+        if (( mods[ i ] = ( LDAPMod * ) malloc( sizeof( LDAPMod ))) == NULL )
+        {
+            fprintf( stderr, "Cannot allocate memory for mods element\n" );
+            NotesTerm();
+            return( 1 );
+        }
     }
     mods[ 0 ]->mod_op = 0;
     mods[ 0 ]->mod_type = "objectclass";
@@ -167,18 +167,18 @@ int main(int argc, char *argv[])
     /* Add the entry */
     if (( rc = ldap_add_s( ld, dn, mods )) != LDAP_SUCCESS )
     {
-		/* If entry exists already, fine.  Ignore this error. */
-		if ( rc == LDAP_ALREADY_EXISTS )
-		{
-			printf( "Entry \"%s is already in the directory.\n", dn );
-		}
-		else
-		{
-			ldap_perror( ld, "ldap_add_s" );
-			free_mods( mods );
-			NotesTerm();
-			return( 1 );
-		}
+        /* If entry exists already, fine.  Ignore this error. */
+        if ( rc == LDAP_ALREADY_EXISTS )
+        {
+            printf( "Entry \"%s is already in the directory.\n", dn );
+        }
+        else
+        {
+            ldap_perror( ld, "ldap_add_s" );
+            free_mods( mods );
+            NotesTerm();
+            return( 1 );
+        }
     }
     else
     {
@@ -189,30 +189,30 @@ int main(int argc, char *argv[])
     /* Delete the destination entry, for this example */
     if (( rc = ldap_delete_s( ld, ndn )) != LDAP_SUCCESS )
     {
-         /* If entry does not exist, fine.  Ignore this error. */
-         if ( rc == LDAP_NO_SUCH_OBJECT )
-         {
-             PRINTLOG( "\tEntry \"%s\" is not in the directory.  "
-              "\n\t  No need to delete.\n", ndn );
-         }
-         else
-         {
-             ldap_perror( ld, "ldap_delete_s" );
-             NotesTerm();
-             return( 1 );
-         }
+        /* If entry does not exist, fine.  Ignore this error. */
+        if ( rc == LDAP_NO_SUCH_OBJECT )
+        {
+            PRINTLOG( "\tEntry \"%s\" is not in the directory.  "
+             "\n\t  No need to delete.\n", ndn );
+        }
+        else
+        {
+            ldap_perror( ld, "ldap_delete_s" );
+            NotesTerm();
+            return( 1 );
+        }
     }
     else
     {
-         PRINTLOG( "\tDeleted entry \"%s\".\n", ndn );
+        PRINTLOG( "\tDeleted entry \"%s\".\n", ndn );
     }
 
     /* Do the RDN modification operation */
     if ( ldap_modrdn2_s( ld, dn, nrdn, 0 ) != LDAP_SUCCESS )
     {
-         ldap_perror( ld, "ldap_modrdn2_s" );
-         NotesTerm();
-         return( 1 );
+        ldap_perror( ld, "ldap_modrdn2_s" );
+        NotesTerm();
+        return( 1 );
     }
 
     PRINTLOG( "\tThe RDN modification operation was successful.\n \tEntry...\n"
@@ -226,34 +226,34 @@ int main(int argc, char *argv[])
     if ( ldap_search_s( ld, SEARCHBASE, LDAP_SCOPE_SUBTREE,
                         FILTER, NULL, 0, &result ) != LDAP_SUCCESS )
     {
-         ldap_perror( ld, "ldap_search_s" );
-         if ( result == NULL )
-         {
-             ldap_unbind_s( ld );
-             NotesTerm();
-             return( 1 );
-         }
+        ldap_perror( ld, "ldap_search_s" );
+        if ( result == NULL )
+        {
+            ldap_unbind_s( ld );
+            NotesTerm();
+            return( 1 );
+        }
     }
 
     /* for each entry print out name, attrs and values */
     for ( e = ldap_first_entry( ld, result ); e != NULL;
           e = ldap_next_entry( ld, e ) )
     {
-         if ( (sdn = ldap_get_dn( ld, e )) != NULL )
-         {
-             PRINTLOG( "\tdn: %s\n", sdn );
-             ldap_memfree( sdn );
-         }
-         for ( a = ldap_first_attribute( ld, e, &ber );
-               a != NULL; a = ldap_next_attribute( ld, e, ber ) )
-         {
-             if ((vals = ldap_get_values( ld, e, a)) != NULL )
-             {
-                 for ( j = 0; vals[j] != NULL; j++ )
-                 {
-                     PRINTLOG( "\t%s: %s\n", a, vals[j] );
-                 }
-                 ldap_value_free( vals );
+        if ( (sdn = ldap_get_dn( ld, e )) != NULL )
+        {
+            PRINTLOG( "\tdn: %s\n", sdn );
+            ldap_memfree( sdn );
+        }
+        for ( a = ldap_first_attribute( ld, e, &ber );
+              a != NULL; a = ldap_next_attribute( ld, e, ber ) )
+        {
+            if ((vals = ldap_get_values( ld, e, a)) != NULL )
+            {
+                for ( j = 0; vals[j] != NULL; j++ )
+                {
+                    PRINTLOG( "\t%s: %s\n", a, vals[j] );
+                }
+                ldap_value_free( vals );
              }
              ldap_memfree(a);
          }
@@ -334,7 +334,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                              char *DN,
                              char *PASSWORD)
 { 
-	if (argc != 5)
+    if (argc != 5)
     {       
       
       printf("Enter Hostname: ");   
@@ -356,8 +356,8 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
       fflush(stdout);
       fgets(PASSWORD, STRING_LENGTH, stdin);
 
-   }  
-   else
+    }  
+    else
     {
       memset(HOST,'\0',STRING_LENGTH);
       strncpy(HOST, argv[1], STRING_LENGTH);

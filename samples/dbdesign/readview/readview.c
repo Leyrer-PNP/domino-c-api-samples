@@ -30,10 +30,10 @@
 #include <stdnames.h>
 #include <nsfsearc.h>   /* For NSFFormulaDecompile */
 #include <viewfmt.h>
+#include <printLog.h>
 #if defined(OS400)
 #include <misc.h>
 #endif
-#include <printLog.h>
 
 
 /*
@@ -72,45 +72,45 @@
  
 int main(int argc, char *argv[])
 {
-    NOTEHANDLE hNote; 
-    STATUS sError = NOERROR;
-    DBHANDLE hDB;
+    NOTEHANDLE    hNote; 
+    STATUS        sError = NOERROR;
+    DBHANDLE      hDB;
 
-    char szViewName[] = "View A";
-    char szFileName[] = "readview.nsf";
+    char          szViewName[] = "View A";
+    char          szFileName[] = "readview.nsf";
 
-    char szTitleString[128];   /* View title will be constructed here.   */
-    char szTimeDate[MAXALPHATIMEDATE + 1];
-    char szColTitle[128];
+    char          szTitleString[128];   /* View title will be constructed here.   */
+    char          szTimeDate[MAXALPHATIMEDATE + 1];
+    char          szColTitle[128];
     
-    TIMEDATE   ModTimeDate;    
-    DWORD      dwTextBufferLength = TEXT_BUFFER_LENGTH;
-    WORD       ClassView = NOTE_CLASS_VIEW;
-    DWORD      dwLength;
-    WORD       wDataType;
-    NOTEID     ViewNoteID;        /* Note id of the View document. */
-    BLOCKID    ValueBlockID;
-    char far   *pData;
-    char far   *pPackedData;
-    char far   *pFormula;
-    char far   *pFormulaText, *pTemp;
-    WORD       wFormulaTextLen;
-    DHANDLE      hFormulaText;
+    TIMEDATE      ModTimeDate;    
+    DWORD         dwTextBufferLength = TEXT_BUFFER_LENGTH;
+    WORD          ClassView = NOTE_CLASS_VIEW;
+    DWORD         dwLength;
+    WORD          wDataType;
+    NOTEID        ViewNoteID;        /* Note id of the View document. */
+    BLOCKID       ValueBlockID;
+    char far      *pData=NULL;
+    char far      *pPackedData=NULL;
+    char far      *pFormula=NULL;
+    char far      *pFormulaText=NULL, *pTemp=NULL;
+    WORD          wFormulaTextLen;
+    DHANDLE       hFormulaText;
     
-    WORD       wStringLen;
-    BOOL       bTimeRelativeFormulae;
-    WORD       wColumn;
+    WORD          wStringLen;
+    BOOL          bTimeRelativeFormulae;
+    WORD          wColumn;
 
-    VIEW_FORMAT_HEADER *pHeaderFormat;
-    VIEW_TABLE_FORMAT  *pTableFormat;
+    VIEW_FORMAT_HEADER  *pHeaderFormat;
+    VIEW_TABLE_FORMAT   *pTableFormat;
     VIEW_TABLE_FORMAT2  *pTableFormat2;
-    VIEW_COLUMN_FORMAT *pColumnFormat;
+    VIEW_COLUMN_FORMAT  *pColumnFormat;
 
     VIEW_FORMAT_HEADER  formatHeader;
-    VIEW_TABLE_FORMAT tableFormat;
-    VIEW_TABLE_FORMAT2   tableFormat2;
-    VIEW_COLUMN_FORMAT   viewColumn;
-    void *            tempPtr;
+    VIEW_TABLE_FORMAT   tableFormat;
+    VIEW_TABLE_FORMAT2  tableFormat2;
+    VIEW_COLUMN_FORMAT  viewColumn;
+    void *              tempPtr;
        
     /* Domino and Notes initialization */
     if (sError = NotesInitExtended (argc, argv))
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen(szFileName, &hDB))
     {
-        PRINTERROR (sError,"NSFDbOpen");  
+        PRINTERROR (sError, "NSFDbOpen");
         NotesTerm();
         return (1);
     }
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteOpen(hDB, ViewNoteID, 0, &hNote))
     {
         NSFDbClose(hDB);
-        PRINTERROR (sError,"NSFNoteOpen");  
+        PRINTERROR (sError, "NSFNoteOpen");  
         NotesTerm();
         return (1);
     }
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNote);
         NSFDbClose(hDB);
-        PRINTERROR (sError,"NSFItemInfo");  
+        PRINTERROR (sError, "NSFItemInfo");  
         NotesTerm();
         return (1);
     }
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNote);
         NSFDbClose(hDB);
-        PRINTERROR (sError,"ConvertTIMEDATEToText");  
+        PRINTERROR (sError, "ConvertTIMEDATEToText");  
         NotesTerm();
         return (1);
     }
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNote);
         NSFDbClose(hDB);
-        PRINTERROR (sError,"NSFItemInfo");  
+        PRINTERROR (sError, "NSFItemInfo");  
         NotesTerm();
         return (1);
     }
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
         OSUnlockBlock(ValueBlockID);
         NSFNoteClose(hNote);
         NSFDbClose(hDB);
-        PRINTERROR (sError,"NSFItemInfo");  
+        PRINTERROR (sError, "ODSReadMemory");
         NotesTerm();
         return (1);
     }
@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
                     OSUnlockBlock(ValueBlockID);
                     NSFNoteClose(hNote);
                     NSFDbClose(hDB);
-                    PRINTERROR(sError,"NSFFormulaDecompile");  
+                    PRINTERROR (sError, "NSFFormulaDecompile");  
                     NotesTerm();
                     return (1);
                 }
@@ -500,12 +500,12 @@ int main(int argc, char *argv[])
                  */
 
                 pTemp = (char far *) malloc((size_t) wFormulaTextLen +1);
-   
+ 
                 if (pTemp != NULL)
                 {
                     memmove(pTemp, pFormulaText, (int) wFormulaTextLen);
                     pTemp[wFormulaTextLen] = '\0';    
-      
+
                     PRINTLOG ( "\n\nSelection View Formula: \"%s\"\n", pTemp);
                     free (pTemp);
                 } /* end if */
@@ -519,7 +519,7 @@ int main(int argc, char *argv[])
                 OSUnlockBlock(ValueBlockID);
                 NSFNoteClose(hNote);
                 NSFDbClose(hDB);
-                PRINTERROR (sError,"NSFItemInfo");  
+                PRINTERROR (sError, "NSFFormulaDecompile");
                 NotesTerm();
                 return (1);
             } /* end if */
@@ -528,7 +528,7 @@ int main(int argc, char *argv[])
         {
             NSFNoteClose(hNote);
             NSFDbClose(hDB);
-            PRINTERROR (sError,"NSFItemInfo");  
+            PRINTERROR (sError, "NSFItemInfo");  
             NotesTerm();
             return (1);
         } /* end if */
@@ -551,3 +551,4 @@ int main(int argc, char *argv[])
     return (0);
 
 } /* main */
+

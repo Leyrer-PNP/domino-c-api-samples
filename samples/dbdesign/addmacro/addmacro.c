@@ -155,12 +155,10 @@ STATUS  LNPUBLIC  AddFilterMacro( DBHANDLE hDb )
   char            szFlags[MAX_FLAGS];
 
   char   szTitle[] = "Transfer Silton to Sherman";
-  char   szComment[] = 
-"Re-assign all open problems assigned to Support Rep Isabel \
+  char   szComment[] = "Re-assign all open problems assigned to Support Rep Isabel \
 Silton to Support Rep Alexander Sherman.";
   char   szFormula[] = "SELECT (SRep = \"Isabel Silton\")\
- & (Status = \"Open\");\
-FIELD SRep := \"Alexander Sherman\";";
+ & (Status = \"Open\"); FIELD SRep := \"Alexander Sherman\";";
 
   /* Create macro note and set note class to NOTE_CLASS_FILTER */
   if (error = CreateMacroNote(hDb, &hMacro))
@@ -227,8 +225,8 @@ Exit0:
         This function adds a background macro named "Escalate Low Prio 
         Calls to Med" to the open database. After creating this macro, 
         run it from Domino and Notes by opening the database then selecting 
-      "Tools Run Background Macros". Or, the macro will run automatically 
-      if you configure 'Background Program' in Domino and Notes User Setup.
+        "Tools Run Background Macros". Or, the macro will run automatically 
+        if you configure 'Background Program' in Domino and Notes User Setup.
 
         The 'Run options' setting for this macro is "Run periodically in 
         the background". Implement this option by setting the $Type 
@@ -267,14 +265,12 @@ STATUS  LNPUBLIC  AddBackgroundMacro( DBHANDLE hDb )
   NOTEHANDLE      hMacro;
   char            szFlags[MAX_FLAGS];
 
-  char   szTitle[]   = "Escalate Low Prio Calls to Med";
-  char   szComment[] = "Once per week, search for all open, low priority \
+  char            szTitle[]   = "Escalate Low Prio Calls to Med";
+  char            szComment[] = "Once per week, search for all open, low priority \
 problems opened more than one month ago and escalate to medium priority.";
-  char   szFormula[] = 
-"OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
+  char            szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
 SELECT ((DateOpened < OneMonthAgo) & (Status = \"Open\") \
-& (Priority = \"Low\"));\n\
-FIELD Priority := \"Medium\";";
+& (Priority = \"Low\"));\n FIELD Priority := \"Medium\";";
 
   /* Create macro note and set note class to NOTE_CLASS_FILTER */
   if (error = CreateMacroNote(hDb, &hMacro))
@@ -381,11 +377,9 @@ STATUS  LNPUBLIC  AddOnceMacro( DBHANDLE hDb )
   char            szFlags[MAX_FLAGS];
 
   char   szTitle[] = "Send reminder to Support Rep";
-  char   szComment[] = 
-"Send a reminder email to the appropriate support rep for the document \
+  char   szComment[] = "Send a reminder email to the appropriate support rep for the document \
 highlighted in the view.";
-  char   szFormula[] = 
-"@If(SRep!=\"\";\n\
+  char   szFormula[] = "@If(SRep!=\"\";\n\
 @MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
 \" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
 @Prompt([OK];\"\";\"You need to highlight a document\"));\n\
@@ -751,7 +745,7 @@ STATUS  LNPUBLIC  SetMacroPeriod( NOTEHANDLE hMacro, WORD wPeriod )
 STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
 {
   STATUS            error=NOERROR;
-  DHANDLE             hLeftToDo;      /* LeftToDo Object */
+  DHANDLE           hLeftToDo;      /* LeftToDo Object */
   DWORD             dwTableSize;
   DWORD             dwObjectSize;
   DWORD             dwObjectID;

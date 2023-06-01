@@ -10,10 +10,10 @@
 
     DESCRIPTION:
          A HCL C API for Notes/Domino program that reads the binary records from 
-	     the server's log file and displays it to standard output. Activity logging replaces 
-		 and surpasses the previous Billing functionality. The activity logging services are 
-		 a set of routines that read and write binary records to the server log (log.nsf). 
-		 For efficiency, many records are written to one note. 
+         the server's log file and displays it to standard output. Activity logging replaces 
+         and surpasses the previous Billing functionality. The activity logging services are 
+         a set of routines that read and write binary records to the server log (log.nsf). 
+         For efficiency, many records are written to one note. 
 
 ****************************************************************************/
 #if defined(OS400)
@@ -85,10 +85,10 @@ STATUS LNCALLBACK ActionRoutine(
 
 STATUS LNPUBLIC NotesMain(int argc, char far *argv[])
 {
-    STATUS      error = NOERROR;          /* error code from API calls */
-   char		   *pserver = NULL;
-   void		   *pstreamctx;
-   int		   recordcount = 0;
+   STATUS      error = NOERROR;          /* error code from API calls */
+   char        *pserver = NULL;
+   void        *pstreamctx;
+   int         recordcount = 0;
 
    if (argc != 2)
    {
@@ -189,7 +189,7 @@ STATUS LNCALLBACK ActionRoutine(
 		*pcounter, DescName, DescIdx, timelen, timestr);
 	/* Step through all of the items */
 	for(i = 0; i < itemtable.Items; i++)
-		{
+	{
 		/* IMPORTANT. Its possible to have an existing item with a value length of 0 */
 		if(!items[i].ValueLength)
 			continue;
@@ -261,7 +261,7 @@ STATUS LNCALLBACK ActionRoutine(
 			}
 			/* Point to the start of the next item. */					
 			pactivitybuf += (items[i].ValueLength - sizeof(USHORT));
-		}				
+	}				
 
 	PRINTLOG("}\n");
 

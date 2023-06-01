@@ -197,9 +197,9 @@ int main(int argc, char *argv[])
     WORD        wType, wOperation, wScan;
     BLOCKID     bidFormula1, bidFormula2;
     BOOL        fSearchMacro;           /* TRUE if is a search macro */
-    DHANDLE       hNoteIDTable;           /* notes to process */
-    DHANDLE       hProcessedIDTable;      /* notes actually processed */
-    DHANDLE       hDeletedIDTable;        /* notes deleted */
+    DHANDLE     hNoteIDTable;           /* notes to process */
+    DHANDLE     hProcessedIDTable;      /* notes actually processed */
+    DHANDLE     hDeletedIDTable;        /* notes deleted */
     DWORD       dwNotesDone;
     NOTEID      nidDoc;
     HCOMPUTE    hCompute1, hCompute2;
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-        PRINTLOG("\n Unable to initialize Notes.\n");
+       PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -382,8 +382,9 @@ Exit0:
         error = NOERROR;
     }
     if (error)
-       PRINTERROR(error,"CreateIDTables");
-
+    {
+       PRINTERROR(error, "main");
+    }
     NotesTerm();
     return(error);
 }
@@ -404,18 +405,18 @@ Exit0:
         WORD         *pwScan            - FILTER_SCAN_ALL, etc. 
         BLOCKID      *pbidFormula1      - "$Formula" item value blockid 
         BLOCKID      *pbidFormula2      - "$Formula2" item value blockid,
-                                 or NULLHANDLE/NULLBLOCK if not available
+                                          or NULLHANDLE/NULLBLOCK if not available
         BOOL         *pfSearchMacro     - gets TRUE if $Query item in macro
 
 *************************************************************************/
 
 STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro, 
-                                  WORD         *pwMacroType,
-                                  WORD         *pwOperation,
-                                  WORD         *pwScan, 
-                                  BLOCKID      *pbidFormula1, 
-                                  BLOCKID      *pbidFormula2,
-                                  BOOL         *pfSearchMacro)
+                                 WORD         *pwMacroType,
+                                 WORD         *pwOperation,
+                                 WORD         *pwScan, 
+                                 BLOCKID      *pbidFormula1, 
+                                 BLOCKID      *pbidFormula2,
+                                 BOOL         *pfSearchMacro)
 {
     STATUS      error=NOERROR;
     char        ach[4];
@@ -423,18 +424,19 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
     BLOCKID     bidValue;
     DWORD       dwValueLength;
 
-                                        /* "$Type" */
+    /* "$Type" */
     NSFItemGetText( hMacro, FILTER_TYPE_ITEM, ach, sizeof(ach)-1 );
     *pwMacroType = (WORD)(ach[0] - '0');
 
-                                        /* "$Operation" */
+    /* "$Operation" */
     NSFItemGetText( hMacro, FILTER_OPERATION_ITEM, ach, sizeof(ach)-1 );
     *pwOperation = (WORD)(ach[0] - '0');
 
-                                        /* "$Scan" */
+    /* "$Scan" */
     NSFItemGetText( hMacro, FILTER_SCAN_ITEM, ach, sizeof(ach)-1 );
     *pwScan = (WORD)(ach[0] - '0');
-                                        /* "$Query" */
+
+    /* "$Query" */
     error = NSFItemInfo(hMacro, FILTER_QUERY_ITEM, 
                         sizeof(FILTER_QUERY_ITEM)-1, NULL,
                         &wDataType, &bidValue, &dwValueLength);
@@ -449,7 +451,7 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
         *pfSearchMacro = FALSE;
     }
 
-                                        /* "$Formula" */
+    /* "$Formula" */
     error = NSFItemInfo(hMacro, FILTER_FORMULA_ITEM, 
                             sizeof(FILTER_FORMULA_ITEM)-1, NULL,
                             &wDataType, &bidValue, &dwValueLength);
@@ -482,7 +484,7 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
     pbidFormula2->pool = NULLHANDLE;
     pbidFormula2->block = NULLBLOCK;
 
-                                        /* "$Formula2" */
+    /* "$Formula2" */
     if (error = NSFItemInfo(hMacro, FILTER_FORMULA2_ITEM, 
                             sizeof(FILTER_FORMULA2_ITEM)-1, NULL,
                             &wDataType, &bidValue, &dwValueLength))
@@ -532,9 +534,9 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
 *************************************************************************/
  
 STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro, 
-                                    char * szMacroName,
-                                    WORD wType, WORD wOperation,
-                                    WORD wScan, BOOL fSearchMacro )
+                                  char * szMacroName,
+                                  WORD wType, WORD wOperation,
+                                  WORD wScan, BOOL fSearchMacro )
 {
     if ( (wType == FILTER_TYPE_MAIL) || (wType == FILTER_TYPE_ONCE) ||
           fSearchMacro )
@@ -598,13 +600,13 @@ STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro,
 *************************************************************************/
 
 STATUS  LNPUBLIC  RunMacroOnThisMachine ( NOTEHANDLE hMacro,
-                                            WORD wType)
+                                                WORD wType)
 {
     STATUS      error=NOERROR;
     char        szUserName[MAXUSERNAME+1];
     char        szMachineName[MAXUSERNAME+1];
-    WORD          i;
-    char        *strPtr;
+    WORD        i;
+    char        *strPtr=NULL;
    
     if (wType != FILTER_TYPE_BACKGROUND)
     {
@@ -614,16 +616,17 @@ STATUS  LNPUBLIC  RunMacroOnThisMachine ( NOTEHANDLE hMacro,
     {
         PRINTLOG ("Error: unable to get user name from ID file.\n");
         return(error);
-    }   
-                                        /* "$MachineName" */
+    }
+
+    /* "$MachineName" */
     NSFItemGetText( hMacro, FILTER_MACHINE_ITEM, szMachineName, MAXUSERNAME );
    
-   /* lower case both names because there is no stricmp on the Macintosh */
-   for (i = 0,strPtr = szUserName; i < strlen(szUserName); i++,strPtr++)
-      *strPtr = tolower(*strPtr);
+    /* lower case both names because there is no stricmp on the Macintosh */
+    for (i = 0,strPtr = szUserName; i < strlen(szUserName); i++,strPtr++)
+       *strPtr = tolower(*strPtr);
    
-   for (i = 0,strPtr = szMachineName; i < strlen(szMachineName); i++,strPtr++)
-      *strPtr = tolower(*strPtr);
+    for (i = 0,strPtr = szMachineName; i < strlen(szMachineName); i++,strPtr++)
+       *strPtr = tolower(*strPtr);
 
     if (strcmp(szUserName, szMachineName) == 0)
     {
@@ -703,9 +706,9 @@ STATUS  LNPUBLIC  SetMacroMachineName( NOTEHANDLE hMacro, WORD wType )
 *************************************************************************/
 
 STATUS  LNPUBLIC  GetTableOfIDsToProcess( DBHANDLE    hDb,
-                                            NOTEHANDLE  hMacro, 
-                                            WORD        wScan, 
-                                            DHANDLE       hNoteIDTable)
+                                          NOTEHANDLE  hMacro, 
+                                          WORD        wScan, 
+                                          DHANDLE       hNoteIDTable)
 {
     STATUS      error=NOERROR;
 
@@ -776,14 +779,14 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInDb( DBHANDLE hDb, DHANDLE hNoteIDTable)
 *************************************************************************/
 
 STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb, 
-                                            DHANDLE       hNoteIDTable)
+                                          DHANDLE       hNoteIDTable)
 {
     STATUS      error=NOERROR;
     WORD        wClass;
     NOTEID      ViewID;
     HCOLLECTION hCollection;
     COLLECTIONPOSITION CollPosition;
-    DHANDLE       hBuffer;
+    DHANDLE     hBuffer;
     DWORD       dwEntriesFound, i;
     WORD        wSignalFlag;
     NOTEID     *IdList;
@@ -840,7 +843,10 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb,
 
         for (i=0; i<dwEntriesFound; i++)
         {
-            if (NOTEID_CATEGORY & IdList[i]) continue;
+            if (NOTEID_CATEGORY & IdList[i])
+            {
+                continue;
+            }
             if (error = IDInsert(hNoteIDTable, IdList[i], &flagOK))
             {
                 PRINTLOG ("Error: unable to insert note ID into table.\n");
@@ -887,20 +893,20 @@ STATUS LNPUBLIC GetIDsOfAllNewDocs(   DBHANDLE    hDb,
                                         DHANDLE       hRetIDTable)
 {
     STATUS      error=NOERROR;
-    OBJECT_DESCRIPTOR  objLeftToDo; /* describes the $LeftToDo object */
-    DHANDLE       hLeftToDo;          /* the ID table in the $LeftToDo object */
+    DHANDLE     hLeftToDo;          /* the ID table in the $LeftToDo object */
     TIMEDATE    tdLeftToDoTime;
     WORD        wLeftToDoFlags;
-    BYTE       *p;
+    BYTE       *p=NULL;
     TIMEDATE    tdSavedModificationTimedate;
     TIMEDATE    tdMacroModificationTimedate;
-    DHANDLE       hIDsModified;       /* IDs of docs modified since TableTime */
+    DHANDLE     hIDsModified;       /* IDs of docs modified since TableTime */
     DBID        dbidSavedMacro;
     DBID        dbidCurrent;
-    void        *ptable;
+    void        *ptable=NULL;
     DWORD       dw;
     NOTEID      nid;
     BOOL        flag;
+    OBJECT_DESCRIPTOR  objLeftToDo; /* describes the $LeftToDo object */
 
     /* Get the "$LeftToDo" item */
     error = ReadLeftToDoObject( hDb, hMacro, 
@@ -1056,21 +1062,21 @@ NewTable:
 STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro, 
                         DHANDLE hDeletedIDTable, DHANDLE hProcessedIDTable)
 {
-    STATUS      error=NOERROR;
-    DBHANDLE    hDb;
-    NOTEHANDLE  hMacro;
+    STATUS              error=NOERROR;
+    DBHANDLE            hDb;
+    NOTEHANDLE          hMacro;
     OBJECT_DESCRIPTOR   objLeftToDo;
-    DHANDLE       hLeftToDo;          /* the ID table in the $LeftToDo object */
-    TIMEDATE    tdLeftToDoTime;
-    WORD        wLeftToDoFlags;
-    DHANDLE       hIDsModified;
-    DWORD       dw;
-    NOTEID      nid;
-    BOOL        flag;
-    DWORD       dwNeededSize, tdOffset, dwExistingSize;
-    WORD        wClass, wPrivs;
-    BYTE       *p;
-    void       *ptable;
+    DHANDLE             hLeftToDo;          /* the ID table in the $LeftToDo object */
+    TIMEDATE            tdLeftToDoTime;
+    WORD                wLeftToDoFlags;
+    DHANDLE             hIDsModified;
+    DWORD               dw;
+    NOTEID              nid;
+    BOOL                flag;
+    DWORD               dwNeededSize, tdOffset, dwExistingSize;
+    WORD                wClass, wPrivs;
+    BYTE                *p;
+    void                *ptable;
 
     /* Re-open the database. Re-open the macro. Get the $LeftToDo item. */
     if (error = NSFDbOpen(szDbName, &hDb))
@@ -1254,17 +1260,17 @@ Exit0:
 STATUS  LNPUBLIC  ReadLeftToDoObject( DBHANDLE    hDb,
                         NOTEHANDLE          hMacro,
                         OBJECT_DESCRIPTOR  *pObject,
-                        DHANDLE              *phLeftToDo,
+                        DHANDLE            *phLeftToDo,
                         TIMEDATE           *ptdLeftToDoTime,
                         WORD               *pwLeftToDoFlags )
 {
-    STATUS      error=NOERROR;
-    WORD        wDataType;
-    BLOCKID     bidValue;
-    DWORD       dwValueLength;
-    void        *ptable;
-   OBJECT_DESCRIPTOR  tempObject;
-   OBJECT_DESCRIPTOR *tempPtr;
+    STATUS             error=NOERROR;
+    WORD               wDataType;
+    BLOCKID            bidValue;
+    DWORD              dwValueLength;
+    void               *ptable=NULL;
+    OBJECT_DESCRIPTOR  tempObject;
+    OBJECT_DESCRIPTOR  *tempPtr;
    
     error = NSFItemInfo(hMacro, FILTER_LEFTTODO_ITEM, 
                         sizeof(FILTER_LEFTTODO_ITEM)-1,
@@ -1287,7 +1293,7 @@ STATUS  LNPUBLIC  ReadLeftToDoObject( DBHANDLE    hDb,
         
     *pObject = *((OBJECT_DESCRIPTOR*)(OSLockBlock(char,bidValue)+sizeof(WORD)));
 
-   tempPtr = pObject;
+    tempPtr = pObject;
 
     ODSReadMemory( &tempPtr, _OBJECT_DESCRIPTOR, &tempObject, 1 );
 
@@ -1361,7 +1367,7 @@ STATUS LNPUBLIC AddIDUnique  (void * phNoteIDTable,
                                 ITEM_TABLE *summary_info)
 {
     SEARCH_MATCH SearchMatch;
-    DHANDLE        hNoteIDTable;
+    DHANDLE      hNoteIDTable;
     STATUS       error=NOERROR;
     BOOL         flagOK;
 
@@ -1645,3 +1651,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         if (argc == 4) strcpy(options, argv[3]);
     } /* end if */
 } /* ProcessArgs */
+

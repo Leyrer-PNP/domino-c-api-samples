@@ -490,7 +490,7 @@ int doAuthenticate(char *userName, char *domain, char *password) {
 
    if (!userName) {
 
-	   AddInLogMessageText (string4, NOERROR);
+      AddInLogMessageText (string4, NOERROR);
       return -1;
    }
 
@@ -499,8 +499,7 @@ int doAuthenticate(char *userName, char *domain, char *password) {
    return(unixAuthenticate(userName, password));
 #else
    if (!domain) {
-	  AddInLogMessageText ("\nERROR: Domain must be specified. Use username@domainname format\n", NOERROR);
-
+      AddInLogMessageText ("\nERROR: Domain must be specified. Use username@domainname format\n", NOERROR);
       return -1;
    }
    return(winAuthenticate(userName, domain, password));

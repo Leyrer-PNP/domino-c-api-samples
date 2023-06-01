@@ -318,10 +318,10 @@ int main(int argc, char *argv[])
    if (LocalServer)
    {
      if (error = SECKFMGetUserName(MailServName))
-	  {
-		  PRINTERROR(error,"SECKFMGetUserName");
-		  NotesTerm();
-		  return (1);
+     {
+       PRINTERROR(error,"SECKFMGetUserName");
+       NotesTerm();
+       return (1);
      }
    }
 
@@ -345,8 +345,8 @@ int main(int argc, char *argv[])
               fREGUSARequested    |
               fREGCreateMailFileNow |
               fREGCreateAddrBookEntry|
-	      fREGOkayToModifyID|
-	      fREGOkayToModifyAddrbook,
+              fREGOkayToModifyID|
+              fREGOkayToModifyAddrbook,
               0,                      /* minimum password length */
               &REGCallback,           /* pointer to callback function */
               FullDBPath);            /* returned pathname of file where
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
    */
    if (error = GetCertCtx(ORGUNIT_CERT_ID, &hCertCtx, PASSWORD))
    {
-		PRINTERROR(error,"GetCertCtx");
+      PRINTERROR(error,"GetCertCtx");
       NotesTerm();
       return (1);
    }
@@ -408,8 +408,8 @@ int main(int argc, char *argv[])
       PRINTERROR(error,"REGReCertifyID");
       if (FullDBPath[0] != '\0')
          PRINTLOG ("Error occurred in file %s\n", FullDBPath);
-      NotesTerm();
-      return (1);
+         NotesTerm();
+         return (1);
    }
 
 
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
    {
       PRINTLOG("Unable to find new user entry in N&A book.\n");
       PRINTERROR(error,"REGFindAddressBookEntry");
-		NSFDbClose(hNABook);
+      NSFDbClose(hNABook);
       NotesTerm();
       return (1);
    }
@@ -515,19 +515,16 @@ int main(int argc, char *argv[])
    /* Close the database. */
 
    if(error = NSFDbClose (hNABook))
-	{
+   {
       PRINTERROR(error,"NSFDbClose");
       NotesTerm();
       return (1);
-	}
-  NSFDbDelete(MAILFILENAME);
-	  
-
-	NSFDbDelete(MAILFILENAME);
-	NotesTerm();
+   }
+   NSFDbDelete(MAILFILENAME);
+   NotesTerm();
 
 /* End of main routine */
-	PRINTLOG("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
 
    return (0);
 }

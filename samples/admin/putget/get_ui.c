@@ -29,107 +29,106 @@ int main (int argc, char *argv[])
 
 /* Local data declarations */
 
-	char		server[MAX_PARAM];
-	char		database[MAX_PARAM];
-	char		formula[MAX_PARAM];
-	char		text_path[MAX_PARAM];
-	char		log_path[MAX_PARAM];
-	char		record_separator;
-	char		field_separator;
-	char		list_separator;
-	char		control_string[CONTROL_STRING_LEN];
-	int		error;
-	int		i;
+    char		server[MAX_PARAM];
+    char		database[MAX_PARAM];
+    char		formula[MAX_PARAM];
+    char		text_path[MAX_PARAM];
+    char		log_path[MAX_PARAM];
+    char		record_separator;
+    char		field_separator;
+    char		list_separator;
+    char		control_string[CONTROL_STRING_LEN];
+    int		error;
+    int		i;
 
 
 /* Set default values for the parameters. */
 
-	strcpy (server, "");
-	strcpy (database, DEFAULT_GETNOTE_DATABASE);
-	strcpy (formula, DEFAULT_GETNOTE_FORMULA);
-	strcpy (text_path, DEFAULT_GETNOTE_TEXTFILE);
-	strcpy (log_path, DEFAULT_GETNOTE_LOG);
-	record_separator = DEFAULT_RECORD_SEPARATOR;
-	field_separator = DEFAULT_FIELD_SEPARATOR;
-	list_separator = DEFAULT_LIST_SEPARATOR;
+    strcpy (server, "");
+    strcpy (database, DEFAULT_GETNOTE_DATABASE);
+    strcpy (formula, DEFAULT_GETNOTE_FORMULA);
+    strcpy (text_path, DEFAULT_GETNOTE_TEXTFILE);
+    strcpy (log_path, DEFAULT_GETNOTE_LOG);
+    record_separator = DEFAULT_RECORD_SEPARATOR;
+    field_separator = DEFAULT_FIELD_SEPARATOR;
+    list_separator = DEFAULT_LIST_SEPARATOR;
 
 /* Get each parameter from the command line. */
 
-	for (i=1; i < argc; i++)
+    for (i=1; i < argc; i++)
+    {
+        if (strncmp (argv[i], "/S=", 3) == 0)
+        {
+            strcpy (server, argv[i]+3);
+            continue;
+        }
 
-	    {
-	    if (strncmp (argv[i], "/S=", 3) == 0)
-		{
-		strcpy (server, argv[i]+3);
-		continue;
-		}
+        if (strncmp (argv[i], "/D=", 3) == 0)
+        {
+            strcpy (database, argv[i]+3);
+            continue;
+        }
 
-	    if (strncmp (argv[i], "/D=", 3) == 0)
-		{
-		strcpy (database, argv[i]+3);
-		continue;
-		}
+        if (strncmp (argv[i], "/F=", 3) == 0)
+        {
+            strcpy (formula, argv[i]+3);
+            continue;
+        }
 
-	    if (strncmp (argv[i], "/F=", 3) == 0)
-		{
-		strcpy (formula, argv[i]+3);
-		continue;
-		}
+        if (strncmp (argv[i], "/T=", 3) == 0)
+        {
+            strcpy (text_path, argv[i]+3);
+            continue;
+        }
 
-	    if (strncmp (argv[i], "/T=", 3) == 0)
-		{
-		strcpy (text_path, argv[i]+3);
-		continue;
-		}
+        if (strncmp (argv[i], "/L=", 3) == 0)
+        {
+            strcpy (log_path, argv[i]+3);
+            continue;
+        }
 
-	    if (strncmp (argv[i], "/L=", 3) == 0)
-		{
-		strcpy (log_path, argv[i]+3);
-		continue;
-		}
+        if (strncmp (argv[i], "/rs=", 4) == 0)
+        {
+            record_separator = (char) atoi(argv[i]+4);
+            continue;
+        }
 
-	    if (strncmp (argv[i], "/rs=", 4) == 0)
-		{
-		record_separator = (char) atoi(argv[i]+4);
-		continue;
-		}
+        if (strncmp (argv[i], "/fs=", 4) == 0)
+        {
+            field_separator = (char) atoi(argv[i]+4);
+            continue;
+        }
 
-	    if (strncmp (argv[i], "/fs=", 4) == 0)
-		{
-		field_separator = (char) atoi(argv[i]+4);
-		continue;
-		}
+        if (strncmp (argv[i], "/ls=", 4) == 0)
+        {
+            list_separator = (char) atoi (argv[i]+4);
+            continue;
+        }
 
-	    if (strncmp (argv[i], "/ls=", 4) == 0)
-		{
-		list_separator = (char) atoi (argv[i]+4);
-		continue;
-		}
+         /* If argument is not recognized, just skip it. */
 
-	    /* If argument is not recognized, just skip it. */
-
-	 }
+    }
 
 /* Construct the control string that we will pass to GETNOTE. */
 
-	control_string[RECORD_SEPARATOR_CONTROL] = record_separator;
-	control_string[FIELD_SEPARATOR_CONTROL] = field_separator;
-	control_string[LIST_SEPARATOR_CONTROL] = list_separator;
+    control_string[RECORD_SEPARATOR_CONTROL] = record_separator;
+    control_string[FIELD_SEPARATOR_CONTROL] = field_separator;
+    control_string[LIST_SEPARATOR_CONTROL] = list_separator;
 
 /* Call GETNOTE. */
 
-	error = getnote(argc,
-                   argv,
-                   server,
-                   database,
-                   formula,
-                   text_path,
-                   log_path,
-                   control_string);
+    error = getnote(argc,
+                    argv,
+                    server,
+                    database,
+                    formula,
+                    text_path,
+                    log_path,
+                    control_string);
 
-	if (error) exit (EXIT_FAILURE);
+    if (error) exit (EXIT_FAILURE);
 
 /* End of program. */
 
-	exit (EXIT_SUCCESS);
+    exit (EXIT_SUCCESS);
 }

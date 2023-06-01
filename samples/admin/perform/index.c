@@ -52,20 +52,20 @@ int main (int argc, char *argv[])
 /* Get the input parameters. */
 
    if (argc != 3)
-      {
+    {
       PRINTLOG ("\nUsage:  INDEX  <database pathname>  <name of view>\n");
       return(0);
-      }
+    }
    db_path = argv[1];
    view_name = argv[2];
 
    PRINTLOG ("\n***** INDEX Test Begins ******\n");
 
    if (error = NotesInitExtended (argc, argv))
-      {
+    
       PRINTLOG("\nUnable to initialize Notes.\n");
       return(1);
-      }
+    }
 
 /* ************************************************** */
 /* Get System TIME  . */

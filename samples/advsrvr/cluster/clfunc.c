@@ -2,7 +2,7 @@
 
     PROGRAM:    CLUMON.EXE
     
-    FILE:		CLFUNC.C
+    FILE:       CLFUNC.C
 
     PURPOSE:    Cluster function module that is referenced by the CLUMON sample
                 program. Contains routines for gathering and managing Advanced 
@@ -54,14 +54,14 @@ STATUS GetServerLoad ( char FAR *pServerName, /* server name */
                        DWORD FAR *dwLoadIndex /* returned availability */
                      )
 {
-   	char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
+    char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
     STATUS  nError;
 
    	/* Canonicalize the servername if it isn't already done.  
      * The NSPingServer should use a canonicalized servername as input
      */
-	nError = DNCanonicalize( 0L, NULL, pServerName, (char FAR*)szCanonServerName, 
-     	    						MAXUSERNAME, NULL);
+    nError = DNCanonicalize( 0L, NULL, pServerName, (char FAR*)szCanonServerName, 
+                             MAXUSERNAME, NULL);
     if (nError != NOERROR)
         return (nError);
 
@@ -69,7 +69,7 @@ STATUS GetServerLoad ( char FAR *pServerName, /* server name */
     nError = NSPingServer( (char FAR *)szCanonServerName, dwLoadIndex, NULL);
     
     /* And return the status */
-	return( nError);
+    return( nError);
 }
 
 	
@@ -102,7 +102,7 @@ STATUS GetServerCluster ( char FAR *pServerName,  /* server name */
     * The NSPingServer should use a canonicalized servername as input
     */
     nError = DNCanonicalize( 0L, NULL, pServerName, (char FAR*)szCanonServerName, 
-     	    						MAXUSERNAME, NULL);
+                             MAXUSERNAME, NULL);
     if (nError != NOERROR)
         return (nError);
 
@@ -118,7 +118,7 @@ STATUS GetServerCluster ( char FAR *pServerName,  /* server name */
         if (hList == NULLHANDLE)
             return(nError = NPNERR_NOT_CLUSTER_MEMBER);
         else
-       	{
+        {
             /* Lock down the list so we can use it */
             lpList = OSLock( void, hList);
             wNumListEntries = ListGetNumEntries( lpList, FALSE);
@@ -129,8 +129,8 @@ STATUS GetServerCluster ( char FAR *pServerName,  /* server name */
                 if (!nError)
                 {
                     strncpy( achClusterName, pBuffer, wBufferLen);
-				    achClusterName[wBufferLen] = '\0';
-                	OSUnlock( hList);
+                    achClusterName[wBufferLen] = '\0';
+                    OSUnlock( hList);
 #ifndef UNIX
                     lstrcpy( pClusterName, (char FAR *)achClusterName);    
 #else
@@ -140,20 +140,20 @@ STATUS GetServerCluster ( char FAR *pServerName,  /* server name */
                 else
                 {
                     nError = NPNERR_GETTING_CLUSTER_NAME;
-                	OSUnlock( hList);
+                    OSUnlock( hList);
                     goto Cleanup;
-               	}
+                }
             }
-		}    
-	}
+        }
+    }
     else
         return(nError);
 
 Cleanup:
-	if (hList != NULLHANDLE)        
-		OSMemFree( hList);
-		
-	return( nError);
+    if (hList != NULLHANDLE)        
+        OSMemFree( hList);
+
+    return( nError);
 }
 
 
@@ -175,32 +175,32 @@ STATUS GetServerClusterMates ( char FAR *pServerName, /* server name */
                                DHANDLE *hRetList       /* returned clustermates */    
                              )
 {
-   	char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
+    char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
     STATUS  nError;
     
-   	/* Canonicalize the servername if it isn't already done.  
+    /* Canonicalize the servername if it isn't already done.  
      * The NSGetServerClusterMates requires a fully canonicalized servername
-   	 * as input
+     * as input
      */
     nError = DNCanonicalize( 0L, NULL, pServerName, (char FAR*)szCanonServerName, 
-        						MAXUSERNAME, NULL);
+                             MAXUSERNAME, NULL);
     if (nError != NOERROR)
         return (nError);
 
     /* And call NSGetServerClusterMates */
     nError = NSGetServerClusterMates( (char FAR *)szCanonServerName, 
-                                        dwLookupFlags, hRetList);
+                                       dwLookupFlags, hRetList);
     
     /* cleanup if error */	        
     if (nError != NOERROR)
-   	{
+    {
         if (*hRetList != NULLHANDLE)        
-		{
-			OSMemFree( *hRetList);
-        	*hRetList = NULLHANDLE;
-       	}
+        {
+            OSMemFree( *hRetList);
+            *hRetList = NULLHANDLE;
+        }
     }
-	return( nError);
+    return( nError);
 }
 
 
@@ -237,7 +237,7 @@ STATUS GetDBMarks ( char FAR *pServerName,  /* database server name */
     char    szFailoverDBName[MAXUSERNAME];     /* Failover DB Name */
     char    szFailoverPathName[MAXPATH];       /* Expanded Failover Path Name */ 
 
-	/* Canonicalize the Servername */
+    /* Canonicalize the Servername */
     nError = DNCanonicalize( 0L, NULL, pServerName, 
                                 (char FAR *)szCanonServerName, MAXUSERNAME, NULL);
     if (nError != NOERROR)
@@ -337,7 +337,7 @@ STATUS SetDBMarks ( char FAR *pServerName, /* database server name */
     char    szCanonServerName[MAXUSERNAME];  /* Canonicalized Name of Server */
     char    szNetPathName[MAXPATH];          /* Network Path of Database */
 
-	/* Canonicalize the Servername */
+    /* Canonicalize the Servername */
     nError = DNCanonicalize( 0L, NULL, pServerName, 
                                 (char FAR *)szCanonServerName, MAXUSERNAME, NULL);
     if (nError != NOERROR)
@@ -395,11 +395,11 @@ STATUS RemoteCommand(char FAR *pServerName,     /* server name */
     STATUS nError;
     char szCanonServerName[MAXUSERNAME];   
     DHANDLE hServerResponse = NULLHANDLE;
-	WORD i;
+    WORD i;
     char *pBuffer;
-	WORD wBufferSize;
+    WORD wBufferSize;
     
-	/* Canonicalize the Servername */
+    /* Canonicalize the Servername */
     nError = DNCanonicalize( 0L, NULL, pServerName, (char FAR *)szCanonServerName, 
                                 MAXUSERNAME, NULL);
     if (nError != NOERROR)
@@ -419,7 +419,7 @@ STATUS RemoteCommand(char FAR *pServerName,     /* server name */
         {
             /* Fillin the caller's buffer with the response */
             if( i < *wResponseLen)
-          	{
+            {
                 /* If we've reached a NULL in the buffer returned by the server,
                  * then we're done
                  */
@@ -429,17 +429,17 @@ STATUS RemoteCommand(char FAR *pServerName,     /* server name */
                     pServerResponse[i] = pBuffer[i];
             }
             else
-          	    break;    
+                break;    
         }
         pServerResponse[i] = '\0';
         *wResponseLen = wBufferSize;  
         OSUnlock( hServerResponse);
     }
-	
-	if (hServerResponse != NULLHANDLE)
-		OSMemFree( hServerResponse);
-		
-	return(nError);
+    
+    if (hServerResponse != NULLHANDLE)
+        OSMemFree( hServerResponse);
+        
+    return(nError);
 }    
 
 /******************************************************************************
@@ -467,20 +467,20 @@ STATUS CreateAndCopyDB ( char FAR *pServerName, /* source server name */
     char    szNetPathDest[MAXPATH];         /* Network Path of Dest. Db */
     DBHANDLE hCopyDb = NULLHANDLE;          /* returned DB handle */
 
-   	/* Canonicalize the source and destination servernames
+    /* Canonicalize the source and destination servernames
      * The NSFDbCreateAndCopy should use canonicalized servernames as input
      */
     nError = DNCanonicalize( 0L, NULL, pServerName, (char FAR*)szCanonServerName, 
-     	    						MAXUSERNAME, NULL);
+                             MAXUSERNAME, NULL);
     if (nError != NOERROR)
         return (nError);
 
     nError = DNCanonicalize( 0L, NULL, pServerDest, (char FAR*)szCanonServerDest, 
-     	    						MAXUSERNAME, NULL);
+                             MAXUSERNAME, NULL);
     if (nError != NOERROR)
         return (nError);
 
-   	/* Construct the network paths for the source and destination files */
+    /* Construct the network paths for the source and destination files */
     nError = OSPathNetConstruct (NULL, (char FAR *)szCanonServerName, 
                                  pDBName, (char FAR *)szNetPathName);
     if (nError != NOERROR)       
@@ -503,9 +503,9 @@ STATUS CreateAndCopyDB ( char FAR *pServerName, /* source server name */
         return nError;
 
     /* Close the returned open copy handle - since we do not use it */
-	if (hCopyDb != NULLHANDLE)
-	    nError = NSFDbClose (hCopyDb);
+    if (hCopyDb != NULLHANDLE)
+        nError = NSFDbClose (hCopyDb);
 
     /* return the status */
-	return( nError);
+    return( nError);
 }

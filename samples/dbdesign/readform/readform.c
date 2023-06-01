@@ -66,9 +66,9 @@ extern "C" {
     #define DHANDLE HANDLE 
 #endif
 
-DBHANDLE       hDB;						  /* database handle */
+DBHANDLE       hDB;                       /* database handle */
 char far       *pOutputBuffer;            /* Buffer to hold output strings. */
-STATUS         sError=0;				  /* return code */
+STATUS         sError=0;                  /* return code */
 
 /************************************************************************
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
   if (sError = NSFDbOpen(szFileName, &hDB))
   {
-   PRINTERROR (sError,"NSFDbOpen");  
+   PRINTERROR (sError, "NSFDbOpen");  
    NotesTerm();
    return (1);
   }
@@ -142,10 +142,12 @@ int main(int argc, char *argv[])
   
   /* if no error close the database */
   if (!sError)
+  {
     NSFDbClose(hDB);
+  }
   else 
   {
-   PRINTERROR (sError,"ReadForm");  
+   PRINTERROR (sError, "ReadForm");  
    NotesTerm();
    return (1);
   }
@@ -172,7 +174,7 @@ int main(int argc, char *argv[])
 STATUS LNPUBLIC ReadForm(char *pFormName)
 {
   NOTEHANDLE  hNote; 
-  DHANDLE       hMem;
+  DHANDLE     hMem;
   WORD        ClassForm = NOTE_CLASS_FORM;
   WORD        wDataType;
   DWORD       dwLength;
@@ -181,7 +183,7 @@ STATUS LNPUBLIC ReadForm(char *pFormName)
   BLOCKID     ItemBlockID;
   BLOCKID     prevItemBlockID;
   BLOCKID     ValueBlockID;
-  char far    *pData;
+  char far    *pData=NULL;
   char        szTitleString[128];   /* Form title will be constructed here.  */
 
   /*  
@@ -248,7 +250,7 @@ STATUS LNPUBLIC ReadForm(char *pFormName)
 
   memcpy(szTitleString, pData, (int) (dwLength - sizeof(WORD)));
   szTitleString[dwLength - sizeof(WORD)] = '\0';    
-  sprintf (pOutputBuffer, "\nForm Name:  %s\n\n", szTitleString);
+  sPRINTLOG (pOutputBuffer, "\nForm Name:  %s\n\n", szTitleString);
   OSUnlockBlock(ValueBlockID);
       
   /*
@@ -409,31 +411,31 @@ char far *pOutputBuffer)
 
 *************************************************************************/
 STATUS NOTESCALLBACK FormFields(
-char NOTESPTR	RecordPtr,
-WORD			RecordType,		    
-DWORD			dwRecordLength,		
-void far        *pCtx)				
+char NOTESPTR        RecordPtr,
+WORD                        RecordType,                    
+DWORD                        dwRecordLength,                
+void far        *pCtx)                                
 {
 
   void FAR       *p = (void *)RecordPtr;
   CDFIELD        CDField;
   CDHOTSPOTBEGIN CDV4HotSpot;
-  CDHOTSPOTBEGIN *pCDV4HotSpot;
+  CDHOTSPOTBEGIN *pCDV4HotSpot=NULL;
   NOTEHANDLE     hNote;
-  DHANDLE          hMem;
+  DHANDLE        hMem;
   NOTEID         SubFormNoteID;
   BLOCKID        ValueBlockID, PrevBlockID, NewBlockID;
   DWORD          dwLength;
   WORD           wDataType;
   WORD           binDataType;
 
-  char           FieldString[256];
-  char           szFieldName[128];
-  char           szDataType[128];
-  char far       *pFieldName;
+  char           FieldString[256]={0};
+  char           szFieldName[128]={0};
+  char           szDataType[128]={0};
+  char far       *pFieldName=NULL;
   char           *pBuf = (char *)pCtx;
   
-  void           *pItemValue;
+  void           *pItemValue=NULL;
 
   sError = 0;
 
@@ -444,75 +446,75 @@ void far        *pCtx)
 
   if (RecordType == SIG_CD_V4HOTSPOTBEGIN)
   {
-	ODSReadMemory( &p, _CDHOTSPOTBEGIN, &CDV4HotSpot, 1);
-	pCDV4HotSpot = (CDHOTSPOTBEGIN *)&CDV4HotSpot;
+        ODSReadMemory( &p, _CDHOTSPOTBEGIN, &CDV4HotSpot, 1);
+        pCDV4HotSpot = (CDHOTSPOTBEGIN *)&CDV4HotSpot;
 
-	/*
+    /*
      * if the type is a Subform, find the Subform design note, get it's info, 
      * call EnumCompositeBuffer() to make this the new action routine so we can
      * recursively come in here and detect any nested Subforms.
      */
 
-	if (pCDV4HotSpot->Type == HOTSPOTREC_TYPE_SUBFORM &&
-	    !(pCDV4HotSpot->Flags & HOTSPOTREC_RUNFLAG_FORMULA))
-	{
-	  char * pszSubForm;
+        if (pCDV4HotSpot->Type == HOTSPOTREC_TYPE_SUBFORM &&
+            !(pCDV4HotSpot->Flags & HOTSPOTREC_RUNFLAG_FORMULA))
+        {
+          char * pszSubForm=NULL;
 
-	  if (sError = OSMemAlloc(0,pCDV4HotSpot->DataLength+1,&hMem))
-	    return sError;
+          if (sError = OSMemAlloc(0,pCDV4HotSpot->DataLength+1,&hMem))
+            return sError;
 
-	  pszSubForm = (char *) OSLockObject(hMem);
-	  strncpy(pszSubForm,(char *)p,pCDV4HotSpot->DataLength);
+          pszSubForm = (char *) OSLockObject(hMem);
+          strncpy(pszSubForm,(char *)p,pCDV4HotSpot->DataLength);
 
-	  sError = NIFFindDesignNote(hDB, pszSubForm, NOTE_CLASS_FORM, &SubFormNoteID);
+          sError = NIFFindDesignNote(hDB, pszSubForm, NOTE_CLASS_FORM, &SubFormNoteID);
 
-	  OSUnlockObject(hMem);
-	  OSMemFree(hMem);
-	
-	  if (sError)
-	    return sError;
+          OSUnlockObject(hMem);
+          OSMemFree(hMem);
+        
+          if (sError)
+            return sError;
 
-	  if (sError = NSFNoteOpen(hDB, SubFormNoteID, 0, &hNote))
-	    return sError;
+          if (sError = NSFNoteOpen(hDB, SubFormNoteID, 0, &hNote))
+            return sError;
       
-      /* Now read the Body of the SubForm form */        
-      if (sError = NSFItemInfo(hNote, ITEM_NAME_TEMPLATE,
-			                   (WORD)strlen(ITEM_NAME_TEMPLATE), &NewBlockID,
-			                    &wDataType, &ValueBlockID, &dwLength))
-	  {
-	    NSFNoteClose (hNote);
-		return sError;
-	  }
+          /* Now read the Body of the SubForm form */        
+          if (sError = NSFItemInfo(hNote, ITEM_NAME_TEMPLATE,
+                                           (WORD)strlen(ITEM_NAME_TEMPLATE), &NewBlockID,
+                                            &wDataType, &ValueBlockID, &dwLength))
+          {
+             NSFNoteClose (hNote);
+             return sError;
+          }
 
-   	  /* keep calling this action routine until no more Subforms... */
-	  while ( TRUE )
-	  {  
-	    PrevBlockID = NewBlockID;
-		if (sError = EnumCompositeBuffer(ValueBlockID, dwLength, 
-					                     &FormFields, pOutputBuffer))
-		{
-		  NSFNoteClose ( hNote );
-		  return NOERROR;
-		}
+             /* keep calling this action routine until no more Subforms... */
+          while ( TRUE )
+          {  
+                PrevBlockID = NewBlockID;
+                if (sError = EnumCompositeBuffer(ValueBlockID, dwLength, 
+                                                             &FormFields, pOutputBuffer))
+                {
+                  NSFNoteClose ( hNote );
+                  return NOERROR;
+                }
 
-		sError = NSFItemInfoNext (hNote, PrevBlockID, ITEM_NAME_TEMPLATE,
-					              (WORD)strlen(ITEM_NAME_TEMPLATE), &NewBlockID,
-					              &wDataType, &ValueBlockID, &dwLength);
+                sError = NSFItemInfoNext (hNote, PrevBlockID, ITEM_NAME_TEMPLATE,
+                                                      (WORD)strlen(ITEM_NAME_TEMPLATE), &NewBlockID,
+                                                      &wDataType, &ValueBlockID, &dwLength);
 
-		if (sError && (ERR(sError) == ERR_ITEM_NOT_FOUND) )
-		{
-		  NSFNoteClose ( hNote );
-		  break;
-		}
+                if (sError && (ERR(sError) == ERR_ITEM_NOT_FOUND) )
+                {
+                  NSFNoteClose ( hNote );
+                  break;
+                }
 
-		if(sError && (sError != NOERROR ) )
-		{
-		  NSFNoteClose ( hNote );
-		  return NOERROR;
-		}
+                if(sError && (sError != NOERROR ) )
+                {
+                  NSFNoteClose ( hNote );
+                  return NOERROR;
+                }
 
-	  } /* End of While */
-	} /* if (pCDV4HotSpot->Type == HOTSPOTREC_TYPE_SUBFORM) */
+          } /* End of While */
+        } /* if (pCDV4HotSpot->Type == HOTSPOTREC_TYPE_SUBFORM) */
 
   } /* End of if (RecordType == SIG_CD_V4HOTSPOTBEGIN &&  Gbl_bV4HotSpot) */
 
@@ -594,7 +596,7 @@ void far        *pCtx)
 
     sprintf(FieldString, "Field Name = %s, Data Type = %s\n",
             szFieldName, szDataType);
-  
+
     strcat(pBuf, FieldString);
     
   }

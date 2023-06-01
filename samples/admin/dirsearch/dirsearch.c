@@ -71,7 +71,6 @@ typedef struct {
 /* Local function prototypes */
 int processArgs (int nargc, const char * const *nargv, ARG_STRUCT *args);
 int getOpt (int nargc, const char * const *nargv, const char *ostr, char** poptarg);
-void printStatus(FILE *f, STATUS error);
 
 static void near PASCAL help()
 {
@@ -98,8 +97,8 @@ static void near PASCAL help()
 
 void LNCALLBACK printLn(void *ctx, const char *line)
 {
-	FILE *f = (FILE *)ctx;
-	fprintf(f, "%s\n", line);
+    FILE *f = (FILE *)ctx;
+    fprintf(f, "%s\n", line);
 }
 
 /* Program declaration */
@@ -115,27 +114,27 @@ int main(int argc, char *argv[])
 	
 	if (error)
 	{
-	fprintf (stderr, "\nError initializing Notes.\n");
-	NotesTerm();
-	return (1);
+	   fprintf (stderr, "\nError initializing Notes.\n");
+	   NotesTerm();
+	   return (1);
 	}
 
 	if (processArgs (argc, (const char * const *)argv, &args))
 	{
-		NotesTerm();
-		return 1;
+	   NotesTerm();
+	   return 1;
 	}
 	/* Create the specified directory context for directory operations */
 	if ((error = DirCtxAlloc2(args.szServerName, args.szDomainName, &hCtx)) != NOERROR)
 	{
-		fprintf(stderr, "DirCtxAlloc failure - %d:", error);
-		printStatus(stderr, error);
-		goto Done;
+	   fprintf(stderr, "DirCtxAlloc failure - %d:", error);
+	   PRINTERROR(error,"DirCtxAlloc2");
+	   goto Done;
 	}
 
 	/* Set the input flags that control behavior. */
 	if ((error = DirCtxSetFlags( hCtx, args.dwFlags)) != NOERROR )
-		goto Done;
+	goto Done;
 
 	/* Search for the Entry via name */
 	if ( args.formtype == (0x01 | 0x02) )		/* any type of person */
@@ -151,17 +150,17 @@ int main(int argc, char *argv[])
 
 	if( error != NOERROR )
 	{
-		fprintf(stderr, "SearchByName failure - %d:", error);
-		printStatus(stderr, error);
-		goto Done;
+	   fprintf(stderr, "SearchByName failure - %d:", error);
+	   printStatus(error,"DirCtxSetFlags");
+	   goto Done;
 	}	
 
 	/* Print search summary */
 	if (DirCtxGetDomain(hCtx, args.szDomainName) == NOERROR &&
 		DirCtxGetDirectoryServer(hCtx, args.szServerName) == NOERROR)
 	{
-		PRINTLOG("Found '%lu' matches for '%s' in domain '%s' through server '%s'.\n\n",
-			   DirCollectionGetNumEntries(hCollection), args.szName, args.szDomainName, args.szServerName);									 
+	   PRINTLOG("Found '%lu' matches for '%s' in domain '%s' through server '%s'.\n\n",
+		   DirCollectionGetNumEntries(hCollection), args.szName, args.szDomainName, args.szServerName);									 
 	}
 
 	/* Print complete results */
@@ -174,13 +173,13 @@ Done:
 	DirCtxFree(hCtx);
 		    
 	if( error != NOERROR )
-		{
-		fprintf(stderr, "SearchByName failure - %d:", error);
-		printStatus(stderr, error);
+	{
+	   fprintf(stderr, "SearchByName failure - %d:", error);
+	   printStatus(error,"DirCtxSetFlags");
 
-		NotesTerm();
-		return (1);
-		}
+	   NotesTerm();
+	   return (1);
+	}
 	NotesTerm();
 	return (0);
 }
@@ -229,18 +228,18 @@ int processArgs (int nargc, const char * const *nargv, ARG_STRUCT *args)
 						const int len = strlen(token);
 						if (avail_len < len)
 						{
-							PRINTLOG("Sorry, too many -i Items.\n");
-							return 1;
+						   PRINTLOG("Sorry, too many -i Items.\n");
+						   return 1;
 						}
 
 						if (*token == '+')
-							args->PrintFlags |= DIRPRINT_FLAG_EXTENDED_ENTRY;
+						    args->PrintFlags |= DIRPRINT_FLAG_EXTENDED_ENTRY;
 						else
 						{
-							strncpy(ptr, token, avail_len);
-							args->wNumItems++;
-							avail_len -= (len + 1);
-							ptr += (len + 1);
+						   strncpy(ptr, token, avail_len);
+						   args->wNumItems++;
+						   avail_len -= (len + 1);
+						   ptr += (len + 1);
 						}
 
 						
@@ -249,31 +248,31 @@ int processArgs (int nargc, const char * const *nargv, ARG_STRUCT *args)
 
 					if ((args->PrintFlags & DIRPRINT_FLAG_EXTENDED_ENTRY) && args->wNumItems == 0)
 					{
-						args->szItems[0] = '\0';
-						strcpy(args->szItems, DIR_ITEMS_ALL_DOMINO);
-						args->wNumItems = 1;
+					   args->szItems[0] = '\0';
+					   strcpy(args->szItems, DIR_ITEMS_ALL_DOMINO);
+					   args->wNumItems = 1;
 					}
 
 				}
 				break;
 			case 'b':
-				break;
+			    break;
 			case 'n':
-				nswitch = 1;
-				strncpy (args->szName, optarg, strlen(optarg));
+			    nswitch = 1;
+			    strncpy (args->szName, optarg, strlen(optarg));
 
-				break;
+			    break;
 			default:
-				help();
-				return 1;
+			    help();
+			    return 1;
 		}
 
 	}
 
 	if (nswitch == 0)
 	{
-		help();
-		return 1;
+	   help();
+	   return 1;
 	}
 		
 	return 0;
@@ -338,10 +337,3 @@ int getOpt (int nargc, const char * const *nargv, const char *ostr, char** popta
 	return(optopt);                         /* dump back option letter */
 }
 
-void printStatus(FILE *f, STATUS error)
-{
-	char msg[MAXSPRINTF+1] = "";
-
-	OSLoadString(NULLHANDLE, ERR(error), msg, sizeof(msg));
-	fprintf(f, msg, NULL, NULL, NULL);		/* msg may contain % formatters, satisfy them with NULL */
-}

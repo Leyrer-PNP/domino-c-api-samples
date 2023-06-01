@@ -44,15 +44,15 @@ int main (int argc, char *argv[])
 	STATUS	error;
 
 	if (error = NotesInitExtended (argc, argv))
-	 {
-        PRINTLOG("\n Unable to initialize Notes.\n");
-        return (1);
-	 }
+	{
+	   PRINTLOG("\n Unable to initialize Notes.\n");
+	   return (1);
+	}
 
 	if(error = SECHashPassword (strlen ("viking"), (BYTE*) "viking",
-		52, &Digest2Len, Digest2, 0, NULL))
+	   52, &Digest2Len, Digest2, 0, NULL))
 	{
-		PRINTERROR (error,"SECHashPassword");
+	   PRINTERROR (error,"SECHashPassword");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
@@ -60,22 +60,22 @@ int main (int argc, char *argv[])
 
 	if (Verify != NOERROR)
 	{
-		PRINTLOG("Verify good password fail.\n");
+	   PRINTLOG("Verify good password fail.\n");
 	}
 	else
 	{
-		PRINTLOG("Verify good password pass.\n");
+	   PRINTLOG("Verify good password pass.\n");
 	}
 						   	 
 	Verify = SECVerifyPassword(strlen ("viking2"), (BYTE*)"viking2", Digest2Len, Digest2, 0, NULL);
 	
 	if (Verify != ERR_SECURE_BADPASSWORD)
 	{
-		PRINTLOG("Verify bad password fail.\n");
+	   PRINTLOG("Verify bad password fail.\n");
 	}
 	else
 	{
-		PRINTLOG("Verify bad password pass.\n");
+	   PRINTLOG("Verify bad password pass.\n");
 	}
 
 	if(error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
@@ -83,7 +83,7 @@ int main (int argc, char *argv[])
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))
 	{
-		PRINTERROR (error,"SECHashPassword3");
+	   PRINTERROR (error,"SECHashPassword3");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
@@ -91,11 +91,11 @@ int main (int argc, char *argv[])
 
 	if (Verify != NOERROR)
 	{
-		PRINTLOG("Verify good password fail.\n");
+	   PRINTLOG("Verify good password fail.\n");
 	}
 	else
 	{
-		PRINTLOG("Verify good password pass.\n");
+	   PRINTLOG("Verify good password pass.\n");
 	}
 						   	 
 
@@ -104,7 +104,7 @@ int main (int argc, char *argv[])
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))
 	{
-		PRINTERROR (error,"SECHashPassword3");
+	   PRINTERROR (error,"SECHashPassword3");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
@@ -112,11 +112,11 @@ int main (int argc, char *argv[])
 
 	if (Verify != NOERROR)
 	{
-		PRINTLOG("Verify good password fail.\n");
+	   PRINTLOG("Verify good password fail.\n");
 	}
 	else
 	{
-		PRINTLOG("Verify good password pass.\n");
+	   PRINTLOG("Verify good password pass.\n");
 	}
 
 	if(error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
@@ -124,29 +124,29 @@ int main (int argc, char *argv[])
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))
 	{
-		PRINTERROR (error,"SECHashPassword3");
+	   PRINTERROR (error,"SECHashPassword3");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking", Digest3Len, Digest3, 0, NULL);
 
 	if (Verify != NOERROR)
 	{
-		PRINTLOG("Verify good password fail.\n");
+	   PRINTLOG("Verify good password fail.\n");
 	}
 	else
 	{
-		PRINTLOG("Verify good password pass.\n");
+	   PRINTLOG("Verify good password pass.\n");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking2"), (BYTE*)"viking2", Digest3Len, Digest3, 0, NULL);
 	
 	if (Verify != ERR_SECURE_BADPASSWORD)
 	{
-		PRINTLOG("Verify bad password fail.\n");
+	   PRINTLOG("Verify bad password fail.\n");
 	}
 	else
 	{
-		PRINTLOG("Verify bad password pass.\n");
+	   PRINTLOG("Verify bad password pass.\n");
 	}
 
 	NotesTerm();

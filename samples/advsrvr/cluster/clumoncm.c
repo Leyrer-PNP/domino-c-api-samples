@@ -90,11 +90,11 @@ int main(int argc, char *argv[])
 
     ioctl(0, TCGETS, &cfg);
 
-	if (error = NotesInitExtended (argc, argv))
-	{
-     printf("\n Unable to initialize Notes.\n");
-     return (1);
-	}
+    if (error = NotesInitExtended (argc, argv))
+    {
+        printf("\n Unable to initialize Notes.\n");
+        return (1);
+    }
 
 /* 
  * Print program intro, call main user menu interface,
@@ -681,7 +681,7 @@ void CreateCopyDB (void)
 void dspClusterInfo(char *szServerName, DWORD dwClusterFlags)
 {
 	STATUS nError;
-    char szErrorString[LINEOTEXT];      /* Error Message String */
+	char szErrorString[LINEOTEXT];      /* Error Message String */
 	char szClusterName[MAXUSERNAME];    /* Name of Cluster */
 	char szClusterInfo[LINEOTEXT];      /* Returned Cluster Info */
 
@@ -703,11 +703,11 @@ void dspClusterInfo(char *szServerName, DWORD dwClusterFlags)
        
 		/* return if error */
 		if (nError != NOERROR)
-            goto Cleanup;
+		    goto Cleanup;
 		else
 		{
-        /* Print out cluster name */
-            printf("\nCluster Name: %s", szClusterName);
+		    /* Print out cluster name */
+		    printf("\nCluster Name: %s", szClusterName);
 		}
 	}
 
@@ -717,7 +717,7 @@ void dspClusterInfo(char *szServerName, DWORD dwClusterFlags)
         nError = GetServerLoad(szServerName, &dwLoadIndex);
       
     	if (nError)
-			goto Cleanup;
+		    goto Cleanup;
 	
         else
         /* Print out Availability index */
@@ -737,48 +737,48 @@ void dspClusterInfo(char *szServerName, DWORD dwClusterFlags)
 		 * block of code.
 		 */
         nError = GetServerClusterMates(szServerName, 
-        							   (DWORD)CLUSTER_LOOKUP_NOCACHE,
-        							    &hClusterList);
+                                       (DWORD)CLUSTER_LOOKUP_NOCACHE,
+                                       &hClusterList);
     
         /* If the server is in a restricted or unavailable state then we can
          * still continue because it will still return the cluster info to us.
          * If it's another error then quit but make sure that the list is freed
 		 */
-		if (nError)
-       	{
-    		if ( !(( ERR(nError) == ERR_SERVER_UNAVAILABLE) || 
-    			   ( ERR(nError) == ERR_SERVER_RESTRICTED)) )
-       			goto Cleanup;
-       	}
-		nError = NOERROR;
-		lpClusterList = OSLock( void, hClusterList);
-    	wNumListEntries = ListGetNumEntries( lpClusterList, FALSE);
+	if (nError)
+	{
+	    if ( !(( ERR(nError) == ERR_SERVER_UNAVAILABLE) || 
+	         ( ERR(nError) == ERR_SERVER_RESTRICTED)) )
+	        goto Cleanup;
+	}
+	nError = NOERROR;
+	lpClusterList = OSLock( void, hClusterList);
+	wNumListEntries = ListGetNumEntries( lpClusterList, FALSE);
 	    
 		/* Display the member count */
         printf("Cluster Mates: %d\n", wNumListEntries);
 
  		/* Get the members from the list */
-	    for (i = 0; i < (int) wNumListEntries; i++)
-    	{
-        	nError = ListGetText( lpClusterList, FALSE, (WORD) i, 
-									FAR &pBuffer, &wBufferLen );
-	        if (!nError)
-    	   	{
-				/* Update the Cluster Mates dialog list box */
-   			    memcpy(szClusterInfo, pBuffer, wBufferLen);
-				szClusterInfo[wBufferLen] = '\0';
-                printf("\t%s\n", szClusterInfo);
-            }
-	        else
-           	{
-        	   	OSUnlock( hClusterList);
-           		goto Cleanup;
-           	}
-		} /* end of FOR */
-        
-        /* No longer need this memory - Freeing done in "Cleanup:" below */
-        OSUnlock( hClusterList);
-   }  
+	for (i = 0; i < (int) wNumListEntries; i++)
+	{
+	    nError = ListGetText( lpClusterList, FALSE, (WORD) i, 
+	                          FAR &pBuffer, &wBufferLen );
+	    if (!nError)
+	    {
+	        /* Update the Cluster Mates dialog list box */
+	        memcpy(szClusterInfo, pBuffer, wBufferLen);
+	        szClusterInfo[wBufferLen] = '\0';
+	        printf("\t%s\n", szClusterInfo);
+	    }
+	    else
+	    {
+	        OSUnlock( hClusterList);
+	        goto Cleanup;
+	    }
+	} /* end of FOR */
+	
+	/* No longer need this memory - Freeing done in "Cleanup:" below */
+	OSUnlock( hClusterList);
+	}  
 
 Cleanup:
    if (hClusterList != NULLHANDLE)        
@@ -907,7 +907,7 @@ void dspThresholdInfo (char *szServerName)
     char    szErrorString[LINEOTEXT];           /* Error Message String */
     DWORD   dwAvailability;                     /* server availability value*/
     char    szInfo[LINEOTEXT];                  /* info string*/
-	char    szServerResponse[LINEOTEXT];        /* response buffer */
+    char    szServerResponse[LINEOTEXT];        /* response buffer */
     WORD    wResponseLen = LINEOTEXT;           /* and length      */
     int     i;
 
@@ -1049,10 +1049,10 @@ Cleanup:
     PURPOSE:  Retrieves and displays the Server Restriction state for the
               specified server.   The RemoteCommand routine (clfunc.c) is
               called to perform the relevant HCL C API for Domino and 
-			  Notes functions. Specifically, this routine programmatically 
-			  uses Domino and Notes remote console commands to retrieve 
-			  server restriction status. The referenced commands are 
-			  defined in clumon.h.
+              Notes functions. Specifically, this routine programmatically 
+              uses Domino and Notes remote console commands to retrieve 
+              server restriction status. The referenced commands are 
+              defined in clumon.h.
               
     COMMENTS:
 
@@ -1069,7 +1069,7 @@ void dspServerRestrict (char *szServerName)
 {
     STATUS  nError;
     char    szErrorString[LINEOTEXT];           /* Error Message String */
-	char    szServerResponse[LINEOTEXT];        /* response buffer */
+    char    szServerResponse[LINEOTEXT];        /* response buffer */
     WORD    wResponseLen = strlen(RESTRICTED);  /* and length      */
 
     printf("\nCurrent Restriction For %s\n", szServerName);
@@ -1130,8 +1130,8 @@ void setServerRestrict (char *szServerName, int iRestrict)
 {
     STATUS  nError;
     char    szErrorString[LINEOTEXT];       /* Error Message String */
-	char    szCommand[LINEOTEXT];           /* remote command */
-	char    szServerResponse[LINEOTEXT];    /* response buffer */
+    char    szCommand[LINEOTEXT];           /* remote command */
+    char    szServerResponse[LINEOTEXT];    /* response buffer */
     WORD    wResponseLen = 0;               /* and length      */
     BOOL    bRestrictFlag;                  /* TRUE=restrict, FALSE=unrestrict */
 
@@ -1179,10 +1179,10 @@ void setServerRestrict (char *szServerName, int iRestrict)
 
     PURPOSE:  Shuts down (quits) the server specified. The RemoteCommand 
               routine (clfunc.c) is called to perform the relevant HCL 
-			  C API for Domino and Notes functions.  Specifically, this 
-			  routine programmatically uses Domino and Notes remote 
-			  console commands to shutdown the server. The referenced 
-			  commands are defined in clumon.h.
+              C API for Domino and Notes functions.  Specifically, this 
+              routine programmatically uses Domino and Notes remote 
+              console commands to shutdown the server. The referenced 
+              commands are defined in clumon.h.
               
     COMMENTS:
 
@@ -1203,8 +1203,8 @@ void setServerRestrict (char *szServerName, int iRestrict)
 void shutdownServer (char *szServerName)
 {
     STATUS  nError;
-	char    szErrorString[LINEOTEXT];
-	char    szServerResponse[LINEOTEXT];    /* response buffer */
+    char    szErrorString[LINEOTEXT];
+    char    szServerResponse[LINEOTEXT];    /* response buffer */
     WORD    wResponseLen = 0;               /* and length      */
     char    cYesNo;
 
@@ -1254,10 +1254,10 @@ void shutdownServer (char *szServerName)
     PURPOSE:  Sets and displays the Server availability and threshold
               information for the specified server.  The RemoteCommand 
               routine (clfunc.c) is called to perform the relevant HCL 
-			  C API for Domino and Notes functions.  Specifically, this 
-			  routine programmatically uses Domino and Notes remote 
-			  console commands to set the server availability threshold 
-			  configuration. The referenced commands are defined in clumon.h.
+              C API for Domino and Notes functions.  Specifically, this 
+              routine programmatically uses Domino and Notes remote 
+              console commands to set the server availability threshold 
+              configuration. The referenced commands are defined in clumon.h.
 
     COMMENTS:
 
@@ -1275,8 +1275,8 @@ void setThresholdInfo (char *szServerName, int iThreshold)
 {
     STATUS  nError;
     char    szErrorString[LINEOTEXT];       /* Error Message String */
-	char    szCommand[LINEOTEXT];           /* remote command */
-	char    szServerResponse[LINEOTEXT];    /* response buffer */
+    char    szCommand[LINEOTEXT];           /* remote command */
+    char    szServerResponse[LINEOTEXT];    /* response buffer */
     WORD    wResponseLen = 0;               /* and length      */
 
     /* Check for input errors -> Value must be between 0 and 100 */

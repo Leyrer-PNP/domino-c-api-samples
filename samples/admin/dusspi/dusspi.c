@@ -148,12 +148,12 @@ STATUS LNCALLBACK DUSStart(HMODULE hInstance,
 	size = sizeof(DUS_CONTEXT);
 	if(error = OSMemAlloc(0, size, pRethContext))
 	{
-		pRethContext = NULLHANDLE;
+	    pRethContext = NULLHANDLE;
 	}
 	else
 	{
-		pDUSCtx = OSLock(DUS_CONTEXT, *pRethContext);
-		memset(pDUSCtx, 0, (size));
+	    pDUSCtx = OSLock(DUS_CONTEXT, *pRethContext);
+	    memset(pDUSCtx, 0, (size));
 	}
 	 
 	pDUSCtx->hDUSModule = hInstance;
@@ -172,8 +172,8 @@ STATUS LNCALLBACK DUSStart(HMODULE hInstance,
 		
 	if(pDUSCtx != NULL)
 	{
-		OSUnlock(*pRethContext);
-		pDUSCtx = NULL;
+	    OSUnlock(*pRethContext);
+	    pDUSCtx = NULL;
 	}
 
 	return(error);
@@ -246,9 +246,9 @@ STATUS LNCALLBACK DUSRetrieveUsers(DHANDLE hContext,
 	
 	
 	if(hContext)
-		pDUSCtx = OSLock(DUS_CONTEXT, hContext);
+	    pDUSCtx = OSLock(DUS_CONTEXT, hContext);
 	else
-		return(ERR_DUS_CONTEXT_CORRUPT);
+	    return(ERR_DUS_CONTEXT_CORRUPT);
 
 	pDUSCtx->LogEventProc( STR_DUS_GETTING_USERS, pDUSCtx->hDUSModule, NOERROR );
 	*pResumeIndex = StartIndex;
@@ -269,74 +269,74 @@ STATUS LNCALLBACK DUSRetrieveUsers(DHANDLE hContext,
 								NULL);
 	if(hFile == HFILE_ERROR)
 	{
-		error = ERR_DUS_EXTENDED_ERROR;
-		pDUSCtx->ExtendedError = STR_DUS_ERR_NOFILE_NAMES;
-		pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
+	    error = ERR_DUS_EXTENDED_ERROR;
+	    pDUSCtx->ExtendedError = STR_DUS_ERR_NOFILE_NAMES;
+	    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
 	}
 	else
 	{
-		FileSize = GetFileSize((DHANDLE)hFile, NULL);
-		if(ReadFile((DHANDLE)hFile, FileBuffer, FileSize, &NumberOfBytesRead, NULL) == 0)
-		{
-			error = ERR_DUS_EXTENDED_ERROR;
-			pDUSCtx->ExtendedError = STR_DUS_ERR_READFILE_NAMES;
-			pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
-			
-		}
-		else
-		{
-			/* Parse through the file to get the number of users available for migration. */
-			for( i = 0; i < NumberOfBytesRead; i++)
-			{
-				if((FileBuffer[i] == CHAR_LF) && (FileBuffer[i+1] != CHAR_CR))
-				*pNumUsersReturned += 1;
-			}
+	    FileSize = GetFileSize((DHANDLE)hFile, NULL);
+	    if(ReadFile((DHANDLE)hFile, FileBuffer, FileSize, &NumberOfBytesRead, NULL) == 0)
+	    {
+	        error = ERR_DUS_EXTENDED_ERROR;
+	        pDUSCtx->ExtendedError = STR_DUS_ERR_READFILE_NAMES;
+	        pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
+	        
+	    }
+	    else
+	    {
+	        /* Parse through the file to get the number of users available for migration. */
+	        for( i = 0; i < NumberOfBytesRead; i++)
+	        {
+	            if((FileBuffer[i] == CHAR_LF) && (FileBuffer[i+1] != CHAR_CR))
+	                *pNumUsersReturned += 1;
+	        }
 
-			/* 
-			 * Allocate space for the number of users available for migration.
-			 */
-			size = (*pNumUsersReturned * sizeof(DUS_ENTRY));
-			if( error = OSMemAlloc(0, size, pRethExternalUsers))
-			{
-				pRethExternalUsers = NULLHANDLE;
-			}
-			else
-			{
-				pExternalUsers = OSLock(DUS_ENTRY, *pRethExternalUsers);
-				memset(pExternalUsers, 0, (size));
-				OSLoadString(pDUSCtx->hDUSModule, STR_DUS_GETTING_USERS, Message, sizeof(Message));
-				for(i=0, index=0; i < *pNumUsersReturned; i++) 
-				{
-					pDUSCtx->ProgressBarProc((DWORD)*pNumUsersReturned, i, Message);
-					Sleep(100);                     /* Allow for illustration of Progress Bar status */
-					position = 0; 
-					pExternalUsers[i].ID = i + *pNumUsersReturned;
-					while(((FileBuffer[index] != CHAR_CR) && (FileBuffer[index] != CHAR_LF)) && (index < NumberOfBytesRead))
-					{  
-						/* Parse the data from the input file */
-						pExternalUsers[i].Name[position] = FileBuffer[index];
-						index++;
-						position++;
-					}
-					index+=2; /* Hop over CRLF in the input File */
-				}
-				pDUSCtx->ProgressBarProc(*pNumUsersReturned, *pNumUsersReturned, Message); /* Reset Progress Bar */
-				OSUnlock(*pRethExternalUsers);
-				*pRetUserEntrySize = sizeof(DUS_ENTRY);
-			}
-			pDUSCtx->LogEventProc( STR_DUS_FINISHED_USERS, pDUSCtx->hDUSModule, NOERROR );
-		} /* endif ReadFile */
+	        /* 
+	         * Allocate space for the number of users available for migration.
+	         */
+	        size = (*pNumUsersReturned * sizeof(DUS_ENTRY));
+	        if( error = OSMemAlloc(0, size, pRethExternalUsers))
+	        {
+	            pRethExternalUsers = NULLHANDLE;
+	        }
+	        else
+	        {
+	            pExternalUsers = OSLock(DUS_ENTRY, *pRethExternalUsers);
+	            memset(pExternalUsers, 0, (size));
+	            OSLoadString(pDUSCtx->hDUSModule, STR_DUS_GETTING_USERS, Message, sizeof(Message));
+	            for(i=0, index=0; i < *pNumUsersReturned; i++) 
+	            {
+	                pDUSCtx->ProgressBarProc((DWORD)*pNumUsersReturned, i, Message);
+	                Sleep(100);                     /* Allow for illustration of Progress Bar status */
+	                position = 0; 
+	                pExternalUsers[i].ID = i + *pNumUsersReturned;
+	                while(((FileBuffer[index] != CHAR_CR) && (FileBuffer[index] != CHAR_LF)) && (index < NumberOfBytesRead))
+	                {
+	                    /* Parse the data from the input file */
+	                    pExternalUsers[i].Name[position] = FileBuffer[index];
+	                    index++;
+	                    position++;
+	                }
+	                index+=2; /* Hop over CRLF in the input File */
+	            }
+	            pDUSCtx->ProgressBarProc(*pNumUsersReturned, *pNumUsersReturned, Message); /* Reset Progress Bar */
+	            OSUnlock(*pRethExternalUsers);
+	            *pRetUserEntrySize = sizeof(DUS_ENTRY);
+	        }
+	        pDUSCtx->LogEventProc( STR_DUS_FINISHED_USERS, pDUSCtx->hDUSModule, NOERROR );
+	    } /* endif ReadFile */
 	} /* endif CreateFile */
 	if(CloseHandle((DHANDLE)hFile) == 0)
 	{
-		error = ERR_DUS_EXTENDED_ERROR;
-		pDUSCtx->ExtendedError = STR_DUS_ERR_CLOSEFILE_NAMES;
-		pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
+	    error = ERR_DUS_EXTENDED_ERROR;
+	    pDUSCtx->ExtendedError = STR_DUS_ERR_CLOSEFILE_NAMES;
+	    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
 	}               
 	if(pDUSCtx != NULL)
 	{
-		OSUnlock(hContext);
-		pDUSCtx = NULL;
+	    OSUnlock(hContext);
+	    pDUSCtx = NULL;
 	}
 	return(error);
 
@@ -561,8 +561,8 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 			FirstName[fname] = ParseName[index];
 			if( fname == 0 )
 			{
-				ShortName[sname] = ParseName[index];
-				sname++;
+			    ShortName[sname] = ParseName[index];
+			    sname++;
 			}
 			index++;
 			fname++;
@@ -636,12 +636,12 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 	 * Read the address.txt file to get the address information for this username.
 	 */
 	hFile = CreateFile( FileName, GENERIC_READ, FILE_SHARE_READ, NULL,
-								OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+				 OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(hFile == HFILE_ERROR)
 	{
-		error = ERR_DUS_EXTENDED_ERROR;
-		pDUSCtx->ExtendedError = STR_DUS_ERR_NOFILE_ADDRESS;
-		pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
+	    error = ERR_DUS_EXTENDED_ERROR;
+	    pDUSCtx->ExtendedError = STR_DUS_ERR_NOFILE_ADDRESS;
+	    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
 	}
 	else
 	{
@@ -649,24 +649,24 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 		(char *)FileBuffer = malloc(FileSize);
 		if(FileBuffer == NULL)
 		{
-			error = ERR_DUS_EXTENDED_ERROR;
-			pDUSCtx->ExtendedError = STR_DUS_ERR_NOMEM;
-			pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR;
+		    error = ERR_DUS_EXTENDED_ERROR;
+		    pDUSCtx->ExtendedError = STR_DUS_ERR_NOMEM;
+		    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR;
 		}
 		else
 		{
 			if(ReadFile((DHANDLE)hFile, FileBuffer, FileSize, &NumberOfBytesRead, NULL) == 0)
 			{
-				error = ERR_DUS_EXTENDED_ERROR;
-				pDUSCtx->ExtendedError = STR_DUS_ERR_READFILE_ADDRESS;
-				pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
+			    error = ERR_DUS_EXTENDED_ERROR;
+			    pDUSCtx->ExtendedError = STR_DUS_ERR_READFILE_ADDRESS;
+			    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
 			}
 			else
 			{
 				for( i=0, index=0; i < NumberOfBytesRead; i++)
 				{
 					if((FileBuffer[i] == CHAR_LF) && (FileBuffer[i+1] != CHAR_CR))
-						NumLines++;
+					    NumLines++;
 				}
 				t = TRUE;
 				for( i=0, index=0; ((i < NumLines) && (t == TRUE)); i++)
@@ -675,9 +675,9 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 					while(((FileBuffer[index] != CHAR_CR) && (FileBuffer[index] != CHAR_LF)) 
 						&& (index < NumberOfBytesRead))
 					{
-						LineOfData[pos] = FileBuffer[index];
-						pos++;
-						index++;
+					    LineOfData[pos] = FileBuffer[index];
+					    pos++;
+					    index++;
 					}
 					LineOfData[pos] = '\0';
 					pdest = strchr(LineOfData, CHAR_COMMA);
@@ -691,7 +691,7 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 						if(pdest == NULL) 
 							goto Finish;
 						if(error = NSFItemSetText(hUserNote, USERREG_HOME_STREETADDRESS, 
-												((char *)&LineOfData[pos]), (WORD)(result-1)))
+							((char *)&LineOfData[pos]), (WORD)(result-1)))
 							goto Finish;
 						pos += result;
 						pdest = strchr(&LineOfData[pos], CHAR_COMMA);
@@ -699,7 +699,7 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 						if(pdest == NULL)
 							goto Finish;
 						if(error = NSFItemSetText(hUserNote, USERREG_HOME_CITY, 
-												((char *)&LineOfData[pos]), (WORD)(result-1)))
+							((char *)&LineOfData[pos]), (WORD)(result-1)))
 							goto Finish;
 						pos += result;
 						pdest = strchr(&LineOfData[pos], CHAR_COMMA);
@@ -707,11 +707,11 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 						if(pdest == NULL)
 							goto Finish;
 						if(error = NSFItemSetText(hUserNote, USERREG_HOME_STATE, 
-												((char *)&LineOfData[pos]), (WORD)(result-1)))
+							((char *)&LineOfData[pos]), (WORD)(result-1)))
 							goto Finish;
 						pos+= result;
 						if(error = NSFItemSetText(hUserNote, (char *)USERREG_HOME_ZIP, 
-												((char *)&LineOfData[pos]), 5))
+							((char *)&LineOfData[pos]), 5))
 							goto Finish;
 						t = FALSE; /* We have a match so we can exit from searching through this file */
 					}
@@ -719,9 +719,9 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 				}
 				if(CloseHandle((DHANDLE)hFile) == 0)
 				{
-					error = ERR_DUS_EXTENDED_ERROR;
-					pDUSCtx->ExtendedError = STR_DUS_ERR_CLOSEFILE_ADDRESS;
-					pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
+				    error = ERR_DUS_EXTENDED_ERROR;
+				    pDUSCtx->ExtendedError = STR_DUS_ERR_CLOSEFILE_ADDRESS;
+				    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
 				}       
 			}/* endif ReadFile */
 		free(FileBuffer);
@@ -731,15 +731,15 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 Finish:
 	if((error != NOERROR) && (error != ERR_DUS_EXTENDED_ERROR))
 	{
-		error = ERR_DUS_EXTENDED_ERROR;
-		pDUSCtx->ExtendedError = STR_DUS_ERR_ADDRESSES;
-		pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR;
+	    error = ERR_DUS_EXTENDED_ERROR;
+	    pDUSCtx->ExtendedError = STR_DUS_ERR_ADDRESSES;
+	    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR;
 	}
 
 	if(pDUSCtx != NULL)
 	{
-		OSUnlock(hContext);
-		pDUSCtx = NULL;
+	    OSUnlock(hContext);
+	    pDUSCtx = NULL;
 	}
 	return(error);
 }
@@ -805,7 +805,7 @@ STATUS LNCALLBACK DUSStop( DHANDLE hContext )
 
 	if (hContext)
 	{
-		OSMemFree(hContext);
+	    OSMemFree(hContext);
 	}
 
 	pDUSCtx = NULL;
@@ -946,25 +946,25 @@ void LNCALLBACK DUSExtendedErrorText(DHANDLE hContext,
 {
 
 	if(hContext)
-		pDUSCtx = OSLock(DUS_CONTEXT, hContext);
+	    pDUSCtx = OSLock(DUS_CONTEXT, hContext);
 	else
-		return;
+	    return;
 
 	if(pDUSCtx->ExtendedError)
 	{
-		OSLoadString(pDUSCtx->hDUSModule, pDUSCtx->ExtendedError, ErrorBuffer, BufferLen);
-		*pErrorLevel = pDUSCtx->ExtendedErrorLevel;
+	    OSLoadString(pDUSCtx->hDUSModule, pDUSCtx->ExtendedError, ErrorBuffer, BufferLen);
+	    *pErrorLevel = pDUSCtx->ExtendedErrorLevel;
 	}
 	else
-		strcpy(ErrorBuffer, "");
+	    strcpy(ErrorBuffer, "");
 
 	pDUSCtx->ExtendedError = 0;
 	pDUSCtx->ExtendedErrorLevel = 0;
 
 	if(pDUSCtx != NULL)
 	{
-		OSUnlock(hContext);
-		pDUSCtx = NULL;
+	    OSUnlock(hContext);
+	    pDUSCtx = NULL;
 	}
 	return;
 }

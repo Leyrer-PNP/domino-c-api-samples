@@ -127,25 +127,25 @@ int main(int argc, char *argv[])
     DWORD       NumScanned, NumEntries;
     NOTEID      nid;
 
-	if (argc != 2)
-   {
-	   PRINTLOG("\nUsage:  %s <server name>\n", argv[0]);
-	   return (0);
-   }
-   else
-   {
-	   szServerName = argv[1];
-   }
+    if (argc != 2)
+    {
+        PRINTLOG("\nUsage:  %s <server name>\n", argv[0]);
+        return (0);
+    }
+    else
+    {
+        szServerName = argv[1];
+    }
 
 /*
  *   Start by calling Notes InitExtended.
  */
 
-if (sError = NotesInitExtended (argc, argv))
- {
-     PRINTLOG("\n Unable to initialize Notes.\n");
-     return (1);
- }
+    if (sError = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
 
 
 /*
@@ -154,9 +154,9 @@ if (sError = NotesInitExtended (argc, argv))
  */
 
     if (sError = OSPathNetConstruct(NULL,
-                szServerName,
-                szFileName,
-                szFullPathName))
+                 szServerName,
+                 szFileName,
+                 szFullPathName))
     {
         PRINTERROR (sError,"OSPathNetConstruct");  
         NotesTerm();
@@ -181,8 +181,8 @@ if (sError = NotesInitExtended (argc, argv))
  */
 
     if (sError = NSFDbCreate(szFileName,
-              DBCLASS_NOTEFILE,
-              TRUE))
+                 DBCLASS_NOTEFILE,
+                 TRUE))
 
     {
         NSFDbClose(hOrigDB);
@@ -335,9 +335,9 @@ if (sError = NotesInitExtended (argc, argv))
 
     {
         NSFDbClose(hDB);            /* Close database            */
-	    PRINTERROR (sError,"NSFNoteCreate");  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFNoteCreate");  
+        NotesTerm();
+        return (1);
     }
     if (sError = REGGetIDInfo (IDFileSpec, REGIDGetName, UserName, 
                                MAXUSERNAME+1, &retUserNameLen))
@@ -459,12 +459,12 @@ if (sError = NotesInitExtended (argc, argv))
                 pBuffer,
                 wItemLength))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PRINTERROR (sError,"NSFItemAppend");  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFItemAppend");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -524,12 +524,12 @@ if (sError = NotesInitExtended (argc, argv))
                 pBuffer,
                 wItemLength))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PRINTERROR (sError,"NSFItemAppend");  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFItemAppend");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -551,12 +551,12 @@ if (sError = NotesInitExtended (argc, argv))
                &wdc, &wdc, &wdc,
                &wdc, &wdc))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PRINTERROR (sError,"NSFFormulaCompile");  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFFormulaCompile");  
+        NotesTerm();
+        return (1);
     }
 
     pSelFormula = (char*) OSLockObject(hSelFormula);
@@ -573,12 +573,12 @@ if (sError = NotesInitExtended (argc, argv))
                 pSelFormula,
                 wSelFormulaLen))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PRINTERROR (sError,"NSFItemAppend");  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFItemAppend");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -594,12 +594,12 @@ if (sError = NotesInitExtended (argc, argv))
 
     if (sError = NSFNoteUpdate(hNote, 0))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PRINTERROR (sError,"NSFNoteUpdate");  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFNoteUpdate");  
+        NotesTerm();
+        return (1);
     }
 
 /* 
@@ -608,12 +608,12 @@ if (sError = NotesInitExtended (argc, argv))
 
     if (sError = NSFNoteClose(hNote))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PRINTERROR (sError,"NSFNoteClose");  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFNoteClose");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -622,11 +622,11 @@ if (sError = NotesInitExtended (argc, argv))
 
     if (sError = NSFDbClose(hDB))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   PRINTERROR (sError,"NSFDbClose");  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        PRINTERROR (sError,"NSFDbClose");  
+        NotesTerm();
+        return (1);
     }
 
 /*

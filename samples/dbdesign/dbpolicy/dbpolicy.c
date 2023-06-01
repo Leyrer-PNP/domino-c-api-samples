@@ -72,24 +72,24 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char          path_name[STRING_LENGTH];       /* pathname of database */
-   DBHANDLE      db_handle;        				 /* database handle */
-   NOTEHANDLE    note_handle;      				 /* note handle */
-   STATUS        error;            				 /* return code from API calls */
-   int           note_class_value; 				 /* set to NOTE_CLASS_INFO - policy doc */
-   NOTEID        note_ID;          				 /* to read the policy and help docs */
+   char          path_name[STRING_LENGTH];                          /* pathname of database */
+   DBHANDLE      db_handle;                                         /* database handle */
+   NOTEHANDLE    note_handle;                                       /* note handle */
+   STATUS        error;                                             /* return code from API calls */
+   int           note_class_value;                                  /* set to NOTE_CLASS_INFO - policy doc */
+   NOTEID        note_ID;                                           /* to read the policy and help docs */
 
-	
-	error = NotesInitExtended (argc, argv);
-	if (error)
-	{
-	   PRINTLOG("Error: Unable to initialize Notes.\n");
-		return (1);
-	}
+        
+   error = NotesInitExtended (argc, argv);
+   if (error)
+   {
+       PRINTLOG("Error: Unable to initialize Notes.\n");
+       return (1);
+   }
 
 
 /* Get the command line parameters that the user entered. */
-    ProcessArgs(argc, argv, path_name);
+   ProcessArgs(argc, argv, path_name);
 
 
 /* Initialize the paragraph definition blocks used in the rich text fields
@@ -98,10 +98,10 @@ int main(int argc, char *argv[])
 /* Open the database. */
 
    if (error = NSFDbOpen (path_name, &db_handle))
-	{
-      PRINTERROR(error,"NSFDbOpen");
-      NotesTerm();
-      return (1);
+   {
+       PRINTERROR(error,"NSFDbOpen");
+       NotesTerm();
+       return (1);
    }
 
 /* Exit program if either a database policy document exists or a
@@ -145,10 +145,10 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
    {
-      PRINTERROR(error,"NSFNoteCreate");
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteCreate");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Specify in the note header that this note is a database policy document */
@@ -161,11 +161,11 @@ int main(int argc, char *argv[])
 
    if (error != NOERROR)
    {
-      PRINTERROR(error,"add_rich_text");
-      NSFNoteClose (note_handle);
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"add_rich_text");
+       NSFNoteClose (note_handle);
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Add the new note to the database. */
@@ -183,20 +183,20 @@ int main(int argc, char *argv[])
 
    if (error = NSFNoteClose (note_handle))
    {
-      PRINTERROR(error,"NSFNoteClose");
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteClose");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Create a new note for the database help document */
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
    {
-      PRINTERROR(error,"NSFNoteCreate");
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteCreate");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Specify in the note header that this note is a database help document */
@@ -209,32 +209,32 @@ int main(int argc, char *argv[])
 
    if (error != NOERROR)
    {
-      PRINTERROR(error,"add_rich_text");
-      NSFNoteClose (note_handle);
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"add_rich_text");
+       NSFNoteClose (note_handle);
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Add the new note to the database. */
 
    if (error = NSFNoteUpdate (note_handle, 0))
    {
-      PRINTERROR(error,"NSFNoteUpdate");
-      NSFNoteClose (note_handle);
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteUpdate");
+       NSFNoteClose (note_handle);
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Close the new note. */
 
    if (error = NSFNoteClose (note_handle))
    {
-      PRINTERROR(error,"NSFNoteClose");
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteClose");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Now open and print out the database policy document and the database
@@ -246,18 +246,18 @@ int main(int argc, char *argv[])
                                       SPECIAL_ID_NOTE | NOTE_CLASS_INFO,
                                       &note_ID))
    {
-      PRINTERROR(error,"NSFDbGetSpecialNoteID");
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFDbGetSpecialNoteID");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
    if (error = print_doc (db_handle, note_ID))
    {
-      PRINTERROR(error,"print_doc");
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"print_doc");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Use NSFDbGetSpecialNoteID to get the note ID of the help doc */
@@ -266,33 +266,33 @@ int main(int argc, char *argv[])
                                       SPECIAL_ID_NOTE | NOTE_CLASS_HELP,
                                       &note_ID))
    {
-      PRINTERROR(error,"NSFDbGetSpecialNoteID");
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFDbGetSpecialNoteID");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
    if (error = print_doc (db_handle, note_ID))
    {
-      PRINTERROR(error,"print_doc");
-      NSFDbClose(db_handle);
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"print_doc");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Close the database */
 
    if (error = NSFDbClose (db_handle))
    {
-      PRINTERROR(error,"NSFDbClose");
-      NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFDbClose");
+       NotesTerm();
+       return (1);
    }
 
 /* End of subroutine. */
    PRINTLOG("\nProgram completed successfully.\n");
-	NotesTerm();
-	return (0);
+   NotesTerm();
+   return (0);
 }
 
 
@@ -307,14 +307,14 @@ int main(int argc, char *argv[])
 
 STATUS add_rich_text (short doc_type, NOTEHANDLE note_handle)
 {
-   DHANDLE hCompound;          /* handle to CompoundText context */
-   STATUS error;
-   char *header;              /* Doc header text */
-   char *text;                /* Doc text */
+   DHANDLE       hCompound;         /* handle to CompoundText context */
+   STATUS        error;
+   char          *header;           /* Doc header text */
+   char          *text;             /* Doc text */
    COMPOUNDSTYLE Style;
    DWORD         dwStyleID;
    FONTID        fid;
-   FONTIDFIELDS    *fontfld;
+   FONTIDFIELDS  *fontfld;
 
    switch (doc_type)
    {
@@ -447,7 +447,7 @@ STATUS LNPUBLIC print_doc (
    BLOCKID     field_block;
    DWORD       field_length, text_length;
    WORD        field_type;
-   DHANDLE       text_buffer;
+   DHANDLE     text_buffer;
    char        *text_ptr;
    STATUS      error;
 

@@ -128,10 +128,10 @@ int main(int argc, char *argv[])
     short FreeList;
 
     if (error = NotesInitExtended (argc, argv))
-       {
+    {
        PRINTLOG("\n Unable to initialize Notes.\n");
        return(1);
-       } 
+    }
 
     /********************************************************************/
     /* Read the command line arguments,
@@ -164,14 +164,14 @@ int main(int argc, char *argv[])
     /********************************************************************/
     
     if (error = NIFFindView(hDB, ViewName, &ViewNoteID))
-        {
+    {
         if (error == ERR_NOT_FOUND)
             {
             PRINTLOG("View '%s' cannot be found\n", ViewName);
             error = NOERROR;
             }
         goto Done1;
-        }
+    }
 
     /* Open the collection of notes in the view at the current time.
        Return a handle to the collection to the variable hCollection. */
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
     /* Create a buffer of note IDs copied from the collection and store the
        note IDs into a buffer with handle hBuffer. */
     do
-        {
+    {
         if (error = NIFReadEntries(hCollection,
                                &IndexPos,
                                NAVIGATE_NEXT, 1L,
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
                                READ_MASK_NOTEID,
                                &hBuffer, NULL,
                                NULL, &EntriesReturned, &SignalFlag))
-           goto Done;
+        goto Done;
 
     
         /****************************************************************/
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
         /********************************************************************/
 
         if (hBuffer != NULLHANDLE)
-            {
+        {
             char String[512];
             DWORD i;
   
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 
             /* process each individual noteID       */
             for (i=0; i < EntriesReturned; i++, entry++)
-                {
+            {
                 NOTEHANDLE hNote;
  
                 /* skip this noteID if it is for a category entry  */
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
                 /* open each note separately, follow each with 
                    close of note */
                 if (error = NSFNoteOpen(hDB, *entry, 0, &hNote))
-                    {
+                {
                     OSLoadString(NULLHANDLE, ERR(error), String,
                                  sizeof(String)-1);
                     PRINTLOG("Error '%s' reading docment %#lX -- %s\n",
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
                        reset the error status and continue */
                     error = NOERROR;
                     continue;
-                    }
+                }
 
 
                 if (SetReaderList)
@@ -279,12 +279,12 @@ int main(int argc, char *argv[])
                     }
                 }  /* for (i=0;i<EntriesReturned; i++, entry++) */
 
-            /* finished with all noteIDs, unlock memory and free it   */
-            OSUnlockObject(hBuffer);
-            OSMemFree(hBuffer);
-            }   /* if (hBuffer != NULLHANDLE) */
+                /* finished with all noteIDs, unlock memory and free it   */
+                OSUnlockObject(hBuffer);
+                OSMemFree(hBuffer);
+        }       /* if (hBuffer != NULLHANDLE) */
 
-        }  while (SignalFlag & SIGNAL_MORE_TO_DO);
+    }  while (SignalFlag & SIGNAL_MORE_TO_DO);
 
        NIFCloseCollection(hCollection);
 
@@ -312,14 +312,14 @@ Done2:
     */
     /********************************************************************/
     if (!error)
-        {
+    {
         if (NumUpdated)
             PRINTLOG("%lu documents had their privileges updated\n",
                    NumUpdated);
         if (NumNotUpdated)
             PRINTLOG("%lu documents already had the desired privileges\n",
                    NumNotUpdated);
-        }
+    }
     else
        PRINTERROR(error,"NSFDbOpen");
 
@@ -366,11 +366,11 @@ STATUS UpdatePrivMask (NOTEHANDLE hNote, WORD NewPrivMask,
     if (OldPrivMask == NewPrivMask)
        (*pdwNumNotUpdated)++;
     else
-        {
+    {
         NSFNoteSetInfo (hNote, _NOTE_PRIVILEGES, &NewPrivMask);
         if (!(error = NSFNoteUpdate(hNote, UPDATE_NOCOMMIT)))
             (*pdwNumUpdated)++;
-        }
+    }
     return (error);
 }
 
@@ -414,15 +414,15 @@ STATUS UpdateReaderList (NOTEHANDLE hNote, READER_LIST ReaderList,
                                (WORD) strlen(DESIGN_READERS)))
             return (error);
 
-     pTextEntry = *(ReaderList.pReaderEntries);
-     if (pTextEntry[0] == '\0')
-         {
+    pTextEntry = *(ReaderList.pReaderEntries);
+    if (pTextEntry[0] == '\0')
+    {
          /* Just update the note - the $Readers field is deleted */
 
-         if (!(error = NSFNoteUpdate(hNote, UPDATE_NOCOMMIT)))
+        if (!(error = NSFNoteUpdate(hNote, UPDATE_NOCOMMIT)))
              (*pdwNumUpdated)++;
          return (error);
-         }
+    }
 
     /* Create an empty text list structure */
 
@@ -434,17 +434,17 @@ STATUS UpdateReaderList (NOTEHANDLE hNote, READER_LIST ReaderList,
 
     /* Add each text list entry */
     for (i = 0; i < ReaderList.NumEntries; i++)
-        {
+    {
         pTextEntry = *(ReaderList.pReaderEntries + i);
 
         if (error = ListAddEntry (hList, FALSE, &wListSize, i,
                                   pTextEntry, (WORD)strlen(pTextEntry)))
-            {
+        {
             OSMemFree(hList);
             return (error);
-            }
+        }
 
-        }  /* for */
+    }  /* for */
 
     /* Add the completed field to the note. */
 

@@ -102,10 +102,10 @@ int main (int argc, char *argv[])
     int         goodAgents=0;
 
     if (error = NotesInitExtended (argc, argv))
-	 {
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	 }
+    }
 
     /* Process arguments */
     if (argc != 2)
@@ -156,11 +156,10 @@ Exit1:
     PRINTLOG ("Program execution to create agent notes completed.\n");
 
 Exit0:
-	if (error)
+    if (error)
 	{
-		PRINTERROR(error, "NSFDbOpen");
-
-	}
+       PRINTERROR(error, "NSFDbOpen");
+    }
 
     NotesTerm();
     return(error);
@@ -205,10 +204,10 @@ STATUS  LNPUBLIC  AddManualAgent( DBHANDLE hDb )
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
 
-    char   szComment[] = 
+    char                szComment[] = 
 "Send a reminder email to the appropriate support reps for the documents \
 selected in the view.";
-    char   szFormula[] = 
+    char                szFormula[] = 
 "@MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
 \" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
 SELECT @All";
@@ -216,6 +215,7 @@ SELECT @All";
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT ))
         goto Exit0;
+
     /* $Title */
     if (error = SetAgentTitle(hAgent, szAGENT_MANUAL))
         goto Exit1;
@@ -380,14 +380,14 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     int                 destAllocated=0;
     int                 errorBufferAllocated=0;
 
-    DHANDLE               hSource=NULL;
-    DHANDLE               hDest=NULL;
-    DHANDLE               hErrorBuffer=NULL;
-    DHANDLE               hUnused=NULL;
+    DHANDLE             hSource=NULL;
+    DHANDLE             hDest=NULL;
+    DHANDLE             hErrorBuffer=NULL;
+    DHANDLE             hUnused=NULL;
 
-    char    szComment[] = "Assign all unassigned problems to Isabel Silton.";
+    char                szComment[] = "Assign all unassigned problems to Isabel Silton.";
 
-    char szScript[] = 
+    char                szScript[] = 
 "Sub Initialize\n\
   Dim updcount As Integer\n\
   Dim repname As String\n\
@@ -666,10 +666,10 @@ STATUS  LNPUBLIC  AddScheduleAgent( DBHANDLE hDb )
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
 
-char   szComment[] = "Once per month, search for all open \
+    char                szComment[] = "Once per month, search for all open \
 problems that are older than one month and escalate the priority \
 one level.";
-char   szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
+    char                szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
 SELECT((DateOpened<OneMonthAgo) & (Status=\"Open\"));\n\
 FIELD Priority := @If(Priority=\"Low\";\"Medium\";\
 Priority=\"Medium\";\"High\";\"High\");";
@@ -829,18 +829,18 @@ STATUS  LNPUBLIC  AddJavaAgent( DBHANDLE hDb )
     char                szDesignFlags[DESIGN_FLAGS_MAX];
     ODS_ASSISTSTRUCT    AgentInfo;
 
-    CDACTIONHEADER              AgentHeader;
+    CDACTIONHEADER      AgentHeader;
     CDACTIONJAVAAGENT   AgentJava;
 
     BYTE                *AgentAction; 
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
     
-char szComment[] = "Assign all hot problems (high priority) to Fire Fighters.";
-char szClass[] = "HotAgent.class";
-char szCode[] = "/opt/lotus/notesapi/samples/sol_2x/dbdesign/agents";
-char szFileList[] = "HotAgent.class\0\0";
-static char szSourceFile[128]; /* fix this */
+    char                szComment[] = "Assign all hot problems (high priority) to Fire Fighters.";
+    char                szClass[] = "HotAgent.class";
+    char                szCode[] = "/opt/lotus/notesapi/samples/sol_2x/dbdesign/agents";
+    char                szFileList[] = "HotAgent.class\0\0";
+    static char         szSourceFile[128]; /* fix this */
 
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT))
@@ -916,7 +916,7 @@ static char szSourceFile[128]; /* fix this */
 
     AgentJava.Header.Signature = SIG_ACTION_JAVAAGENT;             
     AgentJava.Header.Length = ODSLength(_CDACTIONJAVAAGENT) + 
-          strlen(szClass) + strlen(szCode) + strlen(szFileList) + 2;
+                              strlen(szClass) + strlen(szCode) + strlen(szFileList) + 2;
     AgentJava.wClassNameLen = strlen(szClass);
     AgentJava.wCodePathLen = strlen(szCode);
     AgentJava.wFileListBytes = strlen(szFileList) + 2;
@@ -1360,7 +1360,7 @@ STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE hAgent, ODS_ASSISTSTRUCT AgentInfo )
 {
         STATUS          error = NOERROR;
         char            *pBuffer;
-        DHANDLE           hItem;
+        DHANDLE         hItem;
         DWORD           dwItemLen;
         BLOCKID         bhValue;
  
@@ -1396,10 +1396,10 @@ STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE hAgent, ODS_ASSISTSTRUCT AgentInfo )
                        sizeof(ASSIST_INFO_ITEM)-1,/* item length */
                         bhValue,                   /* BLOCKID with value */
                         dwItemLen, NULL))          /* value length */
-                {
-                OSMemFree(hItem);
-                goto Exit0;
-                }
+        {
+            OSMemFree(hItem);
+            goto Exit0;
+        }
 Exit0:
 
     if (error)

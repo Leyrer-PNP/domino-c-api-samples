@@ -311,17 +311,17 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 /* Get the length of each item in the summary. */
 
     for (i=0; i < item_count; i++)
-        {
+    {
         memcpy (&name_length[i], summary_position, NAME_LENGTH_SIZE);
         summary_position += NAME_LENGTH_SIZE;
         memcpy (&item_length[i], summary_position, ITEM_LENGTH_SIZE);
         summary_position += ITEM_LENGTH_SIZE;
-        }
+    }
 
 /* Start a loop that extracts each item in the summary. */
 
     for (i=0; i < item_count; i++)
-        {
+    {
 
 /* Print the name of the item. */
 
@@ -377,20 +377,20 @@ This program handles TEXT, NUMBER, and TIME. */
 
             break;
 
-     case TYPE_TEXT_LIST:
+        case TYPE_TEXT_LIST:
         {
-          LIST      *pList;
-          WORD      list_entry;
-          char      *Buffer;
-          WORD      text_size;
+            LIST      *pList;
+            WORD      list_entry;
+            char      *Buffer;
+            WORD      text_size;
 
-        memset (item_text,'\0', item_length[i] - DATATYPE_SIZE + 1);
-        pList = (LIST *)summary_position;
-        for (list_entry = 0; list_entry < pList->ListEntries; list_entry++)
-           {
-           ListGetText(pList, FALSE, list_entry, &Buffer, &text_size);
-           strncat (item_text, Buffer, text_size);
-           }
+            memset (item_text,'\0', item_length[i] - DATATYPE_SIZE + 1);
+            pList = (LIST *)summary_position;
+            for (list_entry = 0; list_entry < pList->ListEntries; list_entry++)
+            {
+                ListGetText(pList, FALSE, list_entry, &Buffer, &text_size);
+                strncat (item_text, Buffer, text_size);
+            }
         }
         break;
 
