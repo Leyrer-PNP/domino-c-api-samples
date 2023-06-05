@@ -481,101 +481,101 @@ int main (int argc, char *argv[])
 
 /* Construct a last name. */
 
-   strcpy (last_name, "Connell");
-   sprintf(count,"%i ", i);
-   strcat (last_name, count);
-   strcat (last_name, ", Janet");
+      strcpy (last_name, "Connell");
+      sprintf(count,"%i ", i);
+      strcat (last_name, count);
+      strcat (last_name, ", Janet");
 
 /* Refresh the index. */
 
-   if (error = NIFUpdateCollection(coll_handle))
-   {
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NIFUpdateCollection");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NIFUpdateCollection(coll_handle))
+      {
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NIFUpdateCollection");
+          NotesTerm();
+          return(1);
+      }
 
 /* Look in the index for this name. */
 
-   error = NIFFindByName (
-          coll_handle,       /* collection to look in */
-          last_name,         /* string to match on */
-          FIND_CASE_INSENSITIVE,   /* match rules */
-          &coll_pos,         /* where match begins (return) */
-          &match_size);      /* how many match (return) */
+      error = NIFFindByName (
+              coll_handle,       /* collection to look in */
+              last_name,         /* string to match on */
+              FIND_CASE_INSENSITIVE,   /* match rules */
+              &coll_pos,         /* where match begins (return) */
+              &match_size);      /* how many match (return) */
 
-   if (ERR(error) == ERR_NOT_FOUND) 
-   {
-      PRINTLOG ("\nKey not found in the collection.\n");
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      NotesTerm();
-      return(0);
-   }
+      if (ERR(error) == ERR_NOT_FOUND) 
+      {
+          PRINTLOG ("\nKey not found in the collection.\n");
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          NotesTerm();
+          return(0);
+      }
    
-   if (error)
-   {
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NIFFindByName");
-      NotesTerm();
-      return(1);
-   }
+      if (error)
+      {
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NIFFindByName");
+          NotesTerm();
+          return(1);
+      }
 
 /* Get the note IDs of all records with this key. */
 
-   if (error = NIFReadEntries(
-          coll_handle,      /* handle to this collection */
-          &coll_pos,        /* where to start in collection */
-          NAVIGATE_CURRENT,       /* order to use when skipping */
-          0L,                  /* number to skip */
-          NAVIGATE_NEXT,       /* order to use when reading */
-          match_size,          /* max number to read */
-          READ_MASK_NOTEID,       /* info we want */
-          &buffer_handle,      /* handle to info (return)   */
-          NULL,          /* length of buffer (return) */
-          NULL,          /* entries skipped (return) */
-          &notes_found,     /* entries read (return) */
-          NULL))         /* share warning (return) */
+      if (error = NIFReadEntries(
+                  coll_handle,      /* handle to this collection */
+                  &coll_pos,        /* where to start in collection */
+                  NAVIGATE_CURRENT,       /* order to use when skipping */
+                  0L,                  /* number to skip */
+                  NAVIGATE_NEXT,       /* order to use when reading */
+                  match_size,          /* max number to read */
+                  READ_MASK_NOTEID,       /* info we want */
+                  &buffer_handle,      /* handle to info (return)   */
+                  NULL,          /* length of buffer (return) */
+                  NULL,          /* entries skipped (return) */
+                  &notes_found,     /* entries read (return) */
+                  NULL))         /* share warning (return) */
 
-   {
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NIFReadEntries");
-      NotesTerm();
-      return(1);
-   }
+      {
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NIFReadEntries");
+          NotesTerm();
+          return(1);
+      }
 
-   if (buffer_handle == NULLHANDLE)
-   {
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
-      NotesTerm();
-      return(0);
-   }
+      if (buffer_handle == NULLHANDLE)
+      {
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
+          NotesTerm();
+          return(0);
+      }
 
-   id_list = (NOTEID *) OSLockObject (buffer_handle);
+      id_list = (NOTEID *) OSLockObject (buffer_handle);
 
 /* Delete the first note with this key. */
 
-   if (error = NSFNoteDelete (db_handle, id_list[0], 0))
-   {
-      OSUnlockObject (buffer_handle);
-      OSMemFree (buffer_handle);
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFNoteDelete");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFNoteDelete (db_handle, id_list[0], 0))
+      {
+          OSUnlockObject (buffer_handle);
+          OSMemFree (buffer_handle);
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFNoteDelete");
+          NotesTerm();
+          return(1);
+      }
 
 /* Get rid of the buffer of note IDs. */
 
-   OSUnlockObject (buffer_handle);
-   OSMemFree (buffer_handle);
+      OSUnlockObject (buffer_handle);
+      OSMemFree (buffer_handle);
 
 /* End of big loop that is deleting many records. */
 

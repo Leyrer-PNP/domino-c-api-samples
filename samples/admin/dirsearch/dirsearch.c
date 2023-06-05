@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 	else										/* any type of doc from the $Users view */
 		error = DirCtxSearchByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
 
-	if( error != NOERROR )
+	if ( error != NOERROR )
 	{
 	   fprintf(stderr, "SearchByName failure - %d:", error);
 	   printStatus(error,"DirCtxSetFlags");
@@ -196,7 +196,7 @@ int processArgs (int nargc, const char * const *nargv, ARG_STRUCT *args)
 
 	while (( c = getOpt( nargc, nargv, "t:g:s:d:f:i:n:b", &optarg )) != -1 )
 	{
-		switch( c ) 
+		switch ( c ) 
 		{
 			case 't':
 			  if (strcmp("anyperson", optarg) == 0) { args->formtype = (0x01 | 0x02); }
@@ -286,13 +286,13 @@ int getOpt (int nargc, const char * const *nargv, const char *ostr, char** popta
 
 	if (!*place) {                          /* update scanning pointer */
 		if (optind >= nargc || *(place = nargv[optind]) != '-') {
-			place = EMSG;
-			return(EOF);
+		    place = EMSG;
+		    return(EOF);
 		}
 		if (place[1] && *++place == '-') {      /* found "--" */
-			++optind;
-			place = EMSG;
-			return(EOF);
+		    ++optind;
+		    place = EMSG;
+		    return(EOF);
 		}
 	}                                       /* option letter okay? */
 	if ((optopt = (int)*place++) == (int)':' ||
@@ -302,14 +302,14 @@ int getOpt (int nargc, const char * const *nargv, const char *ostr, char** popta
 		 * assume it means EOF.
 		 */
 		if (optopt == (int)'-')
-			return(EOF);
+		    return(EOF);
 		if (!*place)
-			++optind;
+		    ++optind;
 		if (opterr) {
 			if ((p = strrchr(*nargv, '/')) != NULL)
-				p = *nargv;
+			    p = *nargv;
 			if (p != NULL)
-				PRINTLOG("%s: illegal option -- %c\n", p, optopt);
+			    PRINTLOG("%s: illegal option -- %c\n", p, optopt);
 		}
 		return(BADCH);
 	}
@@ -320,17 +320,17 @@ int getOpt (int nargc, const char * const *nargv, const char *ostr, char** popta
 	}
 	else {                                  /* need an argument */
 		if (*place)                     /* no white space */
-			*poptarg = (char*)place;
+		    *poptarg = (char*)place;
 		else if (nargc <= ++optind) {   /* no arg */
-			place = EMSG;
-			if ((p = strrchr(*nargv, '/')) != NULL)
-				p = *nargv;
-			if (opterr && p != NULL)
-				PRINTLOG("%s: option requires an argument -- %c\n", p, optopt);
-			return(BADCH);
+		    place = EMSG;
+		    if ((p = strrchr(*nargv, '/')) != NULL)
+		        p = *nargv;
+		    if (opterr && p != NULL)
+		        PRINTLOG("%s: option requires an argument -- %c\n", p, optopt);
+		    return(BADCH);
 		}
 		else                            /* white space */
-			*poptarg = (char*)nargv[optind];
+		    *poptarg = (char*)nargv[optind];
 		place = EMSG;
 		++optind;
 	}

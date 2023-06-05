@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
    if (error)
    {
       PRINTLOG("Error: unable to register a new user. Error:%x\n", error);
-         PRINTERROR(error,"REGNewWorkstation");
+      PRINTERROR(error,"REGNewWorkstation");
       if (FullDBPath[0] != '\0')
       PRINTLOG ("Error occurred in file %s\n", FullDBPath);
       NotesTerm();

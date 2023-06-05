@@ -412,7 +412,7 @@ handles. */
 
 /* End of loop that is extracting each item in the summary. */
 
-        }
+    }
 
 /* End of function */
 

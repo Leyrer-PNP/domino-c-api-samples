@@ -49,7 +49,7 @@ int main (int argc, char *argv[])
 	   return (1);
 	}
 
-	if(error = SECHashPassword (strlen ("viking"), (BYTE*) "viking",
+	if (error = SECHashPassword (strlen ("viking"), (BYTE*) "viking",
 	   52, &Digest2Len, Digest2, 0, NULL))
 	{
 	   PRINTERROR (error,"SECHashPassword");
@@ -78,7 +78,7 @@ int main (int argc, char *argv[])
 	   PRINTLOG("Verify bad password pass.\n");
 	}
 
-	if(error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
+	if (error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
 					SEC_pwddigest_V1, 0, NULL,
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))
@@ -99,7 +99,7 @@ int main (int argc, char *argv[])
 	}
 						   	 
 
-	if(error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
+	if (error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
 					SEC_pwddigest_V2, 0, NULL,
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))
@@ -119,7 +119,7 @@ int main (int argc, char *argv[])
 	   PRINTLOG("Verify good password pass.\n");
 	}
 
-	if(error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
+	if (error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
 					SEC_pwddigest_V3, SEC_ai_HMAC_SHA1, NULL,
 					12345, NULL, 0,
 					52, &Digest3Len, Digest3, 0, NULL))

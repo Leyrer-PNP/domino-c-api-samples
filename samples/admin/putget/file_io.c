@@ -74,7 +74,7 @@ return any errors, although it could.) */
 
     void close_textfile (void)
 
-   {
+    {
         fclose (textfile);
         return;
     }
@@ -86,7 +86,7 @@ return any errors, although it could.) */
 
     int open_logfile (char * pathname)
 
-   {
+    {
         logfile = fopen (pathname, "w");
 
     if (logfile == NULL)
@@ -103,9 +103,9 @@ any errors, although it could.) */
 
     void close_logfile (void)
 
-   {
-    fclose (logfile);
-    return;
+    {
+        fclose (logfile);
+        return;
     }
 
 
@@ -121,13 +121,13 @@ not test for or return any errors, although it could.) */
 
 /* Local data */
 
-    char	c;
-    unsigned int	i;
+        char	c;
+        unsigned int	i;
 
 
 /* Put the string to the text file. */
 
-    fputs (string, textfile);
+        fputs (string, textfile);
 
 /***************************************************
 The next section of code could slow down performance.
@@ -135,17 +135,17 @@ The next section of code could slow down performance.
 
 /* Update the overall byte and line counters. */
 
-    for (i=0; ;i++)
-    {
-        c = *(string+i);
-        if (c == '\0') break;
-            byte_count++;
-        if (c == LF) line_count++;
-    }
+        for (i=0; ;i++)
+        {
+             c = *(string+i);
+            if (c == '\0') break;
+                byte_count++;
+            if (c == LF) line_count++;
+        }
 
 /* End of function */
 
-    return;
+        return;
     }
 
 
@@ -189,22 +189,22 @@ not test for or return any errors, although it could.) */
 
         if (ferror(textfile))
         {
-           return (ERR_IO_ERROR);
+            return (ERR_IO_ERROR);
         }
 
-    if (feof(textfile))
-    {
-        return (ERR_END_OF_FILE);
-    }
+        if (feof(textfile))
+        {
+            return (ERR_END_OF_FILE);
+        }
 
 /* Keep track of overall number of bytes and lines read from text file. */
 
-    byte_count++;
-    if (*c==LF) line_count++;
+        byte_count++;
+        if (*c==LF) line_count++;
 
 /* End of function */
 
-    return (ERR_NO_ERROR);
+        return (ERR_NO_ERROR);
     }
 
 
@@ -220,17 +220,17 @@ not test for or return any errors, although it could.)*/
 
 /* Put the character back into the input buffer. */
 
-    ungetc (c, textfile);
+        ungetc (c, textfile);
 
 /* Subtract one from the overall byte count of the text file. If the
 character is a CR, subtract one from the line count also. */
 
-    byte_count--;
-    if (c == LF) line_count--;
+        byte_count--;
+        if (c == LF) line_count--;
 
 /* End of function. */
 
-    return;
+        return;
     }
 
 
@@ -266,26 +266,26 @@ errors, although it could.)*/
 
 /* Local data */
 
-    char		message[MAX_API_ERR];
-    WORD		text_len;
+        char		message[MAX_API_ERR];
+        WORD		text_len;
 
 /* Get the message for this API error code from the resource string
 table. */
 
-    text_len = OSLoadString (
-               NULLHANDLE,
-               ERR(api_code),
-               message,
-               sizeof(message));
+        text_len = OSLoadString (
+                   NULLHANDLE,
+                   ERR(api_code),
+                   message,
+                   sizeof(message));
 
 /* Print the error message. */
 
-    fprintf (logfile,
-            "\n%s: %s \nErrorcode : 0x%04x,Near line number %ld, byte number %ld.\n",
-            severity, message, api_code, line_count, byte_count);
+        fprintf (logfile,
+                 "\n%s: %s \nErrorcode : 0x%04x,Near line number %ld, byte number %ld.\n",
+                 severity, message, api_code, line_count, byte_count);
 
 /* End of function. */
 
-    return;
+        return;
 
-}
+    }

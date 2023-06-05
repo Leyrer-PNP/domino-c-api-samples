@@ -265,8 +265,8 @@ STATUS LNCALLBACK DUSRetrieveUsers(DHANDLE hContext,
 	 * FirstName LastNameCRLFCRLF
 	 */
 	hFile = CreateFile( FileName, GENERIC_READ, FILE_SHARE_READ, 
-								NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 
-								NULL);
+			NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 
+			NULL);
 	if(hFile == HFILE_ERROR)
 	{
 	    error = ERR_DUS_EXTENDED_ERROR;
@@ -591,13 +591,13 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 	 * accept data for the following fields:
 	 *      
 	 *              (please refer to 'stdnames.h' for an up to date list)
-	 *              USERREG_STORAGE_ITEM                    "MessageStorage"
-	 *                      USERREG_STORAGE_UNKNOWN                                 0xFF
-	 *                      USERREG_STORAGE_CDRECORDS                               0
-	 *                      USERREG_STORAGE_CDRECORDS_AND_RFC822    1 
-	 *                      USERREG_STORAGE_RFC822                                  2
-	 *                      USERREG_STORAGE_NATIVE_MIME                             3
-	 *                      USERREG_STORAGE_NATIVE_MIME_ONLY                4               
+	 *              USERREG_STORAGE_ITEM                      "MessageStorage"
+	 *              USERREG_STORAGE_UNKNOWN                   0xFF
+	 *              USERREG_STORAGE_CDRECORDS                 0
+	 *              USERREG_STORAGE_CDRECORDS_AND_RFC822      1 
+	 *              USERREG_STORAGE_RFC822                    2
+	 *              USERREG_STORAGE_NATIVE_MIME               3
+	 *              USERREG_STORAGE_NATIVE_MIME_ONLY          4               
 	 *              USERREG_PERSONAL_TITLE          "Title"
 	 *              USERREG_GENERATION_QUALIFIER    "Suffix"
 	 *              USERREG_HOME_STREETADDRESS      "StreetAddress"

@@ -118,7 +118,7 @@ VOID main (int argc, char *argv[])
             usage=1;
             flags = 1;
             if (!strcmp(RecOpt,"NOTE"))
-            NoteInfo = 1;
+                NoteInfo = 1;
          }
          else if (!strcmp(RecOpt,"CHECK"))
          {
@@ -126,7 +126,7 @@ VOID main (int argc, char *argv[])
          }
          /* Ensure null termination */
         InFile[strlen(&InFile[0])+1] = '\0';
-   }
+      }
 
       if (argc == 4)
       {
@@ -153,7 +153,7 @@ VOID main (int argc, char *argv[])
    }
 
    /* Initialize Notes */
-   if(err = NotesInitExtended (argc, argv))
+   if (err = NotesInitExtended (argc, argv))
    {
       PRINTLOG ("\nError initializing Notes.\n");
       exit (EXIT_FAILURE);
@@ -161,7 +161,7 @@ VOID main (int argc, char *argv[])
 
    /* Create the log file directory if it doesn't already exist*/
    sprintf(&LogFile[0], "%s%s",   LogDir, DirSlash);
-   if(err = SysFileCreateDirectory(&LogFile[0]))
+   if (err = SysFileCreateDirectory(&LogFile[0]))
    {
       PRINTLOG("\nError %d creating directory %s\n", err, LogFile);
       NotesTerm();
@@ -170,7 +170,7 @@ VOID main (int argc, char *argv[])
 
    /* Create the log file - do not overwrite it if it already exists */
    sprintf(&LogFile[0], "%s%s", &LogFile[0], "dbrecs.log");
-   if(err = SysFileCreate(&LogFile[0], &LogFD))
+   if (err = SysFileCreate(&LogFile[0], &LogFD))
    {
       PRINTLOG("\nError %d creating log file %s\n", err, LogFile);
       NotesTerm();
@@ -198,17 +198,17 @@ VOID main (int argc, char *argv[])
       }
    }
 
-    if (!strcmp(RecOpt,"CHECK"))
-    {
-	   PRINTLOG("\n Checking file to see if new backup is needed ...\n");
-	   if (err = CheckDb(InFile))
-	   {
-		   PRINTLOG("\nError checking file %s ... \n", InFile);
-		   SysFileClose(LogFD);
-		   NotesTerm();
-		   exit (EXIT_FAILURE);
-	   }
-    }
+   if (!strcmp(RecOpt,"CHECK"))
+   {
+      PRINTLOG("\n Checking file to see if new backup is needed ...\n");
+      if (err = CheckDb(InFile))
+      {
+         PRINTLOG("\nError checking file %s ... \n", InFile);
+         SysFileClose(LogFD);
+         NotesTerm();
+         exit (EXIT_FAILURE);
+      }
+   }
 
    if (!strcmp(RecOpt,"RECOVER") || !strcmp(RecOpt, "RESTORE") || !strcmp(RecOpt, "NOTE"))
    {
@@ -226,7 +226,7 @@ VOID main (int argc, char *argv[])
 
       PRINTLOG("\n Recovering backup file ...\n\n");
 
-      if(err = RecoverDbs(InFile, flags, NoteInfo))
+      if.(err = RecoverDbs(InFile, flags, NoteInfo))
       {
          PRINTLOG("\nError recovering backup file.\n");
          SysFileClose(LogFD);
@@ -235,10 +235,10 @@ VOID main (int argc, char *argv[])
       }
       if (!flags)
       {
-		 PRINTLOG("\n The recovered backup file is %s\n",InFile);
-		 PRINTLOG("\n The database to be restored is %s\n",ResDb);
-		 PRINTLOG("\n\n Restoring database from recovered backup file ...\n");
-         if(err = RestoreDbs(InFile, ResDb))
+         PRINTLOG("\n The recovered backup file is %s\n",InFile);
+         PRINTLOG("\n The database to be restored is %s\n",ResDb);
+         PRINTLOG("\n\n Restoring database from recovered backup file ...\n");
+         if (err = RestoreDbs(InFile, ResDb))
          {
             PRINTLOG("\nError restoring %s \n", ResDb);
             SysFileClose(LogFD);
@@ -247,7 +247,7 @@ VOID main (int argc, char *argv[])
          }
 
          PRINTLOG("\n Bringing database online ...\n");
-         if(err = BringDbsOnline(ResDb))
+         if (err = BringDbsOnline(ResDb))
          {
             PRINTLOG("\nError bringing %s online\n", ResDb);
             SysFileClose(LogFD);
@@ -330,7 +330,7 @@ STATUS LNPUBLIC NoteCallback(DWORD state_flags, void far *userParm, NOTE_RESTORE
    err = ConvertTIMEDATEToText(NULL, NULL, &info.TranTime, &timebuffer[0], MAXALPHATIMEDATE, &timelength);
    timebuffer[timelength] = '\0';
 
-    if(!err)
+    if (!err)
     {
         switch (state_flags)
         {
@@ -396,14 +396,14 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
       In this case the original DB will be deleted when it is taken
       offline then replaced with its recovered backup file. */
 
-    if(Rflags)
-    Rflags = DBRECOVER_ZAP_ID;
+    if (Rflags)
+        Rflags = DBRECOVER_ZAP_ID;
 
-    if(RNoteInfo)
+    if (RNoteInfo)
     {
-      sprintf(EventString, "\nRecovering backup file %s with CallBack", BUPath);
-      EventLog(LogFD, EventString);
-      err = NSFRecoverDatabasesWithCallback(BUPath, MyCallback, Rflags, &index, NULL, NoteCallback, 0);
+        sprintf(EventString, "\nRecovering backup file %s with CallBack", BUPath);
+        EventLog(LogFD, EventString);
+        err = NSFRecoverDatabasesWithCallback(BUPath, MyCallback, Rflags, &index, NULL, NoteCallback, 0);
     }
     else
     {
@@ -411,17 +411,17 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
             sprintf(EventString, "Recovering backup file %s", BUPath);
         else
             sprintf(EventString, "\nRecovering backup file %s", BUPath);
-      EventLog(LogFD, EventString);
-      err = NSFRecoverDatabases(BUPath, MyCallback, Rflags, &index, NULL);
+        EventLog(LogFD, EventString);
+        err = NSFRecoverDatabases(BUPath, MyCallback, Rflags, &index, NULL);
     }
 
     if (!err)
     {
-		/* Although this sample was designed to pass a 'list' containing
-		   only one database name via the BUPath parameter of
-		   NSFRecoverDatabases, the following loops are included to
-		   illustrate how to handle a 'list' containing multiple database
-		   names along with the required imbedded NULLs. */
+        /* Although this sample was designed to pass a 'list' containing
+        only one database name via the BUPath parameter of
+        NSFRecoverDatabases, the following loops are included to
+        illustrate how to handle a 'list' containing multiple database
+        names along with the required imbedded NULLs. */
 
         while (BUPath[0] != '\0')
         {
@@ -436,7 +436,7 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
         while (BUPath[0] != '\0')
         {
             errindex++;
-            if(errindex ==index)
+            if (errindex ==index)
             {
                 PRINTLOG("\nError recovering backup file %s\n", BUPath);
                 sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
@@ -467,7 +467,7 @@ STATUS TakeDbsOffline(char * DbPath)
    DWORD    WaitTime = 0;
    char     EventString[MAXPATHLENGTH + 100];
 
-	/* In this example, since we will be replacing the database once its
+      /* In this example, since we will be replacing the database once its
       backup has been recovered, we will delete the database when it's
       taken offline and we will not refresh the DBIID during its recovery.
       Domino will not allow two active databases to have the same DBIID.
@@ -591,7 +591,7 @@ STATUS DoArchiveLogs(void)
 
    if (LogType == TRANSLOG_STYLE_CIRCULAR || LogType == TRANSLOG_STYLE_LINEAR)
    {
-	switch(LogType)
+	switch (LogType)
 	{
 	   case TRANSLOG_STYLE_CIRCULAR:
 			PRINTLOG("\n  Transactional logging is 'CIRCULAR'.\n");
@@ -631,7 +631,7 @@ STATUS DoArchiveLogs(void)
       /* if we have a log to archive copy it off */
       if (err == NOERROR)
       {
-			PRINTLOG("\n  Creating archive log ...\n");
+         PRINTLOG("\n  Creating archive log ...\n");
 
          /* Create the destination file/directory -
          overwrite it if it already exists */
@@ -639,7 +639,7 @@ STATUS DoArchiveLogs(void)
          if (err = SysFileCreateDirectory(&ArchiveDir[0]))
          {
             PRINTLOG("\nError %d creating directory %s\n", err, ArchiveDir);
-				break;
+            break;
          }
 
          sprintf(&ArchiveDir[0],
@@ -689,7 +689,7 @@ STATUS DoArchiveLogs(void)
                 LogId.Note.Innards[0],
                 LogId.Note.Innards[1],
                 LogNumber,
-					 ArchivePath);
+                ArchivePath);
       }
       else if (err == ERR_NO_TRANSLOGS_TO_ARCHIVE)
       {
@@ -777,15 +777,15 @@ STATUS CheckDb(char * BUPath)
 
 
    if ( err = NSFGetTransLogStyle (&LogType))
-       PRINTERROR(err,"NSFGetTransLogStyle");
+        PRINTERROR(err,"NSFGetTransLogStyle");
 
 	switch (LogType)
 	{
 	   case TRANSLOG_STYLE_ARCHIVE:
-		   PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
+		    PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
 		   if (ComfortSpan)
-			   PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
-			   break;
+			 PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
+			 break;
 
 	   case TRANSLOG_STYLE_CIRCULAR:
 		   PRINTLOG("\n  Transactional logging type is 'CIRCULAR'.\n");

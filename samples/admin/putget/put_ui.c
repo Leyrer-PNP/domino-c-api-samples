@@ -36,8 +36,8 @@ int main (int argc, char *argv[])
     char		field_separator;
     char		list_separator;
     char		control_string[CONTROL_STRING_LEN];
-    int		error;
-    int		i;
+    int			error;
+    int			i;
 
 
 /* Set default values for the parameters. */

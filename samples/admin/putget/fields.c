@@ -305,7 +305,7 @@ keep track of the length of this element. */
         log_api_message ("ERROR", api_error);
         OSMemFree (list_handle);
         free (element_buffer);
-       return (ERR_API_ERROR);
+        return (ERR_API_ERROR);
     }
 
 /* Add the completed field to the note. */

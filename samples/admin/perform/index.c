@@ -62,7 +62,7 @@ int main (int argc, char *argv[])
    PRINTLOG ("\n***** INDEX Test Begins ******\n");
 
    if (error = NotesInitExtended (argc, argv))
-    
+    {
       PRINTLOG("\nUnable to initialize Notes.\n");
       return(1);
     }

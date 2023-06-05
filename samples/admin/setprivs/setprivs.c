@@ -166,10 +166,10 @@ int main(int argc, char *argv[])
     if (error = NIFFindView(hDB, ViewName, &ViewNoteID))
     {
         if (error == ERR_NOT_FOUND)
-            {
+        {
             PRINTLOG("View '%s' cannot be found\n", ViewName);
             error = NOERROR;
-            }
+        }
         goto Done1;
     }
 
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
                 /* close each note   */
                 NSFNoteClose(hNote);
                 if (error)
-                    {
+                {
                     OSLoadString(NULLHANDLE, ERR(error), String,
                                  sizeof(String)-1);
                     PRINTLOG("Error '%s' writing document %#lX -- %s\n",
@@ -276,8 +276,8 @@ int main(int argc, char *argv[])
                        reset the error status and continue */
                     error = NOERROR;
                     continue;
-                    }
-                }  /* for (i=0;i<EntriesReturned; i++, entry++) */
+                }
+            }  /* for (i=0;i<EntriesReturned; i++, entry++) */
 
                 /* finished with all noteIDs, unlock memory and free it   */
                 OSUnlockObject(hBuffer);
