@@ -105,61 +105,61 @@ int main (int argc, char *argv[])
 
 /* Construct the last name. */
 
-    strcpy (last_name, "Smith");
-    sprintf(count, "%i", i); /* itoa (i, count, 10); */
-    strcat (last_name, count);
+        strcpy (last_name, "Smith");
+        sprintf(count, "%i", i); /* itoa (i, count, 10); */
+        strcat (last_name, count);
 
 /* Create the record. */
 
-    if (error = NSFNoteCreate (db_handle, &note_handle))
-         goto Done2;
+        if (error = NSFNoteCreate (db_handle, &note_handle))
+            goto Done2;
 
 
 /* Add all the fields. */
 
-    if (error = NSFItemSetText ( note_handle, 
-                "Form",
-                "Person",
-                MAXWORD))
-        goto Done3;
+        if (error = NSFItemSetText ( note_handle, 
+                    "Form",
+                    "Person",
+                    MAXWORD))
+            goto Done3;
 
-    if (error = NSFItemSetText ( note_handle,
-                "Type",
-                "Person",
-                MAXWORD))
-        goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "Type",
+                    "Person",
+                    MAXWORD))
+            goto Done3;
 
-    if (error = NSFItemSetText ( note_handle,
-                "FirstName",
-                "John",
-                MAXWORD))
-        goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "FirstName",
+                    "John",
+                    MAXWORD))
+            goto Done3;
 
-    if (error = NSFItemSetText ( note_handle,
-                "LastName",
-                last_name,
-                MAXWORD))
-        goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "LastName",
+                    last_name,
+                    MAXWORD))
+            goto Done3;
 
-    if (error = NSFItemSetText ( note_handle,
-                "MailDomain",
-                "NOTES",
-                MAXWORD))
-        goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "MailDomain",
+                    "NOTES",
+                    MAXWORD))
+            goto Done3;
 
-    if (error = NSFItemSetText ( note_handle,
-                "MailFile",
-                "MAIL\\JSMITH",
-                MAXWORD))
-        goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "MailFile",
+                    "MAIL\\JSMITH",
+                    MAXWORD))
+            goto Done3;
 
 /* Write the new note to disk and close the note. */
 
-    if (error = NSFNoteUpdate (note_handle, 0))
-        goto Done3;
+        if (error = NSFNoteUpdate (note_handle, 0))
+            goto Done3;
 
-    if (error = NSFNoteClose (note_handle))
-        goto Done2;
+        if (error = NSFNoteClose (note_handle))
+            goto Done2;
 
 /* End of big loop that is adding records. */
 

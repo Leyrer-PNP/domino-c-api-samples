@@ -274,9 +274,9 @@ for the next element). 3) Get the next character in the list. */
                 return (ERR_API_ERROR);
             }
 
-        element_number++;
-        element_len = 0;
-        continue;
+            element_number++;
+            element_len = 0;
+            continue;
         }
 
 /* If the character is a CR or LF, throw it away. */
@@ -629,7 +629,7 @@ binary format. The header to the list will be a RANGE structure and
 each element will fill one TIMEDATE structure. The number of timedates
 in the list cannot be greater than the length of the list plus one. */
 
-   output_buffer = (BYTE *) malloc (sizeof(RANGE) +
+    output_buffer = (BYTE *) malloc (sizeof(RANGE) +
                    (sizeof(TIMEDATE) *
                    (input_len+1)));
 

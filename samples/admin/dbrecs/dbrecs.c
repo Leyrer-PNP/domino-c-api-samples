@@ -351,14 +351,14 @@ STATUS LNPUBLIC NoteCallback(DWORD state_flags, void far *userParm, NOTE_RESTORE
         }
 
         sprintf(EventString, "\n\tNote information for backup file %s\n\t\tStarted at: %s\n\t\tInfoSize: %d\n\t\tNoteID: %lX\n\t\tNoteHandle: %d\n\t\tUser Name: %s\n\t\tAction: %s\n\t\tFinished at",
-           info.PathName,
-           timebuffer,
-           info.InfoSize,
-           info.NoteId,
-           info.hNote,
-           info.UserName,
-           note_action);
-           EventLog(LogFD, EventString);
+                info.PathName,
+                timebuffer,
+                info.InfoSize,
+                info.NoteId,
+                info.hNote,
+                info.UserName,
+                note_action);
+                EventLog(LogFD, EventString);
     }
     return err;
 }
@@ -782,7 +782,7 @@ STATUS CheckDb(char * BUPath)
 	switch (LogType)
 	{
 	   case TRANSLOG_STYLE_ARCHIVE:
-		    PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
+		   PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
 		   if (ComfortSpan)
 			 PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
 			 break;

@@ -51,7 +51,7 @@ int main (int argc, char *argv[])
 
 /* Get the input parameters. */
 
-   if (argc != 3)
+    if (argc != 3)
     {
       PRINTLOG ("\nUsage:  INDEX  <database pathname>  <name of view>\n");
       return(0);
@@ -61,7 +61,7 @@ int main (int argc, char *argv[])
 
    PRINTLOG ("\n***** INDEX Test Begins ******\n");
 
-   if (error = NotesInitExtended (argc, argv))
+    if (error = NotesInitExtended (argc, argv))
     {
       PRINTLOG("\nUnable to initialize Notes.\n");
       return(1);

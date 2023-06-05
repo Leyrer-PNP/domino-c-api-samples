@@ -81,10 +81,10 @@ char far * control_string)
 
 /* Local data */
 
-    char		full_netpath[MAXPATH+1]; /* complete db pathname */
-    DBHANDLE	db_handle;	/* handle of open database */
-    STATUS		api_error;	/* return status from API calls */
-    int		error;		/* internal error codes */
+    char          full_netpath[MAXPATH+1]; /* complete db pathname */
+    DBHANDLE      db_handle;	/* handle of open database */
+    STATUS        api_error;	/* return status from API calls */
+    int           error;		/* internal error codes */
 
 /* Open the log file. (On an error, we must return a special error code
 to tell the caller what happened. We cannot write the problem to the

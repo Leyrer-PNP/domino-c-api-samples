@@ -87,7 +87,7 @@ int main (int argc, char *argv[])
 /* Get the input parameters. */
 /* ************************************************** */
 
-   if (argc != 3)
+    if (argc != 3)
     {
       PRINTLOG ("\nUsage:  MIXED_1  <database pathname>  <number of transaction>\n");
       return (0);
@@ -98,7 +98,7 @@ int main (int argc, char *argv[])
 
    PRINTLOG ("\n***** MIXED_1 Test Begins ******\n");
 
-   if (error = NotesInitExtended (argc, argv))
+    if (error = NotesInitExtended (argc, argv))
     {
       PRINTLOG("\nUnable to initialize Notes.\n");
       return(1);
@@ -108,12 +108,12 @@ int main (int argc, char *argv[])
 /* Open the database. */
 /* ************************************************** */
 
-   if (error = NSFDbOpen (db_path, &db_handle))
-   {
+    if (error = NSFDbOpen (db_path, &db_handle))
+    {
       PRINTERROR (error,"NSFDbOpen");
       NotesTerm();
       return (1);
-   }
+    }
 
 /* ************************************************** */
 /* Get System TIME  . */

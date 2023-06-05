@@ -24,9 +24,9 @@ PUTNOTE programs.
 
 /* File-scope data */
 
-    static char record_separator;	/* separator between documents (records) */
-    static char field_separator;	/* separator between parts of a field */
-    static char list_separator;	/* separator between elements in a list */
+static char record_separator;	/* separator between documents (records) */
+static char field_separator;	/* separator between parts of a field */
+static char list_separator;	/* separator between elements in a list */
 
 
 /* Convert an ASCII string containing the name of a data type into a

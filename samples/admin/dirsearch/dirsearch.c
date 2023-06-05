@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 	memset (&args, 0, sizeof (args));
 	error = NotesInitExtended (argc, argv);
 	
-	if (error)
+	if ( error)
 	{
 	   fprintf (stderr, "\nError initializing Notes.\n");
 	   NotesTerm();
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	   return 1;
 	}
 	/* Create the specified directory context for directory operations */
-	if ((error = DirCtxAlloc2(args.szServerName, args.szDomainName, &hCtx)) != NOERROR)
+	if (( error = DirCtxAlloc2(args.szServerName, args.szDomainName, &hCtx)) != NOERROR)
 	{
 	   fprintf(stderr, "DirCtxAlloc failure - %d:", error);
 	   PRINTERROR(error,"DirCtxAlloc2");
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Set the input flags that control behavior. */
-	if ((error = DirCtxSetFlags( hCtx, args.dwFlags)) != NOERROR )
+	if (( error = DirCtxSetFlags( hCtx, args.dwFlags)) != NOERROR )
 	goto Done;
 
 	/* Search for the Entry via name */
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 	if ( error != NOERROR )
 	{
 	   fprintf(stderr, "SearchByName failure - %d:", error);
-	   printStatus(error,"DirCtxSetFlags");
+	   PRINTERROR(error,"DirCtxSetFlags");
 	   goto Done;
 	}	
 
@@ -198,63 +198,63 @@ int processArgs (int nargc, const char * const *nargv, ARG_STRUCT *args)
 	{
 		switch ( c ) 
 		{
-			case 't':
-			  if (strcmp("anyperson", optarg) == 0) { args->formtype = (0x01 | 0x02); }
-				else if (strcmp("dominoperson", optarg) == 0) { args->formtype = 0x02; }
-				else if (strcmp("anygroup", optarg) == 0) { args->formtype = (0x10 | 0x20); }
-				else if (strcmp("dominogroup", optarg) == 0) { args->formtype = 0x20; }
-				break;
-			case 'g':
-				args->grouptype = (DWORD)atol(optarg);
-				break;
-			case 's':
-				strncpy (args->szServerName, optarg, strlen(optarg));
-				break;
-			case 'd':
-				strncpy (args->szDomainName, optarg, strlen(optarg));
-				break;
-			case 'f':
-				args->dwFlags = atoi( optarg);
-				break;
-			case 'i':
-				args->szItems[0] = '\0';
-				args->wNumItems = 0;
-				{
-					int avail_len = sizeof(args->szItems) - 1;
-					char *ptr = args->szItems;
-					char *token = strtok(optarg, ",");
-					while (token != NULL)
-					{
-						const int len = strlen(token);
-						if (avail_len < len)
-						{
-						   PRINTLOG("Sorry, too many -i Items.\n");
-						   return 1;
-						}
+		    case 't':
+		        if (strcmp("anyperson", optarg) == 0) { args->formtype = (0x01 | 0x02); }
+		        else if (strcmp("dominoperson", optarg) == 0) { args->formtype = 0x02; }
+		        else if (strcmp("anygroup", optarg) == 0) { args->formtype = (0x10 | 0x20); }
+		        else if (strcmp("dominogroup", optarg) == 0) { args->formtype = 0x20; }
+		        break;
+		    case 'g':
+		        args->grouptype = (DWORD)atol(optarg);
+		        break;
+		    case 's':
+		        strncpy (args->szServerName, optarg, strlen(optarg));
+		        break;
+		    case 'd':
+		        strncpy (args->szDomainName, optarg, strlen(optarg));
+		        break;
+		    case 'f':
+		        args->dwFlags = atoi( optarg);
+		        break;
+		    case 'i':
+		        args->szItems[0] = '\0';
+			    args->wNumItems = 0;
+			    {
+			        int avail_len = sizeof(args->szItems) - 1;
+			        char *ptr = args->szItems;
+			        char *token = strtok(optarg, ",");
+			        while (token != NULL)
+			        {
+			            const int len = strlen(token);
+			            if (avail_len < len)
+			            {
+			                PRINTLOG("Sorry, too many -i Items.\n");
+			                return 1;
+			            }
 
-						if (*token == '+')
-						    args->PrintFlags |= DIRPRINT_FLAG_EXTENDED_ENTRY;
-						else
-						{
-						   strncpy(ptr, token, avail_len);
-						   args->wNumItems++;
-						   avail_len -= (len + 1);
-						   ptr += (len + 1);
-						}
+			            if (*token == '+')
+			                args->PrintFlags |= DIRPRINT_FLAG_EXTENDED_ENTRY;
+			            else
+			            {
+			                strncpy(ptr, token, avail_len);
+			                args->wNumItems++;
+			                avail_len -= (len + 1);
+			                ptr += (len + 1);
+			            }
 
 						
-						token = strtok(NULL, ",");
-					}
+			            token = strtok(NULL, ",");
+			        }
 
-					if ((args->PrintFlags & DIRPRINT_FLAG_EXTENDED_ENTRY) && args->wNumItems == 0)
-					{
-					   args->szItems[0] = '\0';
-					   strcpy(args->szItems, DIR_ITEMS_ALL_DOMINO);
-					   args->wNumItems = 1;
-					}
+			        if ((args->PrintFlags & DIRPRINT_FLAG_EXTENDED_ENTRY) && args->wNumItems == 0)
+			        {
+			            args->szItems[0] = '\0';
+			            strcpy(args->szItems, DIR_ITEMS_ALL_DOMINO);
+			            args->wNumItems = 1;
+			        }
 
-				}
-				break;
+			    }
+			    break;
 			case 'b':
 			    break;
 			case 'n':
@@ -306,10 +306,10 @@ int getOpt (int nargc, const char * const *nargv, const char *ostr, char** popta
 		if (!*place)
 		    ++optind;
 		if (opterr) {
-			if ((p = strrchr(*nargv, '/')) != NULL)
-			    p = *nargv;
-			if (p != NULL)
-			    PRINTLOG("%s: illegal option -- %c\n", p, optopt);
+		    if ((p = strrchr(*nargv, '/')) != NULL)
+		        p = *nargv;
+		    if (p != NULL)
+		        PRINTLOG("%s: illegal option -- %c\n", p, optopt);
 		}
 		return(BADCH);
 	}

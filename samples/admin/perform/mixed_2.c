@@ -132,112 +132,112 @@ int main (int argc, char *argv[])
 
 /* Construct the last name. */
 
-   strcpy (last_name, "Connell");
-   sprintf(count,"%i", i);
-   strcat (last_name, count);
+      strcpy (last_name, "Connell");
+      sprintf(count,"%i", i);
+      strcat (last_name, count);
 
 /* Create the record. */
 
-   if (error = NSFNoteCreate (db_handle, &note_handle))
-   {
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFNoteCreate");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFNoteCreate (db_handle, &note_handle))
+      {
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFNoteCreate");
+          NotesTerm();
+          return(1);
+      }
 
 /* Add all the fields. */
 
-   if (error = NSFItemSetText ( note_handle, 
-               "Form",
-               "Person",
-               MAXWORD))
-   {
-      NSFNoteClose (note_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFItemSetText");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFItemSetText ( note_handle, 
+                  "Form",
+                  "Person",
+                  MAXWORD))
+      {
+          NSFNoteClose (note_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFItemSetText");
+          NotesTerm();
+          return(1);
+      }
 
-   if (error = NSFItemSetText ( note_handle,
-               "Type",
-               "Person",
-               MAXWORD))
-   {
-      NSFNoteClose (note_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFItemSetText");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFItemSetText ( note_handle,
+                  "Type",
+                  "Person",
+                  MAXWORD))
+      {
+         NSFNoteClose (note_handle);
+         NSFDbClose (db_handle);
+         PRINTERROR (error,"NSFItemSetText");
+         NotesTerm();
+         return(1);
+      }
 
-   if (error = NSFItemSetText ( note_handle,
-               "FirstName",
-               "Charles",
-               MAXWORD))
-   {
-      NSFNoteClose (note_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFItemSetText");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFItemSetText ( note_handle,
+                  "FirstName",
+                  "Charles",
+                  MAXWORD))
+      {
+          NSFNoteClose (note_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFItemSetText");
+          NotesTerm();
+          return(1);
+      }
 
-   if (error = NSFItemSetText ( note_handle,
-               "LastName",
-               last_name,
-               MAXWORD))
-   {
-      NSFNoteClose (note_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFItemSetText");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFItemSetText ( note_handle,
+                  "LastName",
+                  last_name,
+                  MAXWORD))
+      {
+          NSFNoteClose (note_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFItemSetText");
+          NotesTerm();
+          return(1);
+      }
 
-   if (error = NSFItemSetText ( note_handle,
-               "MailDomain",
-               "NOTES",
-               MAXWORD))
-   {
-      NSFNoteClose (note_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFItemSetText");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFItemSetText ( note_handle,
+                  "MailDomain",
+                  "NOTES",
+                  MAXWORD))
+      {
+          NSFNoteClose (note_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFItemSetText");
+          NotesTerm();
+          return(1);
+      }
 
-   if (error = NSFItemSetText ( note_handle,
-               "MailFile",
-               "MAIL\\CCONNELL",
-               MAXWORD))
-   {
-      NSFNoteClose (note_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFItemSetText");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFItemSetText ( note_handle,
+                  "MailFile",
+                  "MAIL\\CCONNELL",
+                  MAXWORD))
+      {
+          NSFNoteClose (note_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFItemSetText");
+          NotesTerm();
+          return(1);
+      }
 
 /* Write the new note to disk and close the note. */
 
-   if (error = NSFNoteUpdate (note_handle, 0))
-   {
-      NSFNoteClose (note_handle);
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFNoteUpdate");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFNoteUpdate (note_handle, 0))
+      {
+          NSFNoteClose (note_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFNoteUpdate");
+          NotesTerm();
+          return(1);
+      }
 
-   if (error = NSFNoteClose (note_handle))
-   {
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFNoteClose");
-      NotesTerm();
-      return(1);
-   }
+      if (error = NSFNoteClose (note_handle))
+      {
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFNoteClose");
+          NotesTerm();
+          return(1);
+      }
 
 /* End of big loop that is adding records. */
 
@@ -432,14 +432,14 @@ int main (int argc, char *argv[])
 /* Update the on-disk copy of the note and close it. */
 
    if (error = NSFNoteUpdate (note_handle, 0))
-      {
+   {
       NIFCloseCollection (coll_handle);
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
       PRINTERROR (error,"NSFNoteUpdate");
       NotesTerm();
       return(1);
-      }
+   }
 
    if (error = NSFNoteClose (note_handle))
    {

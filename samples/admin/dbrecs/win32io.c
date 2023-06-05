@@ -77,14 +77,14 @@ STATUS LNPUBLIC SysFileOpenRead( char * FileName, int * phRetFile )
     DWORD    error;
     char     NFileName[MAXPATH];
 
-int a;
-DHANDLE b;
-HFILE c;
-printf("int: %d\n",sizeof(a));
-printf("handle: %d\n",sizeof(hFile));
-printf("dhandle: %d\n",sizeof(b));
-printf("HFILE: %d\n",sizeof(c));
-printf("HFILE_ERROR = : %d\n",HFILE_ERROR);
+    int a;
+    DHANDLE b;
+    HFILE c;
+    printf("int: %d\n",sizeof(a));
+    printf("handle: %d\n",sizeof(hFile));
+    printf("dhandle: %d\n",sizeof(b));
+    printf("HFILE: %d\n",sizeof(c));
+    printf("HFILE_ERROR = : %d\n",HFILE_ERROR);
 
     OSTranslate (OS_TRANSLATE_LMBCS_TO_NATIVE,
                  FileName,

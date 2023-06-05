@@ -53,12 +53,12 @@ STATUS LNCALLBACK DUSGetName(HMODULE hInstance,
 			     char *DUSDescriptionBuf,
 			     WORD DUSDescriptionBufLen )
 {
-STATUS error = NOERROR;
+    STATUS error = NOERROR;
 
-OSLoadString(hInstance, STR_DUS_NAME, DUSNameBuf, DUSNameBufLen);
-OSLoadString(hInstance, STR_DUS_DESCRIPTION, DUSDescriptionBuf, DUSDescriptionBufLen);
+    OSLoadString(hInstance, STR_DUS_NAME, DUSNameBuf, DUSNameBufLen);
+    OSLoadString(hInstance, STR_DUS_DESCRIPTION, DUSDescriptionBuf, DUSDescriptionBufLen);
 
-return(error);
+    return(error);
 }
 
 /*************************************************************************

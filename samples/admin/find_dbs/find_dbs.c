@@ -149,12 +149,12 @@ call an action routine. */
         NULL,              /* argument to action routine */
         NULL))             /* returned ending date (unused) */
 
-        {
-            PRINTERROR (error,"NSFSearch");
-            NSFDbClose (dir_handle);
-            NotesTerm();
-            return (1);
-        }
+    {
+        PRINTERROR (error,"NSFSearch");
+        NSFDbClose (dir_handle);
+        NotesTerm();
+        return (1);
+    }
 
 /* Close the directory. */
 
