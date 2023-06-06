@@ -175,7 +175,7 @@ Done:
 	if( error != NOERROR )
 	{
 	   fprintf(stderr, "SearchByName failure - %d:", error);
-	   printStatus(error,"DirCtxSetFlags");
+	   PRINTERROR(error,"DirCtxSetFlags");
 
 	   NotesTerm();
 	   return (1);
