@@ -61,18 +61,18 @@ LIST *RecipientsItem, *ToItem, *CCItem;
 HANDLE hDir;
 WIN32_FIND_DATA FindBuf;
 	
-	hMailboxFile = hMessage = NULLHANDLE;
+    hMailboxFile = hMessage = NULLHANDLE;
 
-	/* Find a new foreign mail message in the inbound message directory. */
+    /* Find a new foreign mail message in the inbound message directory. */
 
-	_makepath(ForeignFileName, GatewayDrive, MGATE_INBOUND_DIR,
+    _makepath(ForeignFileName, GatewayDrive, MGATE_INBOUND_DIR,
 			  "*", MGATE_MSG_EXT);
 
     hDir = FindFirstFile(ForeignFileName, &FindBuf);
-	 if (hDir == (HANDLE) MAXWORD)
-	 {
+    if (hDir == (HANDLE) MAXWORD)
+    {
 	     return;
-	 }
+    }
 
 	_makepath(ForeignFileName, GatewayDrive, MGATE_INBOUND_DIR,
 			  FindBuf.cFileName, NULL);

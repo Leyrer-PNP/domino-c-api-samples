@@ -33,6 +33,7 @@
 #include <osmem.h>
 #include <nsfole.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 
 /* Forward declarations */
@@ -47,8 +48,6 @@ STATUS LNPUBLIC ProcessOneCDRecord(
   WORD wRecordType,
   DWORD dwRecordLength,
   void far *phNote);
-
-void PrintAPIError (STATUS);
 
 /*
  *  Main Program
@@ -66,14 +65,14 @@ int main(int argc, char *argv[])
 
   if (error = NotesInitExtended (argc, argv))
   {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
   }
 
 
   if (error = NSFDbOpen("embedole.nsf", &hDb))
   {
-    printf("NSFDbOpen failed...\n");
+    PRINTLOG("NSFDbOpen failed...\n");
     goto Done2;
   }
 
@@ -117,7 +116,7 @@ Done1:
 
 Done2:
    if (error)
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFDbOpen");
 
    NotesTerm();
 
@@ -160,7 +159,7 @@ STATUS LNPUBLIC ProcessOneNote(
 
   if (error = NSFNoteOpen(hDB, SearchMatch.ID.NoteID, 0, &hNote))
   {
-    printf("NSFNoteOpen failed...\n");
+    PRINTLOG("NSFNoteOpen failed...\n");
     return (error);
   }
 
@@ -177,13 +176,13 @@ STATUS LNPUBLIC ProcessOneNote(
                           &dwValueLen))
   {
     NSFNoteClose(hNote);
-    printf("NSFItemInfo failed...\n");
+    PRINTLOG("NSFItemInfo failed...\n");
     return (error);
   }
 
   if (wDataType != TYPE_COMPOSITE)
   {
-    printf("$OLEOBJINFO item is not Rich Text...\n");
+    PRINTLOG("$OLEOBJINFO item is not Rich Text...\n");
     return (NOERROR);
   }
 
@@ -253,7 +252,7 @@ STATUS LNPUBLIC ProcessOneCDRecord(
       pEncryptKey = NULL;
     else
     {
-      printf("NSFNoteDecrypt failed...\n");
+      PRINTLOG("NSFNoteDecrypt failed...\n");
       goto exit1;
     }
   }
@@ -265,11 +264,11 @@ STATUS LNPUBLIC ProcessOneCDRecord(
                                        TRUE,
                                        0))
   {
-    printf("NSFNoteExtractOLE2Object failed...\n");
+    PRINTLOG("NSFNoteExtractOLE2Object failed...\n");
     goto exit1;
   }
 
-  printf("Extracted OLE object to file %s\n",szFileName);
+  PRINTLOG("Extracted OLE object to file %s\n",szFileName);
 
   /* Initialize OLE */
 
@@ -289,7 +288,7 @@ STATUS LNPUBLIC ProcessOneCDRecord(
     goto exit2;
   if (FAILED(StgOpenStorage(wcsStgFile,NULL,dwMode,NULL,0,&lpRootStg)))
     goto exit2;
-  printf("Opened root storage from file %s\n",szFileName);
+  PRINTLOG("Opened root storage from file %s\n",szFileName);
 
   /* Get ProgID */
 
@@ -302,21 +301,21 @@ STATUS LNPUBLIC ProcessOneCDRecord(
 
   if(FAILED(lpRootStg->lpVtbl->OpenStorage(lpRootStg,lpProgID,NULL,dwMode,NULL,0,&lpSubStg)))
     goto exit3;
-  printf("Opened substorage '%s'\n",szProgID);
+  PRINTLOG("Opened substorage '%s'\n",szProgID);
 
   /* Open 'Contents' stream */
 
   if(FAILED(lpSubStg->lpVtbl->OpenStream(lpSubStg,wcsStream,NULL,dwMode,0,&lpStream)))
   {
-    printf("No 'Contents' stream in substorage '%s'\n",szProgID);
+    PRINTLOG("No 'Contents' stream in substorage '%s'\n",szProgID);
     goto exit4;
   }
-  printf("Opened 'Contents' stream:\n");
+  PRINTLOG("Opened 'Contents' stream:\n");
 
   if(FAILED(lpStream->lpVtbl->Read(lpStream,(void *)szContents,1024,&cbRead)))
     goto exit5;
   else
-    printf("%s\n\n",szContents);
+    PRINTLOG("%s\n\n",szContents);
 
 exit5:
   lpStream->lpVtbl->Release(lpStream);
@@ -335,34 +334,3 @@ exit1:
   return (error);
 
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

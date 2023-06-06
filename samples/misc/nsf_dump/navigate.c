@@ -212,7 +212,7 @@ void    LNPUBLIC  DumpCDVmdataset (
 ) {
     char far *				p = RecordPtr;
     VIEWMAP_DATASET_RECORD	vmDataRec;
-	int						i, j;
+    int						i, j;
 #define NUMS_PER_LINE	8
 
     fprintf( dumpfile,"  VIEWMAP_DATASET_RECORD\n" );

@@ -46,6 +46,7 @@
 #include "osfile.h"
 #include "idtable.h"
 #include "oserr.h"
+#include "printLog.h"
 
 /* archivie services API file */
 
@@ -56,7 +57,6 @@
 /* Local function prototypes */
 
 BOOL  LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileName);
-void PrintAPIError (STATUS);
 
 
 /* Callback for ArchiveDocumentImport */
@@ -99,17 +99,15 @@ int main(int argc, char *argv[])
     char       	pname[MAXPATH] = "";         /* buffer to store the input path to database */
     DBHANDLE   	db_handle = NULLHANDLE;		 /* database handle */
     STATUS     	error = NOERROR;             /* error code from API calls */
-	IMPORTCONTEXT Ctx;
-	char achInFileName[MAXPATH+1];
-	NOTEHANDLE hNote = NULLHANDLE;
-	HARCHIVEDOCUMENT hDoc = NULLHANDLE;
+    IMPORTCONTEXT Ctx;
+    char achInFileName[MAXPATH+1];
+    NOTEHANDLE hNote = NULLHANDLE;
+    HARCHIVEDOCUMENT hDoc = NULLHANDLE;
 
+    memset(&Ctx, 0, sizeof(IMPORTCONTEXT));
 
-	memset(&Ctx, 0, sizeof(IMPORTCONTEXT));
-
-
-	error = NotesInitExtended (argc, argv);
-	if (error)
+    error = NotesInitExtended (argc, argv);
+    if (error)
     {
       fprintf (stderr, "\nError initializing Notes.\n");
       return (1);
@@ -117,25 +115,25 @@ int main(int argc, char *argv[])
 
     if(!ProcessArgs(argc, argv, pname, achInFileName))
     {
-        printf( "\nUsage:  %s  <Input file> <Target database> [options]\n", argv[0] );
-		printf("\nOptions: -s ServerName\n"); 
+        PRINTLOG( "\nUsage:  %s  <Input file> <Target database> [options]\n", argv[0] );
+        PRINTLOG("\nOptions: -s ServerName\n"); 
         return (0);
     }
 	
-	printf("Opening %s\n", pname);
+	PRINTLOG("Opening %s\n", pname);
 
 	/* Create the database if it doesn't exist */
 	error = NSFDbCreate(pname, DBCLASS_NOTEFILE, FALSE);
 	if(error && ERR(error) != ERR_EXISTS)
 		{
-		PrintAPIError (error);
-        goto cleanup;
+		PRINTERROR (error,"NSFDbCreate");
+		goto cleanup;
 		}
     
 	/* open the db. */
     if (error = NSFDbOpen (pname, &db_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbOpen");
         goto cleanup;
     }
 
@@ -144,12 +142,12 @@ int main(int argc, char *argv[])
 
 	if(Ctx.pInFile == NULL)
 	{
-		printf("Error creating %s\n",achInFileName);
+		PRINTLOG("Error creating %s\n",achInFileName);
 		goto cleanup;
 	}
 	else
 	{
-		printf("Input file successfully opened\n");
+		PRINTLOG("Input file successfully opened\n");
 	}
 
 	fseek(Ctx.pInFile, 0, SEEK_END);
@@ -163,12 +161,12 @@ int main(int argc, char *argv[])
 		
 	if(error = ArchiveDocumentImport(0, NoteImportCallback, &Ctx, &hDoc))
 		{
-		PrintAPIError(error);
+		PRINTERROR(error,"ArchiveDocumentImport");
 	   	goto cleanup;	   
    		}
 	else
 	    {
-		printf("Successfully executed ArchiveDocumentImport API\n");
+		PRINTLOG("Successfully executed ArchiveDocumentImport API\n");
 	    }
 
 	/*  The ArchiveRestoreDocument function restores a note and its related attachments from the data stream
@@ -179,18 +177,18 @@ int main(int argc, char *argv[])
 
 	if(error = ArchiveRestoreDocument(db_handle, 0, hDoc,  AttachImportCallback, &Ctx, &hNote))
 		{
-		PrintAPIError(error);
+		PRINTERROR(error,"ArchiveRestoreDocument");
 	   	goto cleanup;	   
    		}
 	else
 	    {
-		printf("Succesfully executed ArchiveRestoreDocument API\n");
+		PRINTLOG("Succesfully executed ArchiveRestoreDocument API\n");
 	    }
 
 	ArchiveDocumentDestroy(hDoc);
 	hDoc = NULLHANDLE;
 
-	printf("Program completed successfully\n");
+	PRINTLOG("Program completed successfully\n");
 
 cleanup:
 
@@ -214,35 +212,6 @@ cleanup:
     return (0);
 }
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-				error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
 
 /************************************************************************
 
@@ -273,7 +242,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileNa
 
 	if(curarg == argc)
 		{
-		printf("Missing required target database\n");
+		PRINTLOG("Missing required target database\n");
 		return FALSE;
 		}
 	
@@ -288,7 +257,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileNa
 			curarg++;
 			if(curarg == argc)
 				{
-				printf("ERROR: Missing server argument after -s\n");
+				PRINTLOG("ERROR: Missing server argument after -s\n");
 				return FALSE;
 				}
 			pServerName = argv[curarg];					
@@ -298,7 +267,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileNa
 
 	if (Error = OSPathNetConstruct( NULL, pServerName, pDBName, dbPath))
         {
-		PrintAPIError (Error);
+		PRINTERROR (Error,"OSPathNetConstruct");
 		return FALSE;
 		}
 
@@ -307,7 +276,7 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileNa
 
 /************************************************************************
 
-	CALLBACK:   NoteImportCallback
+    CALLBACK:   NoteImportCallback
 
     PURPOSE:    This is the callback that ArchiveDocumentImport uses to retrieve 
 				data from the note.
@@ -334,7 +303,7 @@ DWORD far PASCAL NoteImportCallback
 
 /************************************************************************
 
-	CALLBACK:   AttachImportCallback
+    CALLBACK:   AttachImportCallback
 
     PURPOSE:    This is the callback that ArchiveRestoreDocument uses to retrieve 
 				data from attachment.
@@ -368,7 +337,7 @@ STATUS far PASCAL AttachImportCallback
 
 		if(pCtx->pAttachFile == NULL)
 		{
-			printf("Error opening %s\n", FileName);
+			PRINTLOG("Error opening %s\n", FileName);
 			goto cleanup;
 		}
 

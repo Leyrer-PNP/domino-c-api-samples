@@ -125,7 +125,7 @@ BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
  *  Create the event queue, and specify that we are interested in events
  *  of type EVT_MISC and of severity SEV_NORMAL.
  */
-	if (sError = EventQueueAlloc(QueueName))
+    if (sError = EventQueueAlloc(QueueName))
         return (ERR(sError));
    
     if (sError = EventRegisterEventRequest(EVT_MISC,
@@ -137,7 +137,7 @@ BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
 /* 
  *  Start the AddInIdle() loop.
  */
-	int count = 0;
+    int count = 0;
     while (!AddInIdle())
     {
 

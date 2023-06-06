@@ -59,6 +59,8 @@ mk_sndattmm_p.clp    - Make file (CL Program) for IBM i using ILE C
 RUNNING sendAttMM
 -----------------
 
+- Before running the sample in Linux you need to copy "New.bmp" file from notedata folder in CAPIToolkit to domino server /local/notesdata.
+
 - Server name is fetched from the NOTES.INI file.
 
 - At the command-line the syntax for this sample is:

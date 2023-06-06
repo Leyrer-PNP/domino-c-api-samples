@@ -70,7 +70,7 @@ extern "C" {
 #include <nsferr.h>
 #include <ods.h>
 #include <textlist.h>
-
+#include <printLog.h>
 #include <osmisc.h>
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
@@ -86,7 +86,6 @@ STATUS LNPUBLIC ReadSummaryData (     /* called for every document */
             ITEM_TABLE far *);
 STATUS PrintSummary (char *);
 STATUS ExtractTextList (char *, char *);
-void PrintAPIError (STATUS);
 
 /* Constants */
 /* Notes imposes a 32K max summary buffer total size. Therefore,
@@ -126,7 +125,7 @@ int main(int argc, char *argv[])
 
 	if (error = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	}
 
@@ -134,8 +133,8 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen (db_filename, &db_handle))
     {
-        printf ("Error: unable to open database '%s'\n", db_filename);
-        PrintAPIError (error);
+        PRINTLOG ("Error: unable to open database '%s'\n", db_filename);
+        PRINTERROR (error,"NSFDbOpen");
         NotesTerm();
         return (1);
     }
@@ -157,9 +156,9 @@ int main(int argc, char *argv[])
         NULL))              /* returned ending date (unused) */
 
     {
-        printf ("Error: unable to search database.\n");
+        PRINTLOG ("Error: unable to search database.\n");
         NSFDbClose (db_handle);
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFSearch");
         NotesTerm();
         return (1);
     }
@@ -168,14 +167,14 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose (db_handle))
     {
-        printf ("Error: unable to close database '%s'\n", db_filename);
-        PrintAPIError (error);
+        PRINTLOG ("Error: unable to close database '%s'\n", db_filename);
+        PRINTERROR (error,"NSFDbClose");
         NotesTerm();
         return (1);
     }
 
     /* End of main routine. */
-    printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
     NotesTerm();
     return (0);
 }
@@ -218,7 +217,7 @@ STATUS LNPUBLIC ReadSummaryData
 
     /* Print the note ID. */
 
-    printf ("\nNote ID is: %#010lx.\n", SearchMatch.ID.NoteID);
+    PRINTLOG ("\nNote ID is: %#010lx.\n", SearchMatch.ID.NoteID);
 
     /* Print the summary data. */
 
@@ -379,7 +378,7 @@ STATUS PrintSummary (char *pSummary)
                 szDataType = Text_List;
                 if (error = ExtractTextList (pSummaryPos, ItemText))
                 {
-                    printf ("Error: unable to extract text list.\n");
+                    PRINTLOG ("Error: unable to extract text list.\n");
                     ItemText[0] = '\0';
                 }
                 pSummaryPos += ValueLength;
@@ -432,7 +431,7 @@ STATUS PrintSummary (char *pSummary)
                             ItemText, MAXALPHATIMEDATE,
                             &TimeStringLen))
                 {
-                    printf ("Error: unable to convert TIMEDATE to text.\n");
+                    PRINTLOG ("Error: unable to convert TIMEDATE to text.\n");
                     TimeStringLen = 0;
                 }
                 ItemText[TimeStringLen] = '\0';
@@ -459,7 +458,7 @@ STATUS PrintSummary (char *pSummary)
                                 ItemText+TextLen,
                                 MAXALPHATIMEDATE, &TimeStringLen))
                     {
-                        printf("Error: unable to convert TIMEDATE to text.\n");
+                        PRINTLOG("Error: unable to convert TIMEDATE to text.\n");
                         TimeStringLen = 0;
                     }
                     TextLen += TimeStringLen;
@@ -494,7 +493,7 @@ STATUS PrintSummary (char *pSummary)
                                 &TimePairItem.Lower, ItemText+TextLen,
                                 MAXALPHATIMEDATE, &TimeStringLen))
                     {
-                        printf("Error: unable to convert TIMEDATE to text.\n");
+                        PRINTLOG("Error: unable to convert TIMEDATE to text.\n");
                         TimeStringLen = 0;
                     }
                     TextLen += TimeStringLen;
@@ -505,7 +504,7 @@ STATUS PrintSummary (char *pSummary)
                                 &TimePairItem.Upper, ItemText+TextLen,
                                 MAXALPHATIMEDATE, &TimeStringLen))
                     {
-                        printf("Error: unable to convert TIMEDATE to text.\n");
+                        PRINTLOG("Error: unable to convert TIMEDATE to text.\n");
                         TimeStringLen = 0;
                     }
                     TextLen += TimeStringLen;
@@ -525,23 +524,27 @@ STATUS PrintSummary (char *pSummary)
 
 PrintItem:
         /* Print the item name, data type, and value. */
-        printf ("\tItem Name = %s\n", ItemName);
-        printf ("\tData Type = %s\n", szDataType);
+        PRINTLOG ("\tItem Name = %s\n", ItemName);
+        PRINTLOG ("\tData Type = %s\n", szDataType);
 
 #ifndef APITESTMODE
-        printf ("\tItem Value = \"%s\"\n\n", ItemText);
+        PRINTLOG ("\tItem Value = \"%s\"\n\n", ItemText);
 #else
         if (strcmp(ItemName,"$UpdatedBy")==0)
-          printf ("\tItem Value =\n\n", ItemText);
+	{
+          PRINTLOG ("\tItem Value =\n\n", ItemText);
+	}
         else
-          printf ("\tItem Value = \"%s\"\n\n", ItemText);
+	{
+          PRINTLOG ("\tItem Value = \"%s\"\n\n", ItemText);
+	}
 #endif
 
     }/* End of loop over items in the summary. */
 
     /* Print final line feed to end display for this note. */
 
-    printf ("\n");
+    PRINTLOG ("\n");
 
     return (NOERROR);
 }
@@ -643,37 +646,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
     } /* end if */
 
 } /* ProcessArgs */
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

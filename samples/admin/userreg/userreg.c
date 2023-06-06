@@ -70,7 +70,7 @@ extern "C" {
 #include <osmisc.h>
 #include <misc.h>
 #include <ostime.h>
-
+#include <printLog.h>
 #if defined(OS400)
 #include "lapiplat.h"
 #endif
@@ -125,7 +125,6 @@ char NA_NAME[] = "names.nsf";
 /* local function prototypes */
 void LNCALLBACK REGCallback (char far *);
 STATUS GetCertCtx (char far *, HCERTIFIER *, char far *);
-void PrintAPIError (STATUS);
 
 
 TIMEDATE ExpireDate;
@@ -146,8 +145,8 @@ int main(int argc, char *argv[])
    char     MailServName[MAXUSERNAME + 1]; /* mail server name */
    char     FullDBPath[MAXPATH];  /* complete pathname for Name and Address
                                      Book */
-	char		ServLocation[MAXLOCATIONNAME] = "Sales LAB";
-	char		WorkLocation[MAXLOCATIONNAME] = "323 West";
+   char     ServLocation[MAXLOCATIONNAME] = "Sales LAB";
+   char     WorkLocation[MAXLOCATIONNAME] = "323 West";
 
    HCERTIFIER hCertCtx;
    DBHANDLE hNABook;              /* handle to name and address book */
@@ -168,14 +167,14 @@ int main(int argc, char *argv[])
 
    FullDBPath[0] = '\0';
 
-	error = NotesInitExtended (argc, argv);
-	if (error)
-	{
-	   printf("Error: Unable to initialize Notes.\n");
-		return (1);
-	}
+   error = NotesInitExtended (argc, argv);
+   if (error)
+   {
+      PRINTLOG("Error: Unable to initialize Notes.\n");
+      return (1);
+   }
 
-   printf ("\n");
+   PRINTLOG ("\n");
    /* Create and register new organizational certifier - ABCorp */
    error = REGNewCertifier (
               NULLHANDLE,            /* no certifier context */
@@ -202,15 +201,16 @@ int main(int argc, char *argv[])
               FullDBPath);           /* returned pathname of file where
                                         error occurred */
 
-   printf ("\n\n");
+   PRINTLOG ("\n\n");
+   
 
    if (error)
    {
-      printf("Error: unable to register new organizational certifier.\n");
+      PRINTLOG("Error: unable to register new organizational certifier.\n");
       if (FullDBPath[0] != '\0')
-         printf ("Error occurred in file %s\n", FullDBPath);
-		PrintAPIError(error);
-		NotesTerm();
+      PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+      PRINTERROR(error,"REGNewCertifier");
+      NotesTerm();
       return (1);
    }
 
@@ -222,8 +222,8 @@ int main(int argc, char *argv[])
 
    if (error = GetCertCtx(ORG_CERT_ID, &hCertCtx, PASSWORD))
    {
-      PrintAPIError(error);
-		NotesTerm();
+      PRINTERROR(error,"GetCertCtx");
+      NotesTerm();
       return (1);
    }
 
@@ -253,16 +253,15 @@ int main(int argc, char *argv[])
               FullDBPath);           /* returned pathname of file where
                                         error occurred */
 
-   printf ("\n\n");
-
+   PRINTLOG ("\n\n");
    if (error)
    {
-      printf("Error: unable to register new organizational unit certifier.\n");
+      PRINTLOG("Error: unable to register new organizational unit certifier.\n");
       if (FullDBPath[0] != '\0')
-         printf ("Error occurred in file %s\n", FullDBPath);
+         PRINTLOG ("Error occurred in file %s\n", FullDBPath);
       SECKFMFreeCertifierCtx (hCertCtx);
-      PrintAPIError(error);
-		NotesTerm();
+      PRINTERROR(error,"REGNewCertifier");
+      NotesTerm();
       return (1);
    }
 
@@ -325,7 +324,7 @@ int main(int argc, char *argv[])
    */
    if (error = GetCertCtx(ORGUNIT_CERT_ID, &hCertCtx, PASSWORD))
    {
-      PrintAPIError(error);
+      PRINTERROR(error,"GetCertCtx");
 		NotesTerm();
       return (1);
    }
@@ -334,10 +333,10 @@ int main(int argc, char *argv[])
    if (LocalServer)
    {
      if (error = SECKFMGetUserName(MailServName))
-	  {
-		  PrintAPIError(error);
-		  NotesTerm();
-		  return (1);
+     {
+       PRINTERROR(error,"SECKFMGetUserName");
+       NotesTerm();
+       return (1);
      }
    }
 
@@ -361,24 +360,24 @@ int main(int argc, char *argv[])
               fREGUSARequested    |
               fREGCreateMailFileNow |
               fREGCreateAddrBookEntry|
-	      fREGOkayToModifyID|
-	      fREGOkayToModifyAddrbook,
+              fREGOkayToModifyID|
+              fREGOkayToModifyAddrbook,
               0,                      /* minimum password length */
               &REGCallback,           /* pointer to callback function */
               FullDBPath);            /* returned pathname of file where
                                          error occurred */
 
-   printf ("\n\n");
+   PRINTLOG ("\n\n");
 
    /* Free the certifier context */
    SECKFMFreeCertifierCtx (hCertCtx);
 
    if (error)
    {
-      printf("Error: unable to register a new user. Error:%x\n", error);
-		PrintAPIError(error);
+      PRINTLOG("Error: unable to register a new user. Error:%x\n", error);
+      PRINTERROR(error,"REGNewWorkstation");
       if (FullDBPath[0] != '\0')
-         printf ("Error occurred in file %s\n", FullDBPath);
+      PRINTLOG ("Error occurred in file %s\n", FullDBPath);
       NotesTerm();
       return (1);
    }
@@ -391,12 +390,12 @@ int main(int argc, char *argv[])
    */
    if (error = GetCertCtx(ORGUNIT_CERT_ID, &hCertCtx, PASSWORD))
    {
-		PrintAPIError(error);
+      PRINTERROR(error,"GetCertCtx");
       NotesTerm();
       return (1);
    }
 
-   printf("Begin recertifying %s...\n", NEW_USERNAME);
+   PRINTLOG("Begin recertifying %s...\n", NEW_USERNAME);
 
    error = REGReCertifyID (
               hCertCtx,              /* certifier context */
@@ -411,21 +410,21 @@ int main(int argc, char *argv[])
               NULL);                 /* Error path name */
 
    if (!error)
-     printf("%s successfully recertified.\n", NEW_USERNAME);
+     PRINTLOG("%s successfully recertified.\n", NEW_USERNAME);
 
-   printf ("\n\n");
+   PRINTLOG ("\n\n");
 
    /* Free the certifier context */
    SECKFMFreeCertifierCtx (hCertCtx);
 
    if (error)
    {
-      printf("Error: unable to recertify a new user. Error:%x\n", error);
-		PrintAPIError(error);
+      PRINTLOG("Error: unable to recertify a new user. Error:%x\n", error);
+      PRINTERROR(error,"REGReCertifyID");
       if (FullDBPath[0] != '\0')
-         printf ("Error occurred in file %s\n", FullDBPath);
-      NotesTerm();
-      return (1);
+         PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+         NotesTerm();
+         return (1);
    }
 
 
@@ -435,8 +434,8 @@ int main(int argc, char *argv[])
 
    if (error = OSPathNetConstruct(NULL, ServName, NA_NAME, FullDBPath))
    {
-      printf("Error: unable to construct network path to N&A book.\n");
-		PrintAPIError(error);
+      PRINTLOG("Error: unable to construct network path to N&A book.\n");
+      PRINTERROR(error,"OSPathNetConstruct");
       NotesTerm();
       return (1);
    }
@@ -445,8 +444,8 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (FullDBPath, &hNABook))
    {
-      printf("Error: unable to open N&A book '%s'.\n", FullDBPath);
-  		PrintAPIError(error);
+      PRINTLOG("Error: unable to open N&A book '%s'.\n", FullDBPath);
+      PRINTERROR(error,"NSFDbOpen");
       NotesTerm();
       return (1);
    }
@@ -457,15 +456,15 @@ int main(int argc, char *argv[])
                                         DNAME_ORG_CERT,
                                         &NoteID))
    {
-      printf("Unable to find orgainizational certifier entry in N&A book.\n");
-  		PrintAPIError(error);
-		NSFDbClose(hNABook);
+      PRINTLOG("Unable to find orgainizational certifier entry in N&A book.\n");
+      PRINTERROR(error,"REGFindAddressBookEntry");
+      NSFDbClose(hNABook);
       NotesTerm();
       return (1);
    }
 
    if (NoteID)
-      printf (
+      PRINTLOG (
          "\nOrganization Certifier, %s, found in NA Book.\nNoteID = %#lX\n\n",
          DNAME_ORG_CERT, NoteID);
 
@@ -475,15 +474,15 @@ int main(int argc, char *argv[])
                                        DNAME_ORGUNIT_CERT,
                                        &NoteID))
    {
-      printf("Unable to find orgainizational unit certifier entry in N&A book.\n");
-  		PrintAPIError(error);
-		NSFDbClose(hNABook);
+      PRINTLOG("Unable to find orgainizational unit certifier entry in N&A book.\n");
+      PRINTERROR(error,"REGFindAddressBookEntry");
+      NSFDbClose(hNABook);
       NotesTerm();
       return (1);
    }
 
    if (NoteID)
-      printf (
+      PRINTLOG (
          "\nOrg Unit Certifier, %s, found in NA Book.\nNoteID = %#lX\n\n",
          DNAME_ORGUNIT_CERT, NoteID);
 
@@ -499,7 +498,7 @@ int main(int argc, char *argv[])
                                        DNAME_OTTO,
                                        &NoteID))
    {
-      printf("Error: unable to find server entry in N&A book.\n");
+      PRINTLOG("Error: unable to find server entry in N&A book.\n");
   		PrintAPIError(error);
 		NSFDbClose(hNABook);
       NotesTerm();
@@ -517,30 +516,30 @@ int main(int argc, char *argv[])
                                        DNAME_JAYNE,
                                        &NoteID))
    {
-      printf("Unable to find new user entry in N&A book.\n");
-      PrintAPIError(error);
-		NSFDbClose(hNABook);
+      PRINTLOG("Unable to find new user entry in N&A book.\n");
+      PRINTERROR(error,"REGFindAddressBookEntry");
+      NSFDbClose(hNABook);
       NotesTerm();
       return (1);
    }
 
    if (NoteID)
-      printf ("\nUser, %s, found in NA Book.\nNoteID = %#lX\n\n",
+      PRINTLOG ("\nUser, %s, found in NA Book.\nNoteID = %#lX\n\n",
               DNAME_JAYNE, NoteID);
 
    /* Close the database. */
 
    if(error = NSFDbClose (hNABook))
-	{
-      PrintAPIError(error);
+   {
+      PRINTERROR(error,"NSFDbClose");
       NotesTerm();
       return (1);
-	}
-
-	NotesTerm();
+   }
+   NSFDbDelete(MAILFILENAME);
+   NotesTerm();
 
 /* End of main routine */
-	printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
 
    return (0);
 }
@@ -558,7 +557,7 @@ int main(int argc, char *argv[])
 
 void LNCALLBACK REGCallback (char far *msg)
 {
-   printf("%s\n",msg);
+   PRINTLOG("%s\n",msg);
 }
 
 /************************************************************************
@@ -621,30 +620,6 @@ STATUS GetCertCtx (char far *pCertFile, HCERTIFIER *phCertCtx,
               &FileVersion);   /* returned file version */
 
    return (error);
-}
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
 }
 #ifdef __cplusplus
 }

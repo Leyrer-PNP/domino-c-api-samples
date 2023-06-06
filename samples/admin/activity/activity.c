@@ -26,10 +26,10 @@
 
     DESCRIPTION:
          A HCL C API for Notes/Domino program that reads the binary records from 
-	     the server's log file and displays it to standard output. Activity logging replaces 
-		 and surpasses the previous Billing functionality. The activity logging services are 
-		 a set of routines that read and write binary records to the server log (log.nsf). 
-		 For efficiency, many records are written to one note. 
+         the server's log file and displays it to standard output. Activity logging replaces 
+         and surpasses the previous Billing functionality. The activity logging services are 
+         a set of routines that read and write binary records to the server log (log.nsf). 
+         For efficiency, many records are written to one note. 
 
 ****************************************************************************/
 #if defined(OS400)
@@ -67,12 +67,19 @@ extern "C" {
 #include <log.h>
 #include <misc.h>
 #include <textlist.h>
-
+#include <printLog.h>
 #include <lapiplat.h>
+#include <stdlib.h>
 
 #if defined(OS390) && (__STRING_CODE_SET__==ISO8859-1 /* ascii compile */)
 #include <_Ascii_a.h>   /* NOTE: must be the LAST file included */
 #endif /* OS390, ascii compile */
+
+#define ENVACTIVITY_AUTO "ACTIVITY_AUTO"  /* Env string for handling automation */
+#define ENV_LENGTH 25		/* Length for env ACTIVITY_AUTO string */
+
+/* Global Var */
+WORD autoRecCount = 0;	/* Flag for avoid processing records in ActionRoutine for automation */
 
 /* This is the callback function which is called for every record */
 STATUS LNCALLBACK ActionRoutine(
@@ -94,14 +101,14 @@ STATUS LNCALLBACK ActionRoutine(
 
 STATUS LNPUBLIC NotesMain(int argc, char far *argv[])
 {
-    STATUS      error = NOERROR;          /* error code from API calls */
-   char		   *pserver = NULL;
-   void		   *pstreamctx;
-   int		   recordcount = 0;
+   STATUS      error = NOERROR;          /* error code from API calls */
+   char        *pserver = NULL;
+   void        *pstreamctx;
+   int         recordcount = 0;
 
    if (argc != 2)
    {
-	   printf("\nUsage:  %s <server name>\n", argv[0]);
+	   PRINTLOG("\nUsage:  %s <server name>\n", argv[0]);
 	   return (0);
    }
    else
@@ -133,7 +140,7 @@ STATUS LNPUBLIC NotesMain(int argc, char far *argv[])
 
   
   /* End of subroutine. */
-  printf("\nProgram completed successfully\n");
+  PRINTLOG("\nProgram completed successfully\n");
   LAPI_RETURN (NOERROR);
 }
 
@@ -148,20 +155,28 @@ STATUS LNCALLBACK ActionRoutine(
 {
 	char *pactivitybuf = (char *)pActivityRecord;
 	ITEM_TABLE itemtable;
-	ITEM* 	items;
-	char* name;
-	char timestr[MAXALPHATIMEDATE + 1];
+	ITEM* 	items=NULL;
+	char* name=NULL;
+	char timestr[MAXALPHATIMEDATE + 1] = {0};
 	WORD  timelen;
-	char numstr[MAXALPHANUMBER + 1];
+	char numstr[MAXALPHANUMBER + 1] = {0};
 	WORD  numlen;
-	LIST *plist;
+	LIST *plist=NULL;
 	WORD listentries;
 	USHORT type;
 	int* pcounter = (int *)pUserData;
 	USHORT i;
 	WORD j;
+	char envAuto[ENV_LENGTH] = { 0 };
+
 	/* Increment the record counter */
 	(*pcounter)++;
+
+	/* This check is for printing only first record from the log.nsf
+	 * for automation check, on manual execution all recs are printed */
+	if (autoRecCount == 1)
+            return NOERROR;
+
 	/* NOTE: See the SDK reference for a description of ITEM_TABLE */
 	/* Make a local ITEM_TABLE copy */
 	memmove(&itemtable, pActivityRecord, sizeof(ITEM_TABLE));
@@ -174,13 +189,23 @@ STATUS LNCALLBACK ActionRoutine(
 	/* Move to the start of the actual data */	
 	pactivitybuf += itemtable.Items * sizeof(ITEM);
 
+	/* Read OS env ACTIVITY_AUTO variavle */
+	strncpy(envAuto, getenv(ENVACTIVITY_AUTO), ENV_LENGTH-1);
+	if (!autoRecCount && envAuto[0] != '\0')
+        {
+           if (strcmp(envAuto, "1") == 0)  /* If env value is 1 then its for automation & we process only 1 rec */
+           {
+               autoRecCount = 1;
+           }
+        }
+
 	ConvertTIMEDATEToText(NULL, NULL, TimeStamp, timestr, MAXALPHATIMEDATE, &timelen);
 	/* Output the record header */
-	printf("Record #: %d, Name: %s, DescIdx: %d, Timestamp: %.*s\n{\n", 
+	PRINTLOG("Record #: %d, Name: %s, DescIdx: %d, Timestamp: %.*s\n{\n", 
 		*pcounter, DescName, DescIdx, timelen, timestr);
 	/* Step through all of the items */
 	for(i = 0; i < itemtable.Items; i++)
-		{
+	{
 		/* IMPORTANT. Its possible to have an existing item with a value length of 0 */
 		if(!items[i].ValueLength)
 			continue;
@@ -197,7 +222,7 @@ STATUS LNCALLBACK ActionRoutine(
 			{
 			case TYPE_TEXT:
 				{
-				printf(
+				PRINTLOG(
 					"\t%.*s: %.*s\n", 
 					items[i].NameLength, 
 					name, 
@@ -208,7 +233,7 @@ STATUS LNCALLBACK ActionRoutine(
 			case TYPE_TIME:
 				{
 				ConvertTIMEDATEToText(NULL, NULL, (TIMEDATE* )pactivitybuf, timestr, MAXALPHATIMEDATE, &timelen);
-				printf(
+				PRINTLOG(
 					"\t%.*s: %.*s\n", 
 					items[i].NameLength, 
 					name,
@@ -219,7 +244,7 @@ STATUS LNCALLBACK ActionRoutine(
 			case TYPE_NUMBER:
 				{				
 				ConvertFLOATToText(NULL, NULL, (NUMBER *)pactivitybuf, numstr, MAXALPHANUMBER, &numlen);
-				printf(
+				PRINTLOG(
 					"\t%.*s: %.*s\n", 
 					items[i].NameLength, 
 					name, 
@@ -231,7 +256,7 @@ STATUS LNCALLBACK ActionRoutine(
 				{
 				plist = (LIST* ) pactivitybuf;
 				listentries = ListGetNumEntries(plist, FALSE);
-				printf(
+				PRINTLOG(
 					"\t%.*s:\n\t\t{\n", 
 					items[i].NameLength, 
 					name);
@@ -241,20 +266,20 @@ STATUS LNCALLBACK ActionRoutine(
 					char *ptext;
 					WORD len;
 					ListGetText(plist, FALSE, j, &ptext, &len); 
-	   				printf("\t\t%.*s\n", len, ptext);
+	   				PRINTLOG("\t\t%.*s\n", len, ptext);
 					}
-				printf("\t\t}\n");
+				PRINTLOG("\t\t}\n");
 				break;
 				}
 
 			default:
-				printf("type not implemented: %*.s\n", items[i].NameLength, name);			
+				PRINTLOG("type not implemented: %*.s\n", items[i].NameLength, name);			
 			}
 			/* Point to the start of the next item. */					
 			pactivitybuf += (items[i].ValueLength - sizeof(USHORT));
-		}				
+	}				
 
-	printf("}\n");
+	PRINTLOG("}\n");
 
 	free(items);
 	

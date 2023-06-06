@@ -209,12 +209,12 @@ STATUS LNPUBLIC AddInMain (
     /* Local data. */
 
     STATUS                error;               /* return code from API calls */
-    DHANDLE                 hOldStatusLine;      /* handle to initial default status line*/
-    DHANDLE                 hStatusLineDesc;     /* handle to new default status line */
-    HMODULE                hMod;               /* add-in task's module handle */
-    MQHANDLE        hQueue;                    /* Handle to message queue */
-    char                MsgBuffer [MAX_MESSAGE + 1];        /* Buffer for messages */
-    WORD                MsgLen;                /* Size of message */
+    DHANDLE               hOldStatusLine;      /* handle to initial default status line*/
+    DHANDLE               hStatusLineDesc;     /* handle to new default status line */
+    HMODULE               hMod;               /* add-in task's module handle */
+    MQHANDLE              hQueue;                    /* Handle to message queue */
+    char                  MsgBuffer [MAX_MESSAGE + 1];        /* Buffer for messages */
+    WORD                  MsgLen;                /* Size of message */
 
    /* 
       Initialization.

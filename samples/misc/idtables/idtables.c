@@ -53,6 +53,7 @@
 #include    <osmem.h>
 #include    <idtable.h>
 #include    <intl.h>
+#include    <printLog.h>
 
 #include     <lapiplat.h>
 
@@ -79,6 +80,8 @@
 #define STAMP_NOTES         0x04
 #define SCAN_BACK           0x08
 #define TABLE_DIFFERENCE    0x10
+#define TABLE_REPLACE       0x20
+#define TABLE_SPLIT_DELETED 0x30
 
 #define HAVE_BEGIN          0x01
 #define HAVE_CATEGORY       0x04
@@ -93,7 +96,6 @@ void               PrintUsage(void);
 STATUS LNPUBLIC  TouchNotes(void *Parameter, DWORD id);
 BOOL LNPUBLIC IDScanBackTest(DHANDLE* hTable, DWORD id);
 BOOL LNPUBLIC IDTableDifferenceTest(DHANDLE* hTableSrc, DHANDLE* hTableDst);
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -170,7 +172,7 @@ int main(int argc, char *argv[])
     error = NotesInitExtended (argc, argv);
     if (error)
     {
-       printf("Error: Unable to initialize Notes.\n");
+       PRINTLOG("Error: Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -178,8 +180,8 @@ int main(int argc, char *argv[])
    if (argc < 3 || argc > 7)
    {
        PrintUsage();
-         NotesTerm();
-         return (0);
+       NotesTerm();
+       return (0);
    }
 
    /* Get OS information for string parsing */
@@ -202,7 +204,7 @@ int main(int argc, char *argv[])
       {
          PrintUsage();
          NotesTerm();
-           return (0);
+         return (0);
       }
       switch (temp_str[1])
       {
@@ -263,6 +265,16 @@ int main(int argc, char *argv[])
          case 'k':
              action_state = SCAN_BACK;
              break;
+             
+         case 'R':
+         case 'r':
+            action_state = TABLE_REPLACE;
+            break;
+      
+         case 'X':
+         case 'x':
+             action_state = TABLE_SPLIT_DELETED;
+             break;
 
          default:
             PrintUsage();
@@ -302,8 +314,8 @@ int main(int argc, char *argv[])
                &string_len))
                    goto Exit;
             begin_str[string_len] = '\0';
-            printf("\n%s hasn\'t been modified since ", src_name);
-            printf(" Begin date: %s\n", begin_str);
+            PRINTLOG("\n%s hasn\'t been modified since ", src_name);
+            PRINTLOG(" Begin date: %s\n", begin_str);
                goto Exit;
          }
             else
@@ -367,8 +379,8 @@ int main(int argc, char *argv[])
    /* Just a sanity check */
    if (TimeDateCompare(&begin_td, &end_td) > 0)
    {
-      printf("\nResulting Begin time is later than ");
-      printf("resulting End time, re-enter\n");
+      PRINTLOG("\nResulting Begin time is later than ");
+      PRINTLOG("resulting End time, re-enter\n");
       goto Exit;
    }
 
@@ -387,12 +399,16 @@ int main(int argc, char *argv[])
    {
       if (ERR(error) == ERR_NO_MODIFIED_NOTES)
       {
-         printf("\n%s contains no data documents from:\n", src_name);
+         PRINTLOG("\n%s contains no data documents from:\n", src_name);
          if (strlen(begin_str))
-            printf("\tBegin date: %s\n", begin_str);
+	 {
+            PRINTLOG("\tBegin date: %s\n", begin_str);
+	 }
          else
-            printf("\tBegin date: Beginning of Cosmos\n");
-         printf("\tthrough End date: %s\n", end_str);
+	 {
+            PRINTLOG("\tBegin date: Beginning of Cosmos\n");
+	 }
+         PRINTLOG("\tthrough End date: %s\n", end_str);
          goto Exit;
       }
       else
@@ -400,36 +416,40 @@ int main(int argc, char *argv[])
    }
    else
    {
-      printf("\nYou have selected documents in %s from:\n", src_name);
+      PRINTLOG("\nYou have selected documents in %s from:\n", src_name);
       if (strlen(begin_str))
-         printf("\tBegin date: %s through\n", begin_str);
+      {
+         PRINTLOG("\tBegin date: %s through\n", begin_str);
+      }
       else
-         printf("\tBegin date: Beginning of Cosmos through\n");
-      printf("\tEnd date  : %s\n", end_str);
+      {
+         PRINTLOG("\tBegin date: Beginning of Cosmos through\n");
+      }
+      PRINTLOG("\tEnd date  : %s\n", end_str);
       cleanup_state += FREE_IDTABLE;
    }
 
    /* Some ID Table stats */
    if ((idtable_ptr = OSLock(void, idtable_handle)) == NULL)
    {
-      printf("\nError: Unable to Lock idtable_handle\n");
+      PRINTLOG("\nError: Unable to Lock idtable_handle\n");
       goto Exit;
    }
    else
       cleanup_state += UNLOCK_IDTABLE;
 
    /* Table Flags and Size */
-   printf("\nID Table Flags = %04X\n", IDTableFlags(idtable_ptr));
+   PRINTLOG("\nID Table Flags = %04X\n", IDTableFlags(idtable_ptr));
 
    if (IDTableFlags(idtable_ptr) == IDTABLE_MODIFIED)
       /* Well we didn't,so NSFDbGetModifiedNoteTable() must have */
       /* Will clear modified flag for our own puposes            */
       IDTableSetFlags(idtable_ptr, 0x0000);
 
-   printf("ID Table size:  %lu\n",IDTableSize(idtable_handle));
+   PRINTLOG("ID Table size:  %lu\n",IDTableSize(idtable_handle));
 
    /* Number of entries in the idtable */
-   printf("Number of entries in ID Table = %lu",IDEntries(idtable_handle));
+   PRINTLOG("Number of entries in ID Table = %lu",IDEntries(idtable_handle));
 
    /* Store the current timedate in the structure for later use */
    OSCurrentTIMEDATE(&current_td); /* Get current Time/Date values */
@@ -445,10 +465,10 @@ int main(int argc, char *argv[])
    switch (action_state)
    {
       case STAMP_NOTES:
-         printf(" will be considered for stamping.\n");
+         PRINTLOG(" will be considered for stamping.\n");
          if (!(dataset_state & HAVE_CATEGORY))
          {
-            printf("You must supply a category for action: -C\n");
+            PRINTLOG("You must supply a category for action: -C\n");
             goto Exit;
          }
 
@@ -474,15 +494,15 @@ int main(int argc, char *argv[])
 
          notes_scanned--;
          num_entries = IDEntries(idtable_handle);
-         printf("\nAnalysis of documents between begin & end:\n");
-         printf("\t# of entries in ID Table  = %lu\n", notes_scanned);
-         printf("\t# of deletion stubs       = %lu\n", num_deletions);
-         printf("\t# of stamped documents    = %lu\n",
+         PRINTLOG("\nAnalysis of documents between begin & end:\n");
+         PRINTLOG("\t# of entries in ID Table  = %lu\n", notes_scanned);
+         PRINTLOG("\t# of deletion stubs       = %lu\n", num_deletions);
+         PRINTLOG("\t# of stamped documents    = %lu\n",
             notes_scanned - num_deletions);
          break;
 
       case TOUCH_NOTES: /* Make copy of idtable for demo purposes */
-         printf(" will be considered for touching.\n");
+         PRINTLOG(" will be considered for touching.\n");
 
          if ( error = IDTableCopy(idtable_handle, &cpytable_handle))
              goto Exit;
@@ -502,7 +522,7 @@ int main(int argc, char *argv[])
          /* Try to get some stats on the cpytable */
          if ((cpytable_ptr = OSLock(void, cpytable_handle)) == NULL)
          {
-            printf("\nError:Unable to Lock cpytable_handle\n");
+            PRINTLOG("\nError:Unable to Lock cpytable_handle\n");
             goto Exit;
          }
          else
@@ -518,7 +538,7 @@ int main(int argc, char *argv[])
                   goto Exit;
 
             temp_str[string_len] = '\0';
-            printf("Modified Time/Date = %s\n", temp_str);
+            PRINTLOG("Modified Time/Date = %s\n", temp_str);
          }
 
          cleanup_state -= UNLOCK_CPYTABLE;
@@ -537,7 +557,7 @@ int main(int argc, char *argv[])
                error = IDDelete(idtable_handle, note_id, &ok_flag);
                if (!ok_flag || error)
                {
-                  printf("\nIDDelete from idtable failed.\n");
+                  PRINTLOG("\nIDDelete from idtable failed.\n");
                   goto Exit;
                }
             }
@@ -548,10 +568,10 @@ int main(int argc, char *argv[])
 
 
          num_entries = IDEntries(cpytable_handle);
-         printf("\nAnalysis of documents between begin & end:\n");
-         printf("\t# of entries in ID Table  = %lu\n", notes_scanned);
-         printf("\t# of deletion stubs       = %lu\n", num_deletions);
-         printf("\t# of touched documents    = %lu\n",
+         PRINTLOG("\nAnalysis of documents between begin & end:\n");
+         PRINTLOG("\t# of entries in ID Table  = %lu\n", notes_scanned);
+         PRINTLOG("\t# of deletion stubs       = %lu\n", num_deletions);
+         PRINTLOG("\t# of touched documents    = %lu\n",
                  notes_scanned - num_deletions);
 
 
@@ -567,10 +587,10 @@ int main(int argc, char *argv[])
          break;
 
       case DELETE_NOTES: /* Create the archive table the hard way */
-         printf(" will be considered for deletion.\n");
+         PRINTLOG(" will be considered for deletion.\n");
          if ((idtable_ptr = OSLock(void, idtable_handle)) == NULL)
          {
-            printf("\nError:Unable to Lock idtable_handle\n");
+            PRINTLOG("\nError:Unable to Lock idtable_handle\n");
             goto Exit;
          }
          else
@@ -643,7 +663,7 @@ int main(int argc, char *argv[])
                               &ok_flag);
                   if (!ok_flag || error)
                   {
-                     printf("\nIDInsert in arctable failed.\n");
+                     PRINTLOG("\nIDInsert in arctable failed.\n");
                      goto Exit;
                   }
                }
@@ -654,11 +674,11 @@ int main(int argc, char *argv[])
 
             /* Some demographics */
             num_entries = IDEntries(arctable_handle);
-            printf("\nAnalysis of documents between begin & end:\n");
-            printf("\t# of entries in ID Table  = %lu\n", notes_scanned);
-            printf("\t# of entries in arc table = %lu\n", num_entries);
-            printf("\t# of deletion stubs       = %lu\n", num_deletions);
-            printf("\t# of invalid documents    = %lu\n", num_invalid);
+            PRINTLOG("\nAnalysis of documents between begin & end:\n");
+            PRINTLOG("\t# of entries in ID Table  = %lu\n", notes_scanned);
+            PRINTLOG("\t# of entries in arc table = %lu\n", num_entries);
+            PRINTLOG("\t# of deletion stubs       = %lu\n", num_deletions);
+            PRINTLOG("\t# of invalid documents    = %lu\n", num_invalid);
 
             /* Perform Db note copy & demo manual wipe out the idtable.*/
             notes_scanned = 0L;
@@ -682,9 +702,9 @@ int main(int argc, char *argv[])
                   if (ERR(error) == ERR_INVALID_NOTE)
                   {
                      error = NOERROR;
-                     printf("#%lu: Note ID %08lX in %s ",
+                     PRINTLOG("#%lu: Note ID %08lX in %s ",
                         notes_scanned, arc_note_id,arc_name);
-                     printf(" is an Invalid Document!\n");
+                     PRINTLOG(" is an Invalid Document!\n");
                      continue;
                   }
                   else
@@ -693,15 +713,15 @@ int main(int argc, char *argv[])
 
                if (arc_note_class & SEARCH_NOTIFYDELETIONS)
                {
-                  printf("#%lu: Note ID %08lX in %s ",
+                  PRINTLOG("#%lu: Note ID %08lX in %s ",
                            notes_scanned, arc_note_id, arc_name);
-                  printf(" is a deletion stub!\n");
+                  PRINTLOG(" is a deletion stub!\n");
                }
             }
 
             /* Adjust notes_scanned for while loop terminate */
             notes_scanned--;
-            printf("\nArchived %lu documents in %s\n", notes_scanned,arc_name);
+            PRINTLOG("\nArchived %lu documents in %s\n", notes_scanned,arc_name);
 
             cleanup_state -= CLOSE_ARC_DB;
             if (error = NSFDbClose(db_handle_arc))
@@ -735,7 +755,7 @@ int main(int argc, char *argv[])
 
                if (!ok_flag || error)
                {
-                  printf("IDInsert in deltable failed.\n");
+                  PRINTLOG("IDInsert in deltable failed.\n");
                   goto Exit;
                }
                if ((del_count % MAXOPTIMALDELETIONS) == 0)
@@ -751,7 +771,7 @@ int main(int argc, char *argv[])
                   goto Exit;
 
                /* adjust del_count exit of while(IDScan) */
-               printf("\n%s %lu documents in %s\n",
+               PRINTLOG("\n%s %lu documents in %s\n",
                   (del_count <= del_max)? "Deleting" : "Deleted",
                   (del_count <= del_max)? 50L : del_count-1L, src_name);
 
@@ -776,7 +796,7 @@ int main(int argc, char *argv[])
          BOOL retResult;
          /* noteid to be inserted */
          DWORD dwNoteid = 0x8120;
-         printf(" \n Testing Scan Back \n");
+         PRINTLOG(" \n Testing Scan Back \n");
          if (error = IDTableCopy(idtable_handle, &cpytable_handle))
              goto Exit;
          else
@@ -784,12 +804,12 @@ int main(int argc, char *argv[])
          /* Adding note id into table*/
          if (error = IDInsert(cpytable_handle, dwNoteid, &retResult))
          {
-             PrintAPIError(error);
+             PRINTERROR(error,"IDInsert");
              goto Exit;
          }
          if (error != NOERROR)
          {
-             PrintAPIError(error);
+             PRINTERROR(error,"IDInsert");
              goto Exit;
          }
          else
@@ -797,7 +817,7 @@ int main(int argc, char *argv[])
              if (error = IDScanBackTest(&cpytable_handle, dwNoteid))
                  if (error != NOERROR)
                  {
-                     PrintAPIError(error);
+                     PRINTERROR(error,"IDScanBackTest");
                      goto Exit;
                  }
          }
@@ -810,7 +830,7 @@ int main(int argc, char *argv[])
          /* noteid to be inserted */
          DWORD dwNoteid = 0x8110; 
 
-         printf("\n Testing Table differences \n");
+         PRINTLOG("\n Testing Table differences \n");
 
          if (error = IDTableCopy(idtable_handle, &cpytable_handle)) {
 
@@ -828,7 +848,7 @@ int main(int argc, char *argv[])
          }
          if (IDTableDifferenceTest(&cpytable_handle, &hTableDst))
          {
-             printf("\n Table difference test is successful.\n");
+             PRINTLOG("\n Table difference test is successful.\n");
              IDDestroyTable(hTableDst); 
          }
          else
@@ -836,11 +856,251 @@ int main(int argc, char *argv[])
              IDDestroyTable(hTableDst); 
              goto Exit;
          }
+         break;
 
+     }
+     case TABLE_SPLIT_DELETED :
+     {
+         PRINTLOG("\n\nTesting IDTableSplitDeleted API\n");
+         PRINTLOG("===================================\n\n");
+
+         DHANDLE hTableSrc = NULLHANDLE;
+         DHANDLE hTableDel = NULLHANDLE;
+
+         /* noteid to be inserted */
+         NOTEID Noteid1 = 0x00009110;
+         NOTEID Noteid2 = 0x00008110;
+          /* noteid to be inserted */
+         NOTEID Noteid3 = 0x80009110;
+         NOTEID Noteid4 = 0x80008110;
+
+        
+
+         if (error = IDCreateTable(0, &hTableSrc))
+         {
+             PRINTLOG("\nError : Source table creation failed .\n\n");
+             goto Exit;
+         }
+
+         if (error = IDCreateTable(0, &hTableDel))
+         {
+             PRINTLOG("\nError : Delete table creation failed .\n\n");
+             IDDestroyTable(hTableSrc);
+             goto Exit;
+         }
+
+         /* Adding entries into source table */
+         if (error = IDInsert(hTableSrc, Noteid1, NULL))
+         {
+             PRINTLOG("\nError : Inserting NoteID %d into source table failed.\n\n", (int)Noteid1);
+             IDDestroyTable(hTableDel);
+             IDDestroyTable(hTableSrc);
+             goto Exit;
+         }
+
+         if (error = IDInsert(hTableSrc, Noteid2, NULL))
+         {
+             PRINTLOG("\nError : Inserting NoteID %d into source table failed.\n\n", (int)Noteid2);
+             IDDestroyTable(hTableDel);
+             IDDestroyTable(hTableSrc);
+             goto Exit;
+         }
+
+         if (error = IDInsert(hTableSrc, Noteid3, NULL))
+         {
+             PRINTLOG("\nError : Inserting NoteID %d into source table failed.\n\n", (int)Noteid3);
+             IDDestroyTable(hTableDel);
+             IDDestroyTable(hTableSrc);
+             goto Exit;
+         }
+
+         if (error = IDInsert(hTableSrc, Noteid4, NULL))
+         {
+             PRINTLOG("\nError : Inserting NoteID %d into source table failed.\n\n", (int)Noteid4);
+             IDDestroyTable(hTableDel);
+             IDDestroyTable(hTableSrc);
+             goto Exit;
+         }
+
+         PRINTLOG("Before Split\n");
+         PRINTLOG("-------------\n\n")
+
+
+         NOTEID note_id = 0;
+
+         int notes_scanned = 0;
+
+         while (IDScan(hTableSrc,
+             (FLAG)(notes_scanned++ == 0),
+             &note_id))
+         {
+             PRINTLOG("NoteID from Source Table %x\n", note_id);
+         }
+
+         PRINTLOG("\nNo. of entries in Source Table : %d\n\n", notes_scanned - 1);
+
+         notes_scanned = 0;
+
+         while (IDScan(hTableDel,
+             (FLAG)(notes_scanned++ == 0),
+             &note_id))
+         {
+             PRINTLOG("NoteID from Deleted Table %x\n", note_id);
+         }
+
+         PRINTLOG("\nNo. of entries in Deleted Table : %d\n\n", notes_scanned - 1);
+         if (error = IDTableSplitDeleted(hTableSrc, 0, &hTableDel))
+         {
+             IDDestroyTable(hTableSrc);
+             IDDestroyTable(hTableDel);
+             goto Exit;
+         }
+
+         PRINTLOG("After Split\n");
+         PRINTLOG("-------------\n\n")
+        
+         notes_scanned = 0;
+
+         while (IDScan(hTableSrc,
+             (FLAG)(notes_scanned++ == 0),
+             &note_id))
+         {
+             PRINTLOG("NoteID from Source Table %x\n", note_id);
+         }
+
+         PRINTLOG("\nNo. of entries in Source Table : %d\n\n", notes_scanned-1);
+
+         notes_scanned = 0;
+
+         while (IDScan(hTableDel,
+             (FLAG)(notes_scanned++ == 0),
+             &note_id))
+         {
+             PRINTLOG("NoteID from Deleted Table %x\n", note_id);
+         }
+
+         PRINTLOG("\nNo. of entries in Deleted Table : %d\n\n", notes_scanned-1);
+
+         IDDestroyTable(hTableSrc);
+         IDDestroyTable(hTableDel);
 
          break;
 
      }
+     
+     case TABLE_REPLACE:
+     {
+        DHANDLE hTableDst = NULLHANDLE;
+        DHANDLE hTableSrc = NULLHANDLE;
+        DWORD IDFrom = 0x0001;
+        DWORD IDTo = 0x0020;
+       
+        BOOL Result = FALSE;
+        
+        /* noteid to be inserted */
+        NOTEID Noteid1 = 0x9110;
+        NOTEID Noteid2 = 0x8110;
+
+        PRINTLOG("\n\nTesting IDTableReplaceExt API\n");
+        PRINTLOG("===========================\n");
+
+        if (error = IDCreateTable(0, &hTableDst))
+        {
+            PRINTLOG("\nError : Destination table creation failed .\n\n");
+            goto Exit;
+        }
+        
+        if (error = IDCreateTable(0, &hTableSrc))
+        {
+            PRINTLOG("\nError : Source table creation failed .\n\n");
+            IDDestroyTable(hTableDst);
+            goto Exit;
+        }
+        PRINTLOG("Number of entries in ID Table after creation = %lu\n",IDEntries(hTableSrc));
+
+        /* Adding entries into source table */
+        if (error = IDInsert(hTableSrc, Noteid1, NULL))
+        {
+            PRINTLOG("\nError : Inserting NoteID %d into source table failed.\n\n",(int)Noteid1);
+            IDDestroyTable(hTableSrc);
+            IDDestroyTable(hTableDst);
+            goto Exit;
+        }
+        
+        if (error = IDInsert(hTableSrc, Noteid2, NULL))
+        {
+            PRINTLOG("\nError : Inserting NoteID %d into source table failed.\n\n", (int)Noteid2);
+            IDDestroyTable(hTableSrc);
+            IDDestroyTable(hTableDst);
+            goto Exit;
+        }
+
+        /* Adding more entries into source table
+           Using IDInsertRange, we can insert a range of IDs
+           in the ID Table. Here, IDFrom,IDTo represents the
+           range of IDs to insert which is inclusive. The
+           boolean TRUE gurantees that the ID range does not overlap
+           any IDs in the table and are the largest IDs in the table.
+        */
+        if (error = IDInsertRange(hTableSrc, IDFrom, IDTo, TRUE))
+        {
+            PRINTLOG("\nError : Inserting ID into source table failed.\n\n");
+            PRINTLOG("\nThe error is : [%s]\n\n",error);
+            IDDestroyTable(hTableSrc);
+            IDDestroyTable(hTableDst);
+            goto Exit;
+        }
+        PRINTLOG("Number of entries in ID Table after inserting a range of IDs = %lu\n",IDEntries(hTableSrc));
+
+       /* Adding entry into destination table */
+        if (error = IDInsert(hTableDst, Noteid2, NULL))
+        {
+             PRINTLOG("\nError : Inserting NoteID %d into destination table failed.\n\n", (int)Noteid2);
+             IDDestroyTable(hTableSrc);
+             IDDestroyTable(hTableDst);
+             goto Exit;
+        }
+      
+        PRINTLOG("\nBefore IDTableReplaceExt API called\n");
+         
+        Result = IDAreTablesEqual(hTableSrc, hTableDst);
+
+        if (Result == TRUE)
+        {
+            PRINTLOG("\nError : Tables should not be equal.\n\n");
+        }
+        else
+        {
+            PRINTLOG("\nTables are not equal.\n\n");
+        }
+
+        if (error = IDTableReplaceExt(hTableSrc, hTableDst))
+        {
+            PRINTERROR(error,"IDTableReplaceExt");
+            IDDestroyTable(hTableSrc);
+            IDDestroyTable(hTableDst);
+            goto Exit;
+        }
+
+        PRINTLOG("\nAfter IDTableReplaceExt API called\n");
+
+        Result = IDAreTablesEqual(hTableSrc, hTableDst);
+
+        if (Result == TRUE)
+        {
+            PRINTLOG("\nTables are equal.\n\n");
+        }
+        else
+        {
+            PRINTLOG("\nError : Tables should be equal.\n\n");
+        }
+
+        IDDestroyTable(hTableSrc);
+        IDDestroyTable(hTableDst);
+
+        break;
+     }
+     
         default:
             break;
     }
@@ -857,11 +1117,11 @@ int main(int argc, char *argv[])
    if (error = NSFDbClose(db_handle_src))
       goto Exit;
 
-    printf("\nAll Done!\n");
+    PRINTLOG("\nAll Done!\n");
 
     NotesTerm();
 
-   printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 
     return(0);
 
@@ -892,9 +1152,9 @@ Exit:   /* ERROR HANDLING */
          if (cleanup_error = NSFDbClose(db_handle_src))
             error = cleanup_error;
    }
-   PrintAPIError(error);
+   PRINTERROR(error,"IDDestroyTable");
    NotesTerm();
-    return(1);
+   return(1);
 }
 
 BOOL LNPUBLIC IDScanBackTest(DHANDLE* hTable, DWORD id)
@@ -904,17 +1164,17 @@ BOOL LNPUBLIC IDScanBackTest(DHANDLE* hTable, DWORD id)
     BOOL bresult = FALSE;
     int i;
 
-    printf("ID = %d", id);
+    PRINTLOG("ID = %d", id);
     /* checking the given is last entry in table */
     if (!(IDIsPresent(*hTable, id)))
     {
-        printf("\n ID doesn't exist");
+        PRINTLOG("\n ID doesn't exist");
         return (FALSE);
     }
     /* fetches previous entry since flag is false */
     if (IDScanBack(*hTable, FALSE, &id))
     {
-        printf("\n ID present after %d", id);
+        PRINTLOG("\n ID present after %d", id);
         return (TRUE);
     }
     else
@@ -936,13 +1196,12 @@ BOOL LNPUBLIC IDTableDifferenceTest(DHANDLE* hTableSrc, DHANDLE* hTableDst)
         return FALSE;
 
 
-
     error = IDTableDifferences(*hTableSrc, *hTableDst, &hAdd
         , &hDelete, &hSame);
 
     if (NOERROR != error)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"IDTableDifferences");
         return FALSE;
     }
 
@@ -951,8 +1210,8 @@ BOOL LNPUBLIC IDTableDifferenceTest(DHANDLE* hTableSrc, DHANDLE* hTableDst)
     {
         if (IDEntries(hAdd) > 0)
         {
-            printf("\n There are additions to make table1 same as table2 \n");
-            printf(" No. of added entries  = %ld", IDEntries(hAdd));
+            PRINTLOG("\n There are additions to make table1 same as table2 \n");
+            PRINTLOG(" No. of added entries  = %ld", IDEntries(hAdd));
         }
         IDDestroyTable(hAdd);
     }
@@ -960,14 +1219,14 @@ BOOL LNPUBLIC IDTableDifferenceTest(DHANDLE* hTableSrc, DHANDLE* hTableDst)
     {
         if (IDEntries(hDelete) > 0)
         {
-            printf("\n There are deletions to make table1 same as table2 \n");
-            printf(" No. of deleted entries  = %ld", IDEntries(hDelete));
+            PRINTLOG("\n There are deletions to make table1 same as table2 \n");
+            PRINTLOG(" No. of deleted entries  = %ld", IDEntries(hDelete));
         }
         IDDestroyTable(hDelete);
     }
     else if (NULLHANDLE != hSame) 
     {
-        printf("\n There are no changes as both tables are the same \n");
+        PRINTLOG("\n There are no changes as both tables are the same \n");
         IDDestroyTable(hSame);
     }
 
@@ -1015,43 +1274,22 @@ Exit:   /* ERROR HANDLING */
 /* Display message on how to run this program.  */
 void PrintUsage(void)
 {
-   printf("\nUSAGE:\n\n");
-   printf("idtables -Sdb_name -action [-Bbegin (n) days ago]");
-   printf(" [-Ncategory]");
-   printf(" [-Aarchive_name]\n\n");
-   printf("\taction:\n");
-   printf("\t\tT  touch selected document\'s last modified date.\n");
-   printf("\t\tD  delete selected documents.\n");
-   printf("\t\tC  stamp selected documents with a given category value.\n");
-   printf("\toptions:\n");
-   printf("\t\tB  begin document selection (n) days ago.\n");
-   printf("\t\tN  new category string. Use with 'C' action.\n");
-   printf("\t\tA  database to act as archive for deleted documents.\n");
+   PRINTLOG("\nUSAGE:\n\n");
+   PRINTLOG("idtables -Sdb_name -action [-Bbegin (n) days ago]");
+   PRINTLOG(" [-Ncategory]");
+   PRINTLOG(" [-Aarchive_name]\n\n");
+   PRINTLOG("\taction:\n");
+   PRINTLOG("\t\tT  touch selected document\'s last modified date.\n");
+   PRINTLOG("\t\tD  delete selected documents.\n");
+   PRINTLOG("\t\tC  stamp selected documents with a given category value.\n");
+   PRINTLOG("\t\tK  check the ID exists in the table. \n");
+   PRINTLOG("\t\tF  Find the difference between two tables. \n");
+   PRINTLOG("\t\tR  Replace destination table with source table. \n");
+   PRINTLOG("\toptions:\n");
+   PRINTLOG("\t\tB  begin document selection (n) days ago.\n");
+   PRINTLOG("\t\tN  new category string. Use with 'C' action.\n");
+   PRINTLOG("\t\tA  database to act as archive for deleted documents.\n");
    return;
 }
 
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 

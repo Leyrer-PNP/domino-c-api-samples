@@ -60,6 +60,7 @@
 #include <colorid.h>
 #include <oserr.h>
 #include <osmem.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -77,8 +78,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 
 #define FTFACE_ID   STATIC_FONT_FACES   /* starting id number for the font
                                            face in the font table */
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -143,11 +142,11 @@ int main(int argc, char *argv[])
    char FAR  *pCDBufferStart;
    DHANDLE hMem;
 
-	if (error = NotesInitExtended (argc, argv))
-	{
-        printf("\n Unable to initialize Notes.\n");
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
 
 /* Get the pathname of the database. */
@@ -156,14 +155,14 @@ int main(int argc, char *argv[])
 
    if (error = OSMemAlloc(0, MAXONESEGSIZE, &hMem))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"OSMemAlloc");  
        NotesTerm();
        return (ERR_MEMORY);
    } 
         
    if ((pCDBuffer = (char*) OSLockObject(hMem)) == NULL)
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"OSLockObject");  
        NotesTerm();
        return (ERR_MEMORY);
    } 
@@ -175,7 +174,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (path_name, &db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbOpen");  
        NotesTerm();
        return (1);
    } 
@@ -185,7 +184,7 @@ int main(int argc, char *argv[])
    if(error)
    {
       NSFDbClose(db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NSFNoteCreate");  
       NotesTerm();
       return (1);
    }
@@ -200,7 +199,7 @@ default form to use when the note is displayed. */
    {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NSFItemSetText");  
       NotesTerm();
       return (1);
    }
@@ -246,7 +245,7 @@ default form to use when the note is displayed. */
    {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NSFItemAppend");  
       NotesTerm();
       return (1);
    }
@@ -264,7 +263,7 @@ default form to use when the note is displayed. */
    {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NSFItemSetTime");  
       NotesTerm();
       return (1);
    }
@@ -437,7 +436,7 @@ text run. */
       {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NSFItemAppend");  
       NotesTerm();
       return (1);
       }
@@ -449,7 +448,7 @@ text run. */
       {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NSFNoteUpdate");  
       NotesTerm();
       return (1);
       }
@@ -459,7 +458,7 @@ text run. */
    if (error = NSFNoteClose (note_handle))
    {
       NSFDbClose(db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NSFNoteClose");  
       NotesTerm();
       return (1);
    }
@@ -468,18 +467,18 @@ text run. */
 
    if (error = NSFDbClose (db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbClose");  
        NotesTerm();
        return (1);
    }
 
 /* Let the user know it's done */
 	
-    printf("\nDone.\n"); 
+    PRINTLOG("\nDone.\n"); 
     fflush(stdout);
 
 /* End of subroutine. */
-   printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
    NotesTerm();
    return (0); 
 
@@ -509,33 +508,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
          strcpy(db_filename, argv[1]);    
     } /* end if */
 } /* ProcessArgs */
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}

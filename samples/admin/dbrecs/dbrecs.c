@@ -67,7 +67,7 @@
 #include "oserr.h"
 #include "misc.h"
 #include "win32io.h"
-
+#include "printLog.h"
 
 /* define exit codes if they are not defined elsewhere */
 #ifndef EXIT_SUCCESS
@@ -156,14 +156,14 @@ VOID main (int argc, char *argv[])
 
    if (!usage)
    {
-      printf( "\nUsage: dbrecs <option> [input file] [restore db]\n");
-      printf( "\noption: ARCHIVE - Archive system logs.   (Input file NOT REQUIRED)\n");
-      printf( "        CHECK   - Check a database or backup file.    (Input file REQUIRED)\n");
-      printf( "        RECOVER - Recover a backup file. (Input file REQUIRED)\n");
-      printf( "        NOTE    - Recover a backup file and get Note info. (Input file REQUIRED)\n");
-      printf( "        RESTORE - Restore a database.    (Input file & restore db REQUIRED)\n");
-      printf( "\ninput file: - Path to a backup file.   (If REQUIRED)\n");
-      printf( "\nrestore db: - Path to the database to be restored.   (If REQUIRED)\n\n");
+      PRINTLOG( "\nUsage: dbrecs <option> [input file] [restore db]\n");
+      PRINTLOG( "\noption: ARCHIVE - Archive system logs.   (Input file NOT REQUIRED)\n");
+      PRINTLOG( "        CHECK   - Check a database or backup file.    (Input file REQUIRED)\n");
+      PRINTLOG( "        RECOVER - Recover a backup file. (Input file REQUIRED)\n");
+      PRINTLOG( "        NOTE    - Recover a backup file and get Note info. (Input file REQUIRED)\n");
+      PRINTLOG( "        RESTORE - Restore a database.    (Input file & restore db REQUIRED)\n");
+      PRINTLOG( "\ninput file: - Path to a backup file.   (If REQUIRED)\n");
+      PRINTLOG( "\nrestore db: - Path to the database to be restored.   (If REQUIRED)\n\n");
 
       exit (EXIT_SUCCESS);
    }
@@ -171,7 +171,7 @@ VOID main (int argc, char *argv[])
    /* Initialize Notes */
    if(err = NotesInitExtended (argc, argv))
    {
-      printf ("\nError initializing Notes.\n");
+      PRINTLOG ("\nError initializing Notes.\n");
       exit (EXIT_FAILURE);
    }
 
@@ -179,7 +179,7 @@ VOID main (int argc, char *argv[])
    sprintf(&LogFile[0], "%s%s",   LogDir, DirSlash);
    if(err = SysFileCreateDirectory(&LogFile[0]))
    {
-      printf("\nError %d creating directory %s\n", err, LogFile);
+      PRINTLOG("\nError %d creating directory %s\n", err, LogFile);
       NotesTerm();
       exit (EXIT_FAILURE);
    }
@@ -188,7 +188,7 @@ VOID main (int argc, char *argv[])
    sprintf(&LogFile[0], "%s%s", &LogFile[0], "dbrecs.log");
    if(err = SysFileCreate(&LogFile[0], &LogFD))
    {
-      printf("\nError %d creating log file %s\n", err, LogFile);
+      PRINTLOG("\nError %d creating log file %s\n", err, LogFile);
       NotesTerm();
       exit (EXIT_FAILURE);
    }
@@ -196,7 +196,7 @@ VOID main (int argc, char *argv[])
    /* Move file pointer to end of file to append entries */
    if (err = SysFileSeek(LogFD, 0, 1))
    {
-      printf("Error moving file pointer in log file %s\n", LogFile);
+      PRINTLOG("Error moving file pointer in log file %s\n", LogFile);
       SysFileClose(LogFD);
       NotesTerm();
       exit (EXIT_FAILURE);
@@ -204,10 +204,10 @@ VOID main (int argc, char *argv[])
 
    if (!strcmp(RecOpt,"ARCHIVE"))
    {
-      printf("\n Checking for logs to archive ...\n");
+      PRINTLOG("\n Checking for logs to archive ...\n");
       if (err = DoArchiveLogs())
       {
-         printf("\nError archiving logs\n");
+         PRINTLOG("\nError archiving logs\n");
          SysFileClose(LogFD);
          NotesTerm();
          exit (EXIT_FAILURE);
@@ -216,10 +216,10 @@ VOID main (int argc, char *argv[])
 
 	if (!strcmp(RecOpt,"CHECK"))
    {
-	   printf("\n Checking file to see if new backup is needed ...\n");
+	   PRINTLOG("\n Checking file to see if new backup is needed ...\n");
 	   if (err = CheckDb(InFile))
 	   {
-		   printf("\nError checking file %s ... \n", InFile);
+		   PRINTLOG("\nError checking file %s ... \n", InFile);
 		   SysFileClose(LogFD);
 		   NotesTerm();
 		   exit (EXIT_FAILURE);
@@ -230,42 +230,42 @@ VOID main (int argc, char *argv[])
    {
       if (!flags)
       {
-         printf("\n Taking database offline ...\n");
+         PRINTLOG("\n Taking database offline ...\n");
          if(err = TakeDbsOffline(ResDb))
          {
-            printf("\nError taking %s offline\n", ResDb);
+            PRINTLOG("\nError taking %s offline\n", ResDb);
             SysFileClose(LogFD);
             NotesTerm();
             exit (EXIT_FAILURE);
          }
       }
 
-      printf("\n Recovering backup file ...\n\n");
+      PRINTLOG("\n Recovering backup file ...\n\n");
 
       if(err = RecoverDbs(InFile, flags, NoteInfo))
       {
-         printf("\nError recovering backup file.\n");
+         PRINTLOG("\nError recovering backup file.\n");
          SysFileClose(LogFD);
          NotesTerm();
          exit (EXIT_FAILURE);
       }
       if (!flags)
       {
-		 printf("\n The recovered backup file is %s\n",InFile);
-		 printf("\n The database to be restored is %s\n",ResDb);
-         printf("\n\n Restoring database from recovered backup file ...\n");
+		 PRINTLOG("\n The recovered backup file is %s\n",InFile);
+		 PRINTLOG("\n The database to be restored is %s\n",ResDb);
+         PRINTLOG("\n\n Restoring database from recovered backup file ...\n");
          if(err = RestoreDbs(InFile, ResDb))
          {
-            printf("\nError restoring %s \n", ResDb);
+            PRINTLOG("\nError restoring %s \n", ResDb);
             SysFileClose(LogFD);
             NotesTerm();
             exit (EXIT_FAILURE);
          }
 
-         printf("\n Bringing database online ...\n");
+         PRINTLOG("\n Bringing database online ...\n");
          if(err = BringDbsOnline(ResDb))
          {
-            printf("\nError bringing %s online\n", ResDb);
+            PRINTLOG("\nError bringing %s online\n", ResDb);
             SysFileClose(LogFD);
             NotesTerm();
             exit (EXIT_FAILURE);
@@ -279,7 +279,7 @@ VOID main (int argc, char *argv[])
    /* Terminate Notes */
    NotesTerm();
 
-   printf ("\n\nProgram completed successfully.\n");
+   PRINTLOG ("\n\nProgram completed successfully.\n");
 
    exit (EXIT_SUCCESS);
 }
@@ -442,7 +442,7 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
 
 		while (BUPath[0] != '\0')
 		{
-         printf("\n Backup file recovered.\n");
+         PRINTLOG("\n Backup file recovered.\n");
          sprintf(EventString, "Backup file %s recovery complete", BUPath);
          EventLog(LogFD, EventString);
 			BUPath += strlen(BUPath) + 1;
@@ -455,7 +455,7 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
 		   errindex++;
 			if(errindex ==index)
 			{
-				printf("\nError recovering backup file %s\n", BUPath);
+				PRINTLOG("\nError recovering backup file %s\n", BUPath);
             sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
 				BUPath,
 				print_api_error(err));
@@ -611,11 +611,11 @@ STATUS DoArchiveLogs(void)
 		switch(LogType)
 		{
 		   case TRANSLOG_STYLE_CIRCULAR:
-            printf("\n  Transactional logging is 'CIRCULAR'.\n");
+            PRINTLOG("\n  Transactional logging is 'CIRCULAR'.\n");
 				break;
 
          case TRANSLOG_STYLE_LINEAR:
-            printf("\n  Transactional logging is 'LINEAR'.\n");
+            PRINTLOG("\n  Transactional logging is 'LINEAR'.\n");
 				break;
 		}
       return 1;
@@ -648,14 +648,14 @@ STATUS DoArchiveLogs(void)
       /* if we have a log to archive copy it off */
       if (err == NOERROR)
       {
-			printf("\n  Creating archive log ...\n");
+			PRINTLOG("\n  Creating archive log ...\n");
 
          /* Create the destination file/directory -
          overwrite it if it already exists */
          sprintf(&ArchiveDir[0], "%s%s",   LogDir, DirSlash);
          if (err = SysFileCreateDirectory(&ArchiveDir[0]))
          {
-            printf("\nError %d creating directory %s\n", err, ArchiveDir);
+            PRINTLOG("\nError %d creating directory %s\n", err, ArchiveDir);
 				break;
          }
 
@@ -669,7 +669,7 @@ STATUS DoArchiveLogs(void)
                  DirSlash);
          if (err = SysFileCreateDirectory(&ArchiveDir[0]))
          {
-            printf("\nError %d creating directory %s\n", err, ArchiveDir);
+            PRINTLOG("\nError %d creating directory %s\n", err, ArchiveDir);
             break;
          }
 
@@ -678,7 +678,7 @@ STATUS DoArchiveLogs(void)
          /* copy the log off */
          if (!SysFileCopy(&LogPath[0], &ArchivePath[0], TRUE))
          {
-            printf("\nError copying files \n");
+            PRINTLOG("\nError copying files \n");
             err = 1;
             break;
          }
@@ -700,7 +700,7 @@ STATUS DoArchiveLogs(void)
 
          EventLog(LogFD, EventString);
 
-         printf("   Archived Logid: %d %d %d %d Extent %d,\n   %s created.\n",
+         PRINTLOG("   Archived Logid: %d %d %d %d Extent %d,\n   %s created.\n",
                 LogId.File.Innards[0],
                 LogId.File.Innards[1],
                 LogId.Note.Innards[0],
@@ -760,7 +760,7 @@ void EventLog(int LogFD, char * outstring)
 
    if (SysFileWrite(LogFD, Buffer, BuffLen))
    {
-      printf("Error writing to Log File\n");
+      PRINTLOG("Error writing to Log File\n");
       SysFileClose(LogFD);
    }
    return;
@@ -800,22 +800,22 @@ STATUS CheckDb(char * BUPath)
 	switch (LogType)
 	{
 	   case TRANSLOG_STYLE_ARCHIVE:
-         printf("\n  Transactional logging type is 'ARCHIVE'.\n");
+         PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
          if (ComfortSpan)
-            printf("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
+            PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
 			break;
 
 	   case TRANSLOG_STYLE_CIRCULAR:
-         printf("\n  Transactional logging type is 'CIRCULAR'.\n");
+         PRINTLOG("\n  Transactional logging type is 'CIRCULAR'.\n");
 		   break;
 
 	   case TRANSLOG_STYLE_LINEAR:
-		   printf("\n  Transactional logging type is 'LINEAR'.\n");
+		   PRINTLOG("\n  Transactional logging type is 'LINEAR'.\n");
 		   break;
 	
 	   default:
 		   unkown = 1;
-			printf("\n  Transactional logging type is 'UNKOWN'.\n");
+			PRINTLOG("\n  Transactional logging type is 'UNKOWN'.\n");
 		   break;
 	}
 
@@ -842,7 +842,7 @@ STATUS CheckDb(char * BUPath)
       }
 
       EventLog(LogFD, EventString);
-      printf("\n  %s\n", EventString);
+      PRINTLOG("\n  %s\n", EventString);
    }
    else
    {

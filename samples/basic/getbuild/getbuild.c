@@ -46,12 +46,11 @@
 #include <nsfdb.h>
 #include <nsfdata.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 /* Local function prototypes */ 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *db_filename); 
-
-void PrintAPIError (STATUS);
  
                          
 #define  STRING_LENGTH  256
@@ -61,18 +60,17 @@ void PrintAPIError (STATUS);
 int main(int argc, char *argv[])
 {
     
-    char		*db_filename;				/* pathname of source database */
-	DBHANDLE	db_handle;                  /* database handle */
-    WORD        wbuild;
+    char		*db_filename;               /* pathname of source database */
+    DBHANDLE		db_handle;              /* database handle */
+    WORD		wbuild;
     STATUS		error = NOERROR;            /* error code from C API for Domino and Notes calls */
     char		database_name[STRING_LENGTH];
-
-	db_filename = database_name;
-	ProcessArgs(argc, argv, db_filename);
+    db_filename = database_name;
+    ProcessArgs(argc, argv, db_filename);
 
 if (error = NotesInitExtended (argc, argv))
  {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
  }
     
@@ -81,8 +79,8 @@ if (error = NotesInitExtended (argc, argv))
     error = NSFDbOpen (db_filename, &db_handle);
     if (NOERROR != error)
     {
-		printf("Error: unable to open database '%s'.\n", db_filename);
-      	PrintAPIError (error);  
+		PRINTLOG("Error: unable to open database '%s'.\n", db_filename);
+		PRINTERROR (error,"NSFDbOpen");  
 		NotesTerm();
 		return (1); 
 
@@ -95,19 +93,19 @@ if (error = NotesInitExtended (argc, argv))
     if (NOERROR != error)
     {
 		NSFDbClose (db_handle);
-   		PrintAPIError (error);  
+   		PRINTERROR (error,"NSFDbGetBuildVersion");  
 		NotesTerm();
 		return (1); 
     }
     
-    printf ("\nThe major build number is: %d\n", wbuild);
+    PRINTLOG ("\nThe major build number is: %d\n", wbuild);
     
     /* Close the database. */
     
     error = NSFDbClose (db_handle);
     if (NOERROR != error)
     {
-   		PrintAPIError (error);  
+   		PRINTERROR (error,"NSFDbClose");  
 		NotesTerm();
 		return (1); 
     }
@@ -144,33 +142,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
          strcpy(db_filename, argv[1]);    
     } /* end if */
 } /* ProcessArgs */
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

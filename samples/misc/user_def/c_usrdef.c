@@ -46,13 +46,12 @@ extern "C" {
 #include <nsfnote.h>
 #include <ostime.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 /* Local include files */
 
 #include "user_def.h"
 
-/* Local function prototypes */
-void PrintAPIError (STATUS);
 
 
 int main(int argc, char *argv[])
@@ -71,7 +70,7 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -79,7 +78,7 @@ int main(int argc, char *argv[])
     path_name = (char *) malloc(STRING_LENGTH);
     if (path_name == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         goto exit0;
     }
  
@@ -131,7 +130,7 @@ int main(int argc, char *argv[])
 
     memcpy (my_field+my_field_len, MY_DATA_TYPE, descrip_len);
     my_field_len += descrip_len;
-	printf("\nNew userdefined datatype is %s", MY_DATA_TYPE);
+	PRINTLOG("\nNew userdefined datatype is %s", MY_DATA_TYPE);
 
     /* Next comes the actual data. Domino and Notes will make no attempt to 
 	interpret the structure of this data or its meaning. (In this example, we 
@@ -155,7 +154,7 @@ int main(int argc, char *argv[])
     if (error = NSFNoteUpdate (note_handle, 0))
 		goto exitCloseNote;
 	else
-		printf("\nAdded userdefined datatype and documnets sucessfully to the database");
+		PRINTLOG("\nAdded userdefined datatype and documnets sucessfully to the database");
 		
 
 
@@ -174,37 +173,11 @@ exitFreeDBFile:
 
 exit0:
     if (error)
-       PrintAPIError (error);
+    PRINTERROR (error,"(char *) malloc");
     NotesTerm();
     return(error);
 
 }
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

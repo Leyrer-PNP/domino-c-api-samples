@@ -59,6 +59,7 @@
 #include <mailserv.h>                   /* MailOpenMessageFile */
 #include <neterr.h>                     /* ERR_NO_NETBIOS */
 #include <clerr.h>                      /* ERR_SERVER_NOT_RESPONDING */
+#include <printLog.h>
 
 
 
@@ -99,7 +100,6 @@ char *pszMsgLines[] =
 };
 
 /* */
-void    PrintAPIError (STATUS);
 STATUS  PrintMail();
 STATUS  CreateMIMEMsg(char **, NOTEHANDLE);
 char        szMailServerName[MAXUSERNAME+1];
@@ -134,8 +134,8 @@ int main(int argc, char * argv[])
     /* Parse  the input parameter*/ 
     if ( argc > 2 )
     {
-        printf ("Error: incorrect syntax.\n");
-        printf ("\nUsage:%s  <recipient>\n", argv[0]);
+        PRINTLOG ("Error: incorrect syntax.\n");
+        PRINTLOG ("\nUsage:%s  <recipient>\n", argv[0]);
         return (NOERROR);
     }
 
@@ -148,14 +148,14 @@ int main(int argc, char * argv[])
     /* Initiate  the environment */
     if (error = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
         return (1);
     }
     
     /* Open the mail.box on server */
     if (!OSGetEnvironmentString("MAILSERVER", szMailServerName, MAXUSERNAME))
     {
-        printf ("\nUnable to get mail server name ...\n\n Adding message local 'mail.box' file ...\n\n");
+        PRINTLOG ("\nUnable to get mail server name ...\n\n Adding message local 'mail.box' file ...\n\n");
         strcpy(szMailServerName,"");
 
         /* In the event of multiple "mail.box" files, if the NOTES.INI 
@@ -165,12 +165,12 @@ int main(int argc, char * argv[])
 
         if (!OSGetEnvironmentInt("MAIL_ENABLE_MAILBOX_COMPATIBILITY"))
         {
-           printf ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
+           PRINTLOG ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
            strcpy(szMailFileName, "mail2.box");
         }
     }
 
-    printf( "mail path :[%s].\n", szMailServerName );    
+    PRINTLOG( "mail path :[%s].\n", szMailServerName );    
 
     /* In the event of multiple "mail.box" databases, ensure message 
     is successfully deposited. */
@@ -192,7 +192,7 @@ int main(int argc, char * argv[])
             }
             else
             {
-               printf ("Error: unable to open '%s'.\n", szMailBoxPath);
+               PRINTLOG ("Error: unable to open '%s'.\n", szMailBoxPath);
                goto Done;
             }
         }
@@ -202,15 +202,15 @@ int main(int argc, char * argv[])
     /* Create new note in mail.box */
     if (error = NSFNoteCreate(hMailBox, &hMemo))
     {
-        printf ("Error: unable to create memo in %s.\n", szMailBoxPath);
-        PrintAPIError (error);
+        PRINTLOG ("Error: unable to create memo in %s.\n", szMailBoxPath);
+        PRINTERROR (error,"NSFNoteCreate");
         goto Done1;
     }
 
     /* create MIME format mail */
     if ( error = CreateMIMEMsg(pszMsgLines, hMemo) )
     {
-        printf ("Error: Fail to creae MIME mail.\n");
+        PRINTLOG ("Error: Fail to creae MIME mail.\n");
         goto Done2;
     }
 
@@ -221,20 +221,20 @@ int main(int argc, char * argv[])
                                 szRecipient,
                                 MAXWORD))
     {
-        printf ("Error: unable to set item '%s' into memo.\n",
+        PRINTLOG ("Error: unable to set item '%s' into memo.\n",
                                 MAIL_RECIPIENTS_ITEM);
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFItemSetText");
         goto Done2;
     }
 
     if (error = NSFNoteUpdate(hMemo, 0))
     {
-        printf ("Error: unable to update note in %s.\n", szMailBoxPath);
-        PrintAPIError (error);
+        PRINTLOG ("Error: unable to update note in %s.\n", szMailBoxPath);
+        PRINTERROR (error,"NSFNoteUpdate");
         goto Done2;
     }
 
-     printf ("successfully deposited memo \n");
+     PRINTLOG ("successfully deposited memo \n");
 
 Done2:
     NSFNoteClose(hMemo);
@@ -247,36 +247,6 @@ Done1:
 Done:
     NotesTerm();
     return (error); 
-}
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
 }
 
 /*************************************************************************
@@ -300,7 +270,7 @@ STATUS  CreateMIMEMsg(char **pszMsgWriteLines, NOTEHANDLE hNote)
                         &hMIMEStream );
     if ( error != NOERROR)
     {
-          PrintAPIError (error);
+          PRINTERROR (error,"MIMEStreamOpen");
           return (1);
     }
 
@@ -311,7 +281,7 @@ STATUS  CreateMIMEMsg(char **pszMsgWriteLines, NOTEHANDLE hNote)
                                      hMIMEStream);
           if ( error == MIME_STREAM_IO )
           {
-            printf("MIMEStreamPutLine error.\n");
+            PRINTLOG("MIMEStreamPutLine error.\n");
             MIMEStreamClose(hMIMEStream);
             return (1);
           }
@@ -325,7 +295,7 @@ STATUS  CreateMIMEMsg(char **pszMsgWriteLines, NOTEHANDLE hNote)
                                hMIMEStream);
     if ( error != NOERROR)
     {
-          PrintAPIError (error);
+          PRINTERROR (error,"MIMEStreamItemize");
           MIMEStreamClose(hMIMEStream);
           return (1);
     }
@@ -370,7 +340,7 @@ STATUS PrintMail()
     /* Open the message file. */
     if (error = MailOpenMessageFile(szMailFilePath, &hMessageFile))
     {
-        printf ("Error: unable to open '%s'.\n", szMailFilePath);
+        PRINTLOG ("Error: unable to open '%s'.\n", szMailFilePath);
         goto Exit0;
     }
 
@@ -379,23 +349,21 @@ STATUS PrintMail()
     if (error = MailCreateMessageList(hMessageFile,
                         &hMessageList, &MessageList, &MessageCount))
     {
-        printf ("Error: unable to create message list.\n");
+        PRINTLOG ("Error: unable to create message list.\n");
         goto Exit1;
     }
 
-    printf ("Mail file contains %d message(s).\n", MessageCount);
-    fflush(stdout);
+    PRINTLOG ("Mail file contains %d message(s).\n", MessageCount);
 
     /* Print out each of the outbound messages. */
 
     for (Msg = 0; Msg < MessageCount; Msg++)
     {
-        printf ("\nMessage #%d: \n", Msg+1);
-        fflush(stdout);
+        PRINTLOG ("\nMessage #%d: \n", Msg+1);
 
         if (error = MailOpenMessage (MessageList, Msg, &hMessage))
         {
-            printf ("Error: unable to open message number %d.\n", Msg+1);
+            PRINTLOG ("Error: unable to open message number %d.\n", Msg+1);
             goto Exit2;
         }
 
@@ -404,24 +372,22 @@ STATUS PrintMail()
         if (error = MailGetMessageOriginator(MessageList, Msg,
                 Originator, sizeof(Originator)-1, &OriginatorLength))
         {
-            printf ("Error: unable to get message originator.\n");
+            PRINTLOG ("Error: unable to get message originator.\n");
             goto Exit2;
         }
 
         Originator[OriginatorLength] = '\0';
 
-        printf ("\tOriginator = '%s'\n", Originator);
-        fflush(stdout);
+        PRINTLOG ("\tOriginator = '%s'\n", Originator);
         if (error = MailGetMessageInfo(MessageList, Msg,
                             &RecipientCount, NULL, NULL))
         {
-            printf ("Error: unable to get number of recipients in message.\n");
+            PRINTLOG ("Error: unable to get number of recipients in message.\n");
             MailCloseMessage (hMessage);
             goto Exit2;
         }
 
-        printf ("\tNumber of Recipients = %d.\n", RecipientCount);
-        fflush(stdout);
+        PRINTLOG ("\tNumber of Recipients = %d.\n", RecipientCount);
 
         for (Rec = 0; Rec < RecipientCount; Rec++)
         {
@@ -434,9 +400,8 @@ STATUS PrintMail()
             UserName[UserNameLength] = '\0';
             DomainName[DomainNameLength] = '\0';
 
-            printf ("\t\tRecipient %d = '%s'\t Domain = '%s'\n", Rec+1,
+            PRINTLOG ("\t\tRecipient %d = '%s'\t Domain = '%s'\n", Rec+1,
                                 UserName, DomainName);
-            fflush(stdout);
         }   /* end of loop over recipients */
 
         /* SendTo */
@@ -444,30 +409,26 @@ STATUS PrintMail()
                                         MAXSPRINTF, &StringLength);
 
         String[StringLength] = '\0';
-        printf ("\tTo: %s\n", String);
-        fflush(stdout);
+        PRINTLOG ("\tTo: %s\n", String);
 
         /* CopyTo */
         MailGetMessageItem (hMessage, MAIL_COPYTO_ITEM_NUM, String,
                                         MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
-        printf ("\tCc: %s\n", String);
-        fflush(stdout);
+        PRINTLOG ("\tCc: %s\n", String);
 
         /* From */
         MailGetMessageItem (hMessage, MAIL_FROM_ITEM_NUM, String,
                                         MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
-        printf ("\tFrom: %s\n", String);
-        fflush(stdout);
+        PRINTLOG ("\tFrom: %s\n", String);
 
                 /* PostedDate */
         MailGetMessageItemTimeDate(hMessage, MAIL_POSTEDDATE_ITEM_NUM, &Time);
         ConvertTIMEDATEToText(NULL, NULL, &Time, String,
                                     sizeof(String) - 1, &StringLength);
         String[StringLength] = '\0';
-        printf("\tDate: %s\n", String);
-        fflush(stdout);
+        PRINTLOG("\tDate: %s\n", String);
 
         /* Subject. If non-delivery report, prefix with "NonDelivery of:" */
 
@@ -476,13 +437,11 @@ STATUS PrintMail()
         String[StringLength] = '\0';
         if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
         {
-            printf ("\tNonDelivery of: %s\n", String);
-            fflush(stdout);
+            PRINTLOG ("\tNonDelivery of: %s\n", String);
         }
         else
         {
-            printf ("\tSubject: %s\n", String);
-            fflush(stdout);
+            PRINTLOG ("\tSubject: %s\n", String);
         }
 
         if (NonDeliveryReport)
@@ -490,14 +449,12 @@ STATUS PrintMail()
             MailGetMessageItem(hMessage, MAIL_INTENDEDRECIPIENT_ITEM_NUM,
                             String, sizeof(String), &StringLength);
             String[StringLength] = '\0';
-            printf("\tIntended Recipients: %s\n", String);
-            fflush(stdout);
+            PRINTLOG("\tIntended Recipients: %s\n", String);
 
             MailGetMessageItem(hMessage, MAIL_FAILUREREASON_ITEM_NUM,
                             String, sizeof(String), &StringLength);
             String[StringLength] = '\0';
-            printf("\tFailure Reason: %s\n", String);
-            fflush(stdout);
+            PRINTLOG("\tFailure Reason: %s\n", String);
         }
         MailCloseMessage (hMessage);
      }
@@ -512,10 +469,10 @@ Exit1:
         MailCloseMessageFile(hMessageFile);
 Exit0:
     if (ERR(error))
-       PrintAPIError(error);
-    else {
-       printf("\nProgram completed successfully.\n");
-       fflush(stdout);
+    {
+       PRINTERROR(error,"MailOpenMessageFile"); 
+    } else {
+       PRINTLOG("\nProgram completed successfully.\n");
     }
 
     return(NOERROR);

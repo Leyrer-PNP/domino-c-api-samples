@@ -41,6 +41,7 @@ SYNTAX:     TimeTest
 #include "osfile.h"
 #include "misc.h"
 #include "ostime.h"
+#include <printLog.h>
 
 /* Local function prototypes */
 
@@ -60,28 +61,28 @@ int main(int argc, char *argv[]){
 	char retTextBuffer[MAXALPHATIMEDATE + 1];
 	WORD retTextLength;
 	
-	printf("Test of Time functions TimeDateCollate, TimeExtractJulianDate, TimeDateDifferenceFloat\n");
+	PRINTLOG("Test of Time functions TimeDateCollate, TimeExtractJulianDate, TimeDateDifferenceFloat\n");
 	
 	/* Domino/Notes runtime initialization routine */
 	if(error=NotesInitExtended(argc,argv)){
 		OSLoadString(NULLHANDLE,ERR(error),errStr,100);
-		printf("Notes initalization failed because %s\n",errStr);
+		PRINTLOG("Notes initalization failed because %s\n",errStr);
 		return Cleanup(error);
 	}
 	
-	printf("Get Now current timedate\n");
+	PRINTLOG("Get Now current timedate\n");
 	/* Gets the system time/date */
 	OSCurrentTIMEDATE(&Now);
 	
 	/* Converts binary TIMEDATE pair to a character text string */
 	if(error=ConvertTIMEDATEToText(NULL,NULL,&Now,retTextBuffer,MAXALPHATIMEDATE+1,&retTextLength)){
 		OSLoadString(NULLHANDLE,ERR(error),errStr,100);
-		printf("Error in ConvertTIMEDATEToText bacause %s\n",errStr);
+		PRINTLOG("Error in ConvertTIMEDATEToText bacause %s\n",errStr);
 		return Cleanup(error);
 	}
-	printf("Now time/date is %s\n",retTextBuffer);
+	PRINTLOG("Now time/date is %s\n",retTextBuffer);
 	
-	printf("Get Future current timedate\n");
+	PRINTLOG("Get Future current timedate\n");
 	/* Gets the system time/date */
 	OSCurrentTIMEDATE(&Future);
 	
@@ -91,24 +92,28 @@ int main(int argc, char *argv[]){
 	/* Converts binary TIMEDATE pair to a character text string */
 	if(error=ConvertTIMEDATEToText(NULL,NULL,&Future,retTextBuffer,MAXALPHATIMEDATE+1,&retTextLength)){
 		OSLoadString(NULLHANDLE,ERR(error),errStr,100);
-		printf("Error in ConvertTIMEDATEToText bacause %s\n",errStr);
+		PRINTLOG("Error in ConvertTIMEDATEToText bacause %s\n",errStr);
 		return Cleanup(error);
 	}
-	printf("Future time/date is %s\n",retTextBuffer);
+	PRINTLOG("Future time/date is %s\n",retTextBuffer);
 	
 	/* Extracts the Julian date froma a TIMEDATE value */
-	printf("Date converted to Julian date using TimeExtractJulianDate is %d\n",TimeExtractJulianDate(&Now));
+	PRINTLOG("Date converted to Julian date using TimeExtractJulianDate is %d\n",TimeExtractJulianDate(&Now));
 	
 	/* Floating-point difference between two TIMEDATE values */
     TimeDateDifferenceFloat(&Future, &Now, &time_delta); 
 	
-	printf("Difference between Now and Future date using TimeDateDifferenceFloat is %f\n",time_delta);
+	PRINTLOG("Difference between Now and Future date using TimeDateDifferenceFloat is %f\n",time_delta);
 	
 	/* Compares two binary TIMEDATE values */
 	if (TimeDateCollate(&Future, &Now) == 1)
-		printf("The TimeDateCollate function has Passed as 'Future' date is bigger than 'Now' date\n");
+	{
+		PRINTLOG("The TimeDateCollate function has Passed as 'Future' date is bigger than 'Now' date\n");
+	}
 	else
-		printf("The TimeDateCollate function has Failed\n");
+	{
+		PRINTLOG("The TimeDateCollate function has Failed\n");
+	}
 		
 	return Cleanup(NOERROR);	
 }

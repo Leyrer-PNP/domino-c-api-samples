@@ -24,32 +24,32 @@
     PURPOSE:    Create a view note via the API
 
     DESCRIPTION:
-	This program creates a view note in the MakeView test database.
-	
-	The database file, makeview.nsf, is opened.  A new note
-	is created and the note class is set to to NOTE_CLASS_VIEW. 
-	The view title to set to, Test View.
-	
-	The selection formula for the view is "@ALL". The formula,
-	"@ALL" is compiled to form the basis of the $FORMULA item. 
-	
-	Then, for each column in the view, a formula that consists 
-	of an item name is compiled.  The item name is set as 
-	one of the summary items for the view, and the compiled 
-	formula is merged into the view selection formula. Then, the
-	$Conflict and $REF summary item names are added to the selection 
-	formula.  Then the finished, merged $FORMULA item is appended 
-	to the note using NSFItemAppend.
+        This program creates a view note in the MakeView test database.
+        
+        The database file, makeview.nsf, is opened.  A new note
+        is created and the note class is set to to NOTE_CLASS_VIEW. 
+        The view title to set to, Test View.
+        
+        The selection formula for the view is "@ALL". The formula,
+        "@ALL" is compiled to form the basis of the $FORMULA item. 
+        
+        Then, for each column in the view, a formula that consists 
+        of an item name is compiled.  The item name is set as 
+        one of the summary items for the view, and the compiled 
+        formula is merged into the view selection formula. Then, the
+        $Conflict and $REF summary item names are added to the selection 
+        formula.  Then the finished, merged $FORMULA item is appended 
+        to the note using NSFItemAppend.
 
-	Next, the $VIEWFORMAT item, (also known as "View Table Format" item), 
-	which consists of several structures is created and appended.
+        Next, the $VIEWFORMAT item, (also known as "View Table Format" item), 
+        which consists of several structures is created and appended.
 
-	Then, the View Collation ($Collation) item, which also 
-	consists of several structures is created and appended. A 
-	View Collation item is required for views containing sorted 
-	or categorized columns.
+        Then, the View Collation ($Collation) item, which also 
+        consists of several structures is created and appended. A 
+        View Collation item is required for views containing sorted 
+        or categorized columns.
     
-	The new View Note is updated and closed.
+        The new View Note is updated and closed.
 
 ****************************************************************************/
 #if defined(OS400)
@@ -82,12 +82,11 @@
 #include <viewfmt.h>
 #include <colorid.h>
 #include <miscerr.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -98,67 +97,67 @@ void PrintAPIError (STATUS);
 
 int main(int argc, char *argv[])
 {
-    STATUS sError = NOERROR;
-    DBHANDLE hDB;
-    NOTEHANDLE hNote;
-    NOTEID     ViewNoteID;
-    char szViewName[] = "Test View";     /* Title of view to be created. */
-    char szFileName[] = "makeview.nsf";  /* Database in which to create it. */
+    STATUS         sError = NOERROR;
+    DBHANDLE       hDB;
+    NOTEHANDLE     hNote;
+    NOTEID         ViewNoteID;
+    char           szViewName[] = "Test View";     /* Title of view to be created. */
+    char           szFileName[] = "makeview.nsf";  /* Database in which to create it. */
 
-    WORD wNumColumns = 3;     /* This view will contain this many columns. */
-    WORD ClassView = NOTE_CLASS_VIEW;
+    WORD           wNumColumns = 3;     /* This view will contain this many columns. */
+    WORD           ClassView = NOTE_CLASS_VIEW;
 /*
  * Variables pertaining to the view selection formula
  */
  
-    char szSelFormula[] = "@ALL";
-    FORMULAHANDLE hSelFormula = NULLHANDLE;
-    WORD wSelFormulaLen;
+    char           szSelFormula[] = "@ALL";
+    FORMULAHANDLE  hSelFormula = NULLHANDLE;
+    WORD           wSelFormulaLen;
 
 /*
  * Variables pertaining to the first column in the view.
  * This will be a category column, sorting by keyword.
  */
  
-    char szFormula_1[] = "KeyWordField";
-    FORMULAHANDLE hFormula_1 = NULLHANDLE;
-    WORD wFormula_1_Len;
-    char szItemName_1[] = "ItemName1";
-    WORD wItemName_1_Len = strlen( szItemName_1 );
+    char           szFormula_1[] = "KeyWordField";
+    FORMULAHANDLE  hFormula_1 = NULLHANDLE;
+    WORD           wFormula_1_Len;
+    char           szItemName_1[] = "ItemName1";
+    WORD           wItemName_1_Len = strlen( szItemName_1 );
 
 /*
  * Variables pertaining to the second column in the view.
  */
 
-    char szFormula_2[] = "NumberField";
-    FORMULAHANDLE hFormula_2 = NULLHANDLE;
-    WORD wFormula_2_Len;
-    char szTitle_2[] = "Number Column";
-    WORD wTitle_2_Len = strlen(szTitle_2);
-    char szItemName_2[] = "ItemName2";
-    WORD wItemName_2_Len = strlen(szItemName_2);
+    char           szFormula_2[] = "NumberField";
+    FORMULAHANDLE  hFormula_2 = NULLHANDLE;
+    WORD           wFormula_2_Len;
+    char           szTitle_2[] = "Number Column";
+    WORD           wTitle_2_Len = strlen(szTitle_2);
+    char           szItemName_2[] = "ItemName2";
+    WORD           wItemName_2_Len = strlen(szItemName_2);
     
 /*
  * Variables pertaining to the third column in the view.
  */
 
-    char szFormula_3[] = "TextField";
-    FORMULAHANDLE hFormula_3 = NULLHANDLE;
-    WORD wFormula_3_Len;
-    char szTitle_3[] = "Text Column";
-    WORD wTitle_3_Len = strlen( szTitle_3 );
-    char szItemName_3[] = "ItemName3";
-    WORD wItemName_3_Len = strlen( szItemName_3 );
+    char           szFormula_3[] = "TextField";
+    FORMULAHANDLE  hFormula_3 = NULLHANDLE;
+    WORD           wFormula_3_Len;
+    char           szTitle_3[] = "Text Column";
+    WORD           wTitle_3_Len = strlen( szTitle_3 );
+    char           szItemName_3[] = "ItemName3";
+    WORD           wItemName_3_Len = strlen( szItemName_3 );
 
 /*
  * Variables pertaining to the $Conflict and $REF
  * summary item names in the view
  */
 
-	char szConflictName[] = VIEW_CONFLICT_ITEM;
-	WORD wConflictName_Len = strlen (szConflictName);
-	char szRefName[] = FIELD_LINK;
-	WORD wRefName_Len = strlen (szRefName);
+    char           szConflictName[] = VIEW_CONFLICT_ITEM;
+    WORD           wConflictName_Len = strlen (szConflictName);
+    char           szRefName[] = FIELD_LINK;
+    WORD           wRefName_Len = strlen (szRefName);
  
 /*
  * Variables pertaining to the $VIEWFORMAT item.
@@ -168,37 +167,37 @@ int main(int argc, char *argv[])
     VIEW_COLUMN_FORMAT ViewColumnFormat;
     VIEW_TABLE_FORMAT2 ViewTableFormat2;
 
-    WORD    wViewFormatBufLen;
-    DHANDLE  hViewFormatBuffer;
-    char   *pViewFormatBuffer;
-    char   *pVFBuf;
+    WORD           wViewFormatBufLen;
+    DHANDLE        hViewFormatBuffer;
+    char           *pViewFormatBuffer;
+    char           *pVFBuf;
 
 /*
  * Variables pertaining to the Collation buffer ($Collation) item.
  */
 
-    COLLATION          Collation;
+    COLLATION      Collation;
     COLLATE_DESCRIPTOR CollateDesc;
     COLLATE_DESCRIPTOR CollateDesc2;
-    WORD   wCollationBufLen;
-    DHANDLE hCollationBuffer;
-    char  *pCollationBuffer;
-    char  *pCBuf;
+    WORD           wCollationBufLen;
+    DHANDLE        hCollationBuffer;
+    char           *pCollationBuffer;
+    char           *pCBuf;
 
 
-    WORD wdc;         /* "We Don't Care" - We're not interested in some of
-		       *  the info passed back by NSFFormulaCompile(), but
-		       *  the function call requires the addresses of several
-		       *  words to be passed in. The address of this word
-		       *  is used for all parameters in which we have no
-		       *  interest.
-		       */
+    WORD            wdc;         /* "We Don't Care" - We're not interested in some of
+                                  *  the info passed back by NSFFormulaCompile(), but
+                                  *  the function call requires the addresses of several
+                                  *  words to be passed in. The address of this word
+                                  *  is used for all parameters in which we have no
+                                  *  interest .
+                                  */
 
-    printf("HCL Notes API\nmakeview sample program\n");
+    PRINTLOG("HCL Notes API\nmakeview sample program\n");
 
     if (sError = NotesInitExtended (argc, argv))
-	{
-        printf("\n Unable to initialize Notes.\n");
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -209,8 +208,8 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen( szFileName, &hDB ))
     {
-	printf("Error: unable to open database '%s'.\n", szFileName );
-	goto Exit2;
+        PRINTLOG("Error: unable to open database '%s'.\n", szFileName );
+        goto Exit2;
     }
 
 /*
@@ -219,10 +218,10 @@ int main(int argc, char *argv[])
 
     if ((sError = NIFFindView(hDB, szViewName, &ViewNoteID)) != ERR_NOT_FOUND)
     {
-	printf("Error: View named '%s' already exists in database.\n",
-		szViewName );
-	printf("Error: Duplicates not allowed.\n" );
-	goto Exit3;
+        PRINTLOG("Error: View named '%s' already exists in database.\n",
+                szViewName );
+        PRINTLOG("Error: Duplicates not allowed.\n" );
+        goto Exit3;
     }
 
 /*
@@ -232,11 +231,11 @@ int main(int argc, char *argv[])
     sError = NSFNoteCreate( hDB, &hNote );
     if (sError) 
     {
-	printf("Error: unable to create note in database.\n" );
-	goto Exit3;
+        PRINTLOG("Error: unable to create note in database.\n" );
+        goto Exit3;
     }
     
-	
+        
 /*
  * Set the NOTE_CLASS to NOTE_CLASS_VIEW.
  */
@@ -250,14 +249,14 @@ int main(int argc, char *argv[])
  */
      
     sError = NSFItemSetText( hNote,
-			     VIEW_TITLE_ITEM,
-			     szViewName,
-			     MAXWORD );
+                             VIEW_TITLE_ITEM,
+                             szViewName,
+                             MAXWORD );
     if (sError)
     {
-	printf("Error: unable to set text item '%s' in view note.\n",
-		VIEW_TITLE_ITEM );
-	goto Exit4;
+        PRINTLOG("Error: unable to set text item '%s' in view note.\n",
+                VIEW_TITLE_ITEM );
+        goto Exit4;
     }
     
 /*
@@ -265,19 +264,19 @@ int main(int argc, char *argv[])
  */
 
     sError = NSFFormulaCompile( NULL,
-				0,
-				szSelFormula,
-				(WORD) strlen(szSelFormula),
-				&hSelFormula,
-				&wSelFormulaLen,
-				&wdc, &wdc, &wdc,
-				&wdc, &wdc );
+                                0,
+                                szSelFormula,
+                                (WORD) strlen(szSelFormula),
+                                &hSelFormula,
+                                &wSelFormulaLen,
+                                &wdc, &wdc, &wdc,
+                                &wdc, &wdc );
 
     if (sError)
     {
-	printf("Error: unable to compile selection formula '%s'.\n", 
-		szSelFormula );
-	goto Exit4;
+        PRINTLOG("Error: unable to compile selection formula '%s'.\n", 
+                szSelFormula );
+        goto Exit4;
     }    
 
 /*
@@ -285,19 +284,19 @@ int main(int argc, char *argv[])
  */
      
     sError = NSFFormulaCompile( szItemName_1,
-				wItemName_1_Len,
-				szFormula_1,
-				(WORD) strlen(szFormula_1),
-				&hFormula_1,
-				&wFormula_1_Len,
-				&wdc, &wdc, &wdc,
-				&wdc, &wdc );
+                                wItemName_1_Len,
+                                szFormula_1,
+                                (WORD) strlen(szFormula_1),
+                                &hFormula_1,
+                                &wFormula_1_Len,
+                                &wdc, &wdc, &wdc,
+                                &wdc, &wdc );
 
     if (sError)
     {
-	printf("Error: unable to compile column 1 formula '%s'.\n", 
-		szFormula_1 );
-	goto Exit5;
+        PRINTLOG("Error: unable to compile column 1 formula '%s'.\n", 
+                szFormula_1 );
+        goto Exit5;
     }    
 
 
@@ -306,21 +305,21 @@ int main(int argc, char *argv[])
  */
 
     sError = NSFFormulaSummaryItem( hSelFormula,
-		    szItemName_1,
-		    wItemName_1_Len );
+                    szItemName_1,
+                    wItemName_1_Len );
     if (sError)
     {
-	printf("Error: unable to set summary item '%s'.\n", 
-		szItemName_1 );
-	goto Exit5;
+        PRINTLOG("Error: unable to set summary item '%s'.\n", 
+                szItemName_1 );
+        goto Exit5;
     }    
     
     
     sError = NSFFormulaMerge( hFormula_1, hSelFormula );
     if (sError)
     {
-	printf("Error: unable to merge column 1 formula into selection formula.\n");
-	goto Exit5;
+        PRINTLOG("Error: unable to merge column 1 formula into selection formula.\n");
+        goto Exit5;
     }
     
 
@@ -329,18 +328,18 @@ int main(int argc, char *argv[])
  */
      
     sError = NSFFormulaCompile( szItemName_2,
-				wItemName_2_Len,
-				szFormula_2,
-				(WORD) strlen(szFormula_2),
-				&hFormula_2,
-				&wFormula_2_Len,
-				&wdc, &wdc, &wdc,
-				&wdc, &wdc );
+                                wItemName_2_Len,
+                                szFormula_2,
+                                (WORD) strlen(szFormula_2),
+                                &hFormula_2,
+                                &wFormula_2_Len,
+                                &wdc, &wdc, &wdc,
+                                &wdc, &wdc );
     if (sError)
     {
-	printf("Error: unable to compile column 2 formula '%s'.\n", 
-		szFormula_2 );
-	goto Exit5;
+        PRINTLOG("Error: unable to compile column 2 formula '%s'.\n", 
+                szFormula_2 );
+        goto Exit5;
     }    
 
 
@@ -349,20 +348,20 @@ int main(int argc, char *argv[])
  * formula into the selection formula.
  */
 
-     sError = NSFFormulaSummaryItem( hSelFormula,
-				     szItemName_2,
-				     wItemName_2_Len );
+    sError = NSFFormulaSummaryItem( hSelFormula,
+                                     szItemName_2,
+                                     wItemName_2_Len );
     if (sError)
     {
-	printf("Error: unable to merge column 2 item name into selection formula.\n");
-	goto Exit5;
+        PRINTLOG("Error: unable to merge column 2 item name into selection formula.\n");
+        goto Exit5;
     }    
 
     sError = NSFFormulaMerge( hFormula_2, hSelFormula );
     if (sError)
     {
-	printf("Error: unable to merge formula 2 into view selection formula.\n");
-	goto Exit5;
+        PRINTLOG("Error: unable to merge formula 2 into view selection formula.\n");
+        goto Exit5;
     }
 
 
@@ -371,19 +370,19 @@ int main(int argc, char *argv[])
  */
      
     sError = NSFFormulaCompile( szItemName_3,
-				wItemName_3_Len,
-				szFormula_3,
-				(WORD) strlen(szFormula_3),
-				&hFormula_3,
-				&wFormula_3_Len,
-				&wdc, &wdc, &wdc,
-				&wdc, &wdc );
+                                wItemName_3_Len,
+                                szFormula_3,
+                                (WORD) strlen(szFormula_3),
+                                &hFormula_3,
+                                &wFormula_3_Len,
+                                &wdc, &wdc, &wdc,
+                                &wdc, &wdc );
 
     if (sError)
     {
-	printf("Error: unable to compile formula for column 3: '%s'.\n", 
-		szFormula_3 );
-	goto Exit5;
+        PRINTLOG("Error: unable to compile formula for column 3: '%s'.\n", 
+                szFormula_3 );
+        goto Exit5;
     }
 
 /*
@@ -392,33 +391,33 @@ int main(int argc, char *argv[])
  */
 
     sError = NSFFormulaSummaryItem( hSelFormula,
-				    szItemName_3,
-				    wItemName_3_Len );
+                                    szItemName_3,
+                                    wItemName_3_Len );
 
     if (sError)
     {
-	printf("Error: unable to merge col 3 item name into selection formula.\n");
-	goto Exit5;
+        PRINTLOG("Error: unable to merge col 3 item name into selection formula.\n");
+        goto Exit5;
     }
 
     sError = NSFFormulaMerge( hFormula_3, hSelFormula );
 
     if (sError)
     {
-	printf("Error: unable to merge col 3 formula into selection formula.\n");
-	goto Exit5;
+        PRINTLOG("Error: unable to merge col 3 formula into selection formula.\n");
+        goto Exit5;
     }
 
 /*
  *  Add $Conflict and $REF summary item names to selection formula
  */
 
-     sError = NSFFormulaSummaryItem( hSelFormula,
+    sError = NSFFormulaSummaryItem( hSelFormula,
                                      szConflictName,
                                      wConflictName_Len);
     if (sError)
     {
-        printf("Error: unable to merge $Conflict item name into selection formula.\n");
+        PRINTLOG("Error: unable to merge $Conflict item name into selection formula.\n");
         goto Exit5;
     }
 
@@ -427,7 +426,7 @@ int main(int argc, char *argv[])
                                      wRefName_Len);
     if (sError)
     {
-        printf("Error: unable to merge $REF item name into selection formula.\n");
+        PRINTLOG("Error: unable to merge $REF item name into selection formula.\n");
         goto Exit5;
     }
 
@@ -438,8 +437,8 @@ int main(int argc, char *argv[])
     sError = NSFFormulaGetSize( hSelFormula, &wSelFormulaLen );
     if (sError)
     {
-	printf("Error: unable to get size of selection formula.\n" );
-	goto Exit5;
+        PRINTLOG("Error: unable to get size of selection formula.\n" );
+        goto Exit5;
     }
 
 
@@ -448,20 +447,20 @@ int main(int argc, char *argv[])
  */
 
     sError = NSFItemAppend( hNote,
-			    ITEM_SUMMARY,
-			    VIEW_FORMULA_ITEM,
-			    (WORD) strlen(VIEW_FORMULA_ITEM),
-			    TYPE_FORMULA,
-			    OSLockObject(hSelFormula),
-			    (DWORD) wSelFormulaLen);
+                            ITEM_SUMMARY,
+                            VIEW_FORMULA_ITEM,
+                            (WORD) strlen(VIEW_FORMULA_ITEM),
+                            TYPE_FORMULA,
+                            OSLockObject(hSelFormula),
+                            (DWORD) wSelFormulaLen);
 
     OSUnlockObject( hSelFormula );
 
     if (sError) 
     {
-	printf("Error: unable to append item '%s' to view note.\n",
-		VIEW_FORMULA_ITEM );
-	goto Exit4;
+        PRINTLOG("Error: unable to append item '%s' to view note.\n",
+                VIEW_FORMULA_ITEM );
+        goto Exit4;
     }
 
 /*
@@ -496,25 +495,25 @@ int main(int argc, char *argv[])
  */
 
     wViewFormatBufLen = ODSLength( _VIEW_TABLE_FORMAT )   +
-			ODSLength( _VIEW_COLUMN_FORMAT )  +
-			ODSLength( _VIEW_COLUMN_FORMAT )  +
-			ODSLength( _VIEW_COLUMN_FORMAT )  +
-			wItemName_1_Len                   +
-			wFormula_1_Len                    +
-			wItemName_2_Len                   +
-			wTitle_2_Len                      +
-			wFormula_2_Len                    +
-			wItemName_3_Len                   +
-			wTitle_3_Len                      +
-			wFormula_3_Len                    +
-			ODSLength( _VIEW_TABLE_FORMAT2 )  ;
+                        ODSLength( _VIEW_COLUMN_FORMAT )  +
+                        ODSLength( _VIEW_COLUMN_FORMAT )  +
+                        ODSLength( _VIEW_COLUMN_FORMAT )  +
+                        wItemName_1_Len                   +
+                        wFormula_1_Len                    +
+                        wItemName_2_Len                   +
+                        wTitle_2_Len                      +
+                        wFormula_2_Len                    +
+                        wItemName_3_Len                   +
+                        wTitle_3_Len                      +
+                        wFormula_3_Len                    +
+                        ODSLength( _VIEW_TABLE_FORMAT2 )  ;
     
 
     if (sError = OSMemAlloc( 0, wViewFormatBufLen, &hViewFormatBuffer ))
     {
-	printf("Error: unable to allocate %d bytes memory.\n", 
-		wViewFormatBufLen);
-	goto Exit5;
+        PRINTLOG("Error: unable to allocate %d bytes memory.\n", 
+                wViewFormatBufLen);
+        goto Exit5;
     }
 
     pViewFormatBuffer = (char*) OSLockObject( hViewFormatBuffer );
@@ -539,8 +538,8 @@ int main(int argc, char *argv[])
     ViewTableFormat.ItemSequenceNumber = 0;  /* Reserved - should be 0 */
     
     ViewTableFormat.Flags = VIEW_TABLE_FLAG_FLATINDEX |
-			    VIEW_TABLE_FLAG_DISP_UNREADDOCS |
-			    VIEW_TABLE_FLAG_CONFLICT;
+                            VIEW_TABLE_FLAG_DISP_UNREADDOCS |
+                            VIEW_TABLE_FLAG_CONFLICT;
 
     ViewTableFormat.Flags2 = 0;
 
@@ -714,7 +713,7 @@ int main(int argc, char *argv[])
     ViewTableFormat2.TotalsFont = DEFAULT_FONT_ID;
     ViewTableFormat2.AutoUpdateSeconds = 0;
 
-	/* needed to initialize this value to the following for R5 */
+        /* needed to initialize this value to the following for R5 */
     ViewTableFormat2.wSig = VALID_VIEW_FORMAT_SIG;
 
 /*
@@ -730,21 +729,21 @@ int main(int argc, char *argv[])
  */
 
     sError = NSFItemAppend( hNote,
-			    ITEM_SUMMARY,
-			    VIEW_VIEW_FORMAT_ITEM,
-			    sizeof(VIEW_VIEW_FORMAT_ITEM) - 1,
-			    TYPE_VIEW_FORMAT,
-			    pViewFormatBuffer,
-			    (DWORD)wViewFormatBufLen );
+                            ITEM_SUMMARY,
+                            VIEW_VIEW_FORMAT_ITEM,
+                            sizeof(VIEW_VIEW_FORMAT_ITEM) - 1,
+                            TYPE_VIEW_FORMAT,
+                            pViewFormatBuffer,
+                            (DWORD)wViewFormatBufLen );
 
     OSUnlockObject( hViewFormatBuffer );
     OSMemFree( hViewFormatBuffer );
 
     if (sError) 
     {
-	printf("Error: unable to append item '%s' to view note.\n", 
-		VIEW_VIEW_FORMAT_ITEM );
-	goto Exit5;
+        PRINTLOG("Error: unable to append item '%s' to view note.\n", 
+                VIEW_VIEW_FORMAT_ITEM );
+        goto Exit5;
     }
 
 /*
@@ -767,17 +766,17 @@ int main(int argc, char *argv[])
  */
 
     wCollationBufLen =  ODSLength( _COLLATION )          +
-			ODSLength( _COLLATE_DESCRIPTOR ) +
-			ODSLength( _COLLATE_DESCRIPTOR ) +
-			wItemName_1_Len                  +
-			wItemName_2_Len                  ;
+                        ODSLength( _COLLATE_DESCRIPTOR ) +
+                        ODSLength( _COLLATE_DESCRIPTOR ) +
+                        wItemName_1_Len                  +
+                        wItemName_2_Len                  ;
 
 
     if (sError = OSMemAlloc( 0, wCollationBufLen, &hCollationBuffer ))
     {
-	printf( "Error: unable to allocate %d bytes memory.\n", 
-		wCollationBufLen);
-	goto Exit5;
+        PRINTLOG( "Error: unable to allocate %d bytes memory.\n", 
+                wCollationBufLen);
+        goto Exit5;
     }
 
     pCollationBuffer = (char*) OSLockObject( hCollationBuffer );
@@ -862,20 +861,20 @@ int main(int argc, char *argv[])
  */
     
     sError = NSFItemAppend( hNote,
-			    ITEM_SUMMARY,
-			    VIEW_COLLATION_ITEM,
-			    sizeof(VIEW_COLLATION_ITEM) - 1,
-			    TYPE_COLLATION,
-			    pCollationBuffer,
-			    (DWORD) wCollationBufLen );
+                            ITEM_SUMMARY,
+                            VIEW_COLLATION_ITEM,
+                            sizeof(VIEW_COLLATION_ITEM) - 1,
+                            TYPE_COLLATION,
+                            pCollationBuffer,
+                            (DWORD) wCollationBufLen );
 
     OSUnlockObject( hCollationBuffer);
     OSMemFree( hCollationBuffer );
 
     if (sError)
     {
-	printf("Error: unable to append Collation item to view note.\n");
-	goto Exit5;
+        PRINTLOG("Error: unable to append Collation item to view note.\n");
+        goto Exit5;
     }
     
 /*
@@ -884,15 +883,15 @@ int main(int argc, char *argv[])
  */
 
     sError = NSFNoteUpdate( hNote, 0 );
-		   
+                   
     if (sError)
     {
-	printf("Error: unable to update view note in database.\n" );
+        PRINTLOG("Error: unable to update view note in database.\n" );
     }
     else
     {
-	printf("Successfully created view note in database.\n" );
-	printf("\nProgram completed successfully.\n" );
+        PRINTLOG("Successfully created view note in database.\n" );
+        PRINTLOG("\nProgram completed successfully.\n" );
     }
 
 
@@ -900,24 +899,24 @@ Exit5:
 
     if (hSelFormula != NULLHANDLE)
     {
-	OSMemFree( hSelFormula );
+        OSMemFree( hSelFormula );
     }
 
     if (hFormula_1 != NULLHANDLE)
     {
-	OSMemFree( hFormula_1 );
+        OSMemFree( hFormula_1 );
     }
     
     if (hFormula_2 != NULLHANDLE)
     {
-	OSMemFree( hFormula_2 );
+        OSMemFree( hFormula_2 );
     }
     
     if (hFormula_3 != NULLHANDLE)
     {
-	OSMemFree( hFormula_3 );
+        OSMemFree( hFormula_3 );
     }
-	
+        
 Exit4:
     
     NSFNoteClose( hNote );
@@ -928,38 +927,8 @@ Exit3:
 
 Exit2:
 
-    PrintAPIError (sError);  
+    PRINTERROR (sError,"NSFDbOpen");
     NotesTerm();
     return (sError); 
-
-}
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
 
 }

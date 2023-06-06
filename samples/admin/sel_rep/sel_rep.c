@@ -77,7 +77,7 @@
 #include <nsfsearc.h>
 #include <osfile.h>
 #include <idtable.h>  
-
+#include <printLog.h>
 #include <osmisc.h>  
 
 /*
@@ -89,8 +89,6 @@
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-void PrintAPIError (STATUS);
 
 /*
  *     Main Program
@@ -109,8 +107,8 @@ int main(int argc, char *argv[])
     char szReplVersion[] = "1";
     
     WORD   wdc;           /* "We Don't Care" - Used to receive data that */
-           /* we don't care about that is returned by     */
-           /* NSFFormulaCompile.                          */
+                          /* we don't care about that is returned by     */
+                          /* NSFFormulaCompile.                          */
 
     WORD wItemLength;
     WORD wTextBufferLength = TEXTLIST_BUFFER_LENGTH;
@@ -144,25 +142,25 @@ int main(int argc, char *argv[])
     DWORD       NumScanned, NumEntries;
     NOTEID      nid;
 
-	if (argc != 2)
-   {
-	   printf("\nUsage:  %s <server name>\n", argv[0]);
-	   return (0);
-   }
-   else
-   {
-	   szServerName = argv[1];
-   }
+    if (argc != 2)
+    {
+        PRINTLOG("\nUsage:  %s <server name>\n", argv[0]);
+        return (0);
+    }
+    else
+    {
+        szServerName = argv[1];
+    }
 
 /*
  *   Start by calling Notes InitExtended.
  */
 
-if (sError = NotesInitExtended (argc, argv))
- {
-     printf("\n Unable to initialize Notes.\n");
-     return (1);
- }
+    if (sError = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
 
 
 /*
@@ -171,13 +169,13 @@ if (sError = NotesInitExtended (argc, argv))
  */
 
     if (sError = OSPathNetConstruct(NULL,
-                szServerName,
-                szFileName,
-                szFullPathName))
+                 szServerName,
+                 szFileName,
+                 szFullPathName))
     {
-	    PrintAPIError (sError);  
-		NotesTerm();
-		return (1);
+        PRINTERROR (sError,"OSPathNetConstruct");  
+        NotesTerm();
+        return (1);
     }
  
 /*
@@ -185,35 +183,35 @@ if (sError = NotesInitExtended (argc, argv))
  */
 
     if (sError = NSFDbOpen(szFullPathName, &hOrigDB))
-	{
-	    PrintAPIError (sError);  
-		NotesTerm();
-		return (1);
-	}
+    {
+        PRINTERROR (sError,"NSFDbOpen");  
+        NotesTerm();
+        return (1);
+    }
 
-    printf ("\nCreating replica database.\n");
+    PRINTLOG ("\nCreating replica database.\n");
 
 /*
  *  Create and open the local (replica) database.
  */
 
     if (sError = NSFDbCreate(szFileName,
-              DBCLASS_NOTEFILE,
-              TRUE))
+                 DBCLASS_NOTEFILE,
+                 TRUE))
 
     {
         NSFDbClose(hOrigDB);
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbCreate");  
+        NotesTerm();
+        return (1);
     }
 
     if (sError = NSFDbOpen(szFileName, &hDB))
     {
         NSFDbClose(hOrigDB);
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbOpen");  
+        NotesTerm();
+        return (1);
     }
 
 
@@ -227,9 +225,9 @@ if (sError = NotesInitExtended (argc, argv))
     {
         NSFDbClose (hOrigDB);
         NSFDbClose (hDB);
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbReplicaInfoGet");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -243,9 +241,9 @@ if (sError = NotesInitExtended (argc, argv))
     {
         NSFDbClose (hOrigDB);
         NSFDbClose (hDB);
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbReplicaInfoSet");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -256,9 +254,9 @@ if (sError = NotesInitExtended (argc, argv))
     {
         NSFDbClose (hOrigDB);
         NSFDbClose (hDB);
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFDbCopyACL");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -289,9 +287,9 @@ if (sError = NotesInitExtended (argc, argv))
             IDDestroyTable (pIDTable);
             NSFDbClose (hOrigDB);
             NSFDbClose (hDB);
-		    PrintAPIError (sError);  
-			NotesTerm();
-			return (1);
+            PRINTERROR (sError,"NSFDbGetModifiedNoteTable");  
+            NotesTerm();
+            return (1);
         }
 
     NumScanned = 0L;
@@ -307,9 +305,9 @@ if (sError = NotesInitExtended (argc, argv))
                 IDDestroyTable (pIDTable);
                 NSFDbClose (hOrigDB);
                 NSFDbClose (hDB);
-			    PrintAPIError (sError);  
-				NotesTerm();
-				return (1);
+                PRINTERROR (sError,"NSFDbCopyNote");  
+                NotesTerm();
+                return (1);
             }
     IDDestroyTable (pIDTable);
                        
@@ -319,8 +317,8 @@ if (sError = NotesInitExtended (argc, argv))
 
     NSFDbClose (hOrigDB);
 
-   printf("\nReplica database created.\n"); 
-   printf ("\nCreating selective replication formula.\n");
+   PRINTLOG("\nReplica database created.\n"); 
+   PRINTLOG ("\nCreating selective replication formula.\n");
 /*
  *  We now have a replica of the original database. Create a
  *  replication formula note now.  First, create a note in database.
@@ -329,9 +327,9 @@ if (sError = NotesInitExtended (argc, argv))
     if (sError = NSFNoteCreate(hDB, &hNote))
     {
          NSFDbClose(hDB);            /* Close database            */
-	     PrintAPIError (sError);  
-	     NotesTerm();
-		 return (1);
+         PRINTERROR (sError,"NSFNoteCreate");  
+         NotesTerm();
+         return (1);
     }
 
 /*
@@ -352,17 +350,17 @@ if (sError = NotesInitExtended (argc, argv))
 
     {
         NSFDbClose(hDB);            /* Close database            */
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFNoteCreate");  
+        NotesTerm();
+        return (1);
     }
     if (sError = REGGetIDInfo (IDFileSpec, REGIDGetName, UserName, 
                                MAXUSERNAME+1, &retUserNameLen))
     {
         NSFDbClose(hDB);            /* Close database            */
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"REGGetIDInfo");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -375,9 +373,9 @@ if (sError = NotesInitExtended (argc, argv))
                                 MAXWORD))
     {
         NSFDbClose(hDB);            /* Close database            */
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFItemSetText");  
+        NotesTerm();
+        return (1);
     }
 
     
@@ -391,9 +389,9 @@ if (sError = NotesInitExtended (argc, argv))
                                 MAXWORD))
     {
         NSFDbClose(hDB);            /* Close database            */
-	    PrintAPIError (sError);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (sError,"NSFItemSetText");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -404,11 +402,11 @@ if (sError = NotesInitExtended (argc, argv))
  */
 
     if (sError = OSMemAlloc (0, wTextBufferLength, &hMem))
-	{
-		PrintAPIError (sError);  
-		NotesTerm();
-		return (FALSE);
-	}
+    {
+        PRINTERROR (sError,"OSMemAlloc");  
+        NotesTerm();
+        return (FALSE);
+    }
 
    
 /*
@@ -417,9 +415,9 @@ if (sError = NotesInitExtended (argc, argv))
     
     if ((pBuffer = (BYTE*)OSLockObject(hMem)) == NULL)
     {
-	   OSMemFree (hMem);
-	   NotesTerm();
-	   return (FALSE);
+        OSMemFree (hMem);
+        NotesTerm();
+        return (FALSE);
     }
 
 /*
@@ -476,12 +474,12 @@ if (sError = NotesInitExtended (argc, argv))
                 pBuffer,
                 wItemLength))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PrintAPIError (sError);  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFItemAppend");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -541,12 +539,12 @@ if (sError = NotesInitExtended (argc, argv))
                 pBuffer,
                 wItemLength))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PrintAPIError (sError);  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFItemAppend");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -568,12 +566,12 @@ if (sError = NotesInitExtended (argc, argv))
                &wdc, &wdc, &wdc,
                &wdc, &wdc))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PrintAPIError (sError);  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFFormulaCompile");  
+        NotesTerm();
+        return (1);
     }
 
     pSelFormula = (char*) OSLockObject(hSelFormula);
@@ -590,12 +588,12 @@ if (sError = NotesInitExtended (argc, argv))
                 pSelFormula,
                 wSelFormulaLen))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PrintAPIError (sError);  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFItemAppend");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -611,12 +609,12 @@ if (sError = NotesInitExtended (argc, argv))
 
     if (sError = NSFNoteUpdate(hNote, 0))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PrintAPIError (sError);  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFNoteUpdate");  
+        NotesTerm();
+        return (1);
     }
 
 /* 
@@ -625,12 +623,12 @@ if (sError = NotesInitExtended (argc, argv))
 
     if (sError = NSFNoteClose(hNote))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   NSFDbClose(hDB);             /* Close database            */
-   PrintAPIError (sError);  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);             /* Close database            */
+        PRINTERROR (sError,"NSFNoteClose");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -639,11 +637,11 @@ if (sError = NotesInitExtended (argc, argv))
 
     if (sError = NSFDbClose(hDB))
     {
-   OSUnlockObject (hMem);
-   OSMemFree (hMem);
-   PrintAPIError (sError);  
-   NotesTerm();
-   return (1);
+        OSUnlockObject (hMem);
+        OSMemFree (hMem);
+        PRINTERROR (sError,"NSFDbClose");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -652,39 +650,8 @@ if (sError = NotesInitExtended (argc, argv))
 
     OSUnlockObject (hMem);
     OSMemFree (hMem);
-    printf ("\nSelective replication formula created.\n");
-    printf ("\nDone.\n");
+    PRINTLOG ("\nSelective replication formula created.\n");
+    PRINTLOG ("\nDone.\n");
     NotesTerm();
     return (0); 
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-				error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
-

@@ -48,6 +48,7 @@ SYNTAX:     intro  [server name - optional] <database filename>
 #include "lapicinc.h"
 #endif
 #include "lapiplat.h"
+#include "printLog.h"
 
 /* NOTE: This code MUST be the LAST file included so that ascii versions of the system APIs are used     */
 #if defined(OS390) && (__STRING_CODE_SET__==ISO8859-1 /* If os390 ascii compile                          */)     
@@ -57,7 +58,6 @@ SYNTAX:     intro  [server name - optional] <database filename>
 /* Local function prototypes */
 
 void  LNPUBLIC  ProcessArgs (char *ServerName, char *DBFileName, int *ArgNumber);
-void PrintAPIError (STATUS);
 
 
 /* Program declaration */
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 #endif
 	if((ArgNum < 2) || (ArgNum >3))
 	{
-		printf( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
+		PRINTLOG( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
 		return (0);
 	}
 
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 	{
 		if (error = OSPathNetConstruct( NULL, server_name, db_name, pname))
 		{
-			PrintAPIError (error);
+			PRINTERROR (error,"OSPathNetConstruct");
 			NotesTerm();
 			return (1);
 		}
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
 	if (error = NSFDbOpen (path_name, &db_handle))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFDbOpen");
 		NotesTerm();
 		return (1);
 	}
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 
 	if (error = NSFDbInfoGet (db_handle, buffer))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFDbInfoGet");
 		NSFDbClose (db_handle);
 		NotesTerm();
 		return (1);
@@ -155,12 +155,12 @@ int main(int argc, char *argv[])
 	if (NSFDbPathIsRemote(path_name))
 	{
 		OSTranslate32(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXDWORD, nsf_path, sizeof(nsf_path)-1);
-		printf("\n\nThe database is remote with path : %s\n",nsf_path);
+		PRINTLOG("\n\nThe database is remote with path : %s\n",nsf_path);
 	}
 	else
 	{
 		OSTranslate32(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXDWORD, nsf_path, sizeof(nsf_path)-1);
-		printf("\n\nThe database is local with path : %s\n",nsf_path);
+		PRINTLOG("\n\nThe database is local with path : %s\n",nsf_path);
 	}
 
 	/* Print the title. */
@@ -169,16 +169,16 @@ int main(int argc, char *argv[])
 	OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXWORD, XLATE_path_name, sizeof(XLATE_path_name));
 
 	OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, title, MAXWORD, XLATE_title, sizeof(XLATE_title));
-	printf ("\n\n\nThe title for the database %s is...\n\n%s\n", XLATE_path_name, XLATE_title);
+	PRINTLOG ("\n\n\nThe title for the database %s is...\n\n%s\n", XLATE_path_name, XLATE_title);
 #else
-	printf ("\n\n\nThe title for the database, %s, is:\n\n%s\n\n", path_name, title);
+	PRINTLOG ("\n\n\nThe title for the database, %s, is:\n\n%s\n\n", path_name, title);
 #endif /* OS390, ebcdic compile */
 
 	/* Close the database. */
 
 	if (error = NSFDbClose (db_handle))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFDbClose");
 		NotesTerm();
 		return (1);
 	}
@@ -190,39 +190,6 @@ int main(int argc, char *argv[])
 	/* End of intro program. */
 
 	return (0);
-}
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-	STATUS  string_id = ERR(api_error);
-	char    error_text[200];
-	WORD    text_len;
-#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-	char    NATIVE_error_text[200];
-#endif /* OS390, ebcdic compile */
-
-	/* Get the message for this HCL C API for Notes/Domino error code
-	from the resource string table. */
-
-	text_len = OSLoadString (NULLHANDLE,
-		string_id,
-		error_text,
-		sizeof(error_text));
-
-	/* Print it. */
-
-#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-	OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, error_text, MAXWORD, NATIVE_error_text, sizeof(NATIVE_error_text));
-	fprintf (stderr, "\n%s\n", NATIVE_error_text);
-#else
-	fprintf (stderr, "\n%s\n", error_text);
-#endif /* OS390, ebcdic compile */
-
 }
 
 /************************************************************************

@@ -27,7 +27,7 @@
                rsimple
 
     COMMENTS:
-       This program uses the API function NSFSearch() to find all the
+       This program uses the API function NSFSearchExt2() to find all the
        data notes in the given database. For each data note that it 
        finds, this reads several fields of simple data types and prints
        their values to the screen.
@@ -54,7 +54,7 @@ extern "C" {
 #include <nsfsearc.h>
 #include <osmem.h>
 #include <nsferr.h>
-
+#include <printLog.h>
 #include <osmisc.h>
 
 #if defined(OS390)
@@ -65,8 +65,6 @@ extern "C" {
               
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *db_filename); 
-                         
-void PrintAPIError (STATUS);
 
 #define  STRING_LENGTH  256
               
@@ -101,19 +99,19 @@ int main(int argc, char *argv[])
     ProcessArgs(argc, argv, db_filename); 
 	if (error = NotesInitExtended (argc, argv))
 	{
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
 	}
 
     /* Open the database. */
-    
+
     if (error = NSFDbOpen (db_filename, &db_handle))
     {
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbOpen");
         NotesTerm();
         return (1);
-    } 
-    
+    }
+
     /* Compile the selection formula. */
 
     if (error = NSFFormulaCompile (
@@ -128,29 +126,34 @@ int main(int argc, char *argv[])
         
     {
         NSFDbClose (db_handle);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFFormulaCompile");  
         NotesTerm();
         return (1);
     }
 
-/* Call NSFSearch to find the notes that match the selection criteria. For 
+/* Call NSFSearchExt2 to find the notes that match the selection criteria. For
 each note found, the routine print_fields is called. (If you always want
 to find all the documents in the database, you can set the 2nd argument
 to NULLHANDLE and eliminate the formula compilation.) */
 
-    if (error = NSFSearch (
+    if (error = NSFSearchExt2 (
                 db_handle,      /* database handle */
                 formula_handle, /* selection formula */
+                NULLHANDLE,   /* handle to the filter */
+                SEARCH_FILTER_NONE, /* filter flags */
                 NULL,           /* title of view in selection formula */
-                0,              /* search flags */
+                0,              /* search flags (unused) */
+                0,              /* search flags (unused) */
                 NOTE_CLASS_DOCUMENT,/* note class to find */
                 NULL,           /* starting date (unused) */
                 print_fields,   /* call for each note found */
                 &db_handle,     /* argument to print_fields */
-                NULL))          /* returned ending date (unused) */
+                NULL,           /* returned ending date (unused) */
+                5))            /* timeout seconds. if = "0" then, NO timeout */
     {
+        OSMemFree (formula_handle);
         NSFDbClose (db_handle);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFSearchExt2");  
         NotesTerm();
         return (1);
     }
@@ -163,13 +166,13 @@ to NULLHANDLE and eliminate the formula compilation.) */
 
     if (error = NSFDbClose (db_handle))
     {
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbClose");  
         NotesTerm();
         return (1);
     } 
 
 /* End of main routine. */
-    printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
     NotesTerm();
     return (0); 
 
@@ -179,25 +182,25 @@ to NULLHANDLE and eliminate the formula compilation.) */
 
     FUNCTION:   print_fields
 
-    PURPOSE:    Called by NSFSearch for each note that matches the 
+    PURPOSE:    Called by NSFSearchExt2 for each note that matches the
                 selection criteria
 
     INPUTS:
         void *db_handle - the optional argument that we supplied when 
-                          we called NSFSearch
+                          we called NSFSearchExt2
         SEARCH_MATCH far *pSearchMatch - 
-                          supplied by NSFSearch.  This is a
+                          supplied by NSFSearchExt2.  This is a
                           structure of information about the note that 
                           was found.
         ITEM_TABLE *summary_info - 
-                          also supplied by NSFSearch.  This is
+                          also supplied by NSFSearchExt2.  This is
                           the summary buffer for this note.
 
     RETURNS:   
         NOERROR or STATUS if an error condition is encountered.
 
     DISCUSSION:
-        This is the routine that is called by NSFSearch for each note
+        This is the routine that is called by NSFSearchExt2 for each note
         that matches the selection criteria.
 
         This routine uses the Note ID provided in the SEARCH_MATCH 
@@ -205,7 +208,7 @@ to NULLHANDLE and eliminate the formula compilation.) */
 
         Note that it is ok to open and read the note here in the action 
         routine, but you should not normally write new fields to the note 
-        nor update the note unless the NSFSearch is time delimited. The
+        nor update the note unless the NSFSearchExt2 is time delimited. The
         reason is that updating the database while a non-time-delimited
         search is still in progress may cause the search to find the 
         same note again.
@@ -237,7 +240,7 @@ but is shown here in case a starting date was used in the search. */
 
 /* Print the note ID. */
 
-    printf ("\nNote ID is: %lX.\n", SearchMatch.ID.NoteID);
+    PRINTLOG ("\nNote ID is: %lX.\n", SearchMatch.ID.NoteID);
 
 /* Open the note. */
 
@@ -267,14 +270,16 @@ print it. */
                     field_text,
                     (WORD) sizeof (field_text));
 
-        printf ("PLAIN_TEXT field is: %s\n", field_text);
+        PRINTLOG ("PLAIN_TEXT field is: %s\n", field_text);
 
     }
 
 /* If the PLAIN_TEXT field is not there, print a message. */
 
     else
-        printf ("PLAIN_TEXT field not found.\n");
+    {
+        PRINTLOG ("PLAIN_TEXT field not found.\n");
+    }
         
 /* Look for (and get if it's there) the NUMBER field within this note.*/
 
@@ -291,13 +296,15 @@ print it. */
        /* Domino and Notes gave us an IEEE double which must be converted to native. */
           ConvertIEEEToDouble(&number_field, &number_field);
 #endif /* OS390 */
-        printf ("NUMBER field is: %f\n", number_field);
+        PRINTLOG ("NUMBER field is: %f\n", number_field);
     }
 
 /* If the NUMBER field was not found, print a message. */
 
     else 
-        printf ("NUMBER field not found.\n"); 
+    {
+        PRINTLOG ("NUMBER field not found.\n"); 
+    }
     
 /* Look for the TIME_DATE field within this note. */
 
@@ -318,14 +325,16 @@ ASCII string and print it out. */
                 (WORD) sizeof (field_text),
                 ';'); /* multi-value separator */
 
-        printf ("TIME_DATE field is: %s\n", field_text);
+        PRINTLOG ("TIME_DATE field is: %s\n", field_text);
 
     }
 
 /* If the TIME_DATE field is not there, print a message. */
 
     else
-        printf ("TIME_DATE field not found.\n");
+    {
+        PRINTLOG ("TIME_DATE field not found.\n");
+    }
 
 /* Look for the TEXT_LIST field within this note. */
 
@@ -356,14 +365,16 @@ n-1. So we subtract one from the number returned above.) */
 
 /* Print out the last entry in TEXT_LIST. */
 
-        printf ("The last entry in TEXT_LIST is: %s\n", field_text);
+        PRINTLOG ("The last entry in TEXT_LIST is: %s\n", field_text);
 
     }  
 
 /* If the TEXT_LIST field is not there, print a message. */
 
     else
-        printf ("TEXT_LIST field not found.\n");
+    {
+        PRINTLOG ("TEXT_LIST field not found.\n");
+    }
 
 /* Close the note. */
 
@@ -402,37 +413,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
          strcpy(db_filename, argv[1]);    
     } /* end if */
 } /* ProcessArgs */
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

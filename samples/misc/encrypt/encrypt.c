@@ -46,11 +46,10 @@
 #include <nsfnote.h>
 #include <ostime.h>
 #include <stdnames.h>
+#include <printLog.h>
 
 #include <lapiplat.h>
 
-/* Local function prototype */
-void PrintAPIError (STATUS);
 STATUS DecryptAndReadNoteItem (DBHANDLE hDB, NOTEID dwNoteID, char *ItemName);
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                                char *dbpath_name, char *ekey, char *user1, char *user2); 
@@ -103,7 +102,7 @@ int main(int argc, char *argv[])
     error = NotesInitExtended (argc, argv);
     if (error)
     {
-        printf("Error: Unable to initialize Notes.\n");
+        PRINTLOG("Error: Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -117,7 +116,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen (PathName, &hDB))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFDbOpen");
         NotesTerm();
         return (1);
     }
@@ -126,7 +125,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate (hDB, &hNote))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteCreate");
         NSFDbClose (hDB);
         NotesTerm();
         return (1);
@@ -140,7 +139,7 @@ int main(int argc, char *argv[])
                                "SimpleDataForm", 
                                 MAXWORD))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemSetText");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -158,7 +157,7 @@ int main(int argc, char *argv[])
                                TYPE_TEXT,
                                TextField, (DWORD)strlen(TextField)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -174,7 +173,7 @@ int main(int argc, char *argv[])
                                TYPE_NUMBER,
                                &NumField, (DWORD)sizeof(NumField)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -193,7 +192,7 @@ int main(int argc, char *argv[])
                                TYPE_TIME,
                                &TimeField, (DWORD)sizeof(TimeField)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -212,7 +211,7 @@ int main(int argc, char *argv[])
                                TYPE_TEXT,
                                TextField, (DWORD)strlen(TextField)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -223,7 +222,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteUpdate (hNote, 0))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteUpdate");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -237,7 +236,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose (hNote))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteClose");
         NSFDbClose (hDB);
         NotesTerm();
         return (1);
@@ -247,7 +246,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate (hDB, &hNote))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteCreate");
         NSFDbClose (hDB);
         NotesTerm();
         return (1);
@@ -261,7 +260,7 @@ int main(int argc, char *argv[])
                                 "SimpleDataForm", 
                                  MAXWORD))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemSetText");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -279,7 +278,7 @@ int main(int argc, char *argv[])
                                TYPE_TEXT,
                                TextField, (DWORD)strlen(TextField)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -297,7 +296,7 @@ int main(int argc, char *argv[])
                                TYPE_NUMBER,
                                &NumField, (DWORD)sizeof(NumField)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -315,7 +314,7 @@ int main(int argc, char *argv[])
                                TYPE_TIME,
                                &TimeField, (DWORD)sizeof(TimeField)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -334,7 +333,7 @@ int main(int argc, char *argv[])
                                TYPE_TEXT,
                                TextField, (DWORD)strlen(TextField)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -352,7 +351,7 @@ int main(int argc, char *argv[])
                                TYPE_TEXT,
                                EncryptKey, (DWORD)strlen(EncryptKey)))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppend");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -369,7 +368,7 @@ int main(int argc, char *argv[])
                                        user1,
                                        MAXWORD))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemCreateTextList");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -384,7 +383,7 @@ int main(int argc, char *argv[])
                                        MAXWORD, 
                                        FALSE)) 
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFItemAppendTextList");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -397,7 +396,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCopyAndEncrypt (hNote, 0, &hEncryptedNote))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteCopyAndEncrypt");
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -406,7 +405,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteUpdate (hEncryptedNote, 0))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteUpdate");
         NSFNoteClose (hNote);
         NSFNoteClose (hEncryptedNote);
         NSFDbClose (hDB);
@@ -423,7 +422,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose (hNote))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteClose");
         NSFNoteClose (hEncryptedNote);
         NSFDbClose (hDB);
         NotesTerm();
@@ -432,7 +431,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose (hEncryptedNote))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFNoteClose");
         NSFDbClose (hDB);
         NotesTerm();
         return (1);
@@ -442,7 +441,7 @@ int main(int argc, char *argv[])
 
     if (error = DecryptAndReadNoteItem (hDB, NoteID1, ENCRYPTED_ITEM))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"DecryptAndReadNoteItem");
         NSFDbClose (hDB);
         NotesTerm();
         return (1);
@@ -450,7 +449,7 @@ int main(int argc, char *argv[])
 
     if (error = DecryptAndReadNoteItem (hDB, NoteID2, ENCRYPTED_ITEM))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"DecryptAndReadNoteItem");
         NSFDbClose (hDB);
         NotesTerm();
         return (1);
@@ -460,14 +459,14 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose (hDB))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFDbClose");
         NSFDbClose (hDB);
         NotesTerm();
         return (1);
     }
 
 /* End of subroutine. */
-   printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
    return (0);
 }
 
@@ -500,8 +499,8 @@ STATUS DecryptAndReadNoteItem (DBHANDLE hDB, NOTEID dwNoteID, char *ItemName)
    STATUS     error;           /* return code from API calls */
    FLAG       fSealed;         /* Is not encrypted? */
    BOOL       FieldFound;
-    WORD          len;
-    char          ItemText[500];
+   WORD          len;
+   char          ItemText[500];
 
 
    if (error = NSFNoteOpen (
@@ -526,7 +525,7 @@ STATUS DecryptAndReadNoteItem (DBHANDLE hDB, NOTEID dwNoteID, char *ItemName)
             return (error);
          }
 
-   printf("\n\n\nNote ID:  %lX\n\n", dwNoteID);
+   PRINTLOG("\n\n\nNote ID:  %lX\n\n", dwNoteID);
 
    FieldFound = NSFItemIsPresent (hNote,
                                   ItemName,
@@ -542,18 +541,24 @@ STATUS DecryptAndReadNoteItem (DBHANDLE hDB, NOTEID dwNoteID, char *ItemName)
                             sizeof (ItemText));
 
       if (fSealed)
-         printf ("The %s field has been decrypted.\n", ItemName);
+      {
+         PRINTLOG ("The %s field has been decrypted.\n", ItemName);
+      }
       else
-         printf ("The %s field is not encrypted.\n", ItemName);
+      {
+         PRINTLOG ("The %s field is not encrypted.\n", ItemName);
+      }
 
-      printf ("Contents of %s field:\n\n%s\n", ItemName, ItemText);
+      PRINTLOG ("Contents of %s field:\n\n%s\n", ItemName, ItemText);
 
    }
 
    /* If the specified field is not there, print a message. */
 
    else
-      printf ("%s field not found.\n", ItemName);
+   {
+      PRINTLOG ("%s field not found.\n", ItemName);
+   }
 
    return (NOERROR);
                      
@@ -604,35 +609,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     } /* end if */
 
 } /* ProcessArgs */
-
-/************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    This function prints the HCL C API for Notes/Domino error message
-    associated with an error code.
-
-    INPUTS:     api_error - error code returned from a C API function
-
-*************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
-

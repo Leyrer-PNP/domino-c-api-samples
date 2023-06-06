@@ -61,6 +61,7 @@ extern "C" {
 #include <nsferr.h>
 #include <idtable.h>            /* IDCreateTable */
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -69,8 +70,6 @@ extern "C" {
               
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *db_filename); 
-
-void PrintAPIError (STATUS);
                          
 #define  STRING_LENGTH  256
               
@@ -104,7 +103,7 @@ int main(int argc, char *argv[])
    
    if (error = NotesInitExtended (argc, argv))
    {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
    }
    
@@ -113,7 +112,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (db_filename, &db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbOpen");  
        NotesTerm();
        return (1);
    } 
@@ -127,7 +126,7 @@ int main(int argc, char *argv[])
    if (error = IDCreateTable(sizeof(NOTEID), &hNoteIDTable))
    {
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"IDCreateTable");  
       NotesTerm();
       return (1);
    }
@@ -147,7 +146,7 @@ int main(int argc, char *argv[])
       {
          IDDestroyTable(hNoteIDTable);
          NSFDbClose (db_handle);
-         PrintAPIError (error);  
+         PRINTERROR (error,"NSFFormulaCompile");  
          NotesTerm();
          return (1);
       }
@@ -169,7 +168,7 @@ int main(int argc, char *argv[])
    {
        IDDestroyTable(hNoteIDTable);
        NSFDbClose (db_handle);
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFSearch");  
        NotesTerm();
        return (1);
    }
@@ -193,7 +192,7 @@ int main(int argc, char *argv[])
    /* End of main routine. */
 
    if (error == NOERROR)
-     printf("\nProgram completed successfully\n");
+     PRINTLOG("\nProgram completed successfully\n");
 
      NotesTerm();
      return (0);
@@ -250,7 +249,7 @@ STATUS LNPUBLIC modify_field (void far * phDB, DWORD NoteID)
 
    /* Print the note ID. */
 
-   printf ("\nNote ID is: %lX.\n", NoteID);
+   PRINTLOG ("\nNote ID is: %lX.\n", NoteID);
 
    /* Open the note. */
 
@@ -274,18 +273,18 @@ STATUS LNPUBLIC modify_field (void far * phDB, DWORD NoteID)
 
    if (!field_found)
    { 
-      printf ("NUMBER field not found in this document.\n");
+      PRINTLOG ("NUMBER field not found in this document.\n");
       return (NOERROR);
    } 
     
    /* Display what the field is now. */
 
-   printf ("NUMBER field is currently: %f\n", number_field);
+   PRINTLOG ("NUMBER field is currently: %f\n", number_field);
 
    /* Add one to the field and display that value. */
 
    ++number_field;
-   printf ("NUMBER field being changed to: %f\n", number_field);
+   PRINTLOG ("NUMBER field being changed to: %f\n", number_field);
 
    /* Write the new field value into the document. */
 
@@ -344,37 +343,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
          strcpy(db_filename, argv[1]);    
       } /* end if */
 } /* ProcessArgs */
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

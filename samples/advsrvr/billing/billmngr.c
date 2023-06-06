@@ -116,7 +116,7 @@ STATUS LNPUBLIC BillDeregister ( void );
 
 STATUS FAR PASCAL MainEntryPoint( void )
 {
-	STATUS    error = NOERROR;
+   STATUS    error = NOERROR;
 
 /* call BillRegister and return */
    error = BillRegister();
@@ -134,7 +134,7 @@ STATUS FAR PASCAL MainEntryPoint( void )
 
 STATUS LNPUBLIC BillRegister ( void )
 {
-	STATUS error = NOERROR;
+   STATUS error = NOERROR;
 
 /* When run on a server the dll is called multiple times. ths flag 
    keeps the main code from being executed more than once. */  
@@ -292,7 +292,7 @@ STATUS LNCALLBACK BillHandler ( EMRECORD FAR * theData )
 		 For heavily loaded systems, it may be necessary to serialize these requests. */
 
       if (gCreatedNote == TRUE)
-	  {
+      {
          memset( &(BillMsg.rec.notecreate), (char)0, sizeof( BillMsg.rec.notecreate ) );
          hNote = VARARG_GET (theData->Ap, DHANDLE);   /* save note handle */
          (void) VARARG_GET (theData->Ap, DWORD);      /* skip update flags */
@@ -362,8 +362,7 @@ BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved )
     case DLL_PROCESS_ATTACH:
       InitializeCriticalSection( &gCriticalSection );
 
-      gBillHandler = 
-	    (EMHANDLER)MakeProcInstance( (FARPROC)BillHandler, hInstance );
+      gBillHandler = (EMHANDLER)MakeProcInstance( (FARPROC)BillHandler, hInstance );
       break;
 
     case DLL_PROCESS_DETACH:

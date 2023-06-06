@@ -48,6 +48,25 @@ Note: If CAPI_FILE_LOGGING env is not set then it is considered as console loggi
 }
 
 
+#define PRINTERROR(api_error,api_name)\
+{\
+     FILE *logFP = stdout;\
+     STATUS  string_id = ERR(api_error);\
+     char    szErrorText[256] = { 0 };\
+     WORD    wTextLen = 0;\
+     char *__filePtr__=__FILE__;\
+     if (logFP) {\
+     /* Get the message for this error code from the resource string table.*/\
+         wTextLen = OSLoadString(NULLHANDLE,\
+         string_id,\
+         szErrorText,\
+         sizeof(szErrorText));\
+     /* Print error message. */\
+         fprintf(logFP, "[ERROR]:%s:%d:%s - %s", __filePtr__,__LINE__,api_name,szErrorText);\
+     }\
+}
+
+
 #define PRINTLOG(...) \
 {\
      char logFileName[LOG_STRING_LENGTH]={0}; /*to store log file name */\

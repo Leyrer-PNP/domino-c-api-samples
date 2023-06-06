@@ -70,39 +70,44 @@ int unknown = 1;
 
 #ifdef SOLARIS || LINUX
 
-if (getspnam_r(userName, &result, buffer, sizeof(buffer))) {
+if (getspnam_r(userName, &result, buffer, sizeof(buffer))) 
+{
 /* Encrypt the password and see if it matches the
  * encrypted password from the user's record.
  */
-		char *thisCrypt = NULL;
-		thisCrypt = (char *)crypt(password, result.sp_pwdp);
-		if (strcmp (result.sp_pwdp, thisCrypt) == 0) {
-			return success;
-		} else {
-			return error;
-		}
-	}
+    char *thisCrypt = NULL;
+    thisCrypt = (char *)crypt(password, result.sp_pwdp);
+    if (strcmp (result.sp_pwdp, thisCrypt) == 0) {
+        return success;
+    } else {
+        return error;
+    }
+}
 #endif
 
 #ifdef AIX
-	result = getpwnam(userName);
-	if (result && result->pw_passwd) {
+    result = getpwnam(userName);
+    if (result && result->pw_passwd)
+    {
 /* Encrypt the password and see if it matches the
  * encrypted password from the user's record.
  */
-		char *thisCrypt = NULL;
-		thisCrypt = (char *)crypt(password,
-                                          result->pw_passwd);
-		if (strcmp (result->pw_passwd, thisCrypt) == 0) {
-			return success;
-		} else {
-			return error;
-		}
-	}
+        char *thisCrypt = NULL;
+        thisCrypt = (char *)crypt(password,
+                                  result->pw_passwd);
+        if (strcmp (result->pw_passwd, thisCrypt) == 0)
+        {
+            return success;
+        }
+        else
+        {
+            return error;
+        }
+    }
 #endif
 
 
-	return unknown;
+    return unknown;
 }
 
 #ifdef __cplusplus

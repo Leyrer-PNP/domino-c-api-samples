@@ -45,9 +45,7 @@
 #include <colorid.h>
 #include <ostime.h>
 #include <osmisc.h>
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
+#include <printLog.h>
 
 
 /************************************************************************
@@ -104,21 +102,21 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-        printf("\nError initializing Notes.\n");
+        PRINTLOG("\nError initializing Notes.\n");
         return(1);
     }
 
     path_name = (char *) malloc(INPUT_LENGTH);
     if (path_name == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         NotesTerm();
         return (0);
     }
 
     if (argc != 2)
     {
-        printf("Enter the database filename: ");
+        PRINTLOG("Enter the database filename: ");
         fflush(stdout);
         gets(path_name);
     }
@@ -129,7 +127,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen (path_name, &db_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbOpen");
         NotesTerm();
         return (1);
     }
@@ -142,7 +140,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate (db_handle, &note_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFNoteCreate");
         NSFDbClose (db_handle);
         NotesTerm();
         return (1);
@@ -153,7 +151,7 @@ default form to use when the note is displayed. */
 
     if (error = NSFItemSetText ( note_handle, "FORM", "RichTextForm", MAXWORD))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFItemSetText");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -166,7 +164,7 @@ default form to use when the note is displayed. */
 
     if (error = NSFItemSetTime (note_handle, "TIME_DATE", &timedate))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFItemSetTime");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -210,7 +208,7 @@ default form to use when the note is displayed. */
 
     if( rt_field == (BYTE *)NULL )
     {
-        printf("Error: unable to allocate %d bytes memory.\n", wBuffLen);
+        PRINTLOG("Error: unable to allocate %d bytes memory.\n", wBuffLen);
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -391,7 +389,7 @@ text run. */
 
     if (error)
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFItemAppend");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -402,7 +400,7 @@ text run. */
 
     if (error = NSFNoteUpdate (note_handle, 0))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFNoteUpdate");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -413,7 +411,7 @@ text run. */
 
     if (error = NSFNoteClose (note_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFNoteClose");
         NSFDbClose (db_handle);
         NotesTerm();
         return (1);
@@ -423,7 +421,7 @@ text run. */
 
     if (error = NSFDbClose (db_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbClose");
         NotesTerm();
         return (1);
     }
@@ -433,27 +431,3 @@ text run. */
     NotesTerm();
     return (0);
 }
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
-

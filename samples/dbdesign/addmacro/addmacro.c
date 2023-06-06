@@ -57,6 +57,7 @@
 #include <odstypes.h>
 #include <editods.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 /* Program-specific include files */
 
@@ -65,10 +66,6 @@
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -85,14 +82,14 @@ int main (int argc, char *argv[])
 
   if (error = NotesInitExtended (argc, argv))
   {
-    printf("\n Unable to initialize Notes.\n");
+    PRINTLOG("\n Unable to initialize Notes.\n");
     return (1);
   }
 
   /* Process arguments */
   if (argc != 2)
   {
-    printf ("Usage: addmacro  <database filename>\n");
+    PRINTLOG ("Usage: addmacro  <database filename>\n");
     goto Exit0;
   }
   szDbName = argv[1];
@@ -100,7 +97,7 @@ int main (int argc, char *argv[])
   /* Open input database */
   if (error = NSFDbOpen(szDbName, &hDb))
   {
-    printf ("Error: unable to open target database '%s'\n", szDbName);
+    PRINTLOG ("Error: unable to open target database '%s'\n", szDbName);
     goto Exit0;
   }
 
@@ -122,7 +119,7 @@ int main (int argc, char *argv[])
     goto Exit1;
   }
 
-  printf("%s: successfully added 3 macros to '%s'.\n", argv[0], szDbName);
+  PRINTLOG("%s: successfully added 3 macros to '%s'.\n", argv[0], szDbName);
 
   /* Close database and return */
 Exit1:
@@ -130,7 +127,7 @@ Exit1:
 
 Exit0:
   if (error)
-    PrintAPIError (error);
+    PRINTERROR (error,"NSFDbOpen");
 
   NotesTerm();
   return(error);
@@ -173,12 +170,10 @@ STATUS  LNPUBLIC  AddFilterMacro( DBHANDLE hDb )
   char            szFlags[MAX_FLAGS];
 
   char   szTitle[] = "Transfer Silton to Sherman";
-  char   szComment[] = 
-"Re-assign all open problems assigned to Support Rep Isabel \
+  char   szComment[] = "Re-assign all open problems assigned to Support Rep Isabel \
 Silton to Support Rep Alexander Sherman.";
   char   szFormula[] = "SELECT (SRep = \"Isabel Silton\")\
- & (Status = \"Open\");\
-FIELD SRep := \"Alexander Sherman\";";
+ & (Status = \"Open\"); FIELD SRep := \"Alexander Sherman\";";
 
   /* Create macro note and set note class to NOTE_CLASS_FILTER */
   if (error = CreateMacroNote(hDb, &hMacro))
@@ -225,7 +220,7 @@ FIELD SRep := \"Alexander Sherman\";";
 
   if (error = NSFNoteUpdate(hMacro, 0))
   {
-    printf ("Error: unable to update macro note to database.\n");
+    PRINTLOG ("Error: unable to update macro note to database.\n");
   }
 
 Exit1:
@@ -245,8 +240,8 @@ Exit0:
         This function adds a background macro named "Escalate Low Prio 
         Calls to Med" to the open database. After creating this macro, 
         run it from Domino and Notes by opening the database then selecting 
-      "Tools Run Background Macros". Or, the macro will run automatically 
-      if you configure 'Background Program' in Domino and Notes User Setup.
+        "Tools Run Background Macros". Or, the macro will run automatically 
+        if you configure 'Background Program' in Domino and Notes User Setup.
 
         The 'Run options' setting for this macro is "Run periodically in 
         the background". Implement this option by setting the $Type 
@@ -285,14 +280,12 @@ STATUS  LNPUBLIC  AddBackgroundMacro( DBHANDLE hDb )
   NOTEHANDLE      hMacro;
   char            szFlags[MAX_FLAGS];
 
-  char   szTitle[]   = "Escalate Low Prio Calls to Med";
-  char   szComment[] = "Once per week, search for all open, low priority \
+  char            szTitle[]   = "Escalate Low Prio Calls to Med";
+  char            szComment[] = "Once per week, search for all open, low priority \
 problems opened more than one month ago and escalate to medium priority.";
-  char   szFormula[] = 
-"OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
+  char            szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
 SELECT ((DateOpened < OneMonthAgo) & (Status = \"Open\") \
-& (Priority = \"Low\"));\n\
-FIELD Priority := \"Medium\";";
+& (Priority = \"Low\"));\n FIELD Priority := \"Medium\";";
 
   /* Create macro note and set note class to NOTE_CLASS_FILTER */
   if (error = CreateMacroNote(hDb, &hMacro))
@@ -355,7 +348,7 @@ FIELD Priority := \"Medium\";";
 /**/
   if (error = NSFNoteUpdate(hMacro, 0))
   {
-    printf ("Error: unable to update macro note to database.\n");
+    PRINTLOG ("Error: unable to update macro note to database.\n");
   }
 
 Exit1:
@@ -399,11 +392,9 @@ STATUS  LNPUBLIC  AddOnceMacro( DBHANDLE hDb )
   char            szFlags[MAX_FLAGS];
 
   char   szTitle[] = "Send reminder to Support Rep";
-  char   szComment[] = 
-"Send a reminder email to the appropriate support rep for the document \
+  char   szComment[] = "Send a reminder email to the appropriate support rep for the document \
 highlighted in the view.";
-  char   szFormula[] = 
-"@If(SRep!=\"\";\n\
+  char   szFormula[] = "@If(SRep!=\"\";\n\
 @MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
 \" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
 @Prompt([OK];\"\";\"You need to highlight a document\"));\n\
@@ -454,7 +445,7 @@ SELECT @All";
 
   if (error = NSFNoteUpdate(hMacro, 0))
   {
-    printf ("Error: unable to update macro note to database.\n");
+    PRINTLOG ("Error: unable to update macro note to database.\n");
   }
 
 Exit1:
@@ -483,7 +474,7 @@ STATUS  LNPUBLIC  CreateMacroNote ( DBHANDLE hDb, NOTEHANDLE * phMacro )
 
   if (error = NSFNoteCreate(hDb, phMacro))
   {
-    printf ("Error: unable to create macro note.\n");
+    PRINTLOG ("Error: unable to create macro note.\n");
     return(error);
   }
 
@@ -507,7 +498,7 @@ STATUS  LNPUBLIC  SetMacroTitle(NOTEHANDLE hMacro, char *szTitle)
               VIEW_TITLE_ITEM,        /* "$Title" */
               szTitle, MAXWORD))
   {
-    printf ("Error: unable to set title of macro note.\n");
+    PRINTLOG ("Error: unable to set title of macro note.\n");
   }
 
   return(error);
@@ -526,7 +517,7 @@ STATUS  LNPUBLIC  SetMacroComment (NOTEHANDLE hMacro, char *szComment)
               FILTER_COMMENT_ITEM,    /* "$Comment" */
               szComment, MAXWORD))
   {
-    printf ("Error: unable to set Comment field in macro note.\n");
+    PRINTLOG ("Error: unable to set Comment field in macro note.\n");
   }
   return(error);
 }
@@ -547,7 +538,7 @@ STATUS LNPUBLIC  SetMacroFormula( NOTEHANDLE hMacro, char *szFormula )
                                   &hFormula, &wFormulaLen, &wdc, &wdc, 
                                   &wdc, &wdc, &wdc))
   {
-    printf ("Error compiling formula.\n");
+    PRINTLOG ("Error compiling formula.\n");
     return(error);
   }
 
@@ -565,7 +556,7 @@ STATUS LNPUBLIC  SetMacroFormula( NOTEHANDLE hMacro, char *szFormula )
 
   if (error)
   {
-    printf ("Error: unable to append formula item to macro note.\n");
+    PRINTLOG ("Error: unable to append formula item to macro note.\n");
   }
   return(error);
 }
@@ -596,7 +587,7 @@ STATUS  LNPUBLIC  SetMacroType( NOTEHANDLE hMacro, WORD wType )
               FILTER_TYPE_ITEM,   /* "$Type" */
               &cType, 1))
   {
-    printf("Error: unable to set Type field in macro note.\n");
+    PRINTLOG("Error: unable to set Type field in macro note.\n");
   }
 
   return(error);    
@@ -626,7 +617,7 @@ STATUS  LNPUBLIC  SetMacroOperation( NOTEHANDLE hMacro, WORD wOperation )
               FILTER_OPERATION_ITEM,  /* "$Operation" */
               &cOperation, 1))
   {
-    printf ("Error: unable to set Operation field in macro note.\n");
+    PRINTLOG ("Error: unable to set Operation field in macro note.\n");
   }
 
   return(error);
@@ -657,7 +648,7 @@ STATUS  LNPUBLIC  SetMacroScan( NOTEHANDLE hMacro, WORD wScan )
               FILTER_SCAN_ITEM,   /* "$Scan" */
               &cScan, 1))
   {
-      printf ("Error: unable to set Scan field in macro note.\n");
+      PRINTLOG ("Error: unable to set Scan field in macro note.\n");
   }
 
   return(error);
@@ -689,7 +680,7 @@ STATUS  LNPUBLIC  SetMacroFlags( NOTEHANDLE hMacro, char *szFlags )
               DESIGN_FLAGS,           /* "$Flags" */
               szFlags, MAXWORD))
   {
-    printf ("Error: unable to set Flags field in macro note.\n");
+    PRINTLOG ("Error: unable to set Flags field in macro note.\n");
   }
 
   return(error);
@@ -708,14 +699,14 @@ STATUS  LNPUBLIC  SetMacroMachineName( NOTEHANDLE hMacro )
       
   if (error = SECKFMGetUserName(szUserName))
   {
-    printf ("Error: unable to get user name from ID file.\n");
+    PRINTLOG ("Error: unable to get user name from ID file.\n");
     return(error);
   }
   if (error = NSFItemSetText(hMacro,
               FILTER_MACHINE_ITEM,    /* "$MachineName" */
               szUserName, MAXWORD))
   {
-    printf ("Error: unable to set Machine Name field in macro note.\n");
+    PRINTLOG ("Error: unable to set Machine Name field in macro note.\n");
   }
 
   return(error);
@@ -743,7 +734,7 @@ STATUS  LNPUBLIC  SetMacroPeriod( NOTEHANDLE hMacro, WORD wPeriod )
               FILTER_PERIOD_ITEM,     /* "$Period" */
               &cPeriod, 1))
   {
-    printf ("Error: unable to set Scan field in macro note.\n");
+    PRINTLOG ("Error: unable to set Scan field in macro note.\n");
   }
 
   return(error);
@@ -769,7 +760,7 @@ STATUS  LNPUBLIC  SetMacroPeriod( NOTEHANDLE hMacro, WORD wPeriod )
 STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
 {
   STATUS            error=NOERROR;
-  DHANDLE             hLeftToDo;      /* LeftToDo Object */
+  DHANDLE           hLeftToDo;      /* LeftToDo Object */
   DWORD             dwTableSize;
   DWORD             dwObjectSize;
   DWORD             dwObjectID;
@@ -782,7 +773,7 @@ STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
 
   if (error = IDCreateTable(ODSLength(_NOTEID), &hLeftToDo))
   {
-    printf ("Error: unable to create ID table.\n");
+    PRINTLOG ("Error: unable to create ID table.\n");
     goto Exit0;
   }
 
@@ -791,7 +782,7 @@ STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
 
   if (error = OSMemRealloc(hLeftToDo, dwObjectSize))
   {
-    printf ("Error: unable to re-allocate ID table to %ld bytes.\n",
+    PRINTLOG ("Error: unable to re-allocate ID table to %ld bytes.\n",
                                             dwObjectSize);
     goto Exit1;
   }
@@ -799,7 +790,7 @@ STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
   if (error = NSFDbAllocObject(hDb, dwObjectSize, NOTE_CLASS_DOCUMENT, 0, 
                                 &dwObjectID))
   {
-    printf ("Error: unable to allocate LeftToDo Object.\n");
+    PRINTLOG ("Error: unable to allocate LeftToDo Object.\n");
     goto Exit1;
   }
     
@@ -811,7 +802,7 @@ STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
   dwItemSize = (DWORD) (ODSLength(_WORD) + ODSLength(_OBJECT_DESCRIPTOR));
   if (error = OSMemAlloc(0, dwItemSize, &(bidLeftToDo.pool)))
   {
-    printf ("Error: unable to allocate %ld bytes for LeftToDo Item.\n",
+    PRINTLOG ("Error: unable to allocate %ld bytes for LeftToDo Item.\n",
                                     dwItemSize);
     NSFDbFreeObject(hDb, dwObjectID);
     goto Exit1;
@@ -833,7 +824,7 @@ STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
                           dwItemSize, 
                           TRUE))      /* Domino and Notes will deallocate memory */
   {
-    printf ("Error: unable to append %s item.\n", FILTER_LEFTTODO_ITEM);
+    PRINTLOG ("Error: unable to append %s item.\n", FILTER_LEFTTODO_ITEM);
     OSMemFree(bidLeftToDo.pool);
     goto Exit1;
   }
@@ -863,7 +854,7 @@ STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
   if (error = NSFDbWriteObject(hDb, dwObjectID, hLeftToDo, 0, 
                 dwObjectSize))
   {
-    printf ("Error: unable to write %s object to database.\n",
+    PRINTLOG ("Error: unable to write %s object to database.\n",
                                             FILTER_LEFTTODO_ITEM);
   }
 
@@ -873,28 +864,3 @@ Exit1:
 Exit0:
   return(error);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

@@ -48,10 +48,7 @@
 #include <ostime.h>
 #include <misc.h>
 #include <osmisc.h>
-
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
+#include <printLog.h>
 
 /* HCL C API for Notes/Domino subroutine */
 
@@ -61,42 +58,42 @@ int main (int argc, char *argv[])
 
 /* Local data declarations */
 
-   char           *db_path;         /* pathname of test database */
-   int            transactions;     /* total number of transactions */
+    char           *db_path;         /* pathname of test database */
+    int            transactions;     /* total number of transactions */
 
-   DBHANDLE       db_handle;        /* database handle */
-   NOTEHANDLE     note_handle;      /* note handle */
+    DBHANDLE       db_handle;        /* database handle */
+    NOTEHANDLE     note_handle;      /* note handle */
 
-   char           last_name[100];   /* last name in N&A book */
-   char           count[10];        /* used to construct unique names */
+    char           last_name[100];   /* last name in N&A book */
+    char           count[10];        /* used to construct unique names */
 
-   LONG           time_delta;
-   TIMEDATE       StartTime;        /* time to mark the start of the program */
-   TIMEDATE       LastTime;         /*  time to mark the end of the program */
+    LONG           time_delta;
+    TIMEDATE       StartTime;        /* time to mark the start of the program */
+    TIMEDATE       LastTime;         /*  time to mark the end of the program */
 
-   int            i;
-   STATUS         error = NOERROR;
+    int            i;
+    STATUS         error = NOERROR;
 
 
 /* ************************************************** */
 /* Get the input parameters. */
 /* ************************************************** */
 
-   if (argc != 3)
-      {
-      printf ("\nUsage:  ADDNAMES  <database pathname>  <number of names>\n");
-      return(0);
-      }
-   db_path = argv[1];
-   transactions = atoi(argv[2]);
+    if (argc != 3)
+    {
+        PRINTLOG ("\nUsage:  ADDNAMES  <database pathname>  <number of names>\n");
+        return(0);
+    }
+    db_path = argv[1];
+    transactions = atoi(argv[2]);
 
-   printf ("\n***** ADDNAMES Test Begins ******\n");
+   PRINTLOG ("\n***** ADDNAMES Test Begins ******\n");
 
-   if (error = NotesInitExtended (argc, argv))
-      {
-      printf("\nUnable to initialize Notes.\n");
-      return(1);
-      }
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\nUnable to initialize Notes.\n");
+        return(1);
+    }
 
 /* ************************************************** */
 /* Get System TIME  . */
@@ -108,8 +105,8 @@ int main (int argc, char *argv[])
 /* Open the database. */
 /* ************************************************** */
 
-   if (error = NSFDbOpen (db_path, &db_handle))
-      goto Done1;
+    if (error = NSFDbOpen (db_path, &db_handle))
+        goto Done1;
 
 
 /* ************************************************** */
@@ -118,131 +115,106 @@ int main (int argc, char *argv[])
 
 /* Start a big loop for adding names. */
 
-   for (i=0; i<transactions; i++)
-   {
+    for (i=0; i<transactions; i++)
+    {
 
 /* Construct the last name. */
 
-   strcpy (last_name, "Smith");
-   sprintf(count, "%i", i); /* itoa (i, count, 10); */
-   strcat (last_name, count);
+        strcpy (last_name, "Smith");
+        sprintf(count, "%i", i); /* itoa (i, count, 10); */
+        strcat (last_name, count);
 
 /* Create the record. */
 
-   if (error = NSFNoteCreate (db_handle, &note_handle))
-      goto Done2;
+        if (error = NSFNoteCreate (db_handle, &note_handle))
+            goto Done2;
 
 
 /* Add all the fields. */
 
-   if (error = NSFItemSetText ( note_handle, 
-               "Form",
-               "Person",
-               MAXWORD))
-      goto Done3;
+        if (error = NSFItemSetText ( note_handle, 
+                    "Form",
+                    "Person",
+                    MAXWORD))
+            goto Done3;
 
-   if (error = NSFItemSetText ( note_handle,
-               "Type",
-               "Person",
-               MAXWORD))
-      goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "Type",
+                    "Person",
+                    MAXWORD))
+            goto Done3;
 
-   if (error = NSFItemSetText ( note_handle,
-               "FirstName",
-               "John",
-               MAXWORD))
-      goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "FirstName",
+                    "John",
+                    MAXWORD))
+            goto Done3;
 
-   if (error = NSFItemSetText ( note_handle,
-               "LastName",
-               last_name,
-               MAXWORD))
-      goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "LastName",
+                    last_name,
+                    MAXWORD))
+            goto Done3;
 
-   if (error = NSFItemSetText ( note_handle,
-               "MailDomain",
-               "NOTES",
-               MAXWORD))
-      goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "MailDomain",
+                    "NOTES",
+                    MAXWORD))
+            goto Done3;
 
-   if (error = NSFItemSetText ( note_handle,
-               "MailFile",
-               "MAIL\\JSMITH",
-               MAXWORD))
-      goto Done3;
+        if (error = NSFItemSetText ( note_handle,
+                    "MailFile",
+                    "MAIL\\JSMITH",
+                    MAXWORD))
+            goto Done3;
 
 /* Write the new note to disk and close the note. */
 
-   if (error = NSFNoteUpdate (note_handle, 0))
-      goto Done3;
+        if (error = NSFNoteUpdate (note_handle, 0))
+            goto Done3;
 
-   if (error = NSFNoteClose (note_handle))
-      goto Done2;
+        if (error = NSFNoteClose (note_handle))
+            goto Done2;
 
 /* End of big loop that is adding records. */
 
-   }
+    }
 
 /* ************************************************** */
 /* Close the database */
 /* ************************************************** */
 
-   goto Done2;
+    goto Done2;
 
 
 Done3:
-   NSFNoteClose (note_handle);
+    NSFNoteClose (note_handle);
 
 Done2:
-   NSFDbClose (db_handle);
+    NSFDbClose (db_handle);
 
 Done1:
-   if (error)
-   {
-      PrintAPIError(error);
-      NotesTerm();
-      return(1);
-   }
+    if (error)
+    {
+        PRINTERROR(error,"NSFDbOpen");
+        NotesTerm();
+        return(1);
+    }
 
 /* ************************************************** */
 /* Get System TIME  . */
 /* ************************************************** */
 
-   OSCurrentTIMEDATE(&LastTime);
+    OSCurrentTIMEDATE(&LastTime);
 
-   time_delta= TimeDateDifference (&LastTime, &StartTime);
+    time_delta= TimeDateDifference (&LastTime, &StartTime);
 
-   printf ("It took %i seconds to add %i names\n", time_delta, transactions);
+    PRINTLOG ("It took %i seconds to add %i names\n", time_delta, transactions);
 
 /* ************************************************** */
 /* End of subroutine. */
 /* ************************************************** */
 
-   NotesTerm();
-   return(0);
+    NotesTerm();
+    return(0);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

@@ -93,10 +93,10 @@ LPWSTR	lpAppOleTitle	= OLESTR ("NotesFlow Demo");
 int WINAPI WinMain(
 	HINSTANCE	hInstance,
 	HINSTANCE	hPrevInstance,
-    LPSTR		lpCmdLine,
+	LPSTR		lpCmdLine,
 	int			nCmdShow
 ) {
-    MSG			msg;
+	MSG			msg;
 	BOOL		fInitSucceeded;
 	BOOL		fRegServer;
 	BOOL		fUnregServer;
@@ -274,7 +274,7 @@ BOOL InitApplication (
 BOOL InitInstance (
     HINSTANCE	hInstance,
     int			nCmdShow,
-	BOOL		fStartedByOle
+    BOOL		fStartedByOle
 ) {
 		// Check the OLE version number
 	DWORD		dwOleVersion = ::OleBuildVersion ();
@@ -347,7 +347,7 @@ BOOL TermInstance (
 LRESULT CALLBACK AppWndProc (
 	HWND	hWnd,
 	UINT	message,
-    WPARAM	wParam,
+	WPARAM	wParam,
 	LPARAM	lParam
 ) {
     switch (message)
@@ -429,7 +429,7 @@ LRESULT CALLBACK AppWndProc (
 LRESULT CALLBACK DocWndProc (
 	HWND	hWnd,
 	UINT	message,
-    WPARAM	wParam,
+	WPARAM	wParam,
 	LPARAM	lParam
 ) {
     switch (message)
@@ -514,7 +514,7 @@ LRESULT CALLBACK DocWndProc (
 LRESULT CALLBACK HatchWndProc (
 	HWND	hWnd,
 	UINT	message,
-    WPARAM	wParam,
+	WPARAM	wParam,
 	LPARAM	lParam
 ) {
     switch (message)
@@ -606,7 +606,7 @@ LRESULT CALLBACK HatchWndProc (
 BOOL CALLBACK AboutDlgProc (
 	HWND	hDlg,
 	UINT	message,
-    WPARAM	wParam,
+	WPARAM	wParam,
 	LPARAM	lParam
 ) {
     switch (message)

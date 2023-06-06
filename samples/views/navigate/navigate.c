@@ -56,6 +56,7 @@
 #include <nsferr.h>
 #include <niferr.h>
 #include <miscerr.h>
+#include <printLog.h>
 
 #include <lapiplat.h>
 
@@ -66,7 +67,6 @@
 /* Function prototypes */
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                                char *db_name, char *view_name);
-void PrintAPIError (STATUS);
 
 
 #define  STRING_LENGTH  256
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
    error = NotesInitExtended (argc, argv);
    if (error)
    {
-       printf("Error: Unable to initialize Notes. Error Code[0x%04x]\n", error);
+       PRINTLOG("Error: Unable to initialize Notes. Error Code[0x%04x]\n", error);
        return (1);
    }
 
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (db_filename, &db_handle))
    {
-       PrintAPIError(error);
+       PRINTERROR(error,"NSFDbOpen");
        NotesTerm();
        return(1);
    }
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
    if (error = NIFFindView (db_handle, view_name, &view_id))
    {
-       PrintAPIError(error);
+       PRINTERROR(error,"NIFFindView");
        NSFDbClose (db_handle);
        NotesTerm();
        return(1);
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
          NULLHANDLE))    /* handle to selected list (return) */
 
    {
-      PrintAPIError(error);
+      PRINTERROR(error,"NIFOpenCollection");
       NSFDbClose (db_handle);
       NotesTerm();
       return(1);
@@ -170,7 +170,7 @@ want to start at the beginning. */
           NULL))               /* share warning (return) */
 
    {
-      PrintAPIError(error);
+      PRINTERROR(error,"NIFReadEntries");
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
       NotesTerm();
@@ -194,7 +194,7 @@ want to start at the beginning. */
           NULL))               /* share warning (return) */
 
    {
-      PrintAPIError(error);
+      PRINTERROR(error,"NIFReadEntries");
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
       NotesTerm();
@@ -218,7 +218,7 @@ want to start at the beginning. */
           NULL))               /* share warning (return) */
 
    {
-       PrintAPIError(error);
+       PRINTERROR(error,"NIFReadEntries");
        NIFCloseCollection (coll_handle);
        NSFDbClose (db_handle);
        NotesTerm();
@@ -246,7 +246,7 @@ want to start at the beginning. */
              &signal_flag))       /* more flag and share warning (return) */
 
         {
-            PrintAPIError(error);
+            PRINTERROR(error,"NIFReadEntries");
             NIFCloseCollection (coll_handle);
             NSFDbClose (db_handle);
             NotesTerm();
@@ -262,7 +262,7 @@ null handle.) */
           NIFCloseCollection (coll_handle);
           NSFDbClose (db_handle);
           NotesTerm();
-          printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+          PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
           return(1);
       }
 
@@ -277,7 +277,7 @@ that don't point to a real note. */
 
       for (i=0; i<notes_found; i++)
           if (!(NOTEID_CATEGORY & id_list[i]))
-             printf ("Note ID number %lu is: %lX\n", ++note_count, id_list[i]);
+             PRINTLOG ("Note ID number %lu is: %lX\n", ++note_count, id_list[i]);
 
 /* Unlock the list of note IDs. */
 
@@ -296,7 +296,7 @@ that don't point to a real note. */
 
       if (error = NIFCloseCollection (coll_handle))
       {
-          PrintAPIError(error);
+          PRINTERROR(error,"NIFCloseCollection");
           NSFDbClose (db_handle);
           NotesTerm();
           return(1);
@@ -306,14 +306,14 @@ that don't point to a real note. */
 
       if (error = NSFDbClose (db_handle))
       {
-          PrintAPIError(error);
+          PRINTERROR(error,"NSFDbClose");
           NotesTerm();
           return(1);
       }
 
 /* End of subroutine. */
 
-      printf("\nProgram completed successfully.\n");
+      PRINTLOG("\nProgram completed successfully.\n");
 
       NotesTerm();
       return(0);
@@ -354,23 +354,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     } /* end if */
 } /* ProcessArgs */
 
-
-void PrintAPIError (STATUS api_error)
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}

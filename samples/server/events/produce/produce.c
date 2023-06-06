@@ -297,7 +297,7 @@ STATUS LNPUBLIC AddInMain(HMODULE hModule, int argc, char* argv[])
 
 					AddInLogMessageText(string4, NOERROR);
 					sleep(1);
-				receiveConsumermesg();
+					receiveConsumermesg();
 						count++;
 					if (count > 4)
 					{
@@ -316,7 +316,7 @@ STATUS LNPUBLIC AddInMain(HMODULE hModule, int argc, char* argv[])
 			 *  This is usually when the user has entered "quit" to the server console.
 			 * Clean up anything we have been doing.
 			 */
-			 AddInSetStatusText(string5);
+			AddInSetStatusText(string5);
 			AddInLogMessageText(string16, NOERROR);
 			AddInSetStatusText(string5);
 			AddInLogMessageText(string6, NOERROR);

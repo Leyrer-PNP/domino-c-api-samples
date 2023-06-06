@@ -192,8 +192,8 @@ BOOL LNPUBLIC PutPabRef(char far * far *ppBuf,
                           WORD wLength)
 {
     CDPABREFERENCE  CDPabRef;      /* style reference for this para */
-    BYTE        bLength =  (BYTE) ODSLength(_CDPABREFERENCE);
-    BYTE        bSig  =  (BYTE)SIG_CD_PABREFERENCE;
+    BYTE            bLength =  (BYTE) ODSLength(_CDPABREFERENCE);
+    BYTE            bSig  =  (BYTE)SIG_CD_PABREFERENCE;
     
 
     /* If not enough space in buffer for this struct, then exit.      */

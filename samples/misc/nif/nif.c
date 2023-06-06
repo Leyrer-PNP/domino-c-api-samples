@@ -61,13 +61,13 @@
 #include <misc.h>
 #include <miscerr.h>
 #include <editods.h>
+#include <printLog.h>
 
 #define  STRING_LENGTH  256
 
 /* Local function prototypes. */
 
 void  LNPUBLIC  ProcessArgs (int argNumber, char *szArgVector[], char *szDBFileName, char *szTimeVariantView, char *szViewName);
-void PrintAPIError (STATUS);
 BOOL LNPUBLIC NIFCollectionUpToDateTest(DHANDLE hDB, NOTEID noteid);
 void LNPUBLIC NIFIsNoteInViewTest(DHANDLE hDB, NOTEID viewnoteid, NOTEID testnoteid);
 BOOL LNPUBLIC NIFIsTimeVariantViewTest(DHANDLE hDB, NOTEID viewnoteid);
@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 
 	if (error)
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NotesInitExtended")
 		return (1);
 	}
 
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 
 	if (error = NSFDbOpen (szDbName, &hDbHandle))
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NSFDbOpen");
 		goto Exit1;
 	}
 
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
 
 	if (error = NIFFindView (hDbHandle, szViewName, &viewid))
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NIFFindView");
 		goto Exit0;
 	}
 	
@@ -153,12 +153,12 @@ int main(int argc, char* argv[])
 
 	if (error = NIFFindView (hDbHandle, szTimeVariantView, &TimeVariantViewid))
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NIFFindView");
 		goto Exit0;
 	}
 
-	printf("\nTesting NIFIsTimeVariantViewTest:\n");
-	printf("--------------------------------\n");
+	PRINTLOG("\nTesting NIFIsTimeVariantViewTest:\n");
+	PRINTLOG("--------------------------------\n");
 
 	/* Checks whether the view is a time varying view or 
 	any type of view that is rebuilt on each open. */
@@ -166,36 +166,36 @@ int main(int argc, char* argv[])
 	bResult = NIFIsTimeVariantViewTest(hDbHandle, TimeVariantViewid);
 	if (bResult == TRUE)
 	{
-		printf("In %s, the view \"%s\" is a Time Variant View.\n",szDbName, szTimeVariantView);
-		printf("NIFIsTimeVariantViewTest was successful.\n\n");
+		PRINTLOG("In %s, the view \"%s\" is a Time Variant View.\n",szDbName, szTimeVariantView);
+		PRINTLOG("NIFIsTimeVariantViewTest was successful.\n\n");
 	}
 	else
 	{
-		printf("NIFIsTimeVariantViewTest failed.\n\n");
+		PRINTLOG("NIFIsTimeVariantViewTest failed.\n\n");
 	}
 
-	printf("\nTesting NIFReadEntriesExtTest:\n");
-	printf("-------------------------------\n");	
-	printf("Reading NSF file.\n");
+	PRINTLOG("\nTesting NIFReadEntriesExtTest:\n");
+	PRINTLOG("-------------------------------\n");	
+	PRINTLOG("Reading NSF file.\n");
 
 	/* Reads the entries and gets the last updated time of the NSF file. */
 
 	if (NIFReadEntriesExtTest (hDbHandle, viewid))
 	{
-		printf("NIFReadEntriesExtTest was successful.\n\n");
+		PRINTLOG("NIFReadEntriesExtTest was successful.\n\n");
 	}
 	else
 	{
-		printf("NIFReadEntriesExtTest failed.\n");
+		PRINTLOG("NIFReadEntriesExtTest failed.\n");
 		goto Exit0;
 	}
 	
 
 	/* Creates a notes document in NSF file. */
 
-	printf("Creating note in NSF file:\n");
-	printf("----------------------------\n");
-	printf("Adding a note into NSF file.\n");
+	PRINTLOG("Creating note in NSF file:\n");
+	PRINTLOG("----------------------------\n");
+	PRINTLOG("Adding a note into NSF file.\n");
 
 	if (!NSFNoteCreateTest (hDbHandle))
 	{
@@ -206,11 +206,11 @@ int main(int argc, char* argv[])
 
 	if (NIFCollectionUpToDateTest (hDbHandle, viewid))
 	{
-		printf("NIFCollectionUpToDateTest was successful.\n");
+		PRINTLOG("NIFCollectionUpToDateTest was successful.\n");
 	}
 	else
 	{
-		printf("NIFCollectionUpToDateTest failed.\n");
+		PRINTLOG("NIFCollectionUpToDateTest failed.\n");
 	}
 
 
@@ -228,7 +228,7 @@ int main(int argc, char* argv[])
 		NULLHANDLE,				/* handle to collapsed list */
 		NULLHANDLE))			/* handle to selected list */
 	{
-		PrintAPIError (error);
+		PRINTERROR(error,"NIFOpenCollection");
 		goto Exit0;
 	}
 
@@ -256,7 +256,7 @@ int main(int argc, char* argv[])
 			&wSignalFlag))		/* share warning and more signal flag */
 		{
 			NIFCloseCollection(hCollection);
-			PrintAPIError (error);
+			PRINTERROR (error,"NIFReadEntries");
 			goto Exit0;
 		}
 
@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
 		if (hBuffer == NULLHANDLE)
 		{
 			NIFCloseCollection(hCollection);
-			printf("\nEmpty buffer returned by NIFReadEntries.\n");
+			PRINTLOG("\nEmpty buffer returned by NIFReadEntries.\n");
 			goto Exit0;
 		}
 
@@ -302,35 +302,35 @@ int main(int argc, char* argv[])
 
 	} while (wSignalFlag & SIGNAL_MORE_TO_DO);
 	
-	printf("\nTesting NIFGetViewRebuildDir:\n");
-	printf("----------------------------\n");
+	PRINTLOG("\nTesting NIFGetViewRebuildDir:\n");
+	PRINTLOG("----------------------------\n");
 
 	if (NIFGetViewRebuildDirTest ())
 	{
-		printf("NIFGetViewRebuildDir was successful.\n");
+		PRINTLOG("NIFGetViewRebuildDir was successful.\n");
 	}
 
 	/* Close the collction. */
 
 	if (error = NIFCloseCollection (hCollection))
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NIFCloseCollection");
 		goto Exit0;
 	}
 	
 	/* Check NIFReadEntriesExt after adding document to NSF file. */
 
-	printf("\nTesting NIFReadEntriesExtTest after changing NSF file:\n");
-	printf("------------------------------------\n");
-	printf("Printing the entries after updating NSF file.\n"); 
+	PRINTLOG("\nTesting NIFReadEntriesExtTest after changing NSF file:\n");
+	PRINTLOG("------------------------------------\n");
+	PRINTLOG("Printing the entries after updating NSF file.\n"); 
 	
 	if (NIFReadEntriesExtTest (hDbHandle, viewid))
 	{
-		printf("NIFReadEntriesExtTest was successful.\n");
+		PRINTLOG("NIFReadEntriesExtTest was successful.\n");
 	}
 	else
 	{
-		printf("NIFReadEntriesExtTest failed.\n");
+		PRINTLOG("NIFReadEntriesExtTest failed.\n");
 		goto Exit0;
 	}
 
@@ -339,7 +339,7 @@ int main(int argc, char* argv[])
 
 	if (error = NSFDbClose (hDbHandle))
 	{
-		PrintAPIError(error);
+		PRINTERROR (error,"NSFDbClose");
 		goto Exit1;
 	}
 
@@ -351,12 +351,12 @@ Exit1:
 	
 	if (error == NOERROR)
 	{
-		printf("\nProgram completed successfully.\n");
+		PRINTLOG("\nProgram completed successfully.\n");
 		return (0);
 	}
 	else
 	{
-		printf("\nProgram completed with errors.\n");
+		PRINTLOG("\nProgram completed with errors.\n");
 		return 1;
 	}
 }
@@ -383,12 +383,12 @@ BOOL LNPUBLIC NIFGetViewRebuildDirTest()
 
 	if (NIFGetViewRebuildDir (szTempDir, sizeof(szTempDir) - 1))
 	{
-		printf("The rebuild directory is %s.\n", szTempDir);
+		PRINTLOG("The rebuild directory is %s.\n", szTempDir);
 		return TRUE;
 	}
 	else
 	{
-		printf("NIFGetViewRebuildDir failed.\n");
+		PRINTLOG("NIFGetViewRebuildDir failed.\n");
 		return FALSE;
 	}
 }
@@ -417,7 +417,7 @@ BOOL LNPUBLIC NIFIsTimeVariantViewTest(DHANDLE hDb, NOTEID ViewID)
 
 	if (error = NIFOpenCollection (hDb, hDb, ViewID, 0, NULLHANDLE, &hCollection, NULL, NULL, NULL, NULL))
 	{
-		PrintAPIError(error);
+		PRINTERROR (error,"NIFOpenCollection");
 		return FALSE;
 	}
 	
@@ -459,27 +459,28 @@ BOOL LNPUBLIC NIFCollectionUpToDateTest(DHANDLE hDB, NOTEID noteid)
 	WORD wUpdateFlags2 = 0;
 	HCOLLECTION hCollection = NULLHANDLE;
 
-	printf("\nTesting NIFCollectionUpToDateTest:\n");
-	printf("---------------------------------\n");
+	PRINTLOG("\nTesting NIFCollectionUpToDateTest:\n");
+	PRINTLOG("---------------------------------\n");
 
 	status = NIFOpenCollection(hDB, hDB, noteid, wUpdateFlags, NULLHANDLE, &hCollection, NULL, NULL, NULL, NULL);
 
 	if (status)
 	{
-		PrintAPIError(status);
+		PRINTERROR (status,"NIFOpenCollection");
 		return FALSE;
 	}
 
-	/* Checks whether the collection is up to date and if it isn't, updates it. */
+	/* Checks whether the collection is up to date and check if update is in progress
+	 * if it isn't, updates it. */
 
-	if (!NIFCollectionUpToDate (hCollection))
+	if (!NIFCollectionUpToDate (hCollection) && !NIFIsUpdateInProgress(hCollection))
 	{
-		printf("\nNIFCollection is not up to date; updating now.\n");
+		PRINTLOG("\nNIFCollection is not up to date; updating now.\n");
 		status = NIFUpdateCollection(hCollection);
 		
 		if (status)
 		{
-			PrintAPIError(status);
+			PRINTERROR (status,"NIFUpdateCollection");
 			return FALSE;
 		}
 
@@ -487,17 +488,17 @@ BOOL LNPUBLIC NIFCollectionUpToDateTest(DHANDLE hDB, NOTEID noteid)
 
 		if (NIFCollectionUpToDate (hCollection))
 		{
-			printf("\nNIFCollection is up to date.\n");
+			PRINTLOG("\nNIFCollection is up to date.\n");
 		}
 	}
 	else
 	{
-		printf("\nNIFCollection is up to date.\n");
+		PRINTLOG("\nNIFCollection is up to date.\n");
 	}
 	
 	if (status)
 	{
-		PrintAPIError(status);
+		PRINTERROR (status, "NIFOpenCollection");
 		NIFCloseCollection(hCollection);
 		return FALSE;
 	}
@@ -531,29 +532,33 @@ void LNPUBLIC NIFIsNoteInViewTest(DHANDLE hDB, NOTEID viewnoteid, NOTEID testnot
 	WORD wUpdateFlags2 = 0;
 	HCOLLECTION hCollection = NULLHANDLE;
 
-	printf("\nTesting NIFIsNoteInViewTest:\n");
-	printf("-----------------------------\n");
+	PRINTLOG("\nTesting NIFIsNoteInViewTest:\n");
+	PRINTLOG("-----------------------------\n");
 
 	error = NIFOpenCollection(hDB, hDB, viewnoteid, wUpdateFlags, NULLHANDLE, &hCollection, NULL, NULL, NULL, NULL);
 
 	if (error)
 	{
-		PrintAPIError(error);
+		PRINTERROR (error, "NIFOpenCollection");
 		return;
 	}
 
 	if (error = NIFIsNoteInView (hCollection, testnoteid, &bResult))
 	{
-		PrintAPIError(error);
+		PRINTERROR (error,"NIFIsNoteInView");
 		NIFCloseCollection(hCollection);
 		return;
 	}
 	else
 	{
 		if (bResult)
-			printf("ID  = %d found in collection.\n",testnoteid);
+		{
+			PRINTLOG("ID  = %d found in collection.\n",testnoteid);
+		}
 		else
-			printf("ID  = %d not found in collection.\n", testnoteid);
+		{
+			PRINTLOG("ID  = %d not found in collection.\n", testnoteid);
+		}
 	}
 	NIFCloseCollection(hCollection);
 	return;
@@ -619,7 +624,7 @@ STATUS PrintSummary (BYTE *pSummary)
 	ItemCount = ItemTable.Items;
 	if (ItemCount > MAX_ITEMS)
 	{
-		printf ("Summary contains %d items - only printing the first %d items.\n", ItemCount, MAX_ITEMS);
+		PRINTLOG ("Summary contains %d items - only printing the first %d items.\n", ItemCount, MAX_ITEMS);
 		ItemCount = MAX_ITEMS;
 	}
 
@@ -644,7 +649,7 @@ STATUS PrintSummary (BYTE *pSummary)
 
 		if (ItemLength[count] == 0)
 		{
-			printf ("  *  ");
+			PRINTLOG ("  *  ");
 			continue;
 		}
 		else if (ItemLength[count] >= MAX_ITEM_LEN)
@@ -702,7 +707,7 @@ STATUS PrintSummary (BYTE *pSummary)
 
 		/* Print the item (Add spaces so next item is separated). */
 
-		printf ("%s    ", szItemText);
+		PRINTLOG ("%s    ", szItemText);
 
 		/* Advance to next item in the pSummary. */
 
@@ -717,7 +722,7 @@ STATUS PrintSummary (BYTE *pSummary)
 
 	/* Print final line feed to end this pSummary display. */
 
-	printf (".\n");
+	PRINTLOG (".\n");
 
 	/* End of function. */
 
@@ -769,7 +774,7 @@ BOOL LNPUBLIC NIFReadEntriesExtTest(DHANDLE hDB, NOTEID ViewID)
 	error = NIFOpenCollection(hDB, hDB, ViewID, NULL, NULLHANDLE, &hCollection, NULL, NULL, NULL, NULL);
 	if (error)
 	{
-		PrintAPIError(error);
+		PRINTERROR (error,"NIFOpenCollection");
 		return FALSE;
 	}
 
@@ -800,18 +805,18 @@ BOOL LNPUBLIC NIFReadEntriesExtTest(DHANDLE hDB, NOTEID ViewID)
 
 		{
 			NIFCloseCollection (hCollection);
-			PrintAPIError (error);
+			PRINTERROR (error,"NIFReadEntriesExt");
 			return FALSE;
 		}
 		
 		if (hBuffer == NULL)
 		{
-			printf("Empty buffer returned by NIFReadEntriesExt.\n");
+			PRINTLOG("Empty buffer returned by NIFReadEntriesExt.\n");
 		}
 		else
 		{
 			pBuffer = (BYTE *) OSLockObject (hBuffer);
-			printf ("\n");
+			PRINTLOG ("\n");
 			for (dwIndex = 1; dwIndex <= dwEntriesFound; dwIndex++)
 			{
 				memcpy (&EntryID, pBuffer, sizeof(EntryID));
@@ -824,7 +829,7 @@ BOOL LNPUBLIC NIFReadEntriesExtTest(DHANDLE hDB, NOTEID ViewID)
 					OSUnlockObject (hBuffer);
 					OSMemFree (hBuffer);
 					NIFCloseCollection (hCollection);
-					PrintAPIError (error);  
+					PRINTERROR (error,"PrintSummary");
 					return FALSE;
 				}
 			}
@@ -835,7 +840,7 @@ BOOL LNPUBLIC NIFReadEntriesExtTest(DHANDLE hDB, NOTEID ViewID)
 	
 	if (error = NIFCloseCollection (hCollection))
 	{
-		PrintAPIError (error);  
+		PRINTERROR (error, "NIFCloseCollection");
 		return FALSE;
 	}
 
@@ -843,10 +848,10 @@ BOOL LNPUBLIC NIFReadEntriesExtTest(DHANDLE hDB, NOTEID ViewID)
 
 	if (error = ConvertTIMEDATEToText (NULL, NULL, &tdRetDiffTime, szRetTextBuffer, MAXALPHATIMEDATE+1, &wRetTextLength))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"ConvertTIMEDATEToText");
 		return FALSE;
 	}
-	printf("Last update to NSF file was on = %s.\n", szRetTextBuffer);
+	PRINTLOG("Last update to NSF file was on = %s.\n", szRetTextBuffer);
 	return TRUE;
 }
 
@@ -874,7 +879,7 @@ BOOL LNPUBLIC NSFNoteCreateTest(DHANDLE hDB)
 
 	if (error = NSFNoteCreate (hDB, &hNote))
 	{
-		PrintAPIError (error);  
+		PRINTERROR (error,"NSFNoteCreate");
 		return FALSE;
 	}
 
@@ -883,7 +888,7 @@ BOOL LNPUBLIC NSFNoteCreateTest(DHANDLE hDB)
 	if (error = NSFItemSetText (hNote, "FORM", "Main View", MAXWORD))
 	{
 		NSFNoteClose (hNote);
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFItemSetText");
 		return FALSE;
 	}
 
@@ -892,7 +897,7 @@ BOOL LNPUBLIC NSFNoteCreateTest(DHANDLE hDB)
 	if (error = NSFItemSetText ( hNote, "PLAIN_TEXT", "Notes document created to test NIFReadEntriesExt", MAXWORD))
 	{
 		NSFNoteClose (hNote);
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFItemSetText");
 		return FALSE;
 	}
 
@@ -901,7 +906,7 @@ BOOL LNPUBLIC NSFNoteCreateTest(DHANDLE hDB)
 	if (error = NSFItemSetText ( hNote, "NUMBER", "15", 2))
 	{
 		NSFNoteClose (hNote);
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFItemSetText");
 		return FALSE;
 	}
 	
@@ -910,47 +915,26 @@ BOOL LNPUBLIC NSFNoteCreateTest(DHANDLE hDB)
 	if (error = NSFItemSetText ( hNote, "TIME_DATE", "15-12-1997", 10))
 	{
 		NSFNoteClose (hNote);
-		PrintAPIError (error);
+		PRINTERROR (error, "NSFItemSetText");
 		return FALSE;
 	}
 
 	if (error = NSFNoteUpdate (hNote, 0))
 	{
 		NSFNoteClose (hNote);
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFNoteUpdate");
 		return FALSE;
 	}
 	
 	if (error = NSFNoteClose (hNote))
 	{
-		PrintAPIError (error);
+		PRINTERROR (error,"NSFNoteClose");
 		return FALSE;
 	}
-	printf("Updating and closing note.\n");
+	PRINTLOG("Updating and closing note.\n");
 	return TRUE;
 }
 
-/* This function prints the error message associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-	STATUS  string_id = ERR(api_error);
-	char    szErrorText[256] = {0};
-	WORD    wTextLen = 0;
-
-	/* Get the message for this error code from the resource string table. */
-
-	wTextLen = OSLoadString (NULLHANDLE,
-		string_id,
-		szErrorText,
-		sizeof(szErrorText));
-
-	/* Print error message. */
-
-	fprintf (stderr, "\n%s.\n", szErrorText);
-
-}
 
 /************************************************************************
 

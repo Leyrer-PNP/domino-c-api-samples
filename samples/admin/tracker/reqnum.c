@@ -45,6 +45,7 @@
 #include <names.h>                      /* MAXUSERNAME */
 #include <nsfdb.h>                      /* DBHOOKVEC */
 #include <nsfdata.h>                    /* LIST */
+#include <printLog.h>
 
 /* Application-specific include files */
 #include "tracker.h"                    /* REQNUM_FILENAME */
@@ -73,7 +74,7 @@ int main (int argc, char *argv[])
 
     if (pReqNumFile == (FILE*)NULL)
     {
-        printf("Error: unable to open file '%s': %d.\n",
+        PRINTLOG("Error: unable to open file '%s': %d.\n",
                             REQNUM_FILENAME, errno);
         return 0;
     }
@@ -84,7 +85,7 @@ int main (int argc, char *argv[])
 
     if (count != 1)
     {
-        printf("Error: error writing file '%s' : %d.\n",
+        PRINTLOG("Error: error writing file '%s' : %d.\n",
                             REQNUM_FILENAME, errno);
     }
 

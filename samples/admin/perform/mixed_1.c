@@ -61,13 +61,10 @@
 #include <ostime.h>
 #include <misc.h>
 #include <osmisc.h>
-
+#include <printLog.h>
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
 
 /* HCL C API for Notes/Domino subroutine */
 
@@ -105,33 +102,33 @@ int main (int argc, char *argv[])
 /* Get the input parameters. */
 /* ************************************************** */
 
-   if (argc != 3)
-      {
-      printf ("\nUsage:  MIXED_1  <database pathname>  <number of transaction>\n");
+    if (argc != 3)
+    {
+      PRINTLOG ("\nUsage:  MIXED_1  <database pathname>  <number of transaction>\n");
       return (0);
-      }
+    }
 
    db_path = argv[1];
    transactions = atoi(argv[2]);
 
-   printf ("\n***** MIXED_1 Test Begins ******\n");
+   PRINTLOG ("\n***** MIXED_1 Test Begins ******\n");
 
-   if (error = NotesInitExtended (argc, argv))
-      {
-      printf("\nUnable to initialize Notes.\n");
+    if (error = NotesInitExtended (argc, argv))
+    {
+      PRINTLOG("\nUnable to initialize Notes.\n");
       return(1);
-      }
+    }
  
 /* ************************************************** */
 /* Open the database. */
 /* ************************************************** */
 
-   if (error = NSFDbOpen (db_path, &db_handle))
-   {
-      PrintAPIError (error);
+    if (error = NSFDbOpen (db_path, &db_handle))
+    {
+      PRINTERROR (error,"NSFDbOpen");
       NotesTerm();
       return (1);
-   }
+    }
 
 /* ************************************************** */
 /* Get System TIME  . */
@@ -157,12 +154,12 @@ int main (int argc, char *argv[])
 /* Create the record. */
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
-      {
+   {
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFNoteCreate");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* Add all the fields. */
 
@@ -170,92 +167,92 @@ int main (int argc, char *argv[])
                "Form",
                "Person",
                MAXWORD))
-      {
+   {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFItemSetText");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (error = NSFItemSetText ( note_handle,
                "Type",
                "Person",
                MAXWORD))
-      {
+   {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFItemSetText");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (error = NSFItemSetText ( note_handle,
                "FirstName",
                "Charles",
                MAXWORD))
-      {
+   {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFItemSetText");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (error = NSFItemSetText ( note_handle,
                "LastName",
                last_name,
                MAXWORD))
-      {
+   {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFItemSetText");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (error = NSFItemSetText ( note_handle,
                "MailDomain",
                "NOTES",
                MAXWORD))
-      {
+   {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFItemSetText");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (error = NSFItemSetText ( note_handle,
                "MailFile",
                "MAIL\\CCONNELL",
                MAXWORD))
-      {
+   {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFItemSetText");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* Write the new note to disk and close the note. */
 
    if (error = NSFNoteUpdate (note_handle, 0))
-      {
+   {
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFNoteUpdate");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (error = NSFNoteClose (note_handle))
-      {
+   {
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFNoteClose");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* End of big loop that is adding records. */
 
@@ -269,7 +266,7 @@ int main (int argc, char *argv[])
  
    time_delta= TimeDateDifference (&LastTime, &StartTime);
  
-   printf ("It took %i seconds to add %i names with no index usage at all\n", time_delta, transactions/3);
+   PRINTLOG ("It took %i seconds to add %i names with no index usage at all\n", time_delta, transactions/3);
 
 /* ************************************************** */
 /* Get System TIME  . */
@@ -282,12 +279,12 @@ int main (int argc, char *argv[])
 /* ************************************************** */
 
    if (error = NIFFindView (db_handle, "Contacts", &view_id))
-      {
+   {
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NIFFindView");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (error = NIFOpenCollection(
          db_handle,      /* handle of db with view */
@@ -300,12 +297,12 @@ int main (int argc, char *argv[])
          NULL,        /* universal note id of view (return) */
          NULLHANDLE,     /* handle to collapsed list (return) */
          NULLHANDLE))       /* handle to selected list (return) */
-      {
+   {
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NIFOpenCollection");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* ************************************************** */
 /* Get System TIME  . */
@@ -315,7 +312,7 @@ int main (int argc, char *argv[])
 
    time_delta= TimeDateDifference (&LastTime, &StartTime);
  
-   printf ("It took %i seconds to index Contacts view\n", time_delta);
+   PRINTLOG ("It took %i seconds to index Contacts view\n", time_delta);
 
 
 /* ************************************************** */
@@ -350,23 +347,23 @@ int main (int argc, char *argv[])
           &match_size);      /* how many match (return) */
 
    if (ERR(error) == ERR_NOT_FOUND) 
-      {
-      printf ("\nKey %s not found in the collection.\n",last_name);
+   {
+      PRINTLOG ("\nKey %s not found in the collection.\n",last_name);
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NIFFindByName");
       NotesTerm();
       return (1);
-      }
+   }
    
    if (error)
-      {
+   {
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NIFFindByName");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* Get the note IDs of all records with this key. */
 
@@ -384,37 +381,37 @@ int main (int argc, char *argv[])
       &notes_found,     /* entries read (return) */
       NULL))            /* signal and share warnings (return) */
 
-      {
+   {
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NIFReadEntries");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (buffer_handle == NULLHANDLE)
-      {
+   {
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+      PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
       NotesTerm();
       return (0);
-      }
+   }
 
    id_list = (NOTEID *) OSLockObject (buffer_handle);
 
 /* Open the first note with this key. */
 
    if (error = NSFNoteOpen (db_handle, id_list[0], 0, &note_handle))
-      {
+   {
       OSUnlockObject (buffer_handle);
       OSMemFree (buffer_handle);
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFNoteOpen");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* Get rid of the buffer of note IDs since we don't need it anymore. */
 
@@ -427,35 +424,35 @@ int main (int argc, char *argv[])
                                 "FirstName",
                                 "Janet",
                                 MAXWORD))
-      {
+   {
       NIFCloseCollection (coll_handle);
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFItemSetText");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* Update the on-disk copy of the note and close it. */
 
    if (error = NSFNoteUpdate (note_handle, 0))
-      {
+   {
       NIFCloseCollection (coll_handle);
       NSFNoteClose (note_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFNoteUpdate");
       NotesTerm();
       return (1);
-      }
+   }
 
    if (error = NSFNoteClose (note_handle))
-      {
+   {
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFNoteClose");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* End of big loop that is modifying many records. */
 
@@ -469,7 +466,7 @@ int main (int argc, char *argv[])
  
    time_delta= TimeDateDifference (&LastTime, &StartTime);
  
-   printf ("It took %i seconds to modify %i records \n", time_delta, transactions/3);
+   PRINTLOG ("It took %i seconds to modify %i records \n", time_delta, transactions/3);
 
 /* ************************************************** */
 /* Get System TIME  . */
@@ -482,13 +479,13 @@ int main (int argc, char *argv[])
 /* ************************************************** */
 
    if (error = NIFUpdateCollection(coll_handle))
-      {
+   {
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NIFUpdateCollection");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* ************************************************** */
 /* Get System TIME  . */
@@ -498,7 +495,7 @@ int main (int argc, char *argv[])
  
    time_delta= TimeDateDifference (&LastTime, &StartTime);
  
-   printf ("It took %i seconds to rebuild the index \n", time_delta);
+   PRINTLOG ("It took %i seconds to rebuild the index \n", time_delta);
 
 /* ************************************************** */
 /* Get System TIME  . */
@@ -517,90 +514,90 @@ int main (int argc, char *argv[])
 
 /* Construct a last name. */
 
-   strcpy (last_name, "Connell");
-   sprintf(count, "%i ", i);
-   strcat (last_name, count);
-   strcat (last_name,", Janet");
+      strcpy (last_name, "Connell");
+      sprintf(count, "%i ", i);
+      strcat (last_name, count);
+      strcat (last_name,", Janet");
 
 /* Look in the index for this name. */
 
-   error = NIFFindByName (
-          coll_handle,       /* collection to look in */
-          last_name,         /* string to match on */
-          FIND_CASE_INSENSITIVE,   /* match rules */
-          &coll_pos,         /* where match begins (return) */
-          &match_size);      /* how many match (return) */
+      error = NIFFindByName (
+              coll_handle,       /* collection to look in */
+              last_name,         /* string to match on */
+              FIND_CASE_INSENSITIVE,   /* match rules */
+              &coll_pos,         /* where match begins (return) */
+              &match_size);      /* how many match (return) */
 
-   if (ERR(error) == ERR_NOT_FOUND) 
+      if (ERR(error) == ERR_NOT_FOUND) 
       {
-      printf ("\nKey not found in the collection.\n");
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      NotesTerm();
-      return (0);
+          PRINTLOG ("\nKey not found in the collection.\n");
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          NotesTerm();
+          return (0);
       }
    
-   if (error)
+      if (error)
       {
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      PrintAPIError (error);
-      NotesTerm();
-      return (1);
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NIFFindByName");
+          NotesTerm();
+          return (1);
       }
 
 /* Get the note IDs of all records with this key. */
 
-   if (error = NIFReadEntries(
-          coll_handle,      /* handle to this collection */
-          &coll_pos,        /* where to start in collection */
-          NAVIGATE_CURRENT,       /* order to use when skipping */
-          0L,                  /* number to skip */
-          NAVIGATE_NEXT,       /* order to use when reading */
-          match_size,          /* max number to read */
-          READ_MASK_NOTEID,       /* info we want */
-          &buffer_handle,      /* handle to info (return)   */
-          NULL,          /* length of buffer (return) */
-          NULL,          /* entries skipped (return) */
-          &notes_found,     /* entries read (return) */
-          NULL))         /* signal and share warnings (return) */
+      if (error = NIFReadEntries(
+                  coll_handle,      /* handle to this collection */
+                  &coll_pos,        /* where to start in collection */
+                  NAVIGATE_CURRENT,       /* order to use when skipping */
+                  0L,                  /* number to skip */
+                  NAVIGATE_NEXT,       /* order to use when reading */
+                  match_size,          /* max number to read */
+                  READ_MASK_NOTEID,       /* info we want */
+                  &buffer_handle,      /* handle to info (return)   */
+                  NULL,          /* length of buffer (return) */
+                  NULL,          /* entries skipped (return) */
+                  &notes_found,     /* entries read (return) */
+                  NULL))         /* signal and share warnings (return) */
 
       {
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      PrintAPIError (error);
-      NotesTerm();
-      return (1);
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NIFReadEntries");
+          NotesTerm();
+          return (1);
       }
 
-   if (buffer_handle == NULLHANDLE)
+      if (buffer_handle == NULLHANDLE)
       {
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      printf ("\nEmpty buffer returned by NIFReadEntries.\n");
-      NotesTerm();
-      return (0);
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
+          NotesTerm();
+          return (0);
       }
 
-   id_list = (NOTEID *) OSLockObject (buffer_handle);
+      id_list = (NOTEID *) OSLockObject (buffer_handle);
 
 /* Delete the first note with this key. */
 
-   if (error = NSFNoteDelete (db_handle, id_list[0], 0))
+      if (error = NSFNoteDelete (db_handle, id_list[0], 0))
       {
-      OSUnlockObject (buffer_handle);
-      OSMemFree (buffer_handle);
-      NIFCloseCollection (coll_handle);
-      NSFDbClose (db_handle);
-      PrintAPIError (error);
-      NotesTerm();
-      return (1);
+          OSUnlockObject (buffer_handle);
+          OSMemFree (buffer_handle);
+          NIFCloseCollection (coll_handle);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFNoteDelete");
+          NotesTerm();
+          return (1);
       }
 
 /* Get rid of the buffer of note IDs. */
 
-   OSUnlockObject (buffer_handle);
-   OSMemFree (buffer_handle);
+      OSUnlockObject (buffer_handle);
+      OSMemFree (buffer_handle);
 
 /* End of big loop that is deleting many records. */
 
@@ -614,30 +611,30 @@ int main (int argc, char *argv[])
  
    time_delta= TimeDateDifference (&LastTime, &StartTime);
  
-   printf ("It took %i seconds to delete %i records \n", time_delta, transactions/3);
+   PRINTLOG ("It took %i seconds to delete %i records \n", time_delta, transactions/3);
 
 /* ************************************************** */
 /* Close the index. */
 /* ************************************************** */
 
    if (error = NIFCloseCollection (coll_handle))
-      {
+   {
       NSFDbClose (db_handle);
-      PrintAPIError (error);
+      PRINTERROR (error,"NIFCloseCollection");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* ************************************************** */
 /* Close the database */
 /* ************************************************** */
 
    if (error = NSFDbClose (db_handle))
-      {
-      PrintAPIError (error);
+   {
+      PRINTERROR (error,"NSFDbClose");
       NotesTerm();
       return (1);
-      }
+   }
 
 /* ************************************************** */
 /* End of subroutine. */
@@ -646,28 +643,3 @@ int main (int argc, char *argv[])
    NotesTerm();
    return(0);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

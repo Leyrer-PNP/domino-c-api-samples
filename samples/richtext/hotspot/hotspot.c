@@ -208,6 +208,7 @@
 #include <stdnames.h>
 #include <agents.h>
 #include <kfm.h>
+#include <printLog.h>
 
 /*
  *  Local includes
@@ -263,8 +264,6 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
                                WORD wBufferSize);
 
 
-void PrintAPIError (STATUS);
-
 /*
  *  Body of main program
  */
@@ -279,11 +278,11 @@ int main(int argc, char *argv[])
 
     /*   Start by calling Notes Init.  */
 
-	if (sError = NotesInitExtended (argc, argv))
-	{
-        printf("\n Unable to initialize Notes.\n");
+    if (sError = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
 
     /* Open the Database, assuming it's been created with the   */
@@ -291,7 +290,7 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen(szNSFFile, &hDbNSFFile))
     {
-        PrintAPIError (sError);
+        PRINTERROR (sError,"NSFDbOpen");
         NotesTerm();
         return (1);
     }
@@ -301,7 +300,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteCreate(hDbNSFFile, &hNewNote))
     {
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-        PrintAPIError (sError);
+        PRINTERROR (sError,"NSFNoteCreate");
         NotesTerm();
         return (1);
     }
@@ -315,7 +314,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-        PrintAPIError (sError);
+        PRINTERROR (sError,"NSFItemSetText");
         NotesTerm();
         return (1);
     }
@@ -329,7 +328,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-        PrintAPIError (sError);
+        PRINTERROR (sError,"NSFItemSetText");
         NotesTerm();
         return (1);
     }
@@ -344,7 +343,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNewNote);    /* Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* Close database before exit.*/
-        PrintAPIError (sError);
+        PRINTERROR (sError,"InsertRichText");
         NotesTerm();
         return (1);
     }
@@ -355,7 +354,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-        PrintAPIError (sError);
+        PRINTERROR (sError,"NSFNoteUpdate");
         NotesTerm();
         return (1);
     }
@@ -365,7 +364,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-        PrintAPIError (sError);
+        PRINTERROR (sError,"NSFNoteLSCompile");
         NotesTerm();
         return (1);
     }
@@ -376,7 +375,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-        PrintAPIError (sError);
+        PRINTERROR (sError,"NSFNoteUpdate");
         NotesTerm();
         return (1);
     }
@@ -387,17 +386,17 @@ int main(int argc, char *argv[])
     /* Now close the database.              */
 
     if (sError = NSFDbClose(hDbNSFFile))
-	{
-		PrintAPIError (sError);
+    {
+        PRINTERROR (sError,"NSFDbClose");
         NotesTerm();
         return (1);
-	}
+    }
 
 
-    printf ("\nProgram completed successfully.\n");
+    PRINTLOG ("\nProgram completed successfully.\n");
 
     /* Return normally.  */
-	NotesTerm();
+    NotesTerm();
     return (0);
 
 }
@@ -759,8 +758,8 @@ STATUS InsertPopup(NOTEHANDLE hNote,
  */
 
     if (sError = PutHotSpotEnd(ppCDBuffer,
-                           (WORD)(wBufferSize - *pwItemSize),
-                           pwItemSize))
+                 (WORD)(wBufferSize - *pwItemSize),
+                 pwItemSize))
     {
         return (ERR(sError));
     }
@@ -1535,7 +1534,7 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
 
     if (sError )
     { 
-       printf("Error: Error in AgentLSTextFormat.\n");
+       PRINTLOG("Error: Error in AgentLSTextFormat.\n");
        goto Exit1;
     }
 
@@ -1544,7 +1543,7 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
     if (hErrorBuffer)
     {
        pFormattedLS=OSLock(char,hErrorBuffer);
-       printf("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
+       PRINTLOG("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
        OSUnlock(hErrorBuffer);
        sError=1;
        goto Exit1;
@@ -1691,32 +1690,3 @@ Exit1:
     return (sError);
 }
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    printf ("\n%s\n", error_text);
-}

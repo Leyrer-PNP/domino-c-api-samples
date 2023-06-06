@@ -52,6 +52,7 @@
 #include <osmem.h>
 #include <miscerr.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -63,7 +64,6 @@
 #define CLOSE_COLLECTION 0x0002
 #define NAME_LEN 256
 
-void PrintAPIError (STATUS);
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                                char *dbName, char *viewName);
 
@@ -94,7 +94,7 @@ int main ( int argc, char *argv[])
 
    if (error = NotesInitExtended(argc, argv))
    {
-      printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+      PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
       return(1);
    }
 
@@ -169,7 +169,7 @@ want to start at the beginning. */
 
       if (hBuffer == NULLHANDLE)
       {
-         printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+         PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
          goto exit1;
       }
 
@@ -181,11 +181,11 @@ the resulting pointer to the type we need. */
 /* Print out the list of note IDs found by this search. Don't print a note 
 ID if it is a "dummy" ID that stands for a category in the collection. */
 
-      printf ("\n");
+      PRINTLOG ("\n");
       for (i=0; i<EntriesFound; i++)
       {
          if (NOTEID_CATEGORY & IdList[i]) continue; 
-         printf ("Note count is %lu. \t Note ID is: %lX\n", 
+         PRINTLOG ("Note count is %lu. \t Note ID is: %lX\n", 
                  ++NotesFound, IdList[i]);
       }
 
@@ -211,12 +211,12 @@ exit1:
       NSFDbClose(hDB);
 
    if (error)
-      PrintAPIError(error);
+      PRINTERROR(error,"NIFOpenCollection");
 
    NotesTerm();
 
    if (returnCode==NOERROR && error==NOERROR)
-      printf("\nProgram completed successfully.\n");
+      PRINTLOG("\nProgram completed successfully.\n");
 
    if (returnCode)
       return(returnCode);
@@ -257,28 +257,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 
     } /* end if */
 } /* ProcessArgs */
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 

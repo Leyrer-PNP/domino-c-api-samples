@@ -66,6 +66,7 @@
 #include <idtable.h>
 #include <kfm.h>
 #include <osfile.h>
+#include <printLog.h>
 
 
 /* Form Names */
@@ -83,8 +84,6 @@ STATUS LNPUBLIC MakeNoteResponse (DBHANDLE db_handle, NOTEID main_nid,
  
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                                char *dbpath_name, char *subject); 
-
-void PrintAPIError (STATUS);
 
 STATUS PrintSummary (BYTE *);
 
@@ -159,7 +158,7 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NotesInitExtended");
         return (1);
     }
 
@@ -175,14 +174,14 @@ int main(int argc, char *argv[])
     /* To get current user name. */
     if (error = SECKFMGetUserName (szServerName))
     {
-        PrintAPIError (error);  
+        PRINTERROR (error,"SECKFMGetUserName");  
         NotesTerm();
         return (1);
     }
 
     if (error = OSPathNetConstruct (NULL, szServerName, szDBpathName, szFullPath))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"OSPathNetConstruct");
         NotesTerm();
         return (1);
     }
@@ -190,7 +189,7 @@ int main(int argc, char *argv[])
     /* Open the database. */
     if (error = NSFDbOpen (szFullPath, &db_handle))
     {
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbOpen");  
         NotesTerm();
         return (1);
     }
@@ -206,7 +205,7 @@ int main(int argc, char *argv[])
                 &wIgnore, &wIgnore, &wIgnore, &wIgnore); 
     if ( error != NOERROR )
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFFormulaCompile");
         goto exit;
     }
     /* To Delete the Documents in nsf file. */
@@ -222,7 +221,7 @@ int main(int argc, char *argv[])
                 NULL);
     if ( error != NOERROR ) 
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFSearch");
         goto exit;
     }
 
@@ -238,7 +237,7 @@ int main(int argc, char *argv[])
     /* Create Main note. */
     if (error = AddNewNote (db_handle, szFormName_Document, szSubject, &note_id1))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"AddNewNote");
         goto exit;
     }
 
@@ -249,7 +248,7 @@ int main(int argc, char *argv[])
     if (error = AddNewNote (db_handle, szFormName_Response, szRespSubject, 
                             &note_id2))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"AddNewNote");
         goto exit;
     }
 
@@ -261,7 +260,7 @@ int main(int argc, char *argv[])
     if (error = AddNewNote (db_handle, szFormName_ResponseToResponse,
                               szRespRespSubject,&note_id3))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"AddNewNote");
         goto exit;
     }
 
@@ -274,14 +273,14 @@ int main(int argc, char *argv[])
 
     if (error = MakeNoteResponse (db_handle, note_id1, note_id2))
     {
-        PrintAPIError (error);  
+        PRINTERROR (error,"MakeNoteResponse");  
         goto exit;
     }
 
     /*  Make the third note a response note to the second. */
     if (error = MakeNoteResponse (db_handle, note_id2, note_id3))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"MakeNoteResponse");
         goto exit;
     }
 
@@ -292,12 +291,12 @@ int main(int argc, char *argv[])
           ViewName, 
           &ViewID))
     {
-        PrintAPIError (error);  
+        PRINTERROR (error,"NIFFindView");  
         goto exit;
     }
 
-    printf("Testing NIFUpdateFilter:\n");
-    printf("------------------------\n");
+    PRINTLOG("Testing NIFUpdateFilter:\n");
+    PRINTLOG("------------------------\n");
     error = NSFDbGetUnreadNoteTable (
         db_handle,                     /* handle of the database */
         szUserName,                    /* Domino Administrator user name*/
@@ -307,7 +306,7 @@ int main(int argc, char *argv[])
 
     if ( error != NOERROR ) 
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFDbGetUnreadNoteTable");
         goto exit;
     }
 
@@ -315,7 +314,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbUpdateUnread (db_handle, hUnreadList))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbUpdateUnread");
         goto exit;
     }
 
@@ -333,13 +332,13 @@ int main(int argc, char *argv[])
          NULLHANDLE,     /* handle to collapsed list (return) */
          NULLHANDLE))    /* handle to selected list (return) */
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NIFOpenCollection");
         goto exit;
     }
 
     /* Number of entries of the id table handle. */
     dwUnreadCount = IDEntries(hUnreadList);
-    printf("Total unread documents in the database: %d.\n", dwUnreadCount);
+    PRINTLOG("Total unread documents in the database: %d.\n", dwUnreadCount);
 
     while(IDScan(hUnreadList,bFirst, &noteid))
     {
@@ -352,21 +351,21 @@ int main(int argc, char *argv[])
         if (error = IDDelete (hUnreadList, noteid, &bRetDeleted))
         {
             NIFCloseCollection(hCollection);
-            PrintAPIError (error);
+            PRINTERROR (error,"IDDelete");
             goto exit;
         }
-        printf("Deleted an entry in the id table.\n");
+        PRINTLOG("Deleted an entry in the id table.\n");
         /* Updates the unread filter. */
         if (error = NIFUpdateFilters (hCollection, FILTER_UNREAD))
         {
             NIFCloseCollection(hCollection);
-            PrintAPIError (error);
+            PRINTERROR (error,"NIFUpdateFilters");
             goto exit;
         }
 
         dwUnreadCount = IDEntries(hUnreadList);
-        printf("Total unread documents after using NIFUpdateFilters: %d.\n", dwUnreadCount);
-        printf("\nNIFUpdateFilters was successful.\n");
+        PRINTLOG("Total unread documents after using NIFUpdateFilters: %d.\n", dwUnreadCount);
+        PRINTLOG("\nNIFUpdateFilters was successful.\n");
     }
 
     /* Set a COLLECTIONPOSITION to the beginning of the collection. */
@@ -379,8 +378,8 @@ int main(int argc, char *argv[])
     all of the info about the 2nd entry, etc. For each entry, the info is
     arranged in the order of the bits in the READ_MASKs. */
 
-    printf("\nResponse documents:\n");
-    printf("--------------");
+    PRINTLOG("\nResponse documents:\n");
+    PRINTLOG("--------------");
     do
     {
         if (error = NIFReadEntries(
@@ -400,7 +399,7 @@ int main(int argc, char *argv[])
                                     (return) */
         {
             NIFCloseCollection (hCollection);
-            PrintAPIError (error);
+            PRINTERROR (error,"NIFReadEntries");
             goto exit;
         }
   
@@ -409,7 +408,7 @@ int main(int argc, char *argv[])
         if (hBuffer == NULLHANDLE)
         {
             NIFCloseCollection (hCollection);
-            printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+            PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
             goto exit; 
         }
 
@@ -421,7 +420,7 @@ int main(int argc, char *argv[])
         /* Start a loop that extracts the info about each collection entry from
         the information buffer. */
 
-        printf ("\n");
+        PRINTLOG ("\n");
         for (dwIndex = 1; dwIndex <= dwEntriesFound; dwIndex++)
         {
 
@@ -446,7 +445,7 @@ int main(int argc, char *argv[])
             /* If this entry is a category, say so. */
 
             if (NOTEID_CATEGORY & EntryID)
-                printf ("CATEGORY: ");
+                PRINTLOG ("CATEGORY: ");
 
             /* Call a local function to print the summary buffer. */
 
@@ -455,7 +454,7 @@ int main(int argc, char *argv[])
                 OSUnlockObject (hBuffer);
                 OSMemFree (hBuffer);
                 NIFCloseCollection (hCollection);
-                PrintAPIError (error);
+                PRINTERROR (error,"PrintSummary");
                 goto exit;
             }
 
@@ -481,7 +480,7 @@ int main(int argc, char *argv[])
 
     if (error = NIFCloseCollection (hCollection))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NIFCloseCollection");
         goto exit;
     }
 
@@ -493,12 +492,12 @@ exit:
     NotesTerm();
     if (error == NOERROR)
     {
-        printf("\nProgram completed successfully.\n");
+        PRINTLOG("\nProgram completed successfully.\n");
         return (0);
     }
     else
     {
-        printf("\nProgram completed with errors.\n");
+        PRINTLOG("\nProgram completed with errors.\n");
         return 1;
     }
 }
@@ -609,7 +608,7 @@ STATUS LNPUBLIC MakeNoteResponse (DBHANDLE db_handle,
  
     if (buf == NULL)
     {
-        printf ("malloc failed\n");
+        PRINTLOG ("malloc failed\n");
         return(ERR_MEMORY);
     }
 
@@ -756,7 +755,7 @@ entry in a collection.*/
 
    if (ItemCount > MAX_ITEMS)
    {
-      printf (
+      PRINTLOG (
          "Summary contains %d items - only printing the first %d items\n",
          ItemCount, MAX_ITEMS);
       ItemCount = MAX_ITEMS;
@@ -799,7 +798,7 @@ holder and go on to the next item in the pSummary. */
                     pSummaryPos,
                     ItemLength[i] - DATATYPE_SIZE);
             ItemText[ItemLength[i] - DATATYPE_SIZE] = '\0';
-             printf ("%s    ", ItemText);
+             PRINTLOG ("%s    ", ItemText);
 
 /* Advance to next item in the pSummary. */
 
@@ -811,40 +810,11 @@ holder and go on to the next item in the pSummary. */
 
 /* Print final line feed to end this pSummary display. */
 
-   printf ("\n");
+   PRINTLOG ("\n");
 
 /* End of function */
 
    return (NOERROR);
-
-}
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-        error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
 
 }
 

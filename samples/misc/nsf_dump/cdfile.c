@@ -433,8 +433,8 @@ STATUS LNPUBLIC NSFDUMPEnumCDFile(
 STATUS LNPUBLIC NSFDUMPGetFileSize (CDFILEHANDLE hCDFile, DWORD *rtnSize)
 {
     STATUS	err;
-	long	pos;
-	long	fileSize;
+    long	pos;
+    long	fileSize;
 
 	*rtnSize = 0L;
 

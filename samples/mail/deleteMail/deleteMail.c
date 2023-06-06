@@ -50,6 +50,7 @@
 #include <mail.h>
 #include <osmisc.h>
 #include <osmem.h>
+#include <printLog.h>
 
 
 #if !defined(ND64) 
@@ -61,9 +62,6 @@
 #define USASCII		"US-ASCII"
 #define MAX_DB_NAME	256
 
-
-/* function prototypes */
-void   PrintAPIError (STATUS);
 STATUS LNPUBLIC EnumProc(void far *, SEARCH_MATCH far *, ITEM_TABLE far *);
 
 /* Global variables */
@@ -95,17 +93,16 @@ int main(int argc, char * argv[])
     error = NotesInitExtended (argc, argv);
     if ( error != NOERROR )
     {
-        printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
         goto exit;
     }
     
     /* Check the input */
     if ( argc > 3 )
     {   
-        printf ("Error: incorrect syntax.\n");
-        printf ("\nUsage:%s <serverName> <database>\n", argv[0]);
-        printf("\nServerName is optional\n");
-	fflush(stdout);
+        PRINTLOG ("Error: incorrect syntax.\n");
+        PRINTLOG ("\nUsage:%s <serverName> <database>\n", argv[0]);
+        PRINTLOG("\nServerName is optional\n");
         NotesTerm();
         return 0;
     }
@@ -119,18 +116,16 @@ int main(int argc, char * argv[])
     {
    	if (!OSGetEnvironmentString("MAILSERVER", szServerName, MAXUSERNAME))
  	{
-               printf ("\nUnable to get mail server name ...\n\n ");
-	       fflush(stdout);
+               PRINTLOG ("\nUnable to get mail server name ...\n\n ");
                strcpy(szServerName,"");
    	}
         strncpy( szDbName, argv[1], MAX_DB_NAME-1); 
     }
     else 
     {
-        printf ("Error: incorrect syntax.\n");
-        printf ("\nUsage:%s <serverName> <database>\n", argv[0]);
-        printf("\nserverName is optional\n");
-	fflush(stdout);
+        PRINTLOG ("Error: incorrect syntax.\n");
+        PRINTLOG ("\nUsage:%s <serverName> <database>\n", argv[0]);
+        PRINTLOG("\nserverName is optional\n");
 
         NotesTerm();
         return 0;
@@ -143,12 +138,11 @@ int main(int argc, char * argv[])
 
 
     /* Open the DB */
-    printf("\n db path %s", szDbPath);
-    fflush(stdout);
+    PRINTLOG("\n db path %s", szDbPath);
     error = NSFDbOpen (szDbPath, &hDB);
     if ( error )
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFDbOpen");
         goto exit;
     }
 
@@ -163,7 +157,7 @@ int main(int argc, char * argv[])
                 &wdc, &wdc, &wdc, &wdc); 
     if ( error != NOERROR )
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFFormulaCompile");
         goto exit;
     }
 
@@ -179,7 +173,7 @@ int main(int argc, char * argv[])
                 NULL);
     if ( error != NOERROR ) 
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFSearch");
         goto exit;
     }
 
@@ -193,46 +187,16 @@ exit:
 
     if ( error )
     {
-       printf( " Fail to get doc from %s.\n", szDbName);
-       fflush(stdout);
+       PRINTLOG( " Fail to get doc from %s.\n", szDbName);
        return (1);
     }
     else
     {    
-      printf ( "succeed return docs deleted [%d].\n", docCount );
-      fflush(stdout);
+      PRINTLOG ( "succeed return docs deleted [%d].\n", docCount );
       return (NOERROR);
     }
 }
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 
 /************************************************************************
 
@@ -260,8 +224,7 @@ STATUS  LNPUBLIC  EnumProc(void far *phDB, SEARCH_MATCH far *pSearchMatch, ITEM_
         return (NOERROR);
 
     /* Print the note ID. */
-    printf ("Note ID is: [%lX].\n", SearchMatch.ID.NoteID);
-    fflush(stdout);
+    PRINTLOG ("Note ID is: [%lX].\n", SearchMatch.ID.NoteID);
 
     /* Delete Note */
     error = NSFNoteDelete(*(DBHANDLE far *)phDB, SearchMatch.ID.NoteID, 0);

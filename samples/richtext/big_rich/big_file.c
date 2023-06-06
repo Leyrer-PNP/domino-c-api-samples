@@ -47,6 +47,7 @@
 #include <string.h>
 #include <memory.h>                     /* _fmemset() */
 #include <stdlib.h>                     /* atol() */
+#include <printLog.h>
 
 #define LINE_LEN    72
 
@@ -67,7 +68,7 @@ int main(int argc, char *argv[])
 
     if (argc != 3)
     {
-        printf ("Usage: BIG_FILE  <filename>  <count> \n");
+        PRINTLOG ("Usage: BIG_FILE  <filename>  <count> \n");
         exit(0);
     }
     file_name = argv[1];
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
 
     if (count == 0)
     {
-        printf ("Error: unable to convert '%s' to number.\n", argv[2]);
+        PRINTLOG ("Error: unable to convert '%s' to number.\n", argv[2]);
         exit(1);
     }
 
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
        
     if (hFile == 0)
     {
-        printf ("Error: unable to open file '%s' for write.\n", file_name);
+        PRINTLOG ("Error: unable to open file '%s' for write.\n", file_name);
         exit (1);
     }
 
@@ -100,13 +101,13 @@ int main(int argc, char *argv[])
 
     l_count = count / (LINE_LEN+2) ;
     c_count = count % (LINE_LEN+2) ;
-    printf("Writing %ld lines plus %ld characters.\n", l_count, c_count);
+    PRINTLOG("Writing %ld lines plus %ld characters.\n", l_count, c_count);
 
     for (i=0; i<l_count; i++)
     {
        if (write (hFile, line, LINE_LEN+1) == -1)
        {
-           printf ("Error: write.\n");
+           PRINTLOG ("Error: write.\n");
            close(hFile);
            exit(1);
        }
@@ -114,14 +115,14 @@ int main(int argc, char *argv[])
 
     if (write (hFile, line, (unsigned)c_count) == -1)
     {
-        printf ("Error: write.\n");
+        PRINTLOG ("Error: write.\n");
         close(hFile);
         exit(1);
     }
 
     close(hFile);
 
-    printf ("Created ASCII file '%s' containing %ld characters.\n",
+    PRINTLOG ("Created ASCII file '%s' containing %ld characters.\n",
                 file_name, count);
 
     exit(0);

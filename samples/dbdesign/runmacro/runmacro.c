@@ -108,6 +108,7 @@
 #include <nsfsearc.h>
 #include <editods.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 
 /* program specific header file */
@@ -121,8 +122,6 @@
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                 char *szDbName, char *szMacroName, char *szOptions);
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -213,9 +212,9 @@ int main(int argc, char *argv[])
     WORD        wType, wOperation, wScan;
     BLOCKID     bidFormula1, bidFormula2;
     BOOL        fSearchMacro;           /* TRUE if is a search macro */
-    DHANDLE       hNoteIDTable;           /* notes to process */
-    DHANDLE       hProcessedIDTable;      /* notes actually processed */
-    DHANDLE       hDeletedIDTable;        /* notes deleted */
+    DHANDLE     hNoteIDTable;           /* notes to process */
+    DHANDLE     hProcessedIDTable;      /* notes actually processed */
+    DHANDLE     hDeletedIDTable;        /* notes deleted */
     DWORD       dwNotesDone;
     NOTEID      nidDoc;
     HCOMPUTE    hCompute1, hCompute2;
@@ -225,7 +224,7 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes.\n");
+       PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -247,7 +246,7 @@ int main(int argc, char *argv[])
     /* Open target database */
     if (error = NSFDbOpen(szDbName, &hDb))
     {
-        printf ("Error: unable to open target database '%s'\n", szDbName);
+        PRINTLOG ("Error: unable to open target database '%s'\n", szDbName);
         goto Exit1;
     }
 
@@ -255,7 +254,7 @@ int main(int argc, char *argv[])
     if (error = NIFFindDesignNote( hDb, szMacroName, NOTE_CLASS_FILTER,
                             &nidMacro ))
     {
-        printf ("Error: unable to find macro '%s' in database '%s'.\n",
+        PRINTLOG ("Error: unable to find macro '%s' in database '%s'.\n",
                      szMacroName, szDbName);
         goto Exit2;
     }
@@ -263,7 +262,7 @@ int main(int argc, char *argv[])
     /* Open the macro note */
     if (error = NSFNoteOpen(hDb, nidMacro, 0, &hMacro))
     {
-        printf ("Error: unable to open macro note '%s'.\n", 
+        PRINTLOG ("Error: unable to open macro note '%s'.\n", 
                 szMacroName);
         goto Exit2;
     }
@@ -312,7 +311,7 @@ int main(int argc, char *argv[])
     {
         if (error == ERR_RUNMACRO_NONEWNOTES)
         {
-            printf ("Macro didn't process any documents.\n");
+            PRINTLOG ("Macro didn't process any documents.\n");
         }
         goto Exit3;
     }
@@ -327,7 +326,7 @@ int main(int argc, char *argv[])
     OSUnlockBlock(bidFormula1);
     if (error)
     {
-        printf ("Error: unable to start compute of formula 1.\n");
+        PRINTLOG ("Error: unable to start compute of formula 1.\n");
         goto Exit3;
     }
     fCompute1Started = TRUE;
@@ -340,7 +339,7 @@ int main(int argc, char *argv[])
         OSUnlockBlock(bidFormula2);
         if (error)
         {
-            printf ("Error: unable to start compute of formula 2.\n");
+            PRINTLOG ("Error: unable to start compute of formula 2.\n");
             goto Exit4;
         }
         fCompute2Started = TRUE;
@@ -362,7 +361,7 @@ int main(int argc, char *argv[])
     }
 
     dwNotesDone--;
-    printf("Macro processing completed for %ld %s.\n",  
+    PRINTLOG("Macro processing completed for %ld %s.\n",  
             dwNotesDone, ((dwNotesDone==1) ? "document" : "documents") );
 
 Exit4:
@@ -398,8 +397,9 @@ Exit0:
         error = NOERROR;
     }
     if (error)
-       PrintAPIError(error);
-
+    {
+       PRINTERROR(error, "main");
+    }
     NotesTerm();
     return(error);
 }
@@ -420,18 +420,18 @@ Exit0:
         WORD         *pwScan            - FILTER_SCAN_ALL, etc. 
         BLOCKID      *pbidFormula1      - "$Formula" item value blockid 
         BLOCKID      *pbidFormula2      - "$Formula2" item value blockid,
-                                 or NULLHANDLE/NULLBLOCK if not available
+                                          or NULLHANDLE/NULLBLOCK if not available
         BOOL         *pfSearchMacro     - gets TRUE if $Query item in macro
 
 *************************************************************************/
 
 STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro, 
-                                  WORD         *pwMacroType,
-                                  WORD         *pwOperation,
-                                  WORD         *pwScan, 
-                                  BLOCKID      *pbidFormula1, 
-                                  BLOCKID      *pbidFormula2,
-                                  BOOL         *pfSearchMacro)
+                                 WORD         *pwMacroType,
+                                 WORD         *pwOperation,
+                                 WORD         *pwScan, 
+                                 BLOCKID      *pbidFormula1, 
+                                 BLOCKID      *pbidFormula2,
+                                 BOOL         *pfSearchMacro)
 {
     STATUS      error=NOERROR;
     char        ach[4];
@@ -439,18 +439,19 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
     BLOCKID     bidValue;
     DWORD       dwValueLength;
 
-                                        /* "$Type" */
+    /* "$Type" */
     NSFItemGetText( hMacro, FILTER_TYPE_ITEM, ach, sizeof(ach)-1 );
     *pwMacroType = (WORD)(ach[0] - '0');
 
-                                        /* "$Operation" */
+    /* "$Operation" */
     NSFItemGetText( hMacro, FILTER_OPERATION_ITEM, ach, sizeof(ach)-1 );
     *pwOperation = (WORD)(ach[0] - '0');
 
-                                        /* "$Scan" */
+    /* "$Scan" */
     NSFItemGetText( hMacro, FILTER_SCAN_ITEM, ach, sizeof(ach)-1 );
     *pwScan = (WORD)(ach[0] - '0');
-                                        /* "$Query" */
+
+    /* "$Query" */
     error = NSFItemInfo(hMacro, FILTER_QUERY_ITEM, 
                         sizeof(FILTER_QUERY_ITEM)-1, NULL,
                         &wDataType, &bidValue, &dwValueLength);
@@ -465,7 +466,7 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
         *pfSearchMacro = FALSE;
     }
 
-                                        /* "$Formula" */
+    /* "$Formula" */
     error = NSFItemInfo(hMacro, FILTER_FORMULA_ITEM, 
                             sizeof(FILTER_FORMULA_ITEM)-1, NULL,
                             &wDataType, &bidValue, &dwValueLength);
@@ -475,19 +476,19 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
     }
     else if (error)
     {
-        printf ("Error: unable to get primary formula from macro note.\n");
+        PRINTLOG ("Error: unable to get primary formula from macro note.\n");
         return(error);
     }
     else
     {
         if (wDataType != TYPE_FORMULA)
         {
-            printf ("Error: item '%s' not TYPE_FORMULA.\n", FILTER_FORMULA_ITEM);
+            PRINTLOG ("Error: item '%s' not TYPE_FORMULA.\n", FILTER_FORMULA_ITEM);
             return (ERR_RUNMACRO_WRONGTYPE);
         }
         if (dwValueLength == sizeof(WORD))
         {
-            printf ("Error: zero length item '%s'.\n", FILTER_FORMULA_ITEM);
+            PRINTLOG ("Error: zero length item '%s'.\n", FILTER_FORMULA_ITEM);
             return (ERR_RUNMACRO_ZEROLENGTH);
         }
         /* else, looks like a good formula item */
@@ -498,7 +499,7 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
     pbidFormula2->pool = NULLHANDLE;
     pbidFormula2->block = NULLBLOCK;
 
-                                        /* "$Formula2" */
+    /* "$Formula2" */
     if (error = NSFItemInfo(hMacro, FILTER_FORMULA2_ITEM, 
                             sizeof(FILTER_FORMULA2_ITEM)-1, NULL,
                             &wDataType, &bidValue, &dwValueLength))
@@ -507,7 +508,7 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
         {
             return(NOERROR);
         }
-        printf ("Error: unable to get secondary formula from macro note.\n");
+        PRINTLOG ("Error: unable to get secondary formula from macro note.\n");
         return(error);
     }
     if (wDataType != TYPE_FORMULA)
@@ -548,14 +549,14 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
 *************************************************************************/
  
 STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro, 
-                                    char * szMacroName,
-                                    WORD wType, WORD wOperation,
-                                    WORD wScan, BOOL fSearchMacro )
+                                  char * szMacroName,
+                                  WORD wType, WORD wOperation,
+                                  WORD wScan, BOOL fSearchMacro )
 {
     if ( (wType == FILTER_TYPE_MAIL) || (wType == FILTER_TYPE_ONCE) ||
           fSearchMacro )
     {
-        printf ("Error: '%s' not a Filter nor a Background macro.\n",
+        PRINTLOG ("Error: '%s' not a Filter nor a Background macro.\n",
                                                 szMacroName);
         return ERR_RUNMACRO_UNSUPPORTED;
     }
@@ -566,12 +567,12 @@ STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro,
     }
     if ( wType != FILTER_TYPE_MENU )
     {
-        printf ("Error: unrecognized macro type %#x\n", wType);
+        PRINTLOG ("Error: unrecognized macro type %#x\n", wType);
         return ERR_RUNMACRO_UNSUPPORTED;
     }
     if (wOperation == FILTER_OP_SELECT )
     {
-        printf ("Error: Operation not supported: \n\t'%s'\n",
+        PRINTLOG ("Error: Operation not supported: \n\t'%s'\n",
                 "Select documents when run");
         return ERR_RUNMACRO_UNSUPPORTED;
     }
@@ -582,19 +583,19 @@ STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro,
         case FILTER_SCAN_VIEW:
             return NOERROR;
         case FILTER_SCAN_UNREAD:
-            printf ("Error: Setting not supported: \n\t'%s'\n",
+            PRINTLOG ("Error: Setting not supported: \n\t'%s'\n",
                     "Run on documents not yet marked read by you.");
             break;
         case FILTER_SCAN_SELECTED:
-            printf ("Error: Setting not supported: \n\t'%s'\n",
+            PRINTLOG ("Error: Setting not supported: \n\t'%s'\n",
                     "Run on selected documents in view.");
             break;
         case FILTER_SCAN_MAIL:    /* Domino and Notes does not use this setting */
-            printf ("Error: Setting not supported: \n\t'%s'\n",
+            PRINTLOG ("Error: Setting not supported: \n\t'%s'\n",
                     "Run on documents mailed/pasted into database");
             break;
         default:
-            printf ("Error: unrecognized run option $Scan = %#x\n", wScan);
+            PRINTLOG ("Error: unrecognized run option $Scan = %#x\n", wScan);
             break;;
     }
     return ERR_RUNMACRO_UNSUPPORTED;
@@ -614,13 +615,13 @@ STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro,
 *************************************************************************/
 
 STATUS  LNPUBLIC  RunMacroOnThisMachine ( NOTEHANDLE hMacro,
-                                            WORD wType)
+                                                WORD wType)
 {
     STATUS      error=NOERROR;
     char        szUserName[MAXUSERNAME+1];
     char        szMachineName[MAXUSERNAME+1];
-    WORD          i;
-    char        *strPtr;
+    WORD        i;
+    char        *strPtr=NULL;
    
     if (wType != FILTER_TYPE_BACKGROUND)
     {
@@ -628,25 +629,26 @@ STATUS  LNPUBLIC  RunMacroOnThisMachine ( NOTEHANDLE hMacro,
     }
     if (error = SECKFMGetUserName(szUserName))
     {
-        printf ("Error: unable to get user name from ID file.\n");
+        PRINTLOG ("Error: unable to get user name from ID file.\n");
         return(error);
-    }   
-                                        /* "$MachineName" */
+    }
+
+    /* "$MachineName" */
     NSFItemGetText( hMacro, FILTER_MACHINE_ITEM, szMachineName, MAXUSERNAME );
    
-   /* lower case both names because there is no stricmp on the Macintosh */
-   for (i = 0,strPtr = szUserName; i < strlen(szUserName); i++,strPtr++)
-      *strPtr = tolower(*strPtr);
+    /* lower case both names because there is no stricmp on the Macintosh */
+    for (i = 0,strPtr = szUserName; i < strlen(szUserName); i++,strPtr++)
+       *strPtr = tolower(*strPtr);
    
-   for (i = 0,strPtr = szMachineName; i < strlen(szMachineName); i++,strPtr++)
-      *strPtr = tolower(*strPtr);
+    for (i = 0,strPtr = szMachineName; i < strlen(szMachineName); i++,strPtr++)
+       *strPtr = tolower(*strPtr);
 
     if (strcmp(szUserName, szMachineName) == 0)
     {
         return NOERROR;
     }
 
-    printf ("Error: background macro runs only on machine '%s'.\n",
+    PRINTLOG ("Error: background macro runs only on machine '%s'.\n",
                             szMachineName);
 
     return ERR_RUNMACRO_NOTTHISMACHINE;
@@ -669,22 +671,22 @@ STATUS  LNPUBLIC  SetMacroMachineName( NOTEHANDLE hMacro, WORD wType )
   }
   if (error = SECKFMGetUserName(szUserName))
   {
-    printf ("Error: unable to get user name from ID file.\n");
+    PRINTLOG ("Error: unable to get user name from ID file.\n");
     return(error);
   }
   if (error = NSFItemSetText(hMacro,
               FILTER_MACHINE_ITEM,    /* "$MachineName" */
               szUserName, MAXWORD))
   {
-    printf ("Error: unable to set Machine Name field in macro note.\n");
+    PRINTLOG ("Error: unable to set Machine Name field in macro note.\n");
     return(error);
   }
   if (error = NSFNoteUpdate(hMacro, 0))
   {
-    printf ("Error: unable to update macro note.\n");
+    PRINTLOG ("Error: unable to update macro note.\n");
     return(error);
   }
-  printf("Macro updated to run on %s\n", szUserName);
+  PRINTLOG("Macro updated to run on %s\n", szUserName);
 
   return(error);
 }
@@ -719,9 +721,9 @@ STATUS  LNPUBLIC  SetMacroMachineName( NOTEHANDLE hMacro, WORD wType )
 *************************************************************************/
 
 STATUS  LNPUBLIC  GetTableOfIDsToProcess( DBHANDLE    hDb,
-                                            NOTEHANDLE  hMacro, 
-                                            WORD        wScan, 
-                                            DHANDLE       hNoteIDTable)
+                                          NOTEHANDLE  hMacro, 
+                                          WORD        wScan, 
+                                          DHANDLE       hNoteIDTable)
 {
     STATUS      error=NOERROR;
 
@@ -740,7 +742,7 @@ STATUS  LNPUBLIC  GetTableOfIDsToProcess( DBHANDLE    hDb,
         case FILTER_SCAN_SELECTED:
         case FILTER_SCAN_MAIL:
         default:
-            printf ("Error: bad $Scan value detected: %#x.\n", wScan);
+            PRINTLOG ("Error: bad $Scan value detected: %#x.\n", wScan);
             error = ERR_RUNMACRO_BADSCAN;
             break;
     }
@@ -764,7 +766,7 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInDb( DBHANDLE hDb, DHANDLE hNoteIDTable)
                 &hNoteIDTable,  /* argument to AddIDUnique */
                 NULL))          /* returned ending date (unused) */
     {
-        printf ("Error: unable to search for all docs in database.\n");
+        PRINTLOG ("Error: unable to search for all docs in database.\n");
     }
     return(error);
 }    
@@ -792,14 +794,14 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInDb( DBHANDLE hDb, DHANDLE hNoteIDTable)
 *************************************************************************/
 
 STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb, 
-                                            DHANDLE       hNoteIDTable)
+                                          DHANDLE       hNoteIDTable)
 {
     STATUS      error=NOERROR;
     WORD        wClass;
     NOTEID      ViewID;
     HCOLLECTION hCollection;
     COLLECTIONPOSITION CollPosition;
-    DHANDLE       hBuffer;
+    DHANDLE     hBuffer;
     DWORD       dwEntriesFound, i;
     WORD        wSignalFlag;
     NOTEID     *IdList;
@@ -818,7 +820,7 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb,
                 NULL))          /* returned ending date (unused) */
 
     {
-        printf ("Error: unable to search for default view in database.\n");
+        PRINTLOG ("Error: unable to search for default view in database.\n");
         goto Exit0;
     }
 
@@ -826,7 +828,7 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb,
     if (error = NIFOpenCollection ( hDb, hDb, ViewID, 0, NULLHANDLE, 
                 &hCollection, NULLHANDLE, NULL, NULLHANDLE, NULLHANDLE))
     {
-        printf ("Error: unable to open default view collection.\n");
+        PRINTLOG ("Error: unable to open default view collection.\n");
         goto Exit0;
     }
 
@@ -841,13 +843,13 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb,
                     READ_MASK_NOTEID, &hBuffer, NULL, NULL,
                     &dwEntriesFound, &wSignalFlag))
         {
-            printf ("Error detected reading entries in default view.\n");
+            PRINTLOG ("Error detected reading entries in default view.\n");
             goto Exit1;
         }
 
         if (hBuffer == NULLHANDLE)
         {
-            printf ("Error: no documents (empty buffer) in default view.\n");
+            PRINTLOG ("Error: no documents (empty buffer) in default view.\n");
             error = ERR_RUNMACRO_EMPTYCOLL;
             goto Exit1;
         }
@@ -856,10 +858,13 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb,
 
         for (i=0; i<dwEntriesFound; i++)
         {
-            if (NOTEID_CATEGORY & IdList[i]) continue;
+            if (NOTEID_CATEGORY & IdList[i])
+            {
+                continue;
+            }
             if (error = IDInsert(hNoteIDTable, IdList[i], &flagOK))
             {
-                printf ("Error: unable to insert note ID into table.\n");
+                PRINTLOG ("Error: unable to insert note ID into table.\n");
                 OSUnlockObject (hBuffer);
                 OSMemFree (hBuffer);
                 goto Exit1;
@@ -903,20 +908,20 @@ STATUS LNPUBLIC GetIDsOfAllNewDocs(   DBHANDLE    hDb,
                                         DHANDLE       hRetIDTable)
 {
     STATUS      error=NOERROR;
-    OBJECT_DESCRIPTOR  objLeftToDo; /* describes the $LeftToDo object */
-    DHANDLE       hLeftToDo;          /* the ID table in the $LeftToDo object */
+    DHANDLE     hLeftToDo;          /* the ID table in the $LeftToDo object */
     TIMEDATE    tdLeftToDoTime;
     WORD        wLeftToDoFlags;
-    BYTE       *p;
+    BYTE       *p=NULL;
     TIMEDATE    tdSavedModificationTimedate;
     TIMEDATE    tdMacroModificationTimedate;
-    DHANDLE       hIDsModified;       /* IDs of docs modified since TableTime */
+    DHANDLE     hIDsModified;       /* IDs of docs modified since TableTime */
     DBID        dbidSavedMacro;
     DBID        dbidCurrent;
-    void        *ptable;
+    void        *ptable=NULL;
     DWORD       dw;
     NOTEID      nid;
     BOOL        flag;
+    OBJECT_DESCRIPTOR  objLeftToDo; /* describes the $LeftToDo object */
 
     /* Get the "$LeftToDo" item */
     error = ReadLeftToDoObject( hDb, hMacro, 
@@ -961,7 +966,7 @@ STATUS LNPUBLIC GetIDsOfAllNewDocs(   DBHANDLE    hDb,
     /* Ignore ID table if macro was copied from a different database */
     if (error = NSFDbIDGet(hDb, &dbidCurrent))
     {
-        printf ("Error: unable to get database ID.\n");
+        PRINTLOG ("Error: unable to get database ID.\n");
         return (error);
     }
 
@@ -988,7 +993,7 @@ STATUS LNPUBLIC GetIDsOfAllNewDocs(   DBHANDLE    hDb,
 
     if ( (error) && (error != ERR_NO_MODIFIED_NOTES) )
     {
-        printf("Error detected scanning DB for modified notes.\n");
+        PRINTLOG("Error detected scanning DB for modified notes.\n");
         return(error);
     }
 
@@ -1021,7 +1026,7 @@ STATUS LNPUBLIC GetIDsOfAllNewDocs(   DBHANDLE    hDb,
 
         if (error)
         {
-            printf("Error: unable to enumerate IDs of new notes in DB.\n");
+            PRINTLOG("Error: unable to enumerate IDs of new notes in DB.\n");
             return(error);
         }
     }
@@ -1038,7 +1043,7 @@ STATUS LNPUBLIC GetIDsOfAllNewDocs(   DBHANDLE    hDb,
         {
             if (error = IDInsert(hRetIDTable, nid, &flag))
             {
-                printf ("Error: unable to insert note ID into table.\n");
+                PRINTLOG ("Error: unable to insert note ID into table.\n");
                 break;
             }
         }
@@ -1072,32 +1077,32 @@ NewTable:
 STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro, 
                         DHANDLE hDeletedIDTable, DHANDLE hProcessedIDTable)
 {
-    STATUS      error=NOERROR;
-    DBHANDLE    hDb;
-    NOTEHANDLE  hMacro;
+    STATUS              error=NOERROR;
+    DBHANDLE            hDb;
+    NOTEHANDLE          hMacro;
     OBJECT_DESCRIPTOR   objLeftToDo;
-    DHANDLE       hLeftToDo;          /* the ID table in the $LeftToDo object */
-    TIMEDATE    tdLeftToDoTime;
-    WORD        wLeftToDoFlags;
-    DHANDLE       hIDsModified;
-    DWORD       dw;
-    NOTEID      nid;
-    BOOL        flag;
-    DWORD       dwNeededSize, tdOffset, dwExistingSize;
-    WORD        wClass, wPrivs;
-    BYTE       *p;
-    void       *ptable;
+    DHANDLE             hLeftToDo;          /* the ID table in the $LeftToDo object */
+    TIMEDATE            tdLeftToDoTime;
+    WORD                wLeftToDoFlags;
+    DHANDLE             hIDsModified;
+    DWORD               dw;
+    NOTEID              nid;
+    BOOL                flag;
+    DWORD               dwNeededSize, tdOffset, dwExistingSize;
+    WORD                wClass, wPrivs;
+    BYTE                *p;
+    void                *ptable;
 
     /* Re-open the database. Re-open the macro. Get the $LeftToDo item. */
     if (error = NSFDbOpen(szDbName, &hDb))
     {
-        printf ("Error: unable to re-open target database '%s'\n", szDbName);
+        PRINTLOG ("Error: unable to re-open target database '%s'\n", szDbName);
         goto Exit0;
     }
 
     if (error = NSFNoteOpen(hDb, nidMacro, 0, &hMacro))
     {
-        printf ("Error: unable to re-open macro note.\n");
+        PRINTLOG ("Error: unable to re-open macro note.\n");
         goto Exit1;
     }
 
@@ -1115,7 +1120,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
         }
         else
         {
-            printf ("Error: unable to get '%s' object to update in macro.\n",
+            PRINTLOG ("Error: unable to get '%s' object to update in macro.\n",
                     FILTER_LEFTTODO_ITEM);
         }
         goto Exit2;
@@ -1133,7 +1138,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
 
     if ( (error) && (error != ERR_NO_MODIFIED_NOTES) )
     {
-        printf("Error detected scanning DB for modified notes.\n");
+        PRINTLOG("Error detected scanning DB for modified notes.\n");
         goto Exit2;
     }
 
@@ -1145,7 +1150,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
         IDDestroyTable(hIDsModified);
         if (error)
         {
-            printf ("Error: unable to enumerate modified note IDs.\n");
+            PRINTLOG ("Error: unable to enumerate modified note IDs.\n");
             goto Exit2;
         }
     }
@@ -1158,7 +1163,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
     {
         if (error = IDDelete(hLeftToDo, nid, &flag))
         {
-            printf ("Error: unable to delete note ID from table.\n");
+            PRINTLOG ("Error: unable to delete note ID from table.\n");
             goto Exit2;
         }    
     }
@@ -1167,7 +1172,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
     {
         if (error = IDDelete(hLeftToDo, nid, &flag))
         {
-            printf ("Error: unable to delete note ID from table.\n");
+            PRINTLOG ("Error: unable to delete note ID from table.\n");
             goto Exit2;
         }
     }
@@ -1181,7 +1186,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
 
     if (error = OSMemRealloc(hLeftToDo, dwNeededSize))
     {
-        printf ("Error: unable to re-allocate ID table to %ld bytes.\n",
+        PRINTLOG ("Error: unable to re-allocate ID table to %ld bytes.\n",
                                             dwNeededSize);
         goto Exit2;
     }
@@ -1201,7 +1206,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
                         (WORD) objLeftToDo.ObjectType,
                         &dwExistingSize, &wClass, &wPrivs))
     {
-        printf ("Error: unable to get size of object '%s' in macro.\n",
+        PRINTLOG ("Error: unable to get size of object '%s' in macro.\n",
                         FILTER_LEFTTODO_ITEM);
         goto Exit2;
     }
@@ -1214,7 +1219,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
         if (error = NSFDbReallocObject(hDb,
                                     (WORD) objLeftToDo.RRV, dwNeededSize+1024))
         {
-            printf ("Error: unable to re-allocate '%s' to %ld bytes.\n",
+            PRINTLOG ("Error: unable to re-allocate '%s' to %ld bytes.\n",
                         FILTER_LEFTTODO_ITEM, dwNeededSize);
             goto Exit2;
         }
@@ -1225,7 +1230,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
                         hLeftToDo, 0,
                         dwNeededSize))
     {
-        printf ("Error: unable to write '%s' object to macro note.\n",
+        PRINTLOG ("Error: unable to write '%s' object to macro note.\n",
                                 FILTER_LEFTTODO_ITEM);
     }
 
@@ -1270,17 +1275,17 @@ Exit0:
 STATUS  LNPUBLIC  ReadLeftToDoObject( DBHANDLE    hDb,
                         NOTEHANDLE          hMacro,
                         OBJECT_DESCRIPTOR  *pObject,
-                        DHANDLE              *phLeftToDo,
+                        DHANDLE            *phLeftToDo,
                         TIMEDATE           *ptdLeftToDoTime,
                         WORD               *pwLeftToDoFlags )
 {
-    STATUS      error=NOERROR;
-    WORD        wDataType;
-    BLOCKID     bidValue;
-    DWORD       dwValueLength;
-    void        *ptable;
-   OBJECT_DESCRIPTOR  tempObject;
-   OBJECT_DESCRIPTOR *tempPtr;
+    STATUS             error=NOERROR;
+    WORD               wDataType;
+    BLOCKID            bidValue;
+    DWORD              dwValueLength;
+    void               *ptable=NULL;
+    OBJECT_DESCRIPTOR  tempObject;
+    OBJECT_DESCRIPTOR  *tempPtr;
    
     error = NSFItemInfo(hMacro, FILTER_LEFTTODO_ITEM, 
                         sizeof(FILTER_LEFTTODO_ITEM)-1,
@@ -1292,24 +1297,24 @@ STATUS  LNPUBLIC  ReadLeftToDoObject( DBHANDLE    hDb,
     }
     else if (error)
     {
-        printf("Error: unable get '%s' from Macro.\n", FILTER_LEFTTODO_ITEM);
+        PRINTLOG("Error: unable get '%s' from Macro.\n", FILTER_LEFTTODO_ITEM);
         return(error);
     }
     if (wDataType != TYPE_OBJECT)
     {
-        printf ("Error: item '%s' not TYPE_OBJECT.\n", FILTER_LEFTTODO_ITEM);
+        PRINTLOG ("Error: item '%s' not TYPE_OBJECT.\n", FILTER_LEFTTODO_ITEM);
         return(error);
     }
         
     *pObject = *((OBJECT_DESCRIPTOR*)(OSLockBlock(char,bidValue)+sizeof(WORD)));
 
-   tempPtr = pObject;
+    tempPtr = pObject;
 
     ODSReadMemory( &tempPtr, _OBJECT_DESCRIPTOR, &tempObject, 1 );
 
     if (tempObject.ObjectType != OBJECT_FILTER_LEFTTODO)
     {                                                 
-        printf ("Error: object '%s' unknown type.\n",FILTER_LEFTTODO_ITEM);
+        PRINTLOG ("Error: object '%s' unknown type.\n",FILTER_LEFTTODO_ITEM);
         OSUnlockBlock(bidValue);
         return (ERR_RUNMACRO_BADOBJECTTYPE);
     }
@@ -1318,7 +1323,7 @@ STATUS  LNPUBLIC  ReadLeftToDoObject( DBHANDLE    hDb,
     OSUnlockBlock(bidValue);
     if (error)
     {
-        printf ("Error: unable to read object '%s'.\n",FILTER_LEFTTODO_ITEM);
+        PRINTLOG ("Error: unable to read object '%s'.\n",FILTER_LEFTTODO_ITEM);
         return (error);
     }
 
@@ -1377,7 +1382,7 @@ STATUS LNPUBLIC AddIDUnique  (void * phNoteIDTable,
                                 ITEM_TABLE *summary_info)
 {
     SEARCH_MATCH SearchMatch;
-    DHANDLE        hNoteIDTable;
+    DHANDLE      hNoteIDTable;
     STATUS       error=NOERROR;
     BOOL         flagOK;
 
@@ -1393,7 +1398,7 @@ STATUS LNPUBLIC AddIDUnique  (void * phNoteIDTable,
 
     if (error = IDInsert(hNoteIDTable, SearchMatch.ID.NoteID, &flagOK))
     {
-        printf ("Error: unable to insert note ID into table.\n");
+        PRINTLOG ("Error: unable to insert note ID into table.\n");
     }
     return (error);
 }
@@ -1459,7 +1464,7 @@ STATUS  LNPUBLIC CreateIDTables(DHANDLE *phIDTable1, DHANDLE *phIDTable2,
             (error = IDCreateTable(sizeof(NOTEID), phIDTable2)) ||
             (error = IDCreateTable(sizeof(NOTEID), phIDTable3)) )
     {
-        printf ("Error: unable to create ID table.\n");
+        PRINTLOG ("Error: unable to create ID table.\n");
     }
     return (error);
 }
@@ -1497,7 +1502,7 @@ STATUS  LNPUBLIC  ProcessOneNote(
                 OPEN_NOVERIFYDEFAULT), 
                 &hDoc))                 /* hDoc gets handle to open note */
     {
-        printf ("Error: unable to open document to process.\n");
+        PRINTLOG ("Error: unable to open document to process.\n");
         goto Exit0;
     }
 
@@ -1520,7 +1525,7 @@ STATUS  LNPUBLIC  ProcessOneNote(
                                            of hDoc were modified as result
                                            of the formulat evaluation. */
         {
-            printf ("Error: unable to compute forumula on document.\n");
+            PRINTLOG ("Error: unable to compute forumula on document.\n");
             goto Exit1;
         }
     }
@@ -1537,7 +1542,7 @@ STATUS  LNPUBLIC  ProcessOneNote(
                    &fDocShouldBeDeleted2,
                    &fDocModified2 ))
         {
-            printf ("Error: unable to compute formula 2 on document.\n");
+            PRINTLOG ("Error: unable to compute formula 2 on document.\n");
             goto Exit1;
         }
     }
@@ -1602,15 +1607,15 @@ STATUS  LNPUBLIC  ProcessOneNote(
                     UPDATE_FORCE | UPDATE_NOCOMMIT | UPDATE_DUPLICATES );
             if (error == ERR_CONFLICT)
             {
-                printf ("Nonfatal error updating modified document %#lx.\n",
+                PRINTLOG ("Nonfatal error updating modified document %#lx.\n",
                             nidDoc);
-                printf ("\tSomeone else modified document at the same time.\n");
-                printf ("\tContinuing...\n");
+                PRINTLOG ("\tSomeone else modified document at the same time.\n");
+                PRINTLOG ("\tContinuing...\n");
                 error = NOERROR;
             }
             if (error)
             {
-                printf ("Error: unable to update modified document %#lx\n",
+                PRINTLOG ("Error: unable to update modified document %#lx\n",
                             nidDoc);
                 goto Exit1;
             }
@@ -1661,29 +1666,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         if (argc == 4) strcpy(options, argv[3]);
     } /* end if */
 } /* ProcessArgs */
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 

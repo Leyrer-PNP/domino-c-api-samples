@@ -42,6 +42,7 @@ extern "C" {
 #include "lookup.h"
 #include "dsapi.h"
 #include "addin.h"
+#include "printLog.h"
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -121,7 +122,7 @@ unsigned int FilterInit(FilterInitData* filterInitData)
  * Return: kFilterHandledEvent
  */
 
-   printf("\nFilterInitData() is getting called.\n");
+   PRINTLOG("\nFilterInitData() is getting called.\n");
    /*Required*/
    filterInitData->appFilterVersion = kInterfaceVersion;
 
@@ -137,7 +138,7 @@ unsigned int FilterInit(FilterInitData* filterInitData)
    /* Output sent to stdout and stderr is displayed on the
     * server console, but is not written to the server log file.
     */
-   printf("\nDSAPI Authentication filter initialized\n");
+   PRINTLOG("\nDSAPI Authentication filter initialized\n");
    return kFilterHandledEvent;
 }
 
@@ -465,7 +466,7 @@ int getLookupInfo (FilterContext* context,
                                        reserved, &errID);
    *pInfo = (char *) newSpace;
    if (NULL == *pInfo) {
-      printf ("Out of memory\n");
+      PRINTLOG ("Out of memory\n");
       return -1;
    }
 
@@ -504,17 +505,16 @@ int doAuthenticate(char *userName, char *domain, char *password) {
 
    if (!userName) {
 
-	   AddInLogMessageText (string4, NOERROR);
+      AddInLogMessageText (string4, NOERROR);
       return -1;
    }
 
 #if defined SOLARIS || AIX || LINUX
-   printf("\nin doAuthenticate()\n");
+   PRINTLOG("\nin doAuthenticate()\n");
    return(unixAuthenticate(userName, password));
 #else
    if (!domain) {
-	  AddInLogMessageText ("\nERROR: Domain must be specified. Use username@domainname format\n", NOERROR);
-
+      AddInLogMessageText ("\nERROR: Domain must be specified. Use username@domainname format\n", NOERROR);
       return -1;
    }
    return(winAuthenticate(userName, domain, password));

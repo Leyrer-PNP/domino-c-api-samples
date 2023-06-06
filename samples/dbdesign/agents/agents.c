@@ -70,6 +70,7 @@
 #include <ostime.h>
 #include <agents.h>         /* Agent execution header */ 
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -93,8 +94,6 @@ STATUS  LNPUBLIC  SetAgentTrigger( NOTEHANDLE, WORD );
 STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE, ODS_ASSISTSTRUCT );
 STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE, BYTE *, DWORD );
 STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE, NOTEHANDLE, WORD );
-/* Local function prototypes */
-void PrintAPIError (STATUS);
 
 /* Progam constants */
 char szAGENT_MANUAL[]     = "Send Reminder to Support Rep";
@@ -118,15 +117,15 @@ int main (int argc, char *argv[])
     int         goodAgents=0;
 
     if (error = NotesInitExtended (argc, argv))
-	 {
-        printf("\n Unable to initialize Notes.\n");
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	 }
+    }
 
     /* Process arguments */
     if (argc != 2)
     {
-        printf ("Usage: Agents <database filename>\n");
+        PRINTLOG ("Usage: Agents <database filename>\n");
         goto Exit0;
     }
     szDbName = argv[1];
@@ -134,7 +133,7 @@ int main (int argc, char *argv[])
     /* Open input database */
     if (error = NSFDbOpen(szDbName, &hDb))
     {
-        printf ("Error: unable to open target database '%s'\n", szDbName);
+        PRINTLOG ("Error: unable to open target database '%s'\n", szDbName);
         goto Exit0;
     }
 
@@ -164,16 +163,18 @@ int main (int argc, char *argv[])
     goodAgents++;
 
 
-    printf("\nSuccessfully added %d Agents to '%s'.\n", goodAgents,szDbName);
+    PRINTLOG("\nSuccessfully added %d Agents to '%s'.\n", goodAgents,szDbName);
 
     /* Close database, report completion, close log file pointer, and return */
 Exit1:
     NSFDbClose(hDb);
-    printf ("Program execution to create agent notes completed.\n");
+    PRINTLOG ("Program execution to create agent notes completed.\n");
 
 Exit0:
     if (error)
-       PrintAPIError (error);
+	{
+       PRINTERROR(error, "NSFDbOpen");
+    }
 
     NotesTerm();
     return(error);
@@ -218,10 +219,10 @@ STATUS  LNPUBLIC  AddManualAgent( DBHANDLE hDb )
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
 
-    char   szComment[] = 
+    char                szComment[] = 
 "Send a reminder email to the appropriate support reps for the documents \
 selected in the view.";
-    char   szFormula[] = 
+    char                szFormula[] = 
 "@MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
 \" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
 SELECT @All";
@@ -285,7 +286,7 @@ SELECT @All";
                                     &hFormula, &wFormulaLen, &wdc, &wdc, 
                                     &wdc, &wdc, &wdc))
     {
-        printf("Error compiling formula.\n");
+        PRINTLOG("Error compiling formula.\n");
         goto Exit1;
     }
 
@@ -296,7 +297,7 @@ SELECT @All";
                                    wFormulaLen );
     if (AgentAction == (BYTE *) NULL) 
     {
-        printf("Error: unable to allocate memory.\n");
+        PRINTLOG("Error: unable to allocate memory.\n");
         goto Exit1;
     }
     buff_ptr = AgentAction;
@@ -334,7 +335,7 @@ SELECT @All";
     /* Finally update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to update Agent note to database.\n");
+        PRINTLOG("Error: unable to update Agent note to database.\n");
         goto Exit1;
     }
 
@@ -394,14 +395,14 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     int                 destAllocated=0;
     int                 errorBufferAllocated=0;
 
-    DHANDLE               hSource=NULL;
-    DHANDLE               hDest=NULL;
-    DHANDLE               hErrorBuffer=NULL;
-    DHANDLE               hUnused=NULL;
+    DHANDLE             hSource=NULL;
+    DHANDLE             hDest=NULL;
+    DHANDLE             hErrorBuffer=NULL;
+    DHANDLE             hUnused=NULL;
 
-    char    szComment[] = "Assign all unassigned problems to Isabel Silton.";
+    char                szComment[] = "Assign all unassigned problems to Isabel Silton.";
 
-    char szScript[] = 
+    char                szScript[] = 
 "Sub Initialize\n\
   Dim updcount As Integer\n\
   Dim repname As String\n\
@@ -501,7 +502,7 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
        null terminator.  */
     if (error = OSMemAlloc(0,strlen(szScript)+1,&hSource))
     {
-       printf("Error: unable to alloc hSource.\n");
+       PRINTLOG("Error: unable to alloc hSource.\n");
        goto Exit1;
     }
     sourceAllocated=1;
@@ -524,7 +525,7 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
 
     if (error )
     { 
-       printf("Error: Error in AgentLSTextFormat.\n");
+       PRINTLOG("Error: Error in AgentLSTextFormat.\n");
        goto Exit1;
     }
 
@@ -533,7 +534,7 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     if (hErrorBuffer)
     {
        pFormattedLS=OSLock(char,hErrorBuffer);
-       printf("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
+       PRINTLOG("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
        OSUnlock(hErrorBuffer);
        error=1;
        goto Exit1;
@@ -560,7 +561,7 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
                                    FormattedLSLen);
     if (AgentAction == (BYTE *) NULL) 
     {
-        printf("Error: unable to allocate memory.\n");
+        PRINTLOG("Error: unable to allocate memory.\n");
         goto Exit1;
     }
     buff_ptr = AgentAction;
@@ -604,20 +605,20 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     /* Update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to update background Agent note to database.\n");
+        PRINTLOG("Error: unable to update background Agent note to database.\n");
         goto Exit1;
     }
     /* Compile the LS script to object code.  */
     if (error = NSFNoteLSCompile(hDb, hAgent, 0))
     {
-       printf("Error: unable to compile Agent note to database.\n");
+       PRINTLOG("Error: unable to compile Agent note to database.\n");
        goto Exit1;
     }
 
     /* Finally update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to do final update on the background Agent note to database.\n");
+        PRINTLOG("Error: unable to do final update on the background Agent note to database.\n");
         goto Exit1;
     }
 Exit1:
@@ -680,10 +681,10 @@ STATUS  LNPUBLIC  AddScheduleAgent( DBHANDLE hDb )
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
 
-char   szComment[] = "Once per month, search for all open \
+    char                szComment[] = "Once per month, search for all open \
 problems that are older than one month and escalate the priority \
 one level.";
-char   szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
+    char                szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
 SELECT((DateOpened<OneMonthAgo) & (Status=\"Open\"));\n\
 FIELD Priority := @If(Priority=\"Low\";\"Medium\";\
 Priority=\"Medium\";\"High\";\"High\");";
@@ -755,7 +756,7 @@ Priority=\"Medium\";\"High\";\"High\");";
                                     &hFormula, &wFormulaLen, &wdc, &wdc, 
                                     &wdc, &wdc, &wdc))
     {
-        printf("Error compiling formula.\n");
+        PRINTLOG("Error compiling formula.\n");
         goto Exit1;
     }
 
@@ -766,7 +767,7 @@ Priority=\"Medium\";\"High\";\"High\");";
                                    wFormulaLen );
     if (AgentAction == (BYTE *) NULL) 
     {
-        printf("Error: unable to allocate memory.\n");
+        PRINTLOG("Error: unable to allocate memory.\n");
         goto Exit1;
     }
     buff_ptr = AgentAction;
@@ -804,7 +805,7 @@ Priority=\"Medium\";\"High\";\"High\");";
     /* Finally update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to update Agent note to database.\n");
+        PRINTLOG("Error: unable to update Agent note to database.\n");
         goto Exit1;
     }
 
@@ -843,18 +844,18 @@ STATUS  LNPUBLIC  AddJavaAgent( DBHANDLE hDb )
     char                szDesignFlags[DESIGN_FLAGS_MAX];
     ODS_ASSISTSTRUCT    AgentInfo;
 
-    CDACTIONHEADER              AgentHeader;
+    CDACTIONHEADER      AgentHeader;
     CDACTIONJAVAAGENT   AgentJava;
 
     BYTE                *AgentAction; 
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
     
-char szComment[] = "Assign all hot problems (high priority) to Fire Fighters.";
-char szClass[] = "HotAgent.class";
-char szCode[] = "/opt/lotus/notesapi/samples/sol_2x/dbdesign/agents";
-char szFileList[] = "HotAgent.class\0\0";
-static char szSourceFile[128]; /* fix this */
+    char                szComment[] = "Assign all hot problems (high priority) to Fire Fighters.";
+    char                szClass[] = "HotAgent.class";
+    char                szCode[] = "/opt/lotus/notesapi/samples/sol_2x/dbdesign/agents";
+    char                szFileList[] = "HotAgent.class\0\0";
+    static char         szSourceFile[128]; /* fix this */
 
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT))
@@ -917,7 +918,7 @@ static char szSourceFile[128]; /* fix this */
 
     if (AgentAction == (BYTE *) NULL) 
     {
-        printf("Error: unable to allocate memory.\n");
+        PRINTLOG("Error: unable to allocate memory.\n");
         goto Exit1;
     }
     buff_ptr = AgentAction;
@@ -930,7 +931,7 @@ static char szSourceFile[128]; /* fix this */
 
     AgentJava.Header.Signature = SIG_ACTION_JAVAAGENT;             
     AgentJava.Header.Length = ODSLength(_CDACTIONJAVAAGENT) + 
-          strlen(szClass) + strlen(szCode) + strlen(szFileList) + 2;
+                              strlen(szClass) + strlen(szCode) + strlen(szFileList) + 2;
     AgentJava.wClassNameLen = strlen(szClass);
     AgentJava.wCodePathLen = strlen(szCode);
     AgentJava.wFileListBytes = strlen(szFileList) + 2;
@@ -985,7 +986,7 @@ static char szSourceFile[128]; /* fix this */
     /* Finally update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to update Agent note to database.\n");
+        PRINTLOG("Error: unable to update Agent note to database.\n");
         goto Exit1;
     }
         
@@ -1019,7 +1020,7 @@ STATUS  LNPUBLIC  CreateAgentNote ( DBHANDLE    hDb,
 
     if (error = NSFNoteCreate(hDb, phAgent))
     {
-        printf("Error: unable to create Agent note.\n");
+        PRINTLOG("Error: unable to create Agent note.\n");
         return(error);
     }
 
@@ -1055,7 +1056,7 @@ STATUS  LNPUBLIC  SetAgentTitle(NOTEHANDLE hAgent, char *szTitle)
                 szTitle,                      /* item value */
                 (DWORD) strlen(szTitle)))     /* value length */
     {
-        printf("Error: unable to set Title field of Agent note.\n");
+        PRINTLOG("Error: unable to set Title field of Agent note.\n");
     }
 
     return(error);
@@ -1085,7 +1086,7 @@ STATUS  LNPUBLIC  SetAgentComment(NOTEHANDLE hAgent, char *szComment)
                 szComment,                          /* item value */
                 (DWORD) strlen(szComment)))         /* value length */
     {
-        printf("Error: unable to set Comment field of Agent note.\n");
+        PRINTLOG("Error: unable to set Comment field of Agent note.\n");
     }
 
     return(error);
@@ -1124,7 +1125,7 @@ STATUS  LNPUBLIC  SetAgentDesignFlags( NOTEHANDLE hAgent, char *szFlags )
                 szFlags,                     /* item value */
                 (DWORD) strlen(szFlags)))    /* value length */
     {
-        printf("Error: unable to set Design Flags field in Agent note.\n");
+        PRINTLOG("Error: unable to set Design Flags field in Agent note.\n");
     }
     return (error);
 }
@@ -1152,7 +1153,7 @@ STATUS  LNPUBLIC  SetAgentMachineName( NOTEHANDLE hAgent )
     /* get local machine name */
     if (error = SECKFMGetUserName(szUserName))
     {
-        printf("Error: unable to get user name from ID file.\n");
+        PRINTLOG("Error: unable to get user name from ID file.\n");
         return(error);
     }
     if (error = NSFItemAppend(
@@ -1164,7 +1165,7 @@ STATUS  LNPUBLIC  SetAgentMachineName( NOTEHANDLE hAgent )
                 szUserName,                         /* item value */
                 (DWORD) strlen(szUserName)))        /* value length */
     {
-        printf("Error: unable to set Machine Name field in Agent note.\n");
+        PRINTLOG("Error: unable to set Machine Name field in Agent note.\n");
     }
 
     return(error);
@@ -1190,7 +1191,7 @@ STATUS  LNPUBLIC  SetAgentVersion(NOTEHANDLE hAgent)
                       ASSIST_VERSION_ITEM,        /* "$AssistVersion" */
                       &CurrTimeDate))
     {
-        printf("Error: unable to set Version field of Agent note.\n");
+        PRINTLOG("Error: unable to set Version field of Agent note.\n");
     }
     return(error);
 }
@@ -1226,7 +1227,7 @@ STATUS  LNPUBLIC  SetAgentType (NOTEHANDLE hAgent, WORD wActionType)
                 &TempNumber,                   /* item value */
                 (DWORD) sizeof(TempNumber)))   /* value length */
     {
-        printf("Error: unable to set AssistType field in Agent note.\n");
+        PRINTLOG("Error: unable to set AssistType field in Agent note.\n");
     }
     return(error);
 }
@@ -1262,7 +1263,7 @@ STATUS  LNPUBLIC  SetAgentLastInfo(NOTEHANDLE hAgent)
                 &EmptyTimeDate,                     /* item value */
                 (DWORD) sizeof(EmptyTimeDate)))     /* value length */
     {
-        printf("Error: unable to set LastRun field of Agent note.\n");
+        PRINTLOG("Error: unable to set LastRun field of Agent note.\n");
         return(error);
     }
 
@@ -1276,7 +1277,7 @@ STATUS  LNPUBLIC  SetAgentLastInfo(NOTEHANDLE hAgent)
                 &DocCount,                          /* item value */
                 (DWORD) sizeof(DocCount)))          /* value length */
     {
-        printf("Error: unable to set DocCount field of Agent note.\n");
+        PRINTLOG("Error: unable to set DocCount field of Agent note.\n");
     }
     return(error);
 }
@@ -1312,7 +1313,7 @@ STATUS  LNPUBLIC  SetAgentAssistFlags( NOTEHANDLE hAgent, char *szFlags )
                 szFlags,                            /* item value */
                 (DWORD) strlen(szFlags)))           /* value length */
     {
-        printf("Error: unable to set AssistFlags field in Agent note.\n"); 
+        PRINTLOG("Error: unable to set AssistFlags field in Agent note.\n"); 
     }
     return (error);
 }
@@ -1349,7 +1350,7 @@ STATUS  LNPUBLIC  SetAgentTrigger( NOTEHANDLE hAgent, WORD wTrigger )
                 &cType, 
                 (WORD)1))
     {
-        printf("Error: unable to set AssistTrigger field in Agent note.\n");
+        PRINTLOG("Error: unable to set AssistTrigger field in Agent note.\n");
     }
     return(error);    
 }
@@ -1374,7 +1375,7 @@ STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE hAgent, ODS_ASSISTSTRUCT AgentInfo )
 {
         STATUS          error = NOERROR;
         char            *pBuffer;
-        DHANDLE           hItem;
+        DHANDLE         hItem;
         DWORD           dwItemLen;
         BLOCKID         bhValue;
  
@@ -1410,15 +1411,15 @@ STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE hAgent, ODS_ASSISTSTRUCT AgentInfo )
                        sizeof(ASSIST_INFO_ITEM)-1,/* item length */
                         bhValue,                   /* BLOCKID with value */
                         dwItemLen, NULL))          /* value length */
-                {
-                OSMemFree(hItem);
-                goto Exit0;
-                }
+        {
+            OSMemFree(hItem);
+            goto Exit0;
+        }
 Exit0:
 
     if (error)
     {
-        printf("Error: unable to append AgentInfo item to Agent note.\n");
+        PRINTLOG("Error: unable to append AgentInfo item to Agent note.\n");
     }
     return (error);
 }
@@ -1475,7 +1476,7 @@ STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE hAgent,
                 &AgentQuery,                       /* item value */
                 (DWORD) AgentQuery.Header.Length)) /* value length */
     {
-        printf("Error: unable to append AssistQuery item to Agent note.\n");
+        PRINTLOG("Error: unable to append AssistQuery item to Agent note.\n");
         return (error);
     }
 
@@ -1489,7 +1490,7 @@ STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE hAgent,
                 AgentAction,                      /* item value */
                 (DWORD) dwActionLen ))           /* value length */
     {
-        printf("Error: unable to append AssistAction item to Agent note.\n");
+        PRINTLOG("Error: unable to append AssistAction item to Agent note.\n");
         return (error);
     }
 
@@ -1503,7 +1504,7 @@ STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE hAgent,
                 AgentAction,                      /* item value */
                 (DWORD) sizeof(WORD)))            /* value length */
     {
-        printf("Error: unable to append AssistActionEx item to Agent note.\n");
+        PRINTLOG("Error: unable to append AssistActionEx item to Agent note.\n");
     }
 
     return (error);
@@ -1570,7 +1571,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
                                      (NOTE_CLASS_FILTER | NOTE_CLASS_PRIVATE),
                                      0, &dwObjectID))
         {
-            printf("Error: unable to allocate private RunInfo Object.\n");
+            PRINTLOG("Error: unable to allocate private RunInfo Object.\n");
             goto Exit1;
         }
     }
@@ -1582,7 +1583,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
                                      NOTE_CLASS_DOCUMENT, 
                                      0, &dwObjectID))
         {
-            printf("Error: unable to allocate shared RunInfo Object.\n");
+            PRINTLOG("Error: unable to allocate shared RunInfo Object.\n");
             goto Exit1;
         }
     }
@@ -1595,7 +1596,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
 
     if (error = OSMemAlloc(0, dwItemSize, &(bidRunInfo.pool)))
     {
-        printf("Error: unable to allocate %ld bytes for RunInfo item.\n",
+        PRINTLOG("Error: unable to allocate %ld bytes for RunInfo item.\n",
                                     dwItemSize);
         NSFDbFreeObject(hDb, dwObjectID);
         goto Exit1;
@@ -1619,7 +1620,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
                             dwItemSize,
                             TRUE))      /* Domino and Notes will deallocate memory */
     {
-        printf("Error: unable to append %s item.\n", ASSIST_RUNINFO_ITEM);
+        PRINTLOG("Error: unable to append %s item.\n", ASSIST_RUNINFO_ITEM);
         OSMemFree(bidRunInfo.pool);
         goto Exit1;
     }
@@ -1627,7 +1628,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
         /* set up initial Run object header and entry placeholder */
     if (error = OSMemAlloc(0, dwObjectSize, &hRunInfo))
     {
-        printf("Error: unable to allocate empty initial RunInfo structures.\n");
+        PRINTLOG("Error: unable to allocate empty initial RunInfo structures.\n");
         goto Exit1;
     }
 
@@ -1642,35 +1643,10 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
     /* and add to object */
     if (error = NSFDbWriteObject(hDb, dwObjectID, hRunInfo, 0, dwObjectSize))
     {
-        printf("Error: unable to assign initial AssistRunInfo field.\n");
+        PRINTLOG("Error: unable to assign initial AssistRunInfo field.\n");
         goto Exit1;
     }
 
 Exit1:
     return (error);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

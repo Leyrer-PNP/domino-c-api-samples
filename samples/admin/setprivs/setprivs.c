@@ -58,6 +58,7 @@
 #include <stdnames.h>
 #include <textlist.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -80,8 +81,6 @@ STATUS UpdateReaderList (NOTEHANDLE, READER_LIST,
                      DWORD *, DWORD *);
 void LNPUBLIC  ProcessArgs (int argc, char *argv[], 
                                char *FileName, char *ViewName, short *SetReaderList, WORD *NewPrivileges, char **TheRList, WORD *numEntries, short *FreeList);
-
-void PrintAPIError (STATUS);
 
 
 /************************************************************************
@@ -144,10 +143,10 @@ int main(int argc, char *argv[])
     short FreeList;
 
     if (error = NotesInitExtended (argc, argv))
-       {
-       printf("\n Unable to initialize Notes.\n");
+    {
+       PRINTLOG("\n Unable to initialize Notes.\n");
        return(1);
-       } 
+    }
 
     /********************************************************************/
     /* Read the command line arguments,
@@ -160,7 +159,7 @@ int main(int argc, char *argv[])
 
     if (SetReaderList && ReaderList.NumEntries == 0)
     {
-      printf("\nError: No read access name list specified.\n");
+      PRINTLOG("\nError: No read access name list specified.\n");
       goto Done2;
     }
 
@@ -180,14 +179,14 @@ int main(int argc, char *argv[])
     /********************************************************************/
     
     if (error = NIFFindView(hDB, ViewName, &ViewNoteID))
-        {
+    {
         if (error == ERR_NOT_FOUND)
-            {
-            printf("View '%s' cannot be found\n", ViewName);
+        {
+            PRINTLOG("View '%s' cannot be found\n", ViewName);
             error = NOERROR;
-            }
-        goto Done1;
         }
+        goto Done1;
+    }
 
     /* Open the collection of notes in the view at the current time.
        Return a handle to the collection to the variable hCollection. */
@@ -211,7 +210,7 @@ int main(int argc, char *argv[])
     /* Create a buffer of note IDs copied from the collection and store the
        note IDs into a buffer with handle hBuffer. */
     do
-        {
+    {
         if (error = NIFReadEntries(hCollection,
                                &IndexPos,
                                NAVIGATE_NEXT, 1L,
@@ -219,7 +218,7 @@ int main(int argc, char *argv[])
                                READ_MASK_NOTEID,
                                &hBuffer, NULL,
                                NULL, &EntriesReturned, &SignalFlag))
-           goto Done;
+        goto Done;
 
     
         /****************************************************************/
@@ -241,7 +240,7 @@ int main(int argc, char *argv[])
         /********************************************************************/
 
         if (hBuffer != NULLHANDLE)
-            {
+        {
             char String[512];
             DWORD i;
   
@@ -251,7 +250,7 @@ int main(int argc, char *argv[])
 
             /* process each individual noteID       */
             for (i=0; i < EntriesReturned; i++, entry++)
-                {
+            {
                 NOTEHANDLE hNote;
  
                 /* skip this noteID if it is for a category entry  */
@@ -261,16 +260,16 @@ int main(int argc, char *argv[])
                 /* open each note separately, follow each with 
                    close of note */
                 if (error = NSFNoteOpen(hDB, *entry, 0, &hNote))
-                    {
+                {
                     OSLoadString(NULLHANDLE, ERR(error), String,
                                  sizeof(String)-1);
-                    printf("Error '%s' reading docment %#lX -- %s\n",
+                    PRINTLOG("Error '%s' reading docment %#lX -- %s\n",
                             String, *entry, " skipping it");
                     /* Since the error has been reported, we will
                        reset the error status and continue */
                     error = NOERROR;
                     continue;
-                    }
+                }
 
 
                 if (SetReaderList)
@@ -283,24 +282,24 @@ int main(int argc, char *argv[])
                 /* close each note   */
                 NSFNoteClose(hNote);
                 if (error)
-                    {
+                {
                     OSLoadString(NULLHANDLE, ERR(error), String,
                                  sizeof(String)-1);
-                    printf("Error '%s' writing document %#lX -- %s\n",
+                    PRINTLOG("Error '%s' writing document %#lX -- %s\n",
                            String, *entry, "skipping it");
                     /* Since the error has been reported, we will
                        reset the error status and continue */
                     error = NOERROR;
                     continue;
-                    }
-                }  /* for (i=0;i<EntriesReturned; i++, entry++) */
+                }
+            }  /* for (i=0;i<EntriesReturned; i++, entry++) */
 
-            /* finished with all noteIDs, unlock memory and free it   */
-            OSUnlockObject(hBuffer);
-            OSMemFree(hBuffer);
-            }   /* if (hBuffer != NULLHANDLE) */
+                /* finished with all noteIDs, unlock memory and free it   */
+                OSUnlockObject(hBuffer);
+                OSMemFree(hBuffer);
+        }       /* if (hBuffer != NULLHANDLE) */
 
-        }  while (SignalFlag & SIGNAL_MORE_TO_DO);
+    }  while (SignalFlag & SIGNAL_MORE_TO_DO);
 
        NIFCloseCollection(hCollection);
 
@@ -328,16 +327,16 @@ Done2:
     */
     /********************************************************************/
     if (!error)
-        {
+    {
         if (NumUpdated)
-            printf("%lu documents had their privileges updated\n",
+            PRINTLOG("%lu documents had their privileges updated\n",
                    NumUpdated);
         if (NumNotUpdated)
-            printf("%lu documents already had the desired privileges\n",
+            PRINTLOG("%lu documents already had the desired privileges\n",
                    NumNotUpdated);
-        }
+    }
     else
-       PrintAPIError(error);
+       PRINTERROR(error,"NSFDbOpen");
 
 
     /* Free the reader list */
@@ -382,11 +381,11 @@ STATUS UpdatePrivMask (NOTEHANDLE hNote, WORD NewPrivMask,
     if (OldPrivMask == NewPrivMask)
        (*pdwNumNotUpdated)++;
     else
-        {
+    {
         NSFNoteSetInfo (hNote, _NOTE_PRIVILEGES, &NewPrivMask);
         if (!(error = NSFNoteUpdate(hNote, UPDATE_NOCOMMIT)))
             (*pdwNumUpdated)++;
-        }
+    }
     return (error);
 }
 
@@ -430,15 +429,15 @@ STATUS UpdateReaderList (NOTEHANDLE hNote, READER_LIST ReaderList,
                                (WORD) strlen(DESIGN_READERS)))
             return (error);
 
-     pTextEntry = *(ReaderList.pReaderEntries);
-     if (pTextEntry[0] == '\0')
-         {
+    pTextEntry = *(ReaderList.pReaderEntries);
+    if (pTextEntry[0] == '\0')
+    {
          /* Just update the note - the $Readers field is deleted */
 
-         if (!(error = NSFNoteUpdate(hNote, UPDATE_NOCOMMIT)))
+        if (!(error = NSFNoteUpdate(hNote, UPDATE_NOCOMMIT)))
              (*pdwNumUpdated)++;
          return (error);
-         }
+    }
 
     /* Create an empty text list structure */
 
@@ -450,17 +449,17 @@ STATUS UpdateReaderList (NOTEHANDLE hNote, READER_LIST ReaderList,
 
     /* Add each text list entry */
     for (i = 0; i < ReaderList.NumEntries; i++)
-        {
+    {
         pTextEntry = *(ReaderList.pReaderEntries + i);
 
         if (error = ListAddEntry (hList, FALSE, &wListSize, i,
                                   pTextEntry, (WORD)strlen(pTextEntry)))
-            {
+        {
             OSMemFree(hList);
             return (error);
-            }
+        }
 
-        }  /* for */
+    }  /* for */
 
     /* Add the completed field to the note. */
 
@@ -599,29 +598,3 @@ tryagain:
 
   } /* end if */
 } /* ProcessArgs */
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

@@ -43,6 +43,7 @@
 #include <editdflt.h>
 #include <editods.h>
 #include <colorid.h>
+#include <PRINTLOG.h>
 
 
 /**********************************************************************
@@ -83,7 +84,7 @@ BOOL LNPUBLIC PutText(BYTE *pbRTItem, LPSTR pText,
     
     if (pbRTItem == NULL || pdwRTLength == (DWORD far *)NULL)
     {
-        printf("Error in PutText: Current buffer is empty\n");
+        PRINTLOG("Error in PutText: Current buffer is empty\n");
         return (FALSE);
     }
 
@@ -94,7 +95,7 @@ BOOL LNPUBLIC PutText(BYTE *pbRTItem, LPSTR pText,
 
     if (((DWORD) (ODSLength(_CDTEXT) + wTextLength)) > dwLength)
     {
-        printf("Error in PutText: Not enough space left in the buffer\n");
+        PRINTLOG("Error in PutText: Not enough space left in the buffer\n");
         return (FALSE);
     }
 
@@ -167,7 +168,7 @@ BOOL LNPUBLIC PutOLEBegin(BYTE far *pbRTItem,
     
     if (pbRTItem == NULL || pdwRTLength == (DWORD far *)NULL)
     {
-        printf("Error in PutOLEBegin: Item buffer is invalid\n");
+        PRINTLOG("Error in PutOLEBegin: Item buffer is invalid\n");
         return (FALSE);
     }
 
@@ -179,7 +180,7 @@ BOOL LNPUBLIC PutOLEBegin(BYTE far *pbRTItem,
          lstrlen(pszAttachmentName) +
          lstrlen(pszClassName))) > dwLength)
     {
-        printf("Error in PutOLEBegin: Not enough space left in the item buffer\n");
+        PRINTLOG("Error in PutOLEBegin: Not enough space left in the item buffer\n");
         return (FALSE);
     }
 
@@ -272,7 +273,7 @@ BOOL LNPUBLIC PutOLEEnd(BYTE *pbRTItem, DWORD dwLength,
     
     if (pbRTItem == NULL || pdwRTLength == (DWORD far *)NULL)
     {
-        printf("Error in PutOLEEnd: Invalid buffer\n");
+        PRINTLOG("Error in PutOLEEnd: Invalid buffer\n");
         return (FALSE);
     }
 
@@ -280,7 +281,7 @@ BOOL LNPUBLIC PutOLEEnd(BYTE *pbRTItem, DWORD dwLength,
     
     if (dwLength < ODSLength(_CDOLEEND))
     {
-        printf("Error in PutOLEEnd: Not enough space left in the buffer\n");
+        PRINTLOG("Error in PutOLEEnd: Not enough space left in the buffer\n");
         return (FALSE);
     }
 

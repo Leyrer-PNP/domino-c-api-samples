@@ -17,15 +17,15 @@
  * extwin.c - Windows DLL framework for extension manager password override.
  */
 
-        /* Windows header files */
+/* Windows header files */
 #include "windows.h"
 
-        /* Domino and Notes header files */
+/* Domino and Notes header files */
 #include "global.h"
 #include "extmgr.h"
 #include "bsafeerr.h"
 
-        /* Sample program header files */
+/* Sample program header files */
 #include "extpwd.h"
 #include "extenv.h"
 #include "extpwdrs.h"

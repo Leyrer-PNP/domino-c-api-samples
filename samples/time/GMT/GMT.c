@@ -30,7 +30,7 @@
         parameters compared are  date,time, daylight saving time and timezone 
 
         APIs explored : TimeExtractTicks,TimeExtractDate,TimeGMToLocalZone.
-                        TimeGMToLocal
+                        TimeGMToLocal,ConvertTIMEDATEtoRFC3339Date
         
 ****************************************************************************/
 /*    C Includes */
@@ -46,6 +46,7 @@
 #include <osfile.h>
 #include <ostime.h>
 #include <misc.h>
+#include <printLog.h>
 
 
 #define ZONE_MASK                0x0f000000L
@@ -61,6 +62,7 @@
 #define    ZONE_MINUTES(x)            ((((x)&0x30)>>4)*ZONE_MINUTE_GRANULARITY)
 #define    ZONE_EAST_OF_GMT(x)        (((x)&0x40)!=0)
 
+#define    TEXTBUFSIZE 24
 
 STATUS after_cleanup(STATUS exit_status);
 
@@ -79,56 +81,56 @@ int main(int argc, char *argv[])
     int       iTimeZone, iDst, iGMT_hour, iGMT_min, iGMT_datetime;
      
 
-    printf("Test of TimeExtractDate\n");
+    PRINTLOG("Test of TimeExtractDate\n");
 
     /* Start Notes */
     if(error = NotesInitExtended (argc, argv)){
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
     /* Reading current Timezone and Dayy light saving time */
-    printf("Calling OSCurrentTimeZone to get the time zone\n");
+    PRINTLOG("Calling OSCurrentTimeZone to get the time zone\n");
     OSCurrentTimeZone(&iTimeZone, &iDst);
   
     /* Reading Current time into tdNowTime */
-    printf("Calling OSCurrentTIMEDATE to put something in tdNowTime\n");
+    PRINTLOG("Calling OSCurrentTIMEDATE to put something in tdNowTime\n");
     OSCurrentTIMEDATE(&tdNowTime);
 
     /* Extracting ticks from current time */
-    printf("Calling TimeExtractTicks to get the Time part\n");
+    PRINTLOG("Calling TimeExtractTicks to get the Time part\n");
     dwTime = TimeExtractTicks(&tdNowTime);
 
     /* Extracting date from current time including Timezone and DST */
-    printf("Calling TimeExtractDate to get the Date part\n");
+    PRINTLOG("Calling TimeExtractDate to get the Date part\n");
     dwDate = TimeExtractDate(&tdNowTime);
   
-    printf("TimeExtractDate returned with %#8.8x\n", dwDate);
+    PRINTLOG("TimeExtractDate returned with %#8.8x\n", dwDate);
 
-    printf("Comparing OS DST to returned DST\n");
+    PRINTLOG("Comparing OS DST to returned DST\n");
 
     /* Extract DST from Date and compare it to value returned by OSCurrentTimeZone */
 
     if(iDst != (int) ((dwDate & DST_MASK)>>31)){
-        printf("Daylight Savings Times do not match - FAILED\n");
+        PRINTLOG("Daylight Savings Times do not match - FAILED\n");
         return(after_cleanup(-1));
     }
-    printf("Daylight Savings Times match - VERIFIED\n");  
+    PRINTLOG("Daylight Savings Times match - VERIFIED\n");  
 
     /* Mask off the time zone and Daylight Savings Time (Probably not needed)*/
 
     dwDate = dwDate & DATE_MASK;
 
-    printf("Calling TimeConstruct with Date = %#x Time = %#x\n",
+    PRINTLOG("Calling TimeConstruct with Date = %#x Time = %#x\n",
             (ULONG)dwDate, (ULONG)dwTime);
     TimeConstruct(dwDate, dwTime, &tdReturnTime);
 
-    printf("Comparing original TIMEDATE to returned TIMEDATE\n");
+    PRINTLOG("Comparing original TIMEDATE to returned TIMEDATE\n");
     if(!TimeDateEqual(&tdNowTime, &tdReturnTime)){
-        printf( "TIMEDATEs do not match - FAILED\n");
+        PRINTLOG( "TIMEDATEs do not match - FAILED\n");
         return(after_cleanup(-1));
     }
-    printf("TIMEDATEs match - VERIFIED\n");
+    PRINTLOG("TIMEDATEs match - VERIFIED\n");
 
     /* converting current timezone into GMT timeZone */
      
@@ -136,14 +138,46 @@ int main(int argc, char *argv[])
     tTime.zone = -3005; /* GMT+5:30 */
     tTime.dst = 0;
     TimeGMToLocalZone(&tTime);
-    printf("hour : %d minute : %d second : %d \n ", tTime.hour, tTime.minute, tTime.second);
+    PRINTLOG("hour : %d minute : %d second : %d \n ", tTime.hour, tTime.minute, tTime.second);
     tTime.zone = 0; 
     tTime.dst = 0;
     TimeGMToLocalZone(&tTime);
-    printf("hour : %d minute : %d second : %d \n ", tTime.hour, tTime.minute, tTime.second);
+    PRINTLOG("hour : %d minute : %d second : %d \n ", tTime.hour, tTime.minute, tTime.second);
     TimeGMToLocal(&tTime);
-    printf("hour : %d minute : %d second : %d \n", tTime.hour, tTime.minute, tTime.second);
+    PRINTLOG("hour : %d minute : %d second : %d \n", tTime.hour, tTime.minute, tTime.second);
     
+	/* converting current timedate to RFC339 timedate */
+
+    PRINTLOG("Test of ConvertTIMEDATEtoRFC3339Date\n");
+
+    /* print Notes TIMEDATE*/
+
+    char retTextBuffer[MAXALPHATIMEDATE + 1] = {0};
+    WORD dwTextLength = 0;
+
+    if(error = ConvertTIMEDATEToText(NULL,NULL,&tdNowTime,retTextBuffer,MAXALPHATIMEDATE+1,&dwTextLength)){
+	PRINTLOG("Error in ConvertTIMEDATEToText\n");
+	return(after_cleanup(-1));
+    }
+    PRINTLOG("Notes TIMEDATE = %s\n",retTextBuffer);
+
+    char textBuffer[MAXSPRINTF] = {0}; /*String buffer to get the converted TIMEDATE. */
+    /*
+     * Parameters for ConvertTIMEDATEtoRFC3339Date API -
+     * tdNowTime = TIMEDATE that is needed for conversion.
+     * textBuffer = String Buffer to recieve converted TIMEDATE.
+     *              It should be of MAXSPRINTF = 256.
+     * textBufferSize = String Buffer Size. Big enough to inlude the trailing null char.
+     *              It should be greater than or equal to TIME_RFC3339_LEN(23) + 1.
+    */
+     if (error = ConvertTIMEDATEtoRFC3339Date(&tdNowTime,textBuffer,TEXTBUFSIZE)){
+	PRINTLOG( "Error in converting TIMEDATE to RFC339 TIMEDATE\n");
+        return(after_cleanup(-1));
+     }
+     else {
+        PRINTLOG("RFC339 TIMEDATE = %s\n",textBuffer);
+        PRINTLOG("Successfully converted Notes TIMEDATE to RFC339 TIMEDATE.\n");
+     }
 
     return(after_cleanup(0));
 }

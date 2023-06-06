@@ -16,7 +16,6 @@
             SysFileCreateDirectory
             SysFileCopy
             MapDosError
-            print_api_error
 
 ****************************************************************************/
 
@@ -74,19 +73,18 @@ STATUS LNPUBLIC SysFileOpenRead( char * FileName, int * phRetFile )
 *************************************************************************/
 {
     //HFILE   hFile;
-	HANDLE   hFile;
-	
-    DWORD   error;
-    char    NFileName[MAXPATH];
+    HANDLE   hFile;
+    DWORD    error;
+    char     NFileName[MAXPATH];
 
-int a;
-DHANDLE b;
-HFILE c;
-printf("int: %d\n",sizeof(a));
-printf("handle: %d\n",sizeof(hFile));
-printf("dhandle: %d\n",sizeof(b));
-printf("HFILE: %d\n",sizeof(c));
-printf("HFILE_ERROR = : %d\n",HFILE_ERROR);
+    int a;
+    DHANDLE b;
+    HFILE c;
+    printf("int: %d\n",sizeof(a));
+    printf("handle: %d\n",sizeof(hFile));
+    printf("dhandle: %d\n",sizeof(b));
+    printf("HFILE: %d\n",sizeof(c));
+    printf("HFILE_ERROR = : %d\n",HFILE_ERROR);
 
     OSTranslate (OS_TRANSLATE_LMBCS_TO_NATIVE,
                  FileName,
@@ -127,7 +125,7 @@ STATUS LNPUBLIC SysFileCreate( char * FileName, int * phRetFile )
 *************************************************************************/
 {
     //HFILE   hFile;
-	HANDLE   hFile;
+    HANDLE   hFile;
     DHANDLE  nHandle = NULL;
     DWORD   error;
     char    NFileName[MAXPATH];
@@ -392,26 +390,3 @@ STATUS MapDosError(DWORD wDosCode)
     return(usNotesErr);
 }
 
-char * print_api_error (STATUS api_error)
-/************************************************************************
-
-    FUNCTION:   print_api_error
-
-    PURPOSE:    This function prints the API error message associated
-                with an error   code.
-
-*************************************************************************/
-{
-    STATUS   string_id = ERR(api_error);
-    WORD     text_len;
-
-    /* Get the text for this API error code from the resource string table. */
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print error text. */
-    fprintf (stderr, "\n %s\n", error_text);
-    return error_text;
-}

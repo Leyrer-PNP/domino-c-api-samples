@@ -90,6 +90,7 @@ extern "C" {
 #include <osmem.h>
 #include <textlist.h>
 #include <acl.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -134,9 +135,6 @@ void GetAccessLevelStr (WORD wAccessLevel, char *pAccessLevelName);
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                              char *db_name, char *db_mgr); 
 
-/* Local function prototypes */
-void PrintAPIError (STATUS);
-
 int main (int argc, char *argv[])
 {
    char DBPath[STRING_LENGTH];
@@ -159,18 +157,19 @@ int main (int argc, char *argv[])
    
    if (error = NotesInitExtended (argc, argv))
    {
-      printf("\n Unable to initialize Notes.\n");
+      PRINTLOG("\n Unable to initialize Notes.\n");
       return (1);
    }
-
+   
    /* Get the command line parameters that the user entered. */
    ProcessArgs(argc, argv, DBPath, DBMgr);
+   
 
    /* Open the database */
 
    if (error = NSFDbOpen (DBPath, &hDB))
    {
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFDbOpen");
       NotesTerm();
       return (1);
    }
@@ -179,7 +178,7 @@ int main (int argc, char *argv[])
    if (error = NSFDbReadACL(hDB, &hACL))
    {
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFDbReadACL");
       NotesTerm();
       return (1);
    }
@@ -192,7 +191,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLSetPrivName");
       NotesTerm();
       return (1);
    }
@@ -212,7 +211,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLAddEntry");
       NotesTerm();
       return (1);
    }
@@ -236,7 +235,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLAddEntry");
       NotesTerm();
       return (1);
    }
@@ -251,17 +250,17 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLAddEntry");
       NotesTerm();
       return (1);
    }
 
    /* List all users and their ACL info */
 
-   printf ("\n*** ACL info after the first set of changes ***\n");
-   printf ("\n                    Access Level/");
-   printf ("\nName                Privileges           Roles\n");
-   printf   ("----------          -------------        ----------\n\n");
+   PRINTLOG ("\n*** ACL info after the first set of changes ***\n");
+   PRINTLOG ("\n                    Access Level/");
+   PRINTLOG ("\nName                Privileges           Roles\n");
+   PRINTLOG   ("----------          -------------        ----------\n\n");
    if (error = ACLEnumEntries (hACL,            /* handle to ACL */
                             EnumACLCallback, /* callback function pointer */
                             &hACL))          /* pointer to params passed to
@@ -269,7 +268,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLEnumEntries");
       NotesTerm();
       return (1);
    }
@@ -284,7 +283,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLAddEntry");
       NotesTerm();
       return (1);
    }
@@ -294,7 +293,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLDeleteEntry");
       NotesTerm();
       return (1);
    }
@@ -315,7 +314,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLUpdateEntry");
       NotesTerm();
       return (1);
    }
@@ -334,7 +333,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLUpdateEntry");
       NotesTerm();
       return (1);
    }
@@ -342,10 +341,10 @@ int main (int argc, char *argv[])
 
    /* List all users and their ACL info  */
 
-   printf ("*** ACL info after the second set of changes ***\n");
-   printf ("\n                    Access Level/");
-   printf ("\nName                Privileges           Roles\n");
-   printf   ("----------          -------------        ----------\n\n");
+   PRINTLOG ("*** ACL info after the second set of changes ***\n");
+   PRINTLOG ("\n                    Access Level/");
+   PRINTLOG ("\nName                Privileges           Roles\n");
+   PRINTLOG   ("----------          -------------        ----------\n\n");
    if (error = ACLEnumEntries (hACL,            /* handle to ACL */
                             EnumACLCallback, /* callback function pointer */
                             &hACL))          /* pointer to params passed to
@@ -353,7 +352,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"ACLEnumEntries");
       NotesTerm();
       return (1);
    }
@@ -372,8 +371,8 @@ int main (int argc, char *argv[])
                              &hRoleNames))    /* handle to returned buffer of
                                                  role names */
    {
-       printf ("\nerror in ACLLookupAccess: ");
-       PrintAPIError (error);
+       PRINTLOG ("\nerror in ACLLookupAccess: ");
+       PRINTERROR (error,"ACLLookupAccess");
    }
 
    else
@@ -399,8 +398,8 @@ int main (int argc, char *argv[])
                              &hRoleNames))    /* handle to returned buffer of
                                                  role names */
    {
-       printf ("\nerror in ACLLookupAccess: ");
-       PrintAPIError (error);
+       PRINTLOG ("\nerror in ACLLookupAccess: ");
+       PRINTERROR (error,"ACLLookupAccess");
    }
 
    else
@@ -419,7 +418,7 @@ int main (int argc, char *argv[])
    {
       OSMemFree (hACL);
       NSFDbClose (hDB);
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFDbStoreACL");
       NotesTerm();
       return (1);
    }
@@ -431,13 +430,13 @@ int main (int argc, char *argv[])
    /* Close the database */
    if (error = NSFDbClose (hDB))  
    {
-      PrintAPIError (error);
+      PRINTERROR (error,"NSFDbClose");
       NotesTerm();
       return (1);
    }
 
    /* if there's no error print success message */
-   printf("\n\nProgram completed successfully.\n");
+   PRINTLOG("\n\nProgram completed successfully.\n");
 
    NotesTerm();
    return (0);
@@ -466,11 +465,11 @@ void LNPUBLIC EnumACLCallback (void *pParams, char far *Name,
    int i;
    STATUS error;
 
-   printf ("%-20s", Name);
+   PRINTLOG ("%-20s", Name);
    
    /* Get the access level */
    GetAccessLevelStr (wAccessLevel, szTempStr);
-   printf ("%-20s", szTempStr);
+   PRINTLOG ("%-20s", szTempStr);
 
    /* Get the role name from the role bits */
    
@@ -483,22 +482,24 @@ void LNPUBLIC EnumACLCallback (void *pParams, char far *Name,
                      (WORD)i,            /* role number */
                      szTempStr);         /* returned role name */
          if (error == NOERROR)
-            printf ("%s\n                                        ", 
+	 {
+            PRINTLOG ("%s\n                                        ", 
                     szTempStr);
+	 }
          else
          {
-             PrintAPIError (error);
+             PRINTERROR (error,"ACLGetPrivName");
          }
       }
 
-   printf("\n");
+   PRINTLOG("\n");
 
    /* Interpret the access level privilege flags */
    if (wAccessFlags & ACL_FLAG_AUTHOR_NOCREATE)
-      printf ("                    Cannot create docs.\n");
+      PRINTLOG ("                    Cannot create docs.\n");
    if (wAccessFlags & ACL_FLAG_NODELETE)
-      printf ("                    Cannot delete docs.\n");
-   printf("\n\n");
+      PRINTLOG ("                    Cannot delete docs.\n");
+   PRINTLOG("\n\n");
 }
 
 
@@ -527,17 +528,17 @@ void PrintACLLookup (char *pUserName, WORD wAccessLevel,
    WORD wTextSize;
    STATUS error;
 
-   printf ("\n\n*** \"%s\" ACL info from ACLLookupAccess function ***\n",
+   PRINTLOG ("\n\n*** \"%s\" ACL info from ACLLookupAccess function ***\n",
                pUserName);
-   printf ("\n%s has the following access:\n", pUserName);
+   PRINTLOG ("\n%s has the following access:\n", pUserName);
    GetAccessLevelStr (wAccessLevel, szTempStr);
-   printf ("      Access Level:  %s\n", szTempStr);
+   PRINTLOG ("      Access Level:  %s\n", szTempStr);
 
    /* Interpret the access level privilege flags */
    if (wAccessFlags & ACL_FLAG_AUTHOR_NOCREATE)
-      printf ("                     Cannot create docs.\n");
+      PRINTLOG ("                     Cannot create docs.\n");
    if (wAccessFlags & ACL_FLAG_NODELETE)
-      printf ("                     Cannot delete docs.\n");
+      PRINTLOG ("                     Cannot delete docs.\n");
 
 
    /* if there are no role names, just return */
@@ -557,7 +558,7 @@ void PrintACLLookup (char *pUserName, WORD wAccessLevel,
    pText = szText;                             /* set up a pointer to a
                                                   text list entry */
    if (nEntries)
-      printf ("      Roles:");
+      PRINTLOG ("      Roles:");
 
    for (i = 0; i < nEntries; i++)
    {
@@ -569,14 +570,14 @@ void PrintACLLookup (char *pUserName, WORD wAccessLevel,
 
       if (error != NOERROR)
       {
-         PrintAPIError (error);
+         PRINTERROR (error,"ListGetText");
       }
       else
       {
          /* Copy the entry to the print buffer */
          strncpy (szTempStr, pText, wTextSize);
          szTempStr [wTextSize] = '\0';
-         printf (" %s\n", szTempStr);
+         PRINTLOG (" %s\n", szTempStr);
       }
    }
    
@@ -664,31 +665,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         strcpy(db_mgr, argv[2]);    
     } /* end if */
 } /* ProcessArgs */
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #if defined __cplusplus
 }
 #endif

@@ -70,25 +70,25 @@ and the collection to be searched is the collection of the view KEYVIEW.
 - Under Windows, or UNIX (AIX, HP, Linux),
   type the following at the system command prompt:
  
-        twokey <primary key> <secondary key>
-                 or
-        twokey
+        twokey <nsf file name> <View name> <primary key> <secondary key>
+        
  
   where:
  
-  <primary key> and <secondary key> are the search strings that Domino and 
+  <nsf file name> is the nsf file name on which the sample will run ,<View name> is the view to be opened,<primary key> and <secondary key> are the search strings that Domino and 
   Notes will match in the primary and secondary sort columns of the collection.
   If no command line arguments are provided, the program will prompt for them.
  
 
 EXAMPLE:
 
-      twokey Elvis 99
+      twokey "twokey.nsf" "KeyView" "Elvis" "99"
 
 
 - Under IBM i type,
       rundomcmd server(<server name>) cmd(call pgm(qntcsdk/twokey)
 		parm(Elvis '99')) batch(*no)
+
 Here is what twokey will display:
 --------------------------------
 

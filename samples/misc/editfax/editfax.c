@@ -41,13 +41,14 @@
 #include <editdflt.h>
 #include <nsfsearc.h>    /* SEARCH_MATCH, etc. */
 #include <osmisc.h>
+#include <PRINTLOG.h>
 
 /* OS include files */
 #ifndef UNIX
 #include <wingdi.h> 
 #endif
 #include <stdio.h>
-#include <stdlib.h>
+
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -110,7 +111,7 @@ int main (int argc, char *argv[])
 
    if (error = NotesInitExtended (argc, argv))
    {
-      printf("\n Unable to initialize Notes.\n");
+      PRINTLOG("\n Unable to initialize Notes.\n");
       return (1);
    }
 
@@ -125,7 +126,7 @@ int main (int argc, char *argv[])
 
    if (error = NSFDbOpen(SOURCEDB, &hSourceDB))
       {
-      printf("Cannot open source database %s: %e\n", SOURCEDB, error);
+      PRINTLOG("Cannot open source database %s: %e\n", SOURCEDB, error);
       goto exit0;
       }
 
@@ -134,7 +135,7 @@ int main (int argc, char *argv[])
 
    if (error = NSFDbOpen(TARGETDB, &hTargetDB))
       {
-      printf("Cannot open target database %s: %e\n", TARGETDB, error);
+      PRINTLOG("Cannot open target database %s: %e\n", TARGETDB, error);
       goto exit1;
       }
 
@@ -242,7 +243,7 @@ STATUS near PASCAL FaxDocument (NOTEID SourceNoteID)
 
    if (!EPBContext.hPaint)
       {
-      printf("Cannot create memory DC\n");
+      PRINTLOG("Cannot create memory DC\n");
       NSFNoteClose(hTargetNote);
       return(NOERROR);  
       }
@@ -285,7 +286,7 @@ STATUS near PASCAL FaxDocument (NOTEID SourceNoteID)
 
    /*   Print the note to the bitmaps */
 
-   printf("Printing note %lX to bitmap...\n",SourceNoteID);
+   PRINTLOG("Printing note %lX to bitmap...\n",SourceNoteID);
 
    error = EditorPrintNoteToBitmap(hSourceDB,
                SourceNoteID,
@@ -301,7 +302,7 @@ STATUS near PASCAL FaxDocument (NOTEID SourceNoteID)
 
    if (error)
       {
-      printf("Error printing note to bitmap: \n");
+      PRINTLOG("Error printing note to bitmap: \n");
       goto Done;
       }
 
@@ -321,7 +322,7 @@ STATUS near PASCAL FaxDocument (NOTEID SourceNoteID)
    if (error = NSFItemSetText(hTargetNote,"Form",
                 FORMNAME,(WORD)strlen(FORMNAME)))
    {
-       printf("Error creating Form item\n");
+       PRINTLOG("Error creating Form item\n");
        goto Done;
    }
 
@@ -329,7 +330,7 @@ STATUS near PASCAL FaxDocument (NOTEID SourceNoteID)
 
    if (error = NSFNoteUpdate(hTargetNote, 0))
    {
-      printf("Error updating note: %e\n", error);
+      PRINTLOG("Error updating note: %e\n", error);
       goto Done;
    }
 
@@ -395,7 +396,7 @@ BOOL LNCALLBACK ProcessBitmap (EPBCONTEXT *EPBContext, WORD PageNumber)
       pPAB = NULL;
  
 
-   printf("Appending Page %d\n", PageNumber);
+   PRINTLOG("Appending Page %d\n", PageNumber);
 
    if (error = EditorAppendBitmapToNote(EPBContext->hBitmap,
             (WORD)(WIDTH * ONEINCH), 
@@ -407,11 +408,11 @@ BOOL LNCALLBACK ProcessBitmap (EPBCONTEXT *EPBContext, WORD PageNumber)
             4, 
             pPAB))
    {
-      printf("Can't append page %d bitmap: %e\n", PageNumber, error);
+      PRINTLOG("Can't append page %d bitmap: %e\n", PageNumber, error);
       PrintAPIError(error);
    }
    else
-      printf("Page %d appended successfully\n", PageNumber);
+      PRINTLOG("Page %d appended successfully\n", PageNumber);
 
    return (error ? FALSE : TRUE);
    }

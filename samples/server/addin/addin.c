@@ -106,8 +106,8 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
     DHANDLE      hOldStatusLine;  /* handle to initial default status line*/
     DHANDLE      hStatusLineDesc; /* handle to new default status line */
     HMODULE    hMod;            /* add-in task's module handle */
-	int count = 0;
-	bool Automation = false;			/* Automation flag set to false */
+    int count = 0;
+    bool Automation = false;			/* Automation flag set to false */
 	
     char string1[] = "Sample Addin";
     char string2[] = "Initializing";
@@ -122,15 +122,15 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
     char string11[] = "Terminating";
     char string12[] = "Addin Test: Termination complete.";
 
-	if (argc > 1)
-	{
+    if (argc > 1)
+    {
 		int rslt = strcmp(argv[1], "auto"); /*check for automation */
 		
-		if (rslt == 0)
-		{
+        if (rslt == 0)
+        {
 			Automation = true;
-		}		
-	}
+        }		
+    }
    /* 
       Initialization.
 

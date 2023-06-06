@@ -56,12 +56,11 @@
 #include <oserr.h>
 #include <time.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #define STRING_LENGTH 256
 
 STATUS LNPUBLIC TimeConversion();
-void PrintAPIError (STATUS);
-
 
 /************************************************************************
 
@@ -79,16 +78,20 @@ int main(int argc, char *argv[])
 
     if (sError = NotesInitExtended (argc, argv))
     {
-	printf("\n Unable to initialize Notes.\n");
+	PRINTLOG("\n Unable to initialize Notes.\n");
 	return (1);
     }
 
     sError=TimeConversion();
 
     if (sError == NOERROR)
-        printf("\n\nProgram completed successfully.\n");
+    {
+        PRINTLOG("\n\nProgram completed successfully.\n");
+    }
     else
-        PrintAPIError (sError);
+    {
+        PRINTERROR (sError,"TimeConversion");
+    }
 
     NotesTerm();
     return (0);
@@ -162,7 +165,7 @@ STATUS LNPUBLIC TimeConversion()
     {
        goto Done;
     }
-    printf("\nAfter Text to TIMEDATEPAIR Lower: %s - Upper: %s", lstartTime, lendTime);
+    PRINTLOG("\nAfter Text to TIMEDATEPAIR Lower: %s - Upper: %s", lstartTime, lendTime);
 
     /* Instead of using above ConvertTIMEDATEToText function to convert TIMEDATE to text 
      * we can use ConvertTIMEDATEPAIRToText function to convert to get the time date range
@@ -175,38 +178,10 @@ STATUS LNPUBLIC TimeConversion()
                                     (WORD) sizeof(lTimeRange),
                                     &wLen );
 
-    printf("\nTIMEDATEPAIR to Text: %s", lTimeRange);
+    PRINTLOG("\nTIMEDATEPAIR to Text: %s", lTimeRange);
     fflush(stdout);
 
 
   Done:
     return (sError);
-}
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    DWORD   text_len=0;
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
 }

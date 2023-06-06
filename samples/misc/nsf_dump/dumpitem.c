@@ -630,7 +630,7 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
 
     NSFNoteGetInfo( hNote, _NOTE_DB, &hDB );
     if (error = NSFDbGetObjectSize(
-    	hDB,
+	    hDB,
 	    ObjectDesc.RRV,
 	    ObjectDesc.ObjectType,
 	    &dwObjectSize,

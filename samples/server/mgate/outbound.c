@@ -49,10 +49,10 @@ static char FailureReasonFormat[] = "BFailure reason: %s\n";
 static char NonDeliverySubject[] = "Non-Delivery of:";
 
 STATUS CreateForeignMessage(DHANDLE hMessage,
-		 							char *OriginatorName,
-		 							char *RecipientName);
+		 		char *OriginatorName,
+		 		char *RecipientName);
 STATUS AddToItems(FILE *ForeignFile,
-		 				DHANDLE hMessage, WORD ItemNum, char *Format);
+		 		DHANDLE hMessage, WORD ItemNum, char *Format);
 
 void near pascal OutboundTask()
 
@@ -84,7 +84,7 @@ WORD Msg, Rec;
 	/* Search the message file for any undelivered mail messages */
 
 	error = MailCreateMessageList(hMessageFile,
-								  &hMessageList, &MessageList, &MessageCount);
+				 &hMessageList, &MessageList, &MessageCount);
 	if (error)
 		{
 		AddInLogError(ERR_MGATE_MSGLIST, error, MGATE_MSGFILE_NAME);
@@ -228,12 +228,12 @@ BOOL NonDeliveryReport;
 	/* Write the "Subject" string. If message is non-delivery report,
 		prefix subject with "NonDelivery of:" */
 
-	if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
-		{
+    if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
+    {
 		strcpy(String, NonDeliverySubject);
 		Length = strlen(NonDeliverySubject);
-		}
-	else
+    }
+    else
 		Length = 0;
 	MailGetMessageItem(hMessage, MAIL_SUBJECT_ITEM_NUM,
 			&String[Length], (WORD) (sizeof(String) - Length), &StringLength);
@@ -257,12 +257,12 @@ BOOL NonDeliveryReport;
 	error = GetUniqueFileName(GatewayDrive, RecipientDir, "TMP", BodyFileName);
 	if (!error)
 		error = MailGetMessageBodyText(hMessage,
-									NULL, 	/* Use standard Body item */
-									"\r\n",	/* Newline-terminate */
-									80,		/* 80 chars per line */
-									TRUE, 	/* Convert TABs */
-									BodyFileName,
-									&BodyFileSize);
+				NULL, 	/* Use standard Body item */
+				"\r\n",	/* Newline-terminate */
+				80,		/* 80 chars per line */
+				TRUE, 	/* Convert TABs */
+				BodyFileName,
+				&BodyFileSize);
 	if (!error)
 		BodyFile = fopen(BodyFileName, "r");
 	if (error || (BodyFile == NULL))
@@ -273,29 +273,29 @@ BOOL NonDeliveryReport;
 
 	/* Copy each line of body text to the foreign file. */
 
-	while (fgets(String, sizeof(String), BodyFile))
-		{
-		if (delim = strchr(String, '\n'))  /* Remove trailing newline */
+    while (fgets(String, sizeof(String), BodyFile))
+    {
+        if (delim = strchr(String, '\n'))  /* Remove trailing newline */
 			*delim = '\0';
 		fprintf(ForeignFile, BodyFormat, String);
-		}
+    }
 	fclose(BodyFile);
 	unlink(BodyFileName);
 
 	/* Get any attachments and copy them to files in the user's directory. */
 
 	for (Att = 0; MailGetMessageAttachmentInfo(hMessage, Att,
-								&bhAttachment, OriginalFileName,
-								NULL, NULL, NULL, NULL, NULL); Att++)
+				&bhAttachment, OriginalFileName,
+				NULL, NULL, NULL, NULL, NULL); Att++)
 		{
 		error = GetUniqueFileName(GatewayDrive, RecipientDir, MGATE_ATT_EXT,
-								  AttachmentFileName);
+				 AttachmentFileName);
 		if (!error)
 			error = MailExtractMessageAttachment(hMessage, bhAttachment,
-												 AttachmentFileName);
+				 AttachmentFileName);
 		if (!error)
 			fprintf(ForeignFile, AttachmentFormat,
-					AttachmentFileName, OriginalFileName);
+				AttachmentFileName, OriginalFileName);
 		else
 			{
 			AddInLogError(ERR_MGATE_ATT_CREATE, error, AttachmentFileName);

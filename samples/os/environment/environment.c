@@ -49,6 +49,7 @@ SYNTAX:		environment
 #include "ostime.h"
 #include "misc.h"
 #include "oserr.h"
+#include <printLog.h>
 
 #define STRLENGTH 256
 
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
 	if(error = NotesInitExtended (argc, argv))
 	{
 		OSLoadString (NULLHANDLE, ERR(error), szErrStr,  sizeof(szErrStr));
-		printf ("Notes initalization failed because %s\n", szErrStr);
+		PRINTLOG ("Notes initalization failed because %s\n", szErrStr);
 		return 0;
 	}
 	
@@ -83,20 +84,20 @@ int main(int argc, char *argv[])
 	/* Gets the timedate from the environment variable "INI_TIME_TESTDATE". */
 	if(OSGetEnvironmentTIMEDATE (szEnvVariable, &tdReadEnv))
 	{
-		printf ("OSGetEnvironmentTimedate was successful for %s.\n",szEnvVariable);
+		PRINTLOG ("OSGetEnvironmentTimedate was successful for %s.\n",szEnvVariable);
 		
 		/* Printing environment variable "INI_TIME_TESTDATE" value. */
 		if(error = IntlTIMEDATEConvertToText(NULL, NULL, NULL, NULL, &tdReadEnv, sizeof(szRetTextBuffer), szRetTextBuffer, &wRetTextLength))
 		{
 			OSLoadString (NULLHANDLE, ERR(error), szErrStr, sizeof(szErrStr));
-			printf ("Error in IntlTIMEDATEConvertToText bacause %s\n", szErrStr);
+			PRINTLOG ("Error in IntlTIMEDATEConvertToText bacause %s\n", szErrStr);
 			return Cleanup (error);
 		}
-		printf ("Timedate value of %s is %s\n", szEnvVariable, szRetTextBuffer);
+		PRINTLOG ("Timedate value of %s is %s\n", szEnvVariable, szRetTextBuffer);
 	}	
 	else
 	{
-		printf ("Variable not found.\n");
+		PRINTLOG ("Variable not found.\n");
 	}	
 	
 	/* Get the current environment sequence number. */
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
 	*/
 	if (wEnvSeqNum != wNewEnvSeqNum)
 	{
-		printf("The notes.ini file has been changed/modified.\n");
+		PRINTLOG("The notes.ini file has been changed/modified.\n");
 		wEnvSeqNum = wNewEnvSeqNum;
 		
 		/* Get the value of "INI_TIME_TESTDATE" from the notes.ini file. */
@@ -121,16 +122,16 @@ int main(int argc, char *argv[])
 		bCheck = (TimeDateCompare (&tdReadEnv, &tdReadEnvNew) != 0);
 		if(bCheck)
 		{
-			printf("The %s environment variable has been changed in notes.ini file dynamically.\n", szEnvVariable);
+			PRINTLOG("The %s environment variable has been changed in notes.ini file dynamically.\n", szEnvVariable);
 		}
 		else
 		{
-			printf("The %s environment variable has not been changed in notes.ini file.\n", szEnvVariable);
+			PRINTLOG("The %s environment variable has not been changed in notes.ini file.\n", szEnvVariable);
 		}
 	}
 	else
 	{
-		printf("The notes.ini file has not been changed/modified.\n");
+		PRINTLOG("The notes.ini file has not been changed/modified.\n");
 	}
 	
 	return Cleanup (NOERROR);	

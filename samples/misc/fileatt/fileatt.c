@@ -91,6 +91,7 @@
 #include <misc.h>
 #include <miscerr.h>
 #include <editods.h>
+#include <printLog.h>
 
 STATUS LNPUBLIC AttachFile1(  /* using NSFNoteAttachFile */
     NOTEHANDLE hNote);
@@ -119,8 +120,6 @@ STATUS LNPUBLIC DumpOneNote( void far *Param,
 void GetFileT(
     time_t *systime,
     TIMEDATE *pTime);
-
-void PrintAPIError (STATUS);
 
 #if defined(UNIX) || defined(MAC)
 #define LAPI_OpenFile(f,m) open(f, O_RDONLY, 0777)
@@ -212,14 +211,14 @@ static  struct
 }   NoteClassTable[NUM_NOTE_CLASSES] =
     {
       NOTE_CLASS_DOCUMENT,                 szNOTE_CLASS_DOCUMENT,     0,
-      NOTE_CLASS_INFO,                             szNOTE_CLASS_INFO,       0,
-      NOTE_CLASS_FORM,                             szNOTE_CLASS_FORM,       0,
-      NOTE_CLASS_VIEW,                             szNOTE_CLASS_VIEW,       0,
-      NOTE_CLASS_ICON,                             szNOTE_CLASS_ICON,       0,
+      NOTE_CLASS_INFO,                     szNOTE_CLASS_INFO,         0,
+      NOTE_CLASS_FORM,                     szNOTE_CLASS_FORM,         0,
+      NOTE_CLASS_VIEW,                     szNOTE_CLASS_VIEW,         0,
+      NOTE_CLASS_ICON,                     szNOTE_CLASS_ICON,         0,
       NOTE_CLASS_DESIGN,                   szNOTE_CLASS_DESIGN,       0,
-      NOTE_CLASS_ACL,                              szNOTE_CLASS_ACL,        0,
+      NOTE_CLASS_ACL,                      szNOTE_CLASS_ACL,          0,
       NOTE_CLASS_HELP_INDEX,               szNOTE_CLASS_HELP_INDEX,   0,
-      NOTE_CLASS_HELP,                             szNOTE_CLASS_HELP,       0,
+      NOTE_CLASS_HELP,                     szNOTE_CLASS_HELP,         0,
       NOTE_CLASS_FILTER,                   szNOTE_CLASS_FILTER,       0,
       NOTE_CLASS_FIELD,                    szNOTE_CLASS_FIELD,        0,
       NOTE_CLASS_REPLFORMULA,              szNOTE_CLASS_REPLFORMULA,  0,
@@ -237,10 +236,10 @@ STATUS CreateAttFile(const char *fileName)
 
     if (fptr == NULL)
     {
-        printf("File does not exist.\n");
+        PRINTLOG("File does not exist.\n");
         return 1;
     }
-    printf("\nFile Created[%s]", fileName);
+    PRINTLOG("\nFile Created[%s]", fileName);
     fclose(fptr);
     return NOERROR;
 }
@@ -264,14 +263,14 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("\n Usage: %s <full path soruce file name>\n", argv[0]);
-        printf("\n Exp: %s D:\\notesapi\\samples\\misc\\fileatt\\readme.txt", argv[0]);
+        PRINTLOG("\n Usage: %s <full path soruce file name>\n", argv[0]);
+        PRINTLOG("\n Exp: %s D:\\notesapi\\samples\\misc\\fileatt\\readme.txt", argv[0]);
         return 1;
     }
 
     if (sError = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", sError);
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", sError);
         return (1);
     }
 
@@ -282,7 +281,7 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen(szDbName, &hDB))
     {
-      PrintAPIError (sError);  
+      PRINTERROR (sError,"NSFDbOpen");  
       NotesTerm();
       return (1);
     }
@@ -294,7 +293,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteCreate(hDB, &lhNote))
     {
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteCreate");  
         NotesTerm();
         return (1);
     }
@@ -312,7 +311,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(lhNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFItemSetText");  
         NotesTerm();
         return (1);
     }
@@ -321,7 +320,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(lhNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"CreateAttFile");  
         NotesTerm();
         return (1);
     }
@@ -330,7 +329,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(lhNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"CreateAttFile");  
         NotesTerm();
         return (1);
     }
@@ -339,7 +338,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(lhNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"AttachFile1");
         NotesTerm();
         return (1);
     }
@@ -348,7 +347,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(lhNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"AttachFile2");  
         NotesTerm();
         return (1);
     }
@@ -361,7 +360,7 @@ int main(int argc, char *argv[])
     {
         NSFNoteClose(lhNote);
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteUpdate");  
         NotesTerm();
         return (1);
     }
@@ -373,7 +372,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteClose(lhNote))
     {
         NSFDbClose(hDB);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteClose");  
         NotesTerm();
         return (1);
     }
@@ -381,7 +380,7 @@ int main(int argc, char *argv[])
     if(sError=PrintAttachmentDetails(hDB))
     {
        NSFDbClose(hDB);
-       PrintAPIError (sError);
+       PRINTERROR (sError,"PrintAttachmentDetails");
        NotesTerm();
        return (1);
     }
@@ -392,14 +391,14 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbClose(hDB))
     {
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFDbClose");  
         NotesTerm();
         return (1);
     }
 
 
     NotesTerm();
-    printf ("\nProgram completed successfully.\n");
+    PRINTLOG ("\nProgram completed successfully.\n");
     return (0); 
 
 }
@@ -418,7 +417,7 @@ STATUS PrintAttachmentDetails(DBHANDLE hDB)
                           &hDB, NULL ))
     {
        fprintf( stderr,"Error encountered searching for data notes.\n" );
-       PrintAPIError (error);
+       PRINTERROR (error,"NSFSearch");
        return (1);
     }
 }
@@ -440,7 +439,7 @@ STATUS LNPUBLIC DumpOneNote( void far *Param,
       return (error);
     }
 
-    printf("\n Note id: [%0x]\n", SearchMatch.ID.NoteID);
+    PRINTLOG("\n Note id: [%0x]\n", SearchMatch.ID.NoteID);
 
     dwItem = 0;
     NSFItemScan( hNote, DumpOneItem, NULL );
@@ -554,31 +553,31 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
 
                 if ( wObjectType == OBJECT_FILE )
                 {
-                    printf( "  Object Type = OBJECT_FILE.\n" );
+                    PRINTLOG( "  Object Type = OBJECT_FILE.\n" );
                 }
                 else if (wObjectType == OBJECT_FILTER_LEFTTODO)
                 {
-                    printf(  "  Object Type = OBJECT_FILTER_LEFTTODO.\n");
+                    PRINTLOG(  "  Object Type = OBJECT_FILTER_LEFTTODO.\n");
                 }
                 else
                 {
-                    printf(  "  Object Type %#x not recognized.\n",
+                    PRINTLOG(  "  Object Type %#x not recognized.\n",
                             wObjectType);
                 }
 
                 if ( wObjectFlags & OBJECT_NO_COPY )
                 {
-                    printf(  "  ObjectFlag OBJECT_NO_COPY is set.\n");
+                    PRINTLOG(  "  ObjectFlag OBJECT_NO_COPY is set.\n");
                 }
 
                 if ( wObjectFlags & OBJECT_PRESERVE )
                 {
-                    printf(  "  ObjectFlag OBJECT_PRESERVE is set.\n");
+                    PRINTLOG(  "  ObjectFlag OBJECT_PRESERVE is set.\n");
                 }
     }
     else
     {
-                printf(  "  Object Type = OBJECT_UNKNOWN.\n");
+                PRINTLOG(  "  Object Type = OBJECT_UNKNOWN.\n");
     }
 
     NSFNoteGetInfo( hNote, _NOTE_DB, &hDB );
@@ -590,8 +589,8 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
             &wClass,
             &wPrivs ))
     {
-                printf(  "   Error: unable to get object size.\n" );
-                printf(  "   Error code = %#x.\n", error );
+                PRINTLOG(  "   Error: unable to get object size.\n" );
+                PRINTLOG(  "   Error code = %#x.\n", error );
     }
     else
     {
@@ -600,7 +599,7 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
                 {
                 if (wClass & ObjectClassTable[i].fNoteClass)
                 {
-                        printf(  "  Object Class = %s\n",
+                        PRINTLOG(  "  Object Class = %s\n",
                                         ObjectClassTable[i].szNoteClass );
                         break;
                 }
@@ -608,7 +607,7 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
 
                 if (i==NUM_NOTE_CLASSES)
                 {
-                    printf(  "  Object Class Unrecognized.\n" );
+                    PRINTLOG(  "  Object Class Unrecognized.\n" );
                 }
 
     }
@@ -632,7 +631,7 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
     {
                 memcpy( szFileName, pData, wFileNameLen );
                 szFileName[wFileNameLen] = '\0';
-                printf(  "  File Name = '%s'.\n", szFileName );
+                PRINTLOG(  "  File Name = '%s'.\n", szFileName );
                 free(szFileName);
     }
     pData += wFileNameLen;
@@ -641,11 +640,11 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
     wCompress = (WORD)(FileObject.CompressionType & COMPRESS_MASK);
     if (wCompress == COMPRESS_NONE)
     {
-                printf(  "  Compression Type = NONE.\n" );
+                PRINTLOG(  "  Compression Type = NONE.\n" );
     }
     else if (wCompress == COMPRESS_HUFF)
     {
-                printf(  "  Compression Type = Huffman Encoding.\n" );
+                PRINTLOG(  "  Compression Type = Huffman Encoding.\n" );
     }
 
 }
@@ -656,7 +655,7 @@ STATUS LNPUBLIC AttachFile1(  /* using NSFNoteAttachFile */
     char szAttachFileName[] = "attach1.txt"; /* UI-visible attachment name */
     STATUS sError;
 
-    printf("\n Attaching attachment 1 \n");
+    PRINTLOG("\n Attaching attachment 1 \n");
     if (sError = NSFNoteAttachFile( hNote,
                                     ITEM_NAME_ATTACHMENT,
                                     (WORD) strlen(ITEM_NAME_ATTACHMENT),
@@ -694,7 +693,7 @@ STATUS LNPUBLIC AttachFile2(  /* using low-level FILEOBJECT routines */
 
     TIMEDATE MyTimeDate;
     STATUS sError;
-    printf("\n Attaching attachment 2 \n");
+    PRINTLOG("\n Attaching attachment 2 \n");
 
     hAttachFile = LAPI_OpenFile(szSourceFileName, READPERM);
 
@@ -857,34 +856,3 @@ void GetFileT(time_t *systime, TIMEDATE *pTime)
     *pTime = NotesTime.GM;
     return;
 }
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

@@ -28,6 +28,7 @@
 #include <osmem.h>
 #include <nsfasc.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -38,8 +39,6 @@ STATUS LNPUBLIC ProcessOneNote(
   void far *         phDB,
   SEARCH_MATCH far * pSearchMatch,
   ITEM_TABLE far *   Unused);
-
-void PrintAPIError (STATUS);
 
 /* Global variables */
 char szDbName[]  = "embedole.nsf";
@@ -60,13 +59,13 @@ int main(int argc, char *argv[])
 
   if (NotesInitExtended(argc, argv))
   {
-    printf("NotesInitExtended failed...\n");
+    PRINTLOG("NotesInitExtended failed...\n");
     return(1);
   }
 
   if (rc = NSFDbOpen(szDbName, &hDb))
   {
-    printf("NSFDbOpen failed...\n");
+    PRINTLOG("NSFDbOpen failed...\n");
     goto Done2;
   }
 
@@ -83,7 +82,7 @@ int main(int argc, char *argv[])
                              &wdc,
                              &wdc))
   {
-    printf("NSFFormulaCompile failed...\n");
+    PRINTLOG("NSFFormulaCompile failed...\n");
     goto Done1;
   }
 
@@ -113,7 +112,7 @@ Done1:
 
 Done2:
   if (rc)
-     PrintAPIError (rc);
+     PRINTERROR (rc,"NSFDbOpen");
 
   NotesTerm();
 
@@ -155,7 +154,7 @@ STATUS LNPUBLIC ProcessOneNote(void far *         phDB,
 
   if (rc = NSFNoteOpen(hDB, SearchMatch.ID.NoteID, 0, &hNote))
   {
-    printf("NSFNoteOpen failed...\n");
+    PRINTLOG("NSFNoteOpen failed...\n");
     return (rc);
   }
 
@@ -169,50 +168,23 @@ STATUS LNPUBLIC ProcessOneNote(void far *         phDB,
                                                              dwId)))
   {
     pszAttachmentName = (char *)OSLockObject(hszAttachmentName);
-    printf("NSFNoteOLEGetAssociateFileOnObject dwId = %d Attachment Name = %s\n", dwId, pszAttachmentName);
+    PRINTLOG("NSFNoteOLEGetAssociateFileOnObject dwId = %d Attachment Name = %s\n", dwId, pszAttachmentName);
     dwId++;
     OSUnlockObject(hszAttachmentName);
     OSMemFree(hszAttachmentName);
   }
 
   if (rc != ERR_ARGS_INVALID)
-    printf("NSFNoteOLEGetAssociateFileOnObject failed...\n");
+  {
+    PRINTLOG("NSFNoteOLEGetAssociateFileOnObject failed...\n");
+  }
   else
+  {
     rc = NOERROR;
+  }
 
   NSFNoteClose(hNote);
 
   return (rc);
 
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

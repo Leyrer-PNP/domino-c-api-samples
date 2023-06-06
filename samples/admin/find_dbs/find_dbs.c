@@ -55,6 +55,7 @@
 #include <misc.h>
 #endif
 
+#include <printLog.h>
 #include <lapiplat.h>
 
 /* Function prototypes */
@@ -64,7 +65,6 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *);
 VOID print_usage (void);
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                                char *server, char *directory);
-void PrintAPIError (STATUS);
 
 #define  STRING_LENGTH  256
 
@@ -110,31 +110,31 @@ int main(int argc, char *argv[])
 /* Get the command line parameters that the user entered. */
     ProcessArgs(argc, argv, server, directory);
 	
-	 if (strcmp(directory, "\"\""))
-	     strcpy(full_netpath, directory);
+    if (strcmp(directory, "\"\""))
+      strcpy(full_netpath, directory);
 
-	 error = NotesInitExtended (argc, argv);
+    error = NotesInitExtended (argc, argv);
 
-	 if (error)
-	 {
-	   fprintf (stderr, "\nError initializing Notes.\n");
-	   return (1);
-	 }
+    if (error)
+    {
+       fprintf (stderr, "\nError initializing Notes.\n");
+       return (1);
+    }
 
-	 if (strcmp (server, "\"\""))
-	 {
+    if (strcmp (server, "\"\""))
+    {
 
 /* Compose the full network pathname to the directory. */
 
         if (error = OSPathNetConstruct(NULL,
-							                  server,
-													directory,
+                                       server,
+                                       directory,
                                        full_netpath))
-	     {
-		      PrintAPIError (error);
-		      NotesTerm();
-		      return (1);
-	     }
+        {
+           PRINTERROR (error,"OSPathNetConstruct");
+           NotesTerm();
+           return (1);
+        }
 
     }
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen (full_netpath, &dir_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbOpen");
         NotesTerm();
         return (1);
     }
@@ -164,18 +164,18 @@ call an action routine. */
         NULL,              /* argument to action routine */
         NULL))             /* returned ending date (unused) */
 
-        {
-            PrintAPIError (error);
-            NSFDbClose (dir_handle);
-            NotesTerm();
-            return (1);
-        }
+    {
+        PRINTERROR (error,"NSFSearch");
+        NSFDbClose (dir_handle);
+        NotesTerm();
+        return (1);
+    }
 
 /* Close the directory. */
 
     if (error = NSFDbClose (dir_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbClose");
         NotesTerm();
         return (1);
     }
@@ -185,7 +185,7 @@ call an action routine. */
     NotesTerm();
 
 /* End of main routine. */
-    printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 
 /* End of intro program. */
 
@@ -231,7 +231,7 @@ but is shown here in case a starting date was used in the search. */
 summary buffer. */
 
     if (error = print_file_summary (summary_info))
-		 return(error);
+        return(error);
 
 /* End of subroutine. */
 
@@ -297,7 +297,7 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 
 /* Print a blank line to start this display. */
 
-    printf ("\n");
+    PRINTLOG ("\n");
 
 /* Get the header at the beginning of the summary buffer. */
 
@@ -313,11 +313,11 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 
 /* Check boundary of the array */
 
-	 if (item_count > MAX_ITEMS)
-	 {
-		 printf("ERROR: Number of items has exceeded boundary of defined array.\n");
-		 return (0);
-	 }
+    if (item_count > MAX_ITEMS)
+    {
+        PRINTLOG("ERROR: Number of items has exceeded boundary of defined array.\n");
+        return (0);
+    }
 
 /* Advance the buffer pointer over the header. */
 
@@ -326,17 +326,17 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 /* Get the length of each item in the summary. */
 
     for (i=0; i < item_count; i++)
-        {
+    {
         memcpy (&name_length[i], summary_position, NAME_LENGTH_SIZE);
         summary_position += NAME_LENGTH_SIZE;
         memcpy (&item_length[i], summary_position, ITEM_LENGTH_SIZE);
         summary_position += ITEM_LENGTH_SIZE;
-        }
+    }
 
 /* Start a loop that extracts each item in the summary. */
 
     for (i=0; i < item_count; i++)
-        {
+    {
 
 /* Print the name of the item. */
 
@@ -344,7 +344,7 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
         item_name[name_length[i]] = '\0';
         summary_position += name_length[i];
 
-        printf ("%s:  ", item_name);
+        PRINTLOG ("%s:  ", item_name);
 
 /* Get the data type of this item. */
 
@@ -360,66 +360,66 @@ This program handles TEXT, NUMBER, and TIME. */
 
 /* Extract a text item from the summary. */
 
-        case TYPE_TEXT:
-            memcpy (item_text,
-                summary_position,
-                item_length[i] - DATATYPE_SIZE);
-            item_text[item_length[i] - DATATYPE_SIZE] = '\0';
-            break;
+            case TYPE_TEXT:
+                memcpy (item_text,
+                        summary_position,
+                        item_length[i] - DATATYPE_SIZE);
+                item_text[item_length[i] - DATATYPE_SIZE] = '\0';
+                break;
 
 /* Extract a number item from the summary. */
 
-        case TYPE_NUMBER:
-            memcpy (&numeric_item, summary_position, NUMERIC_SIZE);
-            sprintf (item_text, "%g", numeric_item);
-            break;
+            case TYPE_NUMBER:
+                memcpy (&numeric_item, summary_position, NUMERIC_SIZE);
+                sprintf (item_text, "%g", numeric_item);
+                break;
 
 /* Extract a time/date item from the summary. */
 
-        case TYPE_TIME:
+            case TYPE_TIME:
 
-            memcpy (&time_item, summary_position, TIME_SIZE);
+                memcpy (&time_item, summary_position, TIME_SIZE);
 
-            if (error = ConvertTIMEDATEToText (NULL,
-                                               NULL,
-                                               &time_item,
-                                               item_text,
-                                               MAXALPHATIMEDATE,
-                                               &time_string_len))
-            return (ERR(error));
+                if (error = ConvertTIMEDATEToText (NULL,
+                                                   NULL,
+                                                   &time_item,
+                                                   item_text,
+                                                   MAXALPHATIMEDATE,
+                                                   &time_string_len))
+                    return (ERR(error));
 
-            item_text[time_string_len] = '\0';
+                    item_text[time_string_len] = '\0';
 
+                    break;
+
+            case TYPE_TEXT_LIST:
+            {
+                LIST      *pList;
+                WORD      list_entry;
+                char      *Buffer;
+                WORD      text_size;
+
+                memset (item_text,'\0', item_length[i] - DATATYPE_SIZE + 1);
+                pList = (LIST *)summary_position;
+                for (list_entry = 0; list_entry < pList->ListEntries; list_entry++)
+                {
+                    ListGetText(pList, FALSE, list_entry, &Buffer, &text_size);
+                    strncat (item_text, Buffer, text_size);
+                }
+            }
             break;
-
-     case TYPE_TEXT_LIST:
-        {
-          LIST      *pList;
-          WORD      list_entry;
-          char      *Buffer;
-          WORD      text_size;
-
-        memset (item_text,'\0', item_length[i] - DATATYPE_SIZE + 1);
-        pList = (LIST *)summary_position;
-        for (list_entry = 0; list_entry < pList->ListEntries; list_entry++)
-           {
-           ListGetText(pList, FALSE, list_entry, &Buffer, &text_size);
-           strncat (item_text, Buffer, text_size);
-           }
-        }
-        break;
 
 /* If the summary item is not one of the data types this program
 handles. */
 
-        default:
-            strcpy (item_text, "(Data type not handled)");
-            break;
+            default:
+                strcpy (item_text, "(Data type not handled)");
+                break;
         }
 
 /* Print the item. */
 
-        printf ("%s\n", item_text);
+        PRINTLOG ("%s\n", item_text);
 
 /* Advance to next item in the summary. */
 
@@ -427,7 +427,7 @@ handles. */
 
 /* End of loop that is extracting each item in the summary. */
 
-        }
+    }
 
 /* End of function */
 
@@ -468,27 +468,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         strcpy(directory, argv[2]);
     } /* end if */
 } /* ProcessArgs */
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}

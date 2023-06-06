@@ -57,15 +57,15 @@ struct termios term;
                 return (ERR_EM_CONTINUE);
 
                /* Fetch the arguments */
-				VARARG_COPY(pArgs, data->Ap);
+                VARARG_COPY(pArgs, data->Ap);
 
             MaxPwdLen = VARARG_GET (pArgs, DWORD);
             retLength = VARARG_GET (pArgs, DWORD far *);
-          retPassword = VARARG_GET (pArgs, char far *);
-             FileName = VARARG_GET (pArgs, char far *);
+            retPassword = VARARG_GET (pArgs, char far *);
+            FileName = VARARG_GET (pArgs, char far *);
             OwnerName = VARARG_GET (pArgs, char far *);
-              DataLen = VARARG_GET (pArgs, DWORD);
-                 Data = VARARG_GET (pArgs, BYTE far *);
+            DataLen = VARARG_GET (pArgs, DWORD);
+            Data = VARARG_GET (pArgs, BYTE far *);
 
 
          printf("Please enter your password:  ");
