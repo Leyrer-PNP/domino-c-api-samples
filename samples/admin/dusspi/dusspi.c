@@ -724,7 +724,7 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 				    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
 				}       
 			}/* endif ReadFile */
-		free(FileBuffer);
+			free(FileBuffer);
 		} /* endif FileBuffer */
 	} /* endif hFile */
 

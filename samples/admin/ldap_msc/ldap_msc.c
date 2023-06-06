@@ -91,12 +91,12 @@ int main(int argc, char *argv[])
     ldap_set_option (NULL, LDAP_OPT_DEBUG_LEVEL, &ldap_debug_level);
     */
 
-	char HOST[STRING_LENGTH];
-	char SEARCHBASE[STRING_LENGTH];
-	char DN[STRING_LENGTH];
-	char PASSWORD[STRING_LENGTH];
+    char HOST[STRING_LENGTH];
+    char SEARCHBASE[STRING_LENGTH];
+    char DN[STRING_LENGTH];
+    char PASSWORD[STRING_LENGTH];
 
-	ProcessArgs (argc, argv, HOST, SEARCHBASE, DN, PASSWORD);
+    ProcessArgs (argc, argv, HOST, SEARCHBASE, DN, PASSWORD);
 
     /* Specify the DN we're adding */
     dn = MOD_DN;

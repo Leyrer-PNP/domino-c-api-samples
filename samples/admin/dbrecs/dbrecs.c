@@ -125,7 +125,7 @@ VOID main (int argc, char *argv[])
             usage=1;
          }
          /* Ensure null termination */
-        InFile[strlen(&InFile[0])+1] = '\0';
+         InFile[strlen(&InFile[0])+1] = '\0';
       }
 
       if (argc == 4)
@@ -358,7 +358,7 @@ STATUS LNPUBLIC NoteCallback(DWORD state_flags, void far *userParm, NOTE_RESTORE
                 info.hNote,
                 info.UserName,
                 note_action);
-                EventLog(LogFD, EventString);
+        EventLog(LogFD, EventString);
     }
     return err;
 }
@@ -441,7 +441,7 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
                 PRINTLOG("\nError recovering backup file %s\n", BUPath);
                 sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
                 BUPath,
-                print_api_error(err));
+                PRINTERROR(err,"NSFRecoverDatabasesWithCallback"));
                 EventLog(LogFD, EventString);
             }
             BUPath += strlen(BUPath) + 1;
@@ -489,7 +489,7 @@ STATUS TakeDbsOffline(char * DbPath)
       sprintf(EventString,
               " *** ERROR taking database %s offline *** (%s)",
               DbPath,
-              print_api_error(err));
+              PRINTERROR(err,"NSFTakeDatabaseOffline"));
       EventLog(LogFD, EventString);
    }
 
@@ -559,7 +559,7 @@ STATUS BringDbsOnline(char * DbPath)
       sprintf(EventString,
               " *** ERROR bringing database %s online *** (%s)",
               DbPath,
-              print_api_error(err));
+              PRINTERROR(err,"NSFBringDatabaseOnline"));
       EventLog(LogFD, EventString);
    }
    return err;
@@ -587,7 +587,7 @@ STATUS DoArchiveLogs(void)
    WORD   LogType;
 
    if ( err = NSFGetTransLogStyle (&LogType))
-      print_api_error(err);
+      PRINTERROR(err,"NSFGetTransLogStyle");
 
    if (LogType == TRANSLOG_STYLE_CIRCULAR || LogType == TRANSLOG_STYLE_LINEAR)
    {
@@ -601,14 +601,14 @@ STATUS DoArchiveLogs(void)
 			PRINTLOG("\n  Transactional logging is 'LINEAR'.\n");
 			break;
 	}
-      return 1;
+	return 1;
    }
 
    if (err = NSFBeginArchivingLogs ())
    {
       sprintf(EventString,
               " *** ERROR archiving logs *** (%s)",
-              print_api_error(err));
+              PRINTERROR(err,"NSFBeginArchivingLogs"));
       EventLog(LogFD, EventString);
       return 1;
    }
@@ -668,7 +668,7 @@ STATUS DoArchiveLogs(void)
 
          if (err = NSFDoneArchivingLog(&LogId, &LogNumber))
          {
-            print_api_error(err);
+            PRINTERROR(err,"NSFDoneArchivingLog");
             break;
          }
 
@@ -695,7 +695,7 @@ STATUS DoArchiveLogs(void)
       {
          sprintf(EventString,
                  "\n *** Log status *** (%s)",
-                 print_api_error(err));
+                 PRINTERROR(err,"ERR_NO_TRANSLOGS_TO_ARCHIVE"));
          EventLog(LogFD, EventString);
          err = NOERROR;
          break;
@@ -704,7 +704,7 @@ STATUS DoArchiveLogs(void)
       {
          sprintf(EventString,
                  " *** ERROR archiving logs *** (%s)",
-                 print_api_error(err));
+                 PRINTERROR(err,"ERR_NO_TRANSLOGS_TO_ARCHIVE"));
          EventLog(LogFD, EventString);
          break;
       }
@@ -713,7 +713,7 @@ STATUS DoArchiveLogs(void)
    {
       sprintf(EventString,
               " *** ERROR archiving logs *** (%s)",
-              print_api_error(err));
+              PRINTERROR(err,"NSFEndArchivingLogs"));
       EventLog(LogFD, EventString);
    }
    return err;
@@ -776,30 +776,30 @@ STATUS CheckDb(char * BUPath)
       to the current log state.*/
 
 
-   if ( err = NSFGetTransLogStyle (&LogType))
+    if ( err = NSFGetTransLogStyle (&LogType))
         PRINTERROR(err,"NSFGetTransLogStyle");
 
-	switch (LogType)
-	{
-	   case TRANSLOG_STYLE_ARCHIVE:
-		   PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
-		   if (ComfortSpan)
-			 PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
-			 break;
+    switch (LogType)
+    {
+        case TRANSLOG_STYLE_ARCHIVE:
+            PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
+            if (ComfortSpan)
+                PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
+            break;
 
-	   case TRANSLOG_STYLE_CIRCULAR:
-		   PRINTLOG("\n  Transactional logging type is 'CIRCULAR'.\n");
-		   break;
+        case TRANSLOG_STYLE_CIRCULAR:
+            PRINTLOG("\n  Transactional logging type is 'CIRCULAR'.\n");
+            break;
 
-	   case TRANSLOG_STYLE_LINEAR:
-		   PRINTLOG("\n  Transactional logging type is 'LINEAR'.\n");
-		   break;
+        case TRANSLOG_STYLE_LINEAR:
+            PRINTLOG("\n  Transactional logging type is 'LINEAR'.\n");
+            break;
 	
-	   default:
-		   unkown = 1;
-		   PRINTLOG("\n  Transactional logging type is 'UNKOWN'.\n");
-		   break;
-	}
+        default:
+            unkown = 1;
+            PRINTLOG("\n  Transactional logging type is 'UNKOWN'.\n");
+            break;
+    }
 
     if(unkown)
         return (1);

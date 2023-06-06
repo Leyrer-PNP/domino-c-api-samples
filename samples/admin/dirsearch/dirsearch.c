@@ -57,15 +57,15 @@ int     optind = 1;             /* index into parent argv vector */
 int     optopt = 1;             /* character checked for validity */
 
 typedef struct {
-	char szServerName [MAXUSERNAME+1];
-	char szDomainName [MAXDOMAINNAME+1];
-	char szName [MAXSPRINTF+1];
-	char szItems [MAXSPRINTF+1];
-	DWORD dwFlags;
-	WORD wNumItems;
-	BYTE formtype;
-	DWORD grouptype;
-	int PrintFlags;
+                char szServerName [MAXUSERNAME+1];
+                char szDomainName [MAXDOMAINNAME+1];
+                char szName [MAXSPRINTF+1];
+                char szItems [MAXSPRINTF+1];
+                DWORD dwFlags;
+                WORD wNumItems;
+                BYTE formtype;
+                DWORD grouptype;
+                int PrintFlags;
 } ARG_STRUCT;
 
 /* Local function prototypes */
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 		DirCtxGetDirectoryServer(hCtx, args.szServerName) == NOERROR)
 	{
 	   PRINTLOG("Found '%lu' matches for '%s' in domain '%s' through server '%s'.\n\n",
-		   DirCollectionGetNumEntries(hCollection), args.szName, args.szDomainName, args.szServerName);									 
+		     DirCollectionGetNumEntries(hCollection), args.szName, args.szDomainName, args.szServerName);									 
 	}
 
 	/* Print complete results */

@@ -340,66 +340,66 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
 form. The way in which we extract the item depends on its type.
 This program handles TEXT, NUMBER, and TIME. */
 
-    switch (datatype)
-    {
+        switch (datatype)
+        {
 
 /* Extract a text item from the summary. */
 
-        case TYPE_TEXT:
-            memcpy (item_text,
-                summary_position,
-                item_length[i] - DATATYPE_SIZE);
-            item_text[item_length[i] - DATATYPE_SIZE] = '\0';
-            break;
+            case TYPE_TEXT:
+                memcpy (item_text,
+                        summary_position,
+                        item_length[i] - DATATYPE_SIZE);
+                item_text[item_length[i] - DATATYPE_SIZE] = '\0';
+                break;
 
 /* Extract a number item from the summary. */
 
-        case TYPE_NUMBER:
-            memcpy (&numeric_item, summary_position, NUMERIC_SIZE);
-            sprintf (item_text, "%g", numeric_item);
-            break;
+            case TYPE_NUMBER:
+                memcpy (&numeric_item, summary_position, NUMERIC_SIZE);
+                sprintf (item_text, "%g", numeric_item);
+                break;
 
 /* Extract a time/date item from the summary. */
 
-        case TYPE_TIME:
+            case TYPE_TIME:
 
-            memcpy (&time_item, summary_position, TIME_SIZE);
+                memcpy (&time_item, summary_position, TIME_SIZE);
 
-            if (error = ConvertTIMEDATEToText (NULL,
-                                               NULL,
-                                               &time_item,
-                                               item_text,
-                                               MAXALPHATIMEDATE,
-                                               &time_string_len))
-            return (ERR(error));
+                if (error = ConvertTIMEDATEToText (NULL,
+                                                   NULL,
+                                                   &time_item,
+                                                   item_text,
+                                                   MAXALPHATIMEDATE,
+                                                   &time_string_len))
+                    return (ERR(error));
 
-            item_text[time_string_len] = '\0';
+                    item_text[time_string_len] = '\0';
 
-            break;
+                    break;
 
-        case TYPE_TEXT_LIST:
-        {
-            LIST      *pList;
-            WORD      list_entry;
-            char      *Buffer;
-            WORD      text_size;
-
-            memset (item_text,'\0', item_length[i] - DATATYPE_SIZE + 1);
-            pList = (LIST *)summary_position;
-            for (list_entry = 0; list_entry < pList->ListEntries; list_entry++)
+            case TYPE_TEXT_LIST:
             {
-                ListGetText(pList, FALSE, list_entry, &Buffer, &text_size);
-                strncat (item_text, Buffer, text_size);
+                LIST      *pList;
+                WORD      list_entry;
+                char      *Buffer;
+                WORD      text_size;
+
+                memset (item_text,'\0', item_length[i] - DATATYPE_SIZE + 1);
+                pList = (LIST *)summary_position;
+                for (list_entry = 0; list_entry < pList->ListEntries; list_entry++)
+                {
+                    ListGetText(pList, FALSE, list_entry, &Buffer, &text_size);
+                    strncat (item_text, Buffer, text_size);
+                }
             }
-        }
-        break;
+            break;
 
 /* If the summary item is not one of the data types this program
 handles. */
 
-        default:
-            strcpy (item_text, "(Data type not handled)");
-            break;
+            default:
+                strcpy (item_text, "(Data type not handled)");
+                break;
         }
 
 /* Print the item. */
