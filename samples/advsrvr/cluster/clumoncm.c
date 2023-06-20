@@ -960,7 +960,7 @@ void dspThresholdInfo (char *szServerName)
         strcpy(szInfo, "");
         while (szServerResponse[i] != '\0')  
             sprintf(szInfo, "%s%c", szInfo, szServerResponse[i++]);
-	}
+    }
 
   	/* and display to the dialog box */
     printf("Availability Threshold: %s\n", szInfo);

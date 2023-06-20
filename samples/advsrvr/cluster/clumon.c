@@ -997,7 +997,7 @@ BOOL FAR PASCAL SetThreshold (HWND hDlg, WORD message,
                 SetCursor (LoadCursor (NULL, IDC_WAIT));
                 dspThresholdInfo (hDlg, szDBServerNameString);
                 SetCursor (LoadCursor (NULL, IDC_ARROW));
-    }
+            }
             return TRUE;
 
         case WM_COMMAND:            /* Message: received a command */
@@ -1057,7 +1057,7 @@ BOOL FAR PASCAL SetThreshold (HWND hDlg, WORD message,
                     EndDialog(hDlg, FALSE); 
                     return TRUE;
             }
-        break;
+            break;
     }
     return FALSE;                 /* Message not processed.  */
 }
@@ -1225,7 +1225,7 @@ BOOL FAR PASCAL CreateCopyDB (HWND hDlg, WORD message,
                     EndDialog(hDlg, FALSE); 
                     return TRUE;
             }
-        break;
+            break;
     }
     return FALSE;                 /* Message not processed.  */
 }
@@ -1828,7 +1828,7 @@ Cleanup:
               GetServerLoad and RemoteCommand routines (clfunc.c) are called
               to perform the relevant Notes API functions.  RemoteCommand
               programmatically uses Domino and Notes remote console commands 
-			  to get the server availability threshold information. The referenced
+              to get the server availability threshold information. The referenced
               commands are defined in clumon.h.
               
     COMMENTS:

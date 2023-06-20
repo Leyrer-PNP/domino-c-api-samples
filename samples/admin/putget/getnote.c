@@ -535,19 +535,19 @@ We must handle text fields separately, since they may have embedded
 nulls in them. The nulls indicate newlines.*/
 
     if (item_type == TYPE_TEXT)
-		text_len = get_text_field (
-				value_block,
-				(WORD) item_len,
-				text_buffer,
-				buffer_len);
-	else
-		text_len = NSFItemConvertValueToText (
-				item_type,
-				value_block,
-				item_len,
-				text_buffer,
-				buffer_len,
-				get_list_separator());
+        text_len = get_text_field (
+                   value_block,
+                   (WORD) item_len,
+                   text_buffer,
+                   buffer_len);
+    else
+        text_len = NSFItemConvertValueToText (
+                   item_type,
+                   value_block,
+                   item_len,
+                   text_buffer,
+                   buffer_len,
+                   get_list_separator());
 
 /* If the field is at or over the maximum length accepted, issue a
 warning. */

@@ -1,5 +1,19 @@
 /****************************************************************************
-
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
     PROGRAM:    findbykeyextend4
 
     FILE:       findbykeyextend4.c
@@ -378,42 +392,42 @@ int main (int argc, char *argv[])
 
         /* Read entries in the collection */
 
-        if (error = NIFReadEntries (
-                      hCollection,         /* handle to this collection           */
-                      &posCollection,      /* where to start in collection        */
-                      (WORD)(FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
-                      /* order to use when skipping */
-                      FirstTime ? 0L : 1L, /* number to skip i                    */
-                      NAVIGATE_NEXT,       /* order to use when reading           */
-                      NumNotesMatch - NoteCount,  /* max number to read           */
-                      READ_MASK_NOTEID,    /* info we want                        */
-                      &hBuffer,            /* handle to info (return)             */
-                      NULL,                /* length of buffer (return)           */
-                      NULL,                /* entries skipped (return)            */
-                      &NumNotesFound,      /* entries read (return)               */
-                      &signal_flag) )       /* signal and share warnings (return)  */
-        goto EXIT1;
+      if (error = NIFReadEntries (
+                  hCollection,         /* handle to this collection           */
+                  &posCollection,      /* where to start in collection        */
+                  (WORD)(FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
+                  /* order to use when skipping */
+                  FirstTime ? 0L : 1L, /* number to skip i                    */
+                  NAVIGATE_NEXT,       /* order to use when reading           */
+                  NumNotesMatch - NoteCount,  /* max number to read           */
+                  READ_MASK_NOTEID,    /* info we want                        */
+                  &hBuffer,            /* handle to info (return)             */
+                  NULL,                /* length of buffer (return)           */
+                  NULL,                /* entries skipped (return)            */
+                  &NumNotesFound,      /* entries read (return)               */
+                  &signal_flag) )       /* signal and share warnings (return)  */
+      goto EXIT1;
 
-        if ( hBuffer == NULLHANDLE )
-        {
-           PRINTLOG( "\nEmpty buffer returned by NIFReadEntries.\n" );
-           goto EXIT1;
-        }
+      if ( hBuffer == NULLHANDLE )
+      {
+          PRINTLOG( "\nEmpty buffer returned by NIFReadEntries.\n" );
+          goto EXIT1;
+      }
 
-        pNoteID = (NOTEID *)OSLockObject( hBuffer );
+      pNoteID = (NOTEID *)OSLockObject( hBuffer );
 
-        PRINTLOG ("\n" );
-	/* Print the NoteID to console */
-        for ( i = 0; i < NumNotesFound; i++ )
+      PRINTLOG ("\n" );
+      /* Print the NoteID to console */
+      for ( i = 0; i < NumNotesFound; i++ )
             PRINTLOG("Note count is %lu. \t noteID  is: %lX\n",
-        ++NoteCount, pNoteID[i]);
+                      ++NoteCount, pNoteID[i]);
 
-        OSUnlockObject( hBuffer ); /* Unlocking the object buffer */
+      OSUnlockObject( hBuffer ); /* Unlocking the object buffer */
 
-        OSMemFree( hBuffer ); /* Freeing the block hbuffer */
+      OSMemFree( hBuffer ); /* Freeing the block hbuffer */
 
-        if ( FirstTime )
-             FirstTime = FALSE;
+      if ( FirstTime )
+           FirstTime = FALSE;
 
    } while ( signal_flag & SIGNAL_MORE_TO_DO );
 
@@ -519,7 +533,7 @@ CLOSE:
    {
        if ( NSFDbUserNameGet(hDB, userName, (WORD) sizeof(userName)-1 ) == NOERROR ) 
        {
-            PRINTLOG( "\nUser Name [%s] ", userName );
+           PRINTLOG( "\nUser Name [%s] ", userName );
        }
        if ( viewName[0] == '\0' )
        {

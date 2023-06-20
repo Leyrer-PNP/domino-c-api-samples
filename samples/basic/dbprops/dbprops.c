@@ -89,21 +89,21 @@
 
 int main(int argc, char *argv[])
 {
-    char        path_name[] = "test.nsf";          /* pathname of database */
-    char        old_title[] = "TEST";              /* original title of database */
-    char        new_title[] = "Database Properties Test"; /* new title of database */
-    char        current_title[50] = "";            /* current title of database */
-    char        db_title[50] = "";                 /* title of database */
-    char        db_flags[100] = "";                /* icon note flags */
-    char        set_db_flags[100] = "";            /* modified icon note flags */
-    char        db_info[NSF_INFO_SIZE];            /* database info buffer */
-    char        action[15] = "";                   /* input acttion */
-    int         usage = 1;
-    int         i = 0;
-    int         rset = 0;
-    DBHANDLE    db_handle;                         /* handle of input database */
-    NOTEHANDLE  hIconNote;                         /* handle to the icon note */
-    STATUS      error = NOERROR;                   /* return status from API calls */
+   char        path_name[] = "test.nsf";          /* pathname of database */
+   char        old_title[] = "TEST";              /* original title of database */
+   char        new_title[] = "Database Properties Test"; /* new title of database */
+   char        current_title[50] = "";            /* current title of database */
+   char        db_title[50] = "";                 /* title of database */
+   char        db_flags[100] = "";                /* icon note flags */
+   char        set_db_flags[100] = "";            /* modified icon note flags */
+   char        db_info[NSF_INFO_SIZE];            /* database info buffer */
+   char        action[15] = "";                   /* input acttion */
+   int         usage = 1;
+   int         i = 0;
+   int         rset = 0;
+   DBHANDLE    db_handle;                         /* handle of input database */
+   NOTEHANDLE  hIconNote;                         /* handle to the icon note */
+   STATUS      error = NOERROR;                   /* return status from API calls */
 
     DBREPLICAINFO    dbrepInfo;                    /* replication info for DB */
     WORD             wRepFlags;                    /* replication flags */
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
          set_db_flags[4] = CHFLAG_DISABLE_RESPONSE_INFO;  /*Don't support specialized response hierarchy*/
          set_db_flags[5] = CHFLAG_LARGE_UNKTABLE;         /*Allow more fields in database*/
          set_db_flags[6] = '\0';
-			rset_wRepFlags = REPLFLG_CUTOFF_DELETE | REPLFLG_PRIORITY_HI;
+         rset_wRepFlags = REPLFLG_CUTOFF_DELETE | REPLFLG_PRIORITY_HI;
          rset_wCutoffInterval = 50;
       }
       else if (!strcmp(action,"RESET"))
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
          rset = 1;
          strcpy (db_title, old_title);
          db_flags[0] = '\0';
-			rset_wRepFlags = REPLFLG_IGNORE_DELETES | REPLFLG_PRIORITY_LOW;
+         rset_wRepFlags = REPLFLG_IGNORE_DELETES | REPLFLG_PRIORITY_LOW;
          rset_wCutoffInterval = 90;
       }
       else if (!strcmp(action,"GET"))
@@ -187,13 +187,13 @@ int main(int argc, char *argv[])
    }
 
 /* Get the replication info */
-	if (error = NSFDbReplicaInfoGet( db_handle, &dbrepInfo ))
-	{
-		NSFDbClose (db_handle);
-		PRINTERROR (error,"NSFDbReplicaInfoGet");
-		NotesTerm();
-		return (1);
-	}
+   if (error = NSFDbReplicaInfoGet( db_handle, &dbrepInfo ))
+   {
+      NSFDbClose (db_handle);
+      PRINTERROR (error,"NSFDbReplicaInfoGet");
+      NotesTerm();
+      return (1);
+   }
 
 /* We can change the title of the output database by following these steps:
 
@@ -236,15 +236,15 @@ int main(int argc, char *argv[])
          NotesTerm();
          return (1);
       }
-		dbrepInfo.Flags = rset_wRepFlags;
+      dbrepInfo.Flags = rset_wRepFlags;
       dbrepInfo.CutoffInterval = rset_wCutoffInterval;
       if ( error = NSFDbReplicaInfoSet(db_handle, &dbrepInfo))
-		{
+      {
          NSFDbClose (db_handle);
          PRINTERROR (error,"NSFDbReplicaInfoSet");
          NotesTerm();
          return (1);
-		}
+      }
    }
 
 /* Get the current title of the database */

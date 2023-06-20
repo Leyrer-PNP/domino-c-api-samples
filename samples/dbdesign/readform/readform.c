@@ -265,7 +265,7 @@ STATUS LNPUBLIC ReadForm(char *pFormName)
 
   memcpy(szTitleString, pData, (int) (dwLength - sizeof(WORD)));
   szTitleString[dwLength - sizeof(WORD)] = '\0';    
-  sPRINTLOG (pOutputBuffer, "\nForm Name:  %s\n\n", szTitleString);
+  PRINTLOG (pOutputBuffer, "\nForm Name:  %s\n\n", szTitleString);
   OSUnlockBlock(ValueBlockID);
       
   /*

@@ -93,15 +93,15 @@ int main(int argc, char *argv[])
     db_filename = database_name;
 
 #ifdef OS390
-	/* Need to convert args from EBCDIC (Native z/OS) to ASCII (how this sample is compiled) */
-	__argvtoascii_a(argc,argv);
+    /* Need to convert args from EBCDIC (Native z/OS) to ASCII (how this sample is compiled) */
+    __argvtoascii_a(argc,argv);
 #endif
     ProcessArgs(argc, argv, db_filename); 
-	if (error = NotesInitExtended (argc, argv))
-	{
+    if (error = NotesInitExtended (argc, argv))
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
     /* Open the database. */
 
@@ -403,9 +403,9 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
     if (argc != 2)  
     {
 
-      printf("Enter name of database: ");      
-      fflush(stdout);
-      gets(db_filename);
+        printf("Enter name of database: ");      
+        fflush(stdout);
+        gets(db_filename);
       
     }    
     else

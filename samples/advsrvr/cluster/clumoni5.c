@@ -746,105 +746,105 @@ void CreateCopyDB (void)
 
 void dspClusterInfo(char *szServerName, DWORD dwClusterFlags)
 {
-	STATUS nError;
-	char szErrorString[LINEOTEXT];      /* Error Message String */
-	char szClusterName[MAXUSERNAME];    /* Name of Cluster */
-	char szClusterInfo[LINEOTEXT];      /* Returned Cluster Info */
+    STATUS nError;
+    char szErrorString[LINEOTEXT];      /* Error Message String */
+    char szClusterName[MAXUSERNAME];    /* Name of Cluster */
+    char szClusterInfo[LINEOTEXT];      /* Returned Cluster Info */
 
-	DWORD dwLoadIndex = 0;
-   	HANDLE hClusterList = NULLHANDLE;	 /* list of clustermates */
-   	void FAR *lpClusterList = NULL;		 /* locked-down cluster list pointer */
+    DWORD dwLoadIndex = 0;
+    HANDLE hClusterList = NULLHANDLE;	 /* list of clustermates */
+    void FAR *lpClusterList = NULL;		 /* locked-down cluster list pointer */
       
-   	WORD wNumListEntries = 0;
-   	WORD wBufferLen = 0;
-   	char *pBuffer;
-   	int i;
+    WORD wNumListEntries = 0;
+    WORD wBufferLen = 0;
+    char *pBuffer;
+    int i;
 
     printf("\nCluster Information For %s\n", szServerName);
 
-	/* If the Show_Server's_Cluster menu item was selected */
-	if (dwClusterFlags & NPN_CLU_SHOW_CLUNAME )
-	{
-		nError = GetServerCluster(szServerName, szClusterName );
+    /* If the Show_Server's_Cluster menu item was selected */
+    if (dwClusterFlags & NPN_CLU_SHOW_CLUNAME )
+    {
+        nError = GetServerCluster(szServerName, szClusterName );
        
-		/* return if error */
-		if (nError != NOERROR)
-		    goto Cleanup;
-		else
-		{
-		    /* Print out cluster name */
-		    printf("\nCluster Name: %s", szClusterName);
-		}
-	}
+        /* return if error */
+        if (nError != NOERROR)
+            goto Cleanup;
+        else
+        {
+            /* Print out cluster name */
+            printf("\nCluster Name: %s", szClusterName);
+        }
+    }
 
-	/* If the Show_Server's_Load menu item was selected */
-	if ( dwClusterFlags & NPN_CLU_SHOW_LOAD )
-	{
+    /* If the Show_Server's_Load menu item was selected */
+    if ( dwClusterFlags & NPN_CLU_SHOW_LOAD )
+    {
         nError = GetServerLoad(szServerName, &dwLoadIndex);
       
-		if (nError)
-		    goto Cleanup;
-	
+        if (nError)
+            goto Cleanup;
+
         else
         /* Print out Availability index */
-            printf("\nAvailability: %ld\n", dwLoadIndex);
-	}
+         printf("\nAvailability: %ld\n", dwLoadIndex);
+    }
     
-	/* If the Show_Server's_ClusterMates menu item was selected, get the
-	 * Cluster mates.  To ensure the latest information, the Cluster mate
-	 * list will be looked up via server NameLookup using by specifiying
-	 * the CLUSTER_LOOKUP_NOCACHE flag.
-	 */
-	if ( dwClusterFlags & NPN_CLU_SHOW_CLUMATES )
-	{
+    /* If the Show_Server's_ClusterMates menu item was selected, get the
+    * Cluster mates.  To ensure the latest information, the Cluster mate
+    * list will be looked up via server NameLookup using by specifiying
+    * the CLUSTER_LOOKUP_NOCACHE flag.
+    */
+    if ( dwClusterFlags & NPN_CLU_SHOW_CLUMATES )
+    {
 
-		/* Call the routine to get the cluster list of the specified server.  
-		 * If hClusterList != NULLHANDLE. then it must be freed in this 
-		 * block of code.
-		 */
+        /* Call the routine to get the cluster list of the specified server.  
+         * If hClusterList != NULLHANDLE. then it must be freed in this 
+         * block of code.
+         */
         nError = GetServerClusterMates(szServerName, 
                                        (DWORD)CLUSTER_LOOKUP_NOCACHE,
                                        &hClusterList);
     
         /* If the server is in a restricted or unavailable state then we can
-         * still continue because it will still return the cluster info to us.
-         * If it's another error then quit but make sure that the list is freed
-		 */
-		if (nError)
-		{
-		    if ( !(( ERR(nError) == ERR_SERVER_UNAVAILABLE) || 
-		        ( ERR(nError) == ERR_SERVER_RESTRICTED)) )
-		        goto Cleanup;
-		}
-    	nError = NOERROR;
-    	lpClusterList = OSLock( void, hClusterList);
-    	wNumListEntries = ListGetNumEntries( lpClusterList, FALSE);
-	    
-		/* Display the member count */
+        * still continue because it will still return the cluster info to us.
+        * If it's another error then quit but make sure that the list is freed
+        */
+        if (nError)
+        {
+            if ( !(( ERR(nError) == ERR_SERVER_UNAVAILABLE) || 
+                ( ERR(nError) == ERR_SERVER_RESTRICTED)) )
+                goto Cleanup;
+        }
+        nError = NOERROR;
+        lpClusterList = OSLock( void, hClusterList);
+        wNumListEntries = ListGetNumEntries( lpClusterList, FALSE);
+    
+        /* Display the member count */
         printf("Cluster Mates: %d\n", wNumListEntries);
 
- 		/* Get the members from the list */
-		for (i = 0; i < (int) wNumListEntries; i++)
-		{
-        	nError = ListGetText( lpClusterList, FALSE, (WORD) i, 
-									FAR &pBuffer, &wBufferLen );
-	        if (!nError)
-    	   	{
-			    /* Update the Cluster Mates dialog list box */
-   			    memcpy(szClusterInfo, pBuffer, wBufferLen);
-			    szClusterInfo[wBufferLen] = '\0';
-			    printf("\t%s\n", szClusterInfo);
-	        }
-	        else
-	        {
-        	   	OSUnlock( hClusterList);
-           		goto Cleanup;
-	        }
-		} /* end of FOR */
+        /* Get the members from the list */
+        for (i = 0; i < (int) wNumListEntries; i++)
+        {
+            nError = ListGetText( lpClusterList, FALSE, (WORD) i, 
+                                  FAR &pBuffer, &wBufferLen );
+            if (!nError)
+            {
+                /* Update the Cluster Mates dialog list box */
+                memcpy(szClusterInfo, pBuffer, wBufferLen);
+                szClusterInfo[wBufferLen] = '\0';
+                printf("\t%s\n", szClusterInfo);
+            }
+            else
+            {
+                OSUnlock( hClusterList);
+                goto Cleanup;
+            }
+        } /* end of FOR */
         
         /* No longer need this memory - Freeing done in "Cleanup:" below */
         OSUnlock( hClusterList);
-   }  
+    }  
 
 Cleanup:
    if (hClusterList != NULLHANDLE)        
@@ -907,9 +907,9 @@ void dspDBOptions (char *szServerName, char *szDBName )
     /* Call routine to get the Mark options */
     nError = GetDBMarks (szServerName, szDBName, &dwOptionMask, &bFailover);
     
-	/* Return if error getting options */
-	if (nError != NOERROR)
-	    goto Cleanup;
+    /* Return if error getting options */
+    if (nError != NOERROR)
+        goto Cleanup;
 
     /* Report clustered server failover and update server/DB name Edit boxes */
     if (bFailover)
@@ -948,9 +948,9 @@ Cleanup:
               information for the specified server name.   The GetServerLoad
               and RemoteCommand routines (clfunc.c) are called to perform
               the relevant HCL C API for Notes/Domino functions.  
-			  RemoteCommand programmatically uses Domino and Notes remote 
-			  console commands to get the server availability threshold 
-			  information. The referenced commands are defined in clumon.h.
+              RemoteCommand programmatically uses Domino and Notes remote 
+              console commands to get the server availability threshold 
+              information. The referenced commands are defined in clumon.h.
               
     COMMENTS:
 

@@ -66,21 +66,21 @@ int main (int argc, char *argv[])
 
 /* Get the input parameters. */
 
-    if (argc != 3)
-    {
+   if (argc != 3)
+   {
       PRINTLOG ("\nUsage:  INDEX  <database pathname>  <name of view>\n");
       return(0);
-    }
+   }
    db_path = argv[1];
    view_name = argv[2];
 
    PRINTLOG ("\n***** INDEX Test Begins ******\n");
 
-    if (error = NotesInitExtended (argc, argv))
-    {
+   if (error = NotesInitExtended (argc, argv))
+   {
       PRINTLOG("\nUnable to initialize Notes.\n");
       return(1);
-    }
+   }
 
 /* ************************************************** */
 /* Get System TIME  . */
@@ -101,16 +101,16 @@ int main (int argc, char *argv[])
 /* Open the view (thereby updating it). */
 
    if (error = NIFOpenCollection(
-         db_handle,      /* handle of db with view */
-         db_handle,      /* handle of db with data */
-         view_id,     /* note id of the view */
-         0,        /* collection open flags */
-         NULLHANDLE,     /* handle to unread ID list (input and return) */
-         &coll_handle,      /* collection handle (return) */
-         NULLHANDLE,     /* handle to open view note (return) */
-         NULL,        /* universal note id of view (return) */
-         NULLHANDLE,     /* handle to collapsed list (return) */
-         NULLHANDLE))       /* handle to selected list (return) */
+                                 db_handle,      /* handle of db with view */
+                                 db_handle,      /* handle of db with data */
+                                 view_id,     /* note id of the view */
+                                 0,        /* collection open flags */
+                                 NULLHANDLE,     /* handle to unread ID list (input and return) */
+                                 &coll_handle,      /* collection handle (return) */
+                                 NULLHANDLE,     /* handle to open view note (return) */
+                                 NULL,        /* universal note id of view (return) */
+                                 NULLHANDLE,     /* handle to collapsed list (return) */
+                                 NULLHANDLE))       /* handle to selected list (return) */
       goto Done2;
 
 /* Close the index. */

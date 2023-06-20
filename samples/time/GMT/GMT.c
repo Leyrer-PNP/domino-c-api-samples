@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
     TimeGMToLocal(&tTime);
     PRINTLOG("hour : %d minute : %d second : %d \n", tTime.hour, tTime.minute, tTime.second);
     
-	/* converting current timedate to RFC339 timedate */
+    /* converting current timedate to RFC339 timedate */
 
     PRINTLOG("Test of ConvertTIMEDATEtoRFC3339Date\n");
 
@@ -156,8 +156,8 @@ int main(int argc, char *argv[])
     WORD dwTextLength = 0;
 
     if(error = ConvertTIMEDATEToText(NULL,NULL,&tdNowTime,retTextBuffer,MAXALPHATIMEDATE+1,&dwTextLength)){
-	PRINTLOG("Error in ConvertTIMEDATEToText\n");
-	return(after_cleanup(-1));
+        PRINTLOG("Error in ConvertTIMEDATEToText\n");
+        return(after_cleanup(-1));
     }
     PRINTLOG("Notes TIMEDATE = %s\n",retTextBuffer);
 
@@ -170,14 +170,14 @@ int main(int argc, char *argv[])
      * textBufferSize = String Buffer Size. Big enough to inlude the trailing null char.
      *              It should be greater than or equal to TIME_RFC3339_LEN(23) + 1.
     */
-     if (error = ConvertTIMEDATEtoRFC3339Date(&tdNowTime,textBuffer,TEXTBUFSIZE)){
-	PRINTLOG( "Error in converting TIMEDATE to RFC339 TIMEDATE\n");
+    if (error = ConvertTIMEDATEtoRFC3339Date(&tdNowTime,textBuffer,TEXTBUFSIZE)){
+        PRINTLOG( "Error in converting TIMEDATE to RFC339 TIMEDATE\n");
         return(after_cleanup(-1));
-     }
-     else {
+    }
+    else {
         PRINTLOG("RFC339 TIMEDATE = %s\n",textBuffer);
         PRINTLOG("Successfully converted Notes TIMEDATE to RFC339 TIMEDATE.\n");
-     }
+    }
 
     return(after_cleanup(0));
 }

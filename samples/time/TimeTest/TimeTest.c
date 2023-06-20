@@ -101,7 +101,7 @@ int main(int argc, char *argv[]){
 	PRINTLOG("Date converted to Julian date using TimeExtractJulianDate is %d\n",TimeExtractJulianDate(&Now));
 	
 	/* Floating-point difference between two TIMEDATE values */
-    TimeDateDifferenceFloat(&Future, &Now, &time_delta); 
+	TimeDateDifferenceFloat(&Future, &Now, &time_delta); 
 	
 	PRINTLOG("Difference between Now and Future date using TimeDateDifferenceFloat is %f\n",time_delta);
 	

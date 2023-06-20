@@ -262,7 +262,7 @@ not test for or return any errors, although it could.) */
          "\n%s: %s \nNear line number %ld, byte number %ld.\n",
          severity, message, line_count, byte_count);
 
-    return;
+        return;
     }
 
 
