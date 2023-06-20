@@ -685,7 +685,7 @@ STATUS DoArchiveLogs(void)
 
          if (err = NSFDoneArchivingLog(&LogId, &LogNumber))
          {
-            print_api_error(err);
+            print_api_error(err,"NSFDoneArchivingLog");
             break;
          }
 
@@ -795,7 +795,7 @@ STATUS CheckDb(char * BUPath)
 
 
    if ( err = NSFGetTransLogStyle (&LogType))
-      print_api_error(err);
+      PRINTERROR(err,"NSFGetTransLogStyle");
 
    switch (LogType)
    {
