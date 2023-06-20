@@ -134,12 +134,12 @@ int main (int argc, char *argv[])
     szDBName = argv[1];
 
 
-	 /* Initialize Notes */
-	if (error = NotesInitExtended (argc, argv))
-	{
+    /* Initialize Notes */
+    if (error = NotesInitExtended (argc, argv))
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
 
     /*  Open the database. */

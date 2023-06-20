@@ -59,18 +59,18 @@ extern "C" {
 /* Function prototypes */
 
 STATUS LNPUBLIC note_action (     /* called for every document */
-            VOID far *,
-            SEARCH_MATCH far *,
-            ITEM_TABLE far *);
+                             VOID far *,
+                             SEARCH_MATCH far *,
+                             ITEM_TABLE far *);
 
 STATUS LNPUBLIC field_action (    /* called for every field */
-            WORD,
-            WORD,
-            char far *,
-            WORD,
-            VOID far *,
-            DWORD,
-            VOID far *);
+                               WORD,
+                               WORD,
+                               char far *,
+                               WORD,
+                               VOID far *,
+                               DWORD,
+                               VOID far *);
 
 /************************************************************************
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
    
    if (error = NotesInitExtended (argc, argv))
    {
-	   PRINTLOG("\n Unable to initialize Notes.\n");
+       PRINTLOG("\n Unable to initialize Notes.\n");
        return (1);
    }
 
@@ -110,30 +110,30 @@ int main(int argc, char *argv[])
 /* Call NSFSearch to find all data notes in the database. */
 
    if (error = NSFSearch (
-         db_handle,        /* database handle */
-         NULLHANDLE,       /* selection formula */
-         NULL,             /* title of view in selection formula */
-         0,                /* search flags */
-         NOTE_CLASS_DOCUMENT,  /* note class to find */
-         NULL,             /* starting date (unused) */
-         note_action,      /* action routine for notes found */
-         &db_handle,       /* argument to action routine */
-         NULL))            /* returned ending date (unused) */
+               db_handle,        /* database handle */
+               NULLHANDLE,       /* selection formula */
+               NULL,             /* title of view in selection formula */
+               0,                /* search flags */
+               NOTE_CLASS_DOCUMENT,  /* note class to find */
+               NULL,             /* starting date (unused) */
+               note_action,      /* action routine for notes found */
+               &db_handle,       /* argument to action routine */
+               NULL))            /* returned ending date (unused) */
 
-         {
-         NSFDbClose (db_handle);
-         PRINTERROR (error,"NSFSearch");  
-         NotesTerm();
-         return (1); 
-         }
+   {
+       NSFDbClose (db_handle);
+       PRINTERROR (error,"NSFSearch");  
+       NotesTerm();
+       return (1); 
+   }
 
 /* Close the database. */
 
    if (error = NSFDbClose (db_handle))
    {
-         PRINTERROR (error,"NSFDbClose");  
-         NotesTerm();
-         return (1); 
+       PRINTERROR (error,"NSFDbClose");  
+       NotesTerm();
+       return (1); 
    }
 
 
@@ -191,23 +191,23 @@ but is shown here in case a starting date was used in the search. */
 /* Open the note. */
 
     if (error = NSFNoteOpen (
-            *(DBHANDLE far *)db_handle,    /* database handle */
-            SearchMatch.ID.NoteID,    /* note ID */
-            0,            /* open flags */
-            &note_handle))        /* note handle (return) */
+                             *(DBHANDLE far *)db_handle,    /* database handle */
+                             SearchMatch.ID.NoteID,    /* note ID */
+                             0,            /* open flags */
+                             &note_handle))        /* note handle (return) */
         
         return (ERR(error));
 
 /* Scan all the fields in the note, calling an action routine for each. */
 
     if (error = NSFItemScan (
-            note_handle,    /* note handle */
-            field_action,    /* action routine for fields */
-            &note_handle))    /* argument to action routine */
-        {
-        NSFNoteClose (note_handle);
-        return (ERR(error));
-        }
+                             note_handle,    /* note handle */
+                             field_action,    /* action routine for fields */
+                             &note_handle))    /* argument to action routine */
+    {
+            NSFNoteClose (note_handle);
+            return (ERR(error));
+    }
 
 /* Close the note. */
 
@@ -260,7 +260,7 @@ of it. We do this in order to treat the name as a standard C string. */
 /* Translate the binary data type to ASCII. */
 
     switch (binary_datatype)
-        {
+    {
         case TYPE_TEXT:
             strcpy (ascii_datatype, "Text");
             break;
@@ -285,12 +285,12 @@ of it. We do this in order to treat the name as a standard C string. */
         default:
             strcpy (ascii_datatype, "Unknown");
             break;
-        }
+    }
 
 /* Print the field name and data type. */
 
     PRINTLOG ("Found field named \"%s\" with data type \"%s\".\n",
-        item_name, ascii_datatype);
+    item_name, ascii_datatype);
 
 /* End of subroutine. */
 

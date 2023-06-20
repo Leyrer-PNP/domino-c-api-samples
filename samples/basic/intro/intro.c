@@ -95,8 +95,8 @@ int main(int argc, char *argv[])
 #endif
 	if((ArgNum < 2) || (ArgNum >3))
 	{
-		PRINTLOG( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
-		return (0);
+	    PRINTLOG( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
+	    return (0);
 	}
 
 	db_name = argv[ArgNum - 1];
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
 	if (ArgNum == 3)
 	{
-		server_name = argv[1];
+	    server_name = argv[1];
 	}
 
 
@@ -113,38 +113,38 @@ int main(int argc, char *argv[])
 
 	if (error)
 	{
-		fprintf (stderr, "\nError initializing Notes.\n");
-		return (1);
+	    fprintf (stderr, "\nError initializing Notes.\n");
+	    return (1);
 	}
 
 	if (strcmp (server_name, ""))
 	{
-		if (error = OSPathNetConstruct( NULL, server_name, db_name, pname))
-		{
-			PRINTERROR (error,"OSPathNetConstruct");
-			NotesTerm();
-			return (1);
-		}
-		path_name = pname;
+	    if (error = OSPathNetConstruct( NULL, server_name, db_name, pname))
+	    {
+	        PRINTERROR (error,"OSPathNetConstruct");
+	        NotesTerm();
+	        return (1);
+	    }
+	    path_name = pname;
 	}
 
 	/* Open the database. */
 
 	if (error = NSFDbOpen (path_name, &db_handle))
 	{
-		PRINTERROR (error,"NSFDbOpen");
-		NotesTerm();
-		return (1);
+	    PRINTERROR (error,"NSFDbOpen");
+	    NotesTerm();
+	    return (1);
 	}
 
 	/* Get the database title. */
 
 	if (error = NSFDbInfoGet (db_handle, buffer))
 	{
-		PRINTERROR (error,"NSFDbInfoGet");
-		NSFDbClose (db_handle);
-		NotesTerm();
-		return (1);
+	    PRINTERROR (error,"NSFDbInfoGet");
+	    NSFDbClose (db_handle);
+	    NotesTerm();
+	    return (1);
 	}
 
 	NSFDbInfoParse (buffer, INFOPARSE_TITLE, title, NSF_INFO_SIZE - 1);
@@ -154,13 +154,13 @@ int main(int argc, char *argv[])
 	/* A remote path would look something like serverName/orgName!!Folder/db.nsf */
 	if (NSFDbPathIsRemote(path_name))
 	{
-		OSTranslate32(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXDWORD, nsf_path, sizeof(nsf_path)-1);
-		PRINTLOG("\n\nThe database is remote with path : %s\n",nsf_path);
+	    OSTranslate32(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXDWORD, nsf_path, sizeof(nsf_path)-1);
+	    PRINTLOG("\n\nThe database is remote with path : %s\n",nsf_path);
 	}
 	else
 	{
-		OSTranslate32(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXDWORD, nsf_path, sizeof(nsf_path)-1);
-		PRINTLOG("\n\nThe database is local with path : %s\n",nsf_path);
+	    OSTranslate32(OS_TRANSLATE_LMBCS_TO_NATIVE, path_name, MAXDWORD, nsf_path, sizeof(nsf_path)-1);
+	    PRINTLOG("\n\nThe database is local with path : %s\n",nsf_path);
 	}
 
 	/* Print the title. */
@@ -178,9 +178,9 @@ int main(int argc, char *argv[])
 
 	if (error = NSFDbClose (db_handle))
 	{
-		PRINTERROR (error,"NSFDbClose");
-		NotesTerm();
-		return (1);
+	    PRINTERROR (error,"NSFDbClose");
+	    NotesTerm();
+	    return (1);
 	}
 
 	/* Terminate Domino and Notes. */
@@ -214,7 +214,7 @@ void  LNPUBLIC  ProcessArgs (char *ServerName, char *DBFileName, int *ArgNumber)
 
 	if (!strcmp(ServerName, ""))
 	{
-		*ArgNumber = 2;
+	    *ArgNumber = 2;
 	}
 
 } /* ProcessArgs */

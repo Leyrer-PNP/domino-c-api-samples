@@ -232,7 +232,7 @@ int processArgs (int nargc, const char * const *nargv, ARG_STRUCT *args)
 		        args->dwFlags = atoi( optarg);
 		        break;
 		    case 'i':
-		        args->szItems[0] = '\0';
+			    args->szItems[0] = '\0';
 			    args->wNumItems = 0;
 			    {
 			        int avail_len = sizeof(args->szItems) - 1;

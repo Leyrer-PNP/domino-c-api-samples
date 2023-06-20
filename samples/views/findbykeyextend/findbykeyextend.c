@@ -252,47 +252,47 @@ int main (int argc, char *argv[])
 /* Search through the collection for the notes whose sort 
    column values match the given search keys: */
 
-	do
-	{
-	  error = NIFFindByKeyExtended2(
-	        hCollection,
-	        pKey,        /* refer to key   */
-	        FIND_CASE_INSENSITIVE | FIND_EQUAL | FIND_AND_READ_MATCHES,   /* match rules */
-	        READ_MASK_NOTEID,    /* info we want */
-	        &posCollection, /* where match begins (return) */
-	        &NumNotesMatch, /* how many match (return) */
-	        &signal_flag,
-	        &hBuffer,
-	        NULL); 
+   do
+   {
+   error = NIFFindByKeyExtended2(
+           hCollection,
+           pKey,        /* refer to key   */
+           FIND_CASE_INSENSITIVE | FIND_EQUAL | FIND_AND_READ_MATCHES,   /* match rules */
+           READ_MASK_NOTEID,    /* info we want */
+           &posCollection, /* where match begins (return) */
+           &NumNotesMatch, /* how many match (return) */
+           &signal_flag,
+           &hBuffer,
+           NULL); 
 			
-	  if (hBuffer == NULLHANDLE)
-       {
-         PRINTLOG ("\nEmpty buffer returned .\n");
-         goto exit1;
-       }
+   if (hBuffer == NULLHANDLE)
+   {
+       PRINTLOG ("\nEmpty buffer returned .\n");
+       goto exit1;
+   }
 	 
-       /* Obtain a pointer to the buffer of entry IDs and relevancy scores. */
-       pNoteID = (NOTEID *) OSLockObject (hBuffer);
-	   PRINTLOG ("\n");
-       for (i=0; i<NumNotesMatch; i++)
-           PRINTLOG ("Note count is %lu. \t noteID  is: %lX\n", 
-             ++NoteCount, pNoteID[i]);
+   /* Obtain a pointer to the buffer of entry IDs and relevancy scores. */
+   pNoteID = (NOTEID *) OSLockObject (hBuffer);
+   PRINTLOG ("\n");
+   for (i=0; i<NumNotesMatch; i++)
+       PRINTLOG ("Note count is %lu. \t noteID  is: %lX\n", 
+                  ++NoteCount, pNoteID[i]);
    
-       OSUnlockObject (hBuffer);
+   OSUnlockObject (hBuffer);
 
-       OSMemFree (hBuffer);
+   OSMemFree (hBuffer);
 
    }  while (signal_flag & SIGNAL_MORE_TO_DO);  
 
    if (ERR(error) == ERR_NOT_FOUND) 
    {
-      PRINTLOG ("\nKey not found in the collection.\n");
-      error=NOERROR;
-      goto exit1;
+       PRINTLOG ("\nKey not found in the collection.\n");
+       error=NOERROR;
+       goto exit1;
    }
    
    if (error) 
-      goto exit1;
+       goto exit1;
 
   
    

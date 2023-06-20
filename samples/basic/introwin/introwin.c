@@ -111,23 +111,23 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     MSG     msg;         /* message.         */
     STATUS  nError;      /* Status of HCL C API for Notes/Domino call. */
 
-   hModule = GetModuleHandle((LPSTR) "introwin");
-   hInst = hInstance;
+    hModule = GetModuleHandle((LPSTR) "introwin");
+    hInst = hInstance;
 
-        /* Init the Domino and Notes runtime system. */
-     nError = NotesInitExtended(__argc, __argv);
+    /* Init the Domino and Notes runtime system. */
+    nError = NotesInitExtended(__argc, __argv);
 
-   /*
-    *  If the call to NotesInit fails, display an error message
-    *  and exit the program.
-    */
+    /*
+     *  If the call to NotesInit fails, display an error message
+     *  and exit the program.
+     */
 
-   if (nError != NOERROR)
-   {
+    if (nError != NOERROR)
+    {
        MessageBox (GetFocus(), "Unable to Initialize Notes!",
                  "introwin", MB_OK);
        return (FALSE);
-   }
+    }
 
     if (!hPrevInstance)              /* Other instances of app running? */
     if (!InitApplication(hInstance)) /* Initialize shared things */
@@ -145,8 +145,8 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
           (WORD) NULL,          /* lowest message to examine          */
           (WORD) NULL))         /* highest message to examine         */
     {
-    TranslateMessage(&msg);     /* Translates virtual key codes.   */
-    DispatchMessage(&msg);      /* Dispatches message to window.   */
+        TranslateMessage(&msg);     /* Translates virtual key codes.   */
+        DispatchMessage(&msg);      /* Dispatches message to window.   */
     }
 
     NotesTerm();                /* Terminate the Domino and Notes runtime system. */
@@ -291,16 +291,16 @@ long FAR PASCAL MainWndProc(HWND hWnd, UINT message,
                             WPARAM wParam, LPARAM lParam)
 
 {
-    FARPROC lpProcGetDBName;     /* pointer to the "GetDBName" function */
-    STATUS  nError = NOERROR;
-    int     iError;                     /* Ret code from DialogBox call */
-    char    szTempString[LINEOTEXT];    /* Temp string used in building
+   FARPROC lpProcGetDBName;     /* pointer to the "GetDBName" function */
+   STATUS  nError = NOERROR;
+   int     iError;                     /* Ret code from DialogBox call */
+   char    szTempString[LINEOTEXT];    /* Temp string used in building
                                            the database title string.  */
-    switch (message)
-    { 
-       case WM_COMMAND:       /* message: command from app.  menu */
-          switch (wParam)
-          { 
+   switch (message)
+   { 
+     case WM_COMMAND:       /* message: command from app.  menu */
+        switch (wParam)
+        { 
           case FILE_GET_DB_TITLE:
 
             lpProcGetDBName = MakeProcInstance(GetDBName, hInst);
@@ -423,18 +423,18 @@ RETURN:     hNotesDB = NULLHANDLE;
               hNotesDB = NULLHANDLE;
               SendMessage (hWnd, WM_CLOSE, 0, 0L); 
               break;
-          }
+        }
 
+         break;
+
+     case WM_DESTROY:            /* message: window being destroyed */
+          PostQuitMessage(0);
           break;
 
-       case WM_DESTROY:            /* message: window being destroyed */
-            PostQuitMessage(0);
-            break;
-
-       default:                    /* Passes it on if unproccessed    */
-            return (DefWindowProc(hWnd, message, wParam, lParam));
-    } 
-    return 0;
+     default:                    /* Passes it on if unproccessed    */
+          return (DefWindowProc(hWnd, message, wParam, lParam));
+   } 
+   return 0;
 } 
 
 /************************************************************************

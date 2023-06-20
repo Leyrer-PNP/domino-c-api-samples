@@ -177,8 +177,8 @@ int main (int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
-       goto End1;
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+        goto End1;
     }
    
     if (error = NAMELookup2(ServerName, 0,

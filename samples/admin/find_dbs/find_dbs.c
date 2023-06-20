@@ -220,9 +220,9 @@ STATUS LNPUBLIC file_action
 
     memcpy( (char*)&SearchMatch, (char*)pSearchMatch, sizeof(SEARCH_MATCH) );
 
-/* Skip this object if it does not really match the search criteria (it
-is now deleted or modified).  This is not necessary for full searches,
-but is shown here in case a starting date was used in the search. */
+    /* Skip this object if it does not really match the search criteria (it
+      is now deleted or modified).  This is not necessary for full searches,
+      but is shown here in case a starting date was used in the search. */
 
     if (!(SearchMatch.SERetFlags & SE_FMATCH))
         return (NOERROR);
@@ -351,14 +351,14 @@ STATUS LNPUBLIC print_file_summary (ITEM_TABLE *summary)
         memcpy (&datatype, summary_position, DATATYPE_SIZE);
         summary_position += DATATYPE_SIZE;
 
-/* Extract the item from the summary and put it in readable
-form. The way in which we extract the item depends on its type.
-This program handles TEXT, NUMBER, and TIME. */
+        /* Extract the item from the summary and put it in readable
+           form. The way in which we extract the item depends on its type.
+           This program handles TEXT, NUMBER, and TIME. */
 
         switch (datatype)
         {
 
-/* Extract a text item from the summary. */
+            /* Extract a text item from the summary. */
 
             case TYPE_TEXT:
                 memcpy (item_text,

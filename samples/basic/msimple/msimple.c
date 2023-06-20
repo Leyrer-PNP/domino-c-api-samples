@@ -103,8 +103,8 @@ int main(int argc, char *argv[])
    
    if (error = NotesInitExtended (argc, argv))
    {
-     PRINTLOG("\n Unable to initialize Notes.\n");
-     return (1);
+      PRINTLOG("\n Unable to initialize Notes.\n");
+      return (1);
    }
    
    
@@ -112,9 +112,9 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (db_filename, &db_handle))
    {
-       PRINTERROR (error,"NSFDbOpen");  
-       NotesTerm();
-       return (1);
+      PRINTERROR (error,"NSFDbOpen");  
+      NotesTerm();
+      return (1);
    } 
 
 
@@ -143,13 +143,13 @@ int main(int argc, char *argv[])
        &wdc,               /* return code from compile (don't care) */
        &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
         
-      {
-         IDDestroyTable(hNoteIDTable);
-         NSFDbClose (db_handle);
-         PRINTERROR (error,"NSFFormulaCompile");  
-         NotesTerm();
-         return (1);
-      }
+   {
+       IDDestroyTable(hNoteIDTable);
+        NSFDbClose (db_handle);
+        PRINTERROR (error,"NSFFormulaCompile");  
+        NotesTerm();
+        return (1);
+   }
 
    /* Call NSFSearch to find the notes that match the selection criteria. 
       For each note found, the routine AddIdUnique is called. */
@@ -341,7 +341,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
     else
     {
          strcpy(db_filename, argv[1]);    
-      } /* end if */
+    } /* end if */
 } /* ProcessArgs */
 #ifdef __cplusplus
 }

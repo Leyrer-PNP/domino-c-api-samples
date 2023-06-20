@@ -184,10 +184,10 @@ unsigned int HttpFilterProc(FilterContext* context,
 
    /* Include only those events we want to handle */
    switch (eventType) {
-   case kFilterAuthenticate:
-      return Authenticate(context, (FilterAuthenticate *)eventData);
-   default:
-      break;
+       case kFilterAuthenticate:
+           return Authenticate(context, (FilterAuthenticate *)eventData);
+       default:
+           break;
    }
 
    return kFilterNotHandled;
@@ -354,7 +354,7 @@ int getUserNames (FilterContext* context,
                                                  * buffer */
                                         NULL, /* start at beginning of
                                                * lookup buffer */
-                                   &Matches); /* Receives number
+                                        &Matches); /* Receives number
                                                * of times we
                                                * found the entry
                                                * (should be 1) */
@@ -375,20 +375,20 @@ int getUserNames (FilterContext* context,
    /* Get the full name from the info we got back */
 
    if ( getLookupInfo (context,
-                            pMatch,
-                            0,
-                            pUserFullName,
-                            pUserFullNameLen) )
+                       pMatch,
+                       0,
+                       pUserFullName,
+                       pUserFullNameLen) )
       goto Exit;
 
      AddInLogMessageText (string2, 0,*pUserFullName,*pUserFullNameLen);
 
    /* Get the short name from the info we got back */
    if ( getLookupInfo (context,
-                            pMatch,
-                            1,
-                            pUserShortName,
-                            pUserShortNameLen) )
+                       pMatch,
+                       1,
+                       pUserShortName,
+                       pUserShortNameLen) )
       goto Exit;
    else
       rc = 0;

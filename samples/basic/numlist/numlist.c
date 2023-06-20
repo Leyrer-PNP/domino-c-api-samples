@@ -88,10 +88,10 @@ int main(int argc, char *argv[])
     ProcessArgs(argc, argv, szPathName); 
    
     if (error = NotesInitExtended (argc, argv))
-	{
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
 
 /* Open the database. */
@@ -175,11 +175,11 @@ int main(int argc, char *argv[])
     }
 
     if (error = NSFDbClose (hDB))
-	{
+    {
         PRINTERROR (error,"NSFDbClose");  
         NotesTerm();
         return (1);
-	}
+    }
 
     PRINTLOG("\nProgram completed successfully.\n"); 
 

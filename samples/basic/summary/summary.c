@@ -123,11 +123,11 @@ int main(int argc, char *argv[])
     db_filename = database_name;
     ProcessArgs(argc, argv, db_filename);
 
-	if (error = NotesInitExtended (argc, argv))
-	{
+    if (error = NotesInitExtended (argc, argv))
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
     /* Open the database. */
 

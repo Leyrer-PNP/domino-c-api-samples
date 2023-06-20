@@ -79,20 +79,20 @@ int main(int argc, char *argv[])
 
     ProcessArgs (argc, argv, input_path, output_path, output_title);
 
-	if (error = NotesInitExtended (argc, argv))
-	{
+    if (error = NotesInitExtended (argc, argv))
+    {
         PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
 /* Open the input database. */
 
     if (error = NSFDbOpen (input_path, &input_handle))
-	{
+    {
         PRINTERROR (error,"NSFDbOpen");  
         NotesTerm();
         return (1);
-	}
+    }
 
     PRINTLOG("\nOpened \"%s\" as the input database", input_path); 
 
@@ -241,13 +241,13 @@ call. */
 /* Get the output database information buffer. */
   
     if (error = NSFDbInfoGet (output_handle, output_db_info))
-        {
+    {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
         PRINTERROR (error,"NSFDbInfoGet");  
         NotesTerm();
         return (1);
-        }
+    }
 
 /* Add the database title to the database information buffer */
 
@@ -256,13 +256,13 @@ call. */
 /* Set the database information buffer. */
 
     if (error = NSFDbInfoSet (output_handle, output_db_info))
-        {
+    {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
         PRINTERROR (error,"NSFDbInfoSet");  
         NotesTerm();
         return (1);
-        }
+    }
 
    PRINTLOG("\nSet the title of \"%s\" to \"%s\"", output_path, output_title);
 
@@ -277,11 +277,11 @@ call. */
     }
 
     if (error = NSFDbClose (output_handle))
-	{
+    {
         PRINTERROR (error,"NSFDbClose");  
         NotesTerm();
         return (1);
-	}
+    }
 
     PRINTLOG("\nDone.\n"); 
 

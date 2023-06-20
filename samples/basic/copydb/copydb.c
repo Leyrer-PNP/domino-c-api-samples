@@ -91,21 +91,21 @@ int main(int argc, char *argv[])
 
     ProcessArgs (argc, argv, input_path, output_path, output_title);
 
-	if (error = NotesInitExtended (argc, argv))
-	{
-     PRINTLOG("\n Unable to initialize Notes.\n");
-     return (1);
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
 	}
 
 
 /* Open the input database. */
 
     if (error = NSFDbOpen (input_path, &input_handle))
-		{
+    {
          PRINTERROR (error,"NSFDbOpen");  
          NotesTerm();
          return (1);
-		} 
+    } 
 
     PRINTLOG("\nOpened \"%s\" as the input database", input_path); 
    
@@ -184,18 +184,18 @@ specified to indicate that we do not want any cutoff date.  */
                                            NOTE_CLASS_ALL,
                                            start_time, &last_time,
                                            &idtable_p) )
-        if (error == ERR_NO_MODIFIED_NOTES)
-	{
-            PRINTLOG ("There are no documents in the Database.\n");
-	}
-        else
-        {
-            NSFDbClose (input_handle);
-            NSFDbClose (output_handle);
-            PRINTERROR (error,"NSFDbGetModifiedNoteTable");  
-            NotesTerm();
-            return (1);
-        }
+    if (error == ERR_NO_MODIFIED_NOTES)
+    {
+        PRINTLOG ("There are no documents in the Database.\n");
+    }
+    else
+    {
+        NSFDbClose (input_handle);
+        NSFDbClose (output_handle);
+        PRINTERROR (error,"NSFDbGetModifiedNoteTable");  
+        NotesTerm();
+        return (1);
+    }
     num_scanned = 0L;
     num_entries = IDEntries (idtable_p);
     if (num_entries)
@@ -281,21 +281,21 @@ specified to indicate that we do not want any cutoff date.  */
 /* Close the databases. */
 
     if (error = NSFDbClose (input_handle))
-        {
-         NSFDbClose (output_handle);
-         PRINTERROR (error,"NSFDbClose");  
-         NotesTerm();
-         return (1);
-        }
+    {
+        NSFDbClose (output_handle);
+        PRINTERROR (error,"NSFDbClose");  
+        NotesTerm();
+        return (1);
+    }
 
     if (error = NSFDbClose (output_handle))
-	{
-         PRINTERROR (error,"NSFDbClose");  
-         NotesTerm();
-         return (1);
-	}
+    {
+        PRINTERROR (error,"NSFDbClose");  
+        NotesTerm();
+        return (1);
+    }
 
-   PRINTLOG("\n Done.\n"); 
+    PRINTLOG("\n Done.\n"); 
 
 /* End of program. */
     PRINTLOG("\nProgram completed successfully.\n");

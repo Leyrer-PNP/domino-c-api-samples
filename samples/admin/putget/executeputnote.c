@@ -345,7 +345,7 @@ following locations:
 
 /* Reset new line counter. */
 
-	newline_count = 0;
+    newline_count = 0;
 
 /* If we are at the very beginning of the input, treat this as if we
 have seen a newline. */

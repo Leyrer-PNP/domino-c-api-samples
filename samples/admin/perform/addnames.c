@@ -87,7 +87,7 @@ int main (int argc, char *argv[])
     db_path = argv[1];
     transactions = atoi(argv[2]);
 
-   PRINTLOG ("\n***** ADDNAMES Test Begins ******\n");
+    PRINTLOG ("\n***** ADDNAMES Test Begins ******\n");
 
     if (error = NotesInitExtended (argc, argv))
     {
@@ -99,7 +99,7 @@ int main (int argc, char *argv[])
 /* Get System TIME  . */
 /* ************************************************** */
 
-   OSCurrentTIMEDATE(&StartTime);
+    OSCurrentTIMEDATE(&StartTime);
 
 /* ************************************************** */
 /* Open the database. */
