@@ -604,7 +604,7 @@ STATUS DoArchiveLogs(void)
    WORD   LogType;
 
    if ( err = NSFGetTransLogStyle (&LogType))
-      print_api_error(err);
+      PRINTERROR(err,"NSFGetTransLogStyle");
 
    if (LogType == TRANSLOG_STYLE_CIRCULAR || LogType == TRANSLOG_STYLE_LINEAR)
    {
@@ -685,7 +685,7 @@ STATUS DoArchiveLogs(void)
 
          if (err = NSFDoneArchivingLog(&LogId, &LogNumber))
          {
-            print_api_error(err,"NSFDoneArchivingLog");
+            PRINTERROR(err,"NSFDoneArchivingLog");
             break;
          }
 
