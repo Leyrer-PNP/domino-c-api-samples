@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
 
    if (error = NotesInitExtended (argc, argv))
    {
-     PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
-     return (1);
+      PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+      return (1);
    }
 
 
@@ -165,7 +165,7 @@ there are. Check the return code for "not found" versus a real error. */
 /* Get a buffer of all the note IDs that have this key. */
 
    do
-     {
+   {
 
       if (error = NIFReadEntries(
              coll_handle,         /* handle to this collection */
@@ -213,7 +213,7 @@ the resulting pointer to the type we need. */
       PRINTLOG ("\n");
       for (i=0; i<notes_found; i++)
          PRINTLOG ("Note count is %lu. \t Note ID is: %lX\n", 
-                 ++note_count, id_list[i]);
+                    ++note_count, id_list[i]);
 
 /* Unlock the list of note IDs. */
 
@@ -226,7 +226,7 @@ the resulting pointer to the type we need. */
       if (FirstTime)
          FirstTime = FALSE;
 
-     }  while (signal_flag & SIGNAL_MORE_TO_DO);
+   } while (signal_flag & SIGNAL_MORE_TO_DO);
 
 /* Close the collection. */
 
@@ -275,11 +275,11 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *view_name, 
                          char *text_key)
 { 
-    memset(db_filename, '\0', STRING_LENGTH);
-    memset(view_name, '\0', STRING_LENGTH);
-    memset(text_key, '\0', STRING_LENGTH);
-    if (argc != 4)
-    {       
+   memset(db_filename, '\0', STRING_LENGTH);
+   memset(view_name, '\0', STRING_LENGTH);
+   memset(text_key, '\0', STRING_LENGTH);
+   if (argc != 4)
+   {       
       printf("Enter name of input database: ");   
       fflush(stdout);
       fgets(db_filename, STRING_LENGTH-1, stdin);
@@ -295,10 +295,10 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
       fgets(text_key, STRING_LENGTH-1, stdin);
    }  
    else
-    {
+   {
       strncpy(db_filename, argv[1], STRING_LENGTH-1);
       strncpy(view_name, argv[2], STRING_LENGTH-1);
       strncpy(text_key, argv[3], STRING_LENGTH-1);      
-    } /* end if */
+   } /* end if */
 } /* ProcessArgs */
 

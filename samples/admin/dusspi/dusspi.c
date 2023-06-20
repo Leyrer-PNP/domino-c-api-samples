@@ -280,8 +280,8 @@ STATUS LNCALLBACK DUSRetrieveUsers(DHANDLE hContext,
 	 * FirstName LastNameCRLFCRLF
 	 */
 	hFile = CreateFile( FileName, GENERIC_READ, FILE_SHARE_READ, 
-			NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 
-			NULL);
+	                    NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 
+	                    NULL);
 	if(hFile == HFILE_ERROR)
 	{
 	    error = ERR_DUS_EXTENDED_ERROR;
@@ -557,12 +557,12 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 	BOOL t;
 
 	if(hContext)
-		pDUSCtx = OSLock(DUS_CONTEXT, hContext);
+	    pDUSCtx = OSLock(DUS_CONTEXT, hContext);
 	else
-		return(ERR_DUS_CONTEXT_CORRUPT);
+	    return(ERR_DUS_CONTEXT_CORRUPT);
 
 	if(error = NSFItemSetText(hUserNote, USERREG_FULLNAME_ITEM, UserName, (WORD)strlen(UserName)))
-		goto Finish;
+	    goto Finish;
 	/*
 	 * Take apart UserName to get First and Last Name.  We are not dealing with Titles nor Middle
 	 * Initials.
@@ -571,35 +571,35 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 	NameLen = strlen(UserName);
 	for( i=0, fname=0, lname=0, sname=0, index=0; i < NameLen; i++)
 	{
-		while((ParseName[index] != CHAR_SPC) && (index < NameLen))
-		{
-			FirstName[fname] = ParseName[index];
-			if( fname == 0 )
-			{
-			    ShortName[sname] = ParseName[index];
-			    sname++;
-			}
-			index++;
-			fname++;
-		}
-		index++;
-		while(index < NameLen)
-		{
-			LastName[lname] = ParseName[index];
-			ShortName[sname] = ParseName[index];
-			index++;
-			lname++;
-			sname++;
-		}
+	    while((ParseName[index] != CHAR_SPC) && (index < NameLen))
+	    {
+	        FirstName[fname] = ParseName[index];
+	        if( fname == 0 )
+	        {
+	            ShortName[sname] = ParseName[index];
+	            sname++;
+	    }
+	        index++;
+	        fname++;
+	    }
+	    index++;
+	    while(index < NameLen)
+	    {
+	        LastName[lname] = ParseName[index];
+	        ShortName[sname] = ParseName[index];
+	        index++;
+	        lname++;
+	        sname++;
+	    }
 	}
 	if(error = NSFItemSetText(hUserNote, USERREG_LASTNAME_ITEM, LastName, lname))
-		goto Finish;
+	    goto Finish;
 	
 	if(error = NSFItemSetText(hUserNote, USERREG_FIRSTNAME_ITEM, FirstName, fname))
-		goto Finish;
+	    goto Finish;
 
 	if(error = NSFItemSetText(hUserNote, USERREG_SHORTNAME_ITEM, ShortName, sname))
-		goto Finish;
+	    goto Finish;
 	
 	/* 
 	 * USERREG_DUSADVANCEDINFO_ITEM must be set to '1' in order for the DUS framework to 
@@ -646,12 +646,12 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 	 */
 
 	if(error = NSFItemSetText(hUserNote, USERREG_DUSADVANCEDINFO_ITEM, "1", 1))
-		goto Finish;
+	    goto Finish;
 	/*
 	 * Read the address.txt file to get the address information for this username.
 	 */
 	hFile = CreateFile( FileName, GENERIC_READ, FILE_SHARE_READ, NULL,
-				 OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	                     OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(hFile == HFILE_ERROR)
 	{
 	    error = ERR_DUS_EXTENDED_ERROR;
@@ -660,87 +660,87 @@ STATUS LNCALLBACK DUSGetUserInformation(DHANDLE hContext,
 	}
 	else
 	{
-		FileSize = GetFileSize((DHANDLE)hFile, NULL);
-		(char *)FileBuffer = malloc(FileSize);
-		if(FileBuffer == NULL)
-		{
-		    error = ERR_DUS_EXTENDED_ERROR;
-		    pDUSCtx->ExtendedError = STR_DUS_ERR_NOMEM;
-		    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR;
-		}
-		else
-		{
-			if(ReadFile((DHANDLE)hFile, FileBuffer, FileSize, &NumberOfBytesRead, NULL) == 0)
-			{
-			    error = ERR_DUS_EXTENDED_ERROR;
-			    pDUSCtx->ExtendedError = STR_DUS_ERR_READFILE_ADDRESS;
-			    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
-			}
-			else
-			{
-				for( i=0, index=0; i < NumberOfBytesRead; i++)
-				{
-					if((FileBuffer[i] == CHAR_LF) && (FileBuffer[i+1] != CHAR_CR))
-					    NumLines++;
-				}
-				t = TRUE;
-				for( i=0, index=0; ((i < NumLines) && (t == TRUE)); i++)
-				{
-					pos = 0;
-					while(((FileBuffer[index] != CHAR_CR) && (FileBuffer[index] != CHAR_LF)) 
-						&& (index < NumberOfBytesRead))
-					{
-					    LineOfData[pos] = FileBuffer[index];
-					    pos++;
-					    index++;
-					}
-					LineOfData[pos] = '\0';
-					pdest = strchr(LineOfData, CHAR_COMMA);
-					result = pdest - LineOfData + 1;
-					if(strncmp(LastName, LineOfData, result-1) == 0)
-					{
-						/* Then we have a match on this user information. */
-						pos = result;
-						pdest = strchr(&LineOfData[pos], CHAR_COMMA);
-						result = pdest - &LineOfData[pos] + 1;
-						if(pdest == NULL) 
-							goto Finish;
-						if(error = NSFItemSetText(hUserNote, USERREG_HOME_STREETADDRESS, 
-							((char *)&LineOfData[pos]), (WORD)(result-1)))
-							goto Finish;
-						pos += result;
-						pdest = strchr(&LineOfData[pos], CHAR_COMMA);
-						result = pdest - &LineOfData[pos] + 1;
-						if(pdest == NULL)
-							goto Finish;
-						if(error = NSFItemSetText(hUserNote, USERREG_HOME_CITY, 
-							((char *)&LineOfData[pos]), (WORD)(result-1)))
-							goto Finish;
-						pos += result;
-						pdest = strchr(&LineOfData[pos], CHAR_COMMA);
-						result = pdest - &LineOfData[pos] + 1;
-						if(pdest == NULL)
-							goto Finish;
-						if(error = NSFItemSetText(hUserNote, USERREG_HOME_STATE, 
-							((char *)&LineOfData[pos]), (WORD)(result-1)))
-							goto Finish;
-						pos+= result;
-						if(error = NSFItemSetText(hUserNote, (char *)USERREG_HOME_ZIP, 
-							((char *)&LineOfData[pos]), 5))
-							goto Finish;
-						t = FALSE; /* We have a match so we can exit from searching through this file */
-					}
-					index += 2; /* Hope over CRLF in the input File */
-				}
-				if(CloseHandle((DHANDLE)hFile) == 0)
-				{
-				    error = ERR_DUS_EXTENDED_ERROR;
-				    pDUSCtx->ExtendedError = STR_DUS_ERR_CLOSEFILE_ADDRESS;
-				    pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
-				}       
-			}/* endif ReadFile */
-			free(FileBuffer);
-		} /* endif FileBuffer */
+	    FileSize = GetFileSize((DHANDLE)hFile, NULL);
+	    (char *)FileBuffer = malloc(FileSize);
+	    if(FileBuffer == NULL)
+	    {
+	        error = ERR_DUS_EXTENDED_ERROR;
+	        pDUSCtx->ExtendedError = STR_DUS_ERR_NOMEM;
+	        pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR;
+	    }
+	    else
+	    {
+	        if(ReadFile((DHANDLE)hFile, FileBuffer, FileSize, &NumberOfBytesRead, NULL) == 0)
+	        {
+	            error = ERR_DUS_EXTENDED_ERROR;
+	            pDUSCtx->ExtendedError = STR_DUS_ERR_READFILE_ADDRESS;
+	            pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
+	        }
+	        else
+	        {
+	            for( i=0, index=0; i < NumberOfBytesRead; i++)
+	            {
+	                if((FileBuffer[i] == CHAR_LF) && (FileBuffer[i+1] != CHAR_CR))
+	                    NumLines++;
+	            }
+	            t = TRUE;
+	            for( i=0, index=0; ((i < NumLines) && (t == TRUE)); i++)
+	            {
+	                pos = 0;
+	                while(((FileBuffer[index] != CHAR_CR) && (FileBuffer[index] != CHAR_LF)) 
+	                        && (index < NumberOfBytesRead))
+	                {
+	                    LineOfData[pos] = FileBuffer[index];
+	                    pos++;
+	                    index++;
+	                }
+	                LineOfData[pos] = '\0';
+	                pdest = strchr(LineOfData, CHAR_COMMA);
+	                result = pdest - LineOfData + 1;
+	                if(strncmp(LastName, LineOfData, result-1) == 0)
+	                {
+	                    /* Then we have a match on this user information. */
+	                    pos = result;
+	                    pdest = strchr(&LineOfData[pos], CHAR_COMMA);
+	                    result = pdest - &LineOfData[pos] + 1;
+	                    if(pdest == NULL) 
+	                        goto Finish;
+	                    if(error = NSFItemSetText(hUserNote, USERREG_HOME_STREETADDRESS, 
+	                                              ((char *)&LineOfData[pos]), (WORD)(result-1)))
+	                        goto Finish;
+	                    pos += result;
+	                    pdest = strchr(&LineOfData[pos], CHAR_COMMA);
+	                    result = pdest - &LineOfData[pos] + 1;
+	                    if(pdest == NULL)
+	                        goto Finish;
+	                    if(error = NSFItemSetText(hUserNote, USERREG_HOME_CITY, 
+	                                              ((char *)&LineOfData[pos]), (WORD)(result-1)))
+	                        goto Finish;
+	                    pos += result;
+	                    pdest = strchr(&LineOfData[pos], CHAR_COMMA);
+	                    result = pdest - &LineOfData[pos] + 1;
+	                    if(pdest == NULL)
+	                        goto Finish;
+	                    if(error = NSFItemSetText(hUserNote, USERREG_HOME_STATE, 
+	                                              ((char *)&LineOfData[pos]), (WORD)(result-1)))
+	                        goto Finish;
+	                    pos+= result;
+	                    if(error = NSFItemSetText(hUserNote, (char *)USERREG_HOME_ZIP, 
+	                                              ((char *)&LineOfData[pos]), 5))
+	                        goto Finish;
+	                    t = FALSE; /* We have a match so we can exit from searching through this file */
+	                }
+	                index += 2; /* Hope over CRLF in the input File */
+	            }
+	            if(CloseHandle((DHANDLE)hFile) == 0)
+	            {
+	                error = ERR_DUS_EXTENDED_ERROR;
+	                pDUSCtx->ExtendedError = STR_DUS_ERR_CLOSEFILE_ADDRESS;
+	                pDUSCtx->ExtendedErrorLevel = DUS_ERROR_LEVEL_ERROR; /* Going to gracefully shutdown */
+	            }       
+	        }/* endif ReadFile */
+	        free(FileBuffer);
+	    } /* endif FileBuffer */
 	} /* endif hFile */
 
 Finish:

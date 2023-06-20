@@ -153,15 +153,15 @@ int main(int argc, char *argv[])
 
 	/* Search for the Entry via name */
 	if ( args.formtype == (0x01 | 0x02) )		/* any type of person */
-		error = DirCtxSearchPersonsByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
+	    error = DirCtxSearchPersonsByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
 	else if ( args.formtype == 0x02 )			/* domino people only */
-		error = DirCtxSearchDominoPersonsByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
+	    error = DirCtxSearchDominoPersonsByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
 	else if ( args.formtype == (0x10 | 0x20) )	/* any type of group */
-		error = DirCtxSearchGroupsByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
+	    error = DirCtxSearchGroupsByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
 	else if ( args.formtype == 0x20 )			/* domino groups only */
-		error = DirCtxSearchDominoGroupsByName(hCtx, args.szName, args.szItems, args.wNumItems, args.grouptype, &hCollection);
+	    error = DirCtxSearchDominoGroupsByName(hCtx, args.szName, args.szItems, args.wNumItems, args.grouptype, &hCollection);
 	else										/* any type of doc from the $Users view */
-		error = DirCtxSearchByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
+	    error = DirCtxSearchByName(hCtx, args.szName, args.szItems, args.wNumItems, &hCollection);
 
 	if ( error != NOERROR )
 	{
@@ -172,10 +172,10 @@ int main(int argc, char *argv[])
 
 	/* Print search summary */
 	if (DirCtxGetDomain(hCtx, args.szDomainName) == NOERROR &&
-		DirCtxGetDirectoryServer(hCtx, args.szServerName) == NOERROR)
+	    DirCtxGetDirectoryServer(hCtx, args.szServerName) == NOERROR)
 	{
 	   PRINTLOG("Found '%lu' matches for '%s' in domain '%s' through server '%s'.\n\n",
-		     DirCollectionGetNumEntries(hCollection), args.szName, args.szDomainName, args.szServerName);									 
+	             DirCollectionGetNumEntries(hCollection), args.szName, args.szDomainName, args.szServerName);									 
 	}
 
 	/* Print complete results */
@@ -232,54 +232,54 @@ int processArgs (int nargc, const char * const *nargv, ARG_STRUCT *args)
 		        args->dwFlags = atoi( optarg);
 		        break;
 		    case 'i':
-			    args->szItems[0] = '\0';
-			    args->wNumItems = 0;
-			    {
-			        int avail_len = sizeof(args->szItems) - 1;
-			        char *ptr = args->szItems;
-			        char *token = strtok(optarg, ",");
-			        while (token != NULL)
-			        {
-			            const int len = strlen(token);
-			            if (avail_len < len)
-			            {
-			                PRINTLOG("Sorry, too many -i Items.\n");
-			                return 1;
-			            }
+		        args->szItems[0] = '\0';
+		        args->wNumItems = 0;
+		        {
+		            int avail_len = sizeof(args->szItems) - 1;
+		            char *ptr = args->szItems;
+		            char *token = strtok(optarg, ",");
+		            while (token != NULL)
+		            {
+		                const int len = strlen(token);
+		                if (avail_len < len)
+		                {
+		                    PRINTLOG("Sorry, too many -i Items.\n");
+		                    return 1;
+		                }
 
-			            if (*token == '+')
-			                args->PrintFlags |= DIRPRINT_FLAG_EXTENDED_ENTRY;
-			            else
-			            {
-			                strncpy(ptr, token, avail_len);
-			                args->wNumItems++;
-			                avail_len -= (len + 1);
-			                ptr += (len + 1);
-			            }
+		                if (*token == '+')
+		                    args->PrintFlags |= DIRPRINT_FLAG_EXTENDED_ENTRY;
+		                else
+		                {
+		                    strncpy(ptr, token, avail_len);
+		                    args->wNumItems++;
+		                    avail_len -= (len + 1);
+		                    ptr += (len + 1);
+		                }
 
 						
-			            token = strtok(NULL, ",");
-			        }
+		                token = strtok(NULL, ",");
+		            }
 
-			        if ((args->PrintFlags & DIRPRINT_FLAG_EXTENDED_ENTRY) && args->wNumItems == 0)
-			        {
-			            args->szItems[0] = '\0';
-			            strcpy(args->szItems, DIR_ITEMS_ALL_DOMINO);
-			            args->wNumItems = 1;
-			        }
+		            if ((args->PrintFlags & DIRPRINT_FLAG_EXTENDED_ENTRY) && args->wNumItems == 0)
+		            {
+		                args->szItems[0] = '\0';
+		                strcpy(args->szItems, DIR_ITEMS_ALL_DOMINO);
+		                args->wNumItems = 1;
+		            }
 
-			    }
-			    break;
-			case 'b':
-			    break;
-			case 'n':
-			    nswitch = 1;
-			    strncpy (args->szName, optarg, strlen(optarg));
+		        }
+		        break;
+		    case 'b':
+		        break;
+		    case 'n':
+		        nswitch = 1;
+		        strncpy (args->szName, optarg, strlen(optarg));
 
-			    break;
-			default:
-			    help();
-			    return 1;
+		        break;
+		    default:
+		        help();
+		        return 1;
 		}
 
 	}
@@ -300,54 +300,54 @@ int getOpt (int nargc, const char * const *nargv, const char *ostr, char** popta
 	const char *p = NULL;
 
 	if (!*place) {                          /* update scanning pointer */
-		if (optind >= nargc || *(place = nargv[optind]) != '-') {
-		    place = EMSG;
-		    return(EOF);
-		}
-		if (place[1] && *++place == '-') {      /* found "--" */
-		    ++optind;
-		    place = EMSG;
-		    return(EOF);
-		}
+	    if (optind >= nargc || *(place = nargv[optind]) != '-') {
+	        place = EMSG;
+	        return(EOF);
+	    }
+	    if (place[1] && *++place == '-') {      /* found "--" */
+	        ++optind;
+	        place = EMSG;
+	        return(EOF);
+	    }
 	}                                       /* option letter okay? */
 	if ((optopt = (int)*place++) == (int)':' ||
 	    (oli = strchr((char *)ostr, optopt)) == 0) {
-		/*
-		 * if the user didn't specify '-' as an option,
-		 * assume it means EOF.
-		 */
-		if (optopt == (int)'-')
-		    return(EOF);
-		if (!*place)
-		    ++optind;
-		if (opterr) {
-		    if ((p = strrchr(*nargv, '/')) != NULL)
-		        p = *nargv;
-		    if (p != NULL)
-		        PRINTLOG("%s: illegal option -- %c\n", p, optopt);
-		}
-		return(BADCH);
+	    /*
+	     * if the user didn't specify '-' as an option,
+	     * assume it means EOF.
+	     */
+	    if (optopt == (int)'-')
+	        return(EOF);
+	    if (!*place)
+	        ++optind;
+	    if (opterr) {
+	        if ((p = strrchr(*nargv, '/')) != NULL)
+	            p = *nargv;
+	        if (p != NULL)
+	            PRINTLOG("%s: illegal option -- %c\n", p, optopt);
+	    }
+	    return(BADCH);
 	}
 	if (*++oli != ':') {                    /* don't need argument */
-		*poptarg = NULL;
-		if (!*place)
-			++optind;
+	    *poptarg = NULL;
+	    if (!*place)
+	        ++optind;
 	}
 	else {                                  /* need an argument */
-		if (*place)                     /* no white space */
-		    *poptarg = (char*)place;
-		else if (nargc <= ++optind) {   /* no arg */
-		    place = EMSG;
-		    if ((p = strrchr(*nargv, '/')) != NULL)
-		        p = *nargv;
-		    if (opterr && p != NULL)
-		        PRINTLOG("%s: option requires an argument -- %c\n", p, optopt);
-		    return(BADCH);
-		}
-		else                            /* white space */
-		    *poptarg = (char*)nargv[optind];
-		place = EMSG;
-		++optind;
+	    if (*place)                     /* no white space */
+	        *poptarg = (char*)place;
+	    else if (nargc <= ++optind) {   /* no arg */
+	        place = EMSG;
+	        if ((p = strrchr(*nargv, '/')) != NULL)
+	            p = *nargv;
+	        if (opterr && p != NULL)
+	            PRINTLOG("%s: option requires an argument -- %c\n", p, optopt);
+	        return(BADCH);
+	    }
+	    else                            /* white space */
+	        *poptarg = (char*)nargv[optind];
+	    place = EMSG;
+	    ++optind;
 	}
 	return(optopt);                         /* dump back option letter */
 }
