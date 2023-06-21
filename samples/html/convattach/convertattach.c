@@ -837,7 +837,7 @@ int convert(char c)
 	        return 13;
 	        break;
 	    case 'E':
-	        retu rn 14;
+	        return 14;
 	        break;
 	    case 'F':
 	        return 15;
