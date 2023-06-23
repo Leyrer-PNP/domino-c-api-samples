@@ -250,7 +250,7 @@ BOOL LNPUBLIC PutOLEBegin(BYTE far *pbRTItem,
  *       Domino and Notes
  *     
  *   Arguments:
- *       BYTE *pbRTItem          Ptr to buffer containing the CD record
+ *       BYTE *pbRTItem         Ptr to buffer containing the CD record
  *                              being created.
  *       DWORD dwLength         Number of bytes remaining in the buffer. 
  *       DWORD FAR *pdwRTLength Current length of the CD record;

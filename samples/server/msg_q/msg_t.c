@@ -85,10 +85,10 @@ STATUS LNPUBLIC AddInMain (
     
     /* Local data. */
 
-    STATUS        error;                       /* return code from API calls */
-    DHANDLE         hOldStatusLine;              /* handle to initial default status line*/
-    DHANDLE         hStatusLineDesc;             /* handle to new default status line */
-    HMODULE        hMod;                       /* add-in task's module handle */
+    STATUS      error;                         /* return code from API calls */
+    DHANDLE     hOldStatusLine;                /* handle to initial default status line*/
+    DHANDLE     hStatusLineDesc;               /* handle to new default status line */
+    HMODULE     hMod;                          /* add-in task's module handle */
     char        TaskName[MAX_NAME + 1];        /* command line task name */
     char        MsgTaskName[MAX_NAME + 1];     /* task name with prefix added */
     char        CommandString[MAX_NAME + 1];   /* command line string */

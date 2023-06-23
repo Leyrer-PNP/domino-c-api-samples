@@ -21,9 +21,9 @@ FILE:       TimeTest.c
 
 PURPOSE:    Shows the basic time related functions such as 
             1. TimeDateCollate -> Compares two binary TIMEDATE values.
-			2. TimeExtractJulianDate -> Extracts the Julian date from a TIMEDATE value.
-			3. TimeDateDifferenceFloat -> Floating-point difference between two TIMEDATE values.
-			and prints their output to the screen.
+            2. TimeExtractJulianDate -> Extracts the Julian date from a TIMEDATE value.
+            3. TimeDateDifferenceFloat -> Floating-point difference between two TIMEDATE values.
+               and prints their output to the screen.
 
 SYNTAX:     TimeTest
 
@@ -57,9 +57,9 @@ int main(int argc, char *argv[]){
 	/* Local data declarations */
 	
 	TIMEDATE Now,Future; 
-	NUMBER time_delta;
-	char retTextBuffer[MAXALPHATIMEDATE + 1];
-	WORD retTextLength;
+	NUMBER   time_delta;
+	char     retTextBuffer[MAXALPHATIMEDATE + 1];
+	WORD     retTextLength;
 	
 	PRINTLOG("Test of Time functions TimeDateCollate, TimeExtractJulianDate, TimeDateDifferenceFloat\n");
 	

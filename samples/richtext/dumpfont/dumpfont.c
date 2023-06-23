@@ -37,7 +37,7 @@
       from the NSF subsystem, these structures will be in Dmino and
       Notes Canonical format, i.e. Intel 8x86 byte ordering with no
       pads. API programs that run on other platforms (SPARC,
-	  etc.) must convert the Canonical-format data structures to Host-
+      etc.) must convert the Canonical-format data structures to Host-
       specific format before attempting to access the members of
       the structure. Dumpfont demonstrates how to use the API
       function ODSReadMemory() to perform this conversion before
@@ -95,25 +95,25 @@ int main(int argc, char *argv[])
     char        szDBName[] = "richtext.nsf";
     DBHANDLE    hDB;
     STATUS      error = NOERROR;
-    DHANDLE       hNoteIDTable;
+    DHANDLE     hNoteIDTable;
 
     /*   Start by calling Notes Init.  */
 
     error = NotesInitExtended (argc, argv);
     if (error)
     {
-		 PRINTLOG("Error: Unable to initialize Notes.\n");
-		 return (1);
+        PRINTLOG("Error: Unable to initialize Notes.\n");
+        return (1);
     }
 
     /*  Open the database. */
 
     if (error = NSFDbOpen( szDBName, &hDB ))
     {
-		 PRINTLOG ("Error: unable to open database '%s'.\n", szDBName);
-		 PRINTERROR(error,"NSFDbOpen");
-		 NotesTerm();
-		 return(1);
+        PRINTLOG ("Error: unable to open database '%s'.\n", szDBName);
+        PRINTERROR(error,"NSFDbOpen");
+        NotesTerm();
+        return(1);
     }
 
     /*  Create ID table then call to NSFSearch.  NSFSearch will find
@@ -133,15 +133,15 @@ int main(int argc, char *argv[])
     }
 
     if (error = NSFSearch(
-        hDB,            /* database handle */
-        NULLHANDLE,     /* selection formula (select all notes) */
-        NULL,           /* title of view in selection formula */
-        0,              /* search flags */
-        NOTE_CLASS_DOCUMENT,/* note class to find */
-        NULL,           /* starting date (unused) */
-        AddIDUnique,    /* call for each note found */
-        &hNoteIDTable,  /* argument to AddIDUnique */
-        NULL ))         /* returned ending date (unused) */
+                    hDB,            /* database handle */
+                    NULLHANDLE,     /* selection formula (select all notes) */
+                    NULL,           /* title of view in selection formula */
+                    0,              /* search flags */
+                    NOTE_CLASS_DOCUMENT,/* note class to find */
+                    NULL,           /* starting date (unused) */
+                    AddIDUnique,    /* call for each note found */
+                    &hNoteIDTable,  /* argument to AddIDUnique */
+                    NULL ))         /* returned ending date (unused) */
 
     {
         PRINTLOG( "Error: unable to search database.\n" );
@@ -157,37 +157,37 @@ int main(int argc, char *argv[])
                              ProcessOneNote, /* called for each ID */
                              &hDB ))         /* arg passed to func */
     {
-		 PRINTLOG( "Error: unable to enumerate documents in ID table.\n" );
-		 IDDestroyTable( hNoteIDTable );
-		 NSFDbClose( hDB );
-		 PRINTERROR(error,"IDEnumerate");
-		 NotesTerm();
-		 return(1);
+        PRINTLOG( "Error: unable to enumerate documents in ID table.\n" );
+        IDDestroyTable( hNoteIDTable );
+        NSFDbClose( hDB );
+        PRINTERROR(error,"IDEnumerate");
+        NotesTerm();
+        return(1);
     }
 
     if (error =IDDestroyTable( hNoteIDTable ))
-	 {
-		 NSFDbClose( hDB );
-		 PRINTERROR(error,"IDDestroyTable");
-		 NotesTerm();
-		 return(1);
-	 }
+    {
+        NSFDbClose( hDB );
+        PRINTERROR(error,"IDDestroyTable");
+        NotesTerm();
+        return(1);
+    }
 
     /* Close the database */
     if (error = NSFDbClose(hDB))
     {
-		 PRINTERROR(error,"NSFDbClose");
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFDbClose");
+        NotesTerm();
+        return(1);
     }
 
     /* leave with no error */
 
-	 NotesTerm();
+    NotesTerm();
 
-	 PRINTLOG("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 
-	 return(0);
+    return(0);
 
 }
 
@@ -209,7 +209,9 @@ STATUS LNPUBLIC AddIDUnique( void * phNoteIDTable,
     memcpy( (char*)&SearchMatch, (char*)pSearchMatch, sizeof(SEARCH_MATCH) );
 
     if (!(SearchMatch.SERetFlags & SE_FMATCH))
+    {
         return NOERROR;
+    }
 
     hNoteIDTable = *((DHANDLE *)phNoteIDTable);
 
@@ -218,8 +220,8 @@ STATUS LNPUBLIC AddIDUnique( void * phNoteIDTable,
         PRINTLOG( "Error: unable to insert note ID into table.\n" );
         return(error);
     }
-   /* If flagOK == TRUE then we inserted note ID into table. Else, the
-      note ID is already in the table. Return success in either case.
+    /* If flagOK == TRUE then we inserted note ID into table. Else, the
+       note ID is already in the table. Return success in either case.
     */
     return NOERROR;
 }
@@ -253,7 +255,7 @@ STATUS LNPUBLIC ProcessOneNote( void * phDB, DWORD NoteID )
     /*  Look for the "$Fonts" field within this note. */
 
     error = NSFItemInfo( hNote, ITEM_NAME_FONTS,
-                  (WORD) strlen (ITEM_NAME_FONTS),
+                                (WORD) strlen (ITEM_NAME_FONTS),
                                 &bhThisItem,  /* Item BLOCKID */
                                 &wType,       /* Type         */
                                 &bhValue,     /* Value BLOCKID */
@@ -298,17 +300,17 @@ STATUS LNPUBLIC PrintFontTable( char  *RecordPtr,
 
     if (RecordType != SIG_CD_FONTTABLE)
     {
-       /* EnumCompositeBuffer found a CD record in the "$Fonts" field
-          that is not of type SIG_CD_FONTTABLE.  Unusual, but not fatal.
+        /* EnumCompositeBuffer found a CD record in the "$Fonts" field
+           that is not of type SIG_CD_FONTTABLE.  Unusual, but not fatal.
         */
         return NOERROR;
     }
 
-   /* RecordPtr points to the item value in canonical format after the
-      datatype word. The item value starts with a CDFONTTABLE structure.
-      Call ODSReadMemory() to convert this CDFONTTABLE to host format and
-      store it in cdFontTab. ODSReadMemory() increments pItemValue to
-      point to the next byte in the input buffer after the CDFONTTABLE.
+    /* RecordPtr points to the item value in canonical format after the
+       datatype word. The item value starts with a CDFONTTABLE structure.
+       Call ODSReadMemory() to convert this CDFONTTABLE to host format and
+       store it in cdFontTab. ODSReadMemory() increments pItemValue to
+       point to the next byte in the input buffer after the CDFONTTABLE.
     */
 
     pItemValue = RecordPtr;

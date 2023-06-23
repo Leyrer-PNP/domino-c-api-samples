@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
     PROGRAM:    OSPAthAddTrailingPathSeparator
 
     FILE:       OSPAthAddTrailingPathSeparator.c
@@ -8,7 +23,7 @@
     PURPOSE:    Adds a trailing path separator if the last character in the path is not a separator.
 
     DESCRIPTION:
-        This program adds a trailing path separator if needed (platform specific).
+                This program adds a trailing path separator if needed (platform specific).
 
 
 ****************************************************************************/
@@ -43,10 +58,9 @@
 
     PURPOSE:    Main HCL C API for Notes/Domino subroutine
 
-				This sample creates file path manually and
-				compares with file path obtained from OSPathAddTrailingPathSeparator API
-
-				and finally checks physical existance of the path
+		This sample creates file path manually and
+		compares with file path obtained from OSPathAddTrailingPathSeparator API
+		and finally checks physical existance of the path
 
 *************************************************************************/
 #if defined(UNIX)
@@ -60,7 +74,7 @@
 int main(int argc, char *argv[])
 {
 
-/* Local data declarations */
+   /* Local data declarations */
    STATUS      error = NOERROR;            /* return status from API calls */
    char szDataDir[MAXPATH] = {0};
    char szFullPath[MAXPATH] = {0};
@@ -133,7 +147,7 @@ int main(int argc, char *argv[])
  
    PRINTLOG("\n\n Program completed successfully.\n");
    
-/* End of main routine. */
+   /* End of main routine. */
    NotesTerm();
    return (0); 
 

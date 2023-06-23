@@ -79,20 +79,20 @@ int main(int argc, char *argv[])
 
 /* Local data declarations. */
 
-   char     db_filename[STRING_LENGTH]; /* pathname of the database */
-   DBHANDLE db_handle;                  /* handle of the database */
-   char     view_name[STRING_LENGTH];   /* name of the view we'll use */
-   NOTEID      view_id;                 /* note id of the view */
-   HCOLLECTION coll_handle;             /* collection handle */
-   STATUS      error;                   /* return status from API calls */
-   DHANDLE       buffer_handle;         /* handle to buffer of note ids */
-   NOTEID      *id_list;                /* pointer to a note id */
-   DWORD    notes_found;                /* number of notes found */
-   COLLECTIONPOSITION coll_pos;         /* position within collection */
-   DWORD i;                             /* a counter */
-   DWORD note_count = 0;                /* ordinal number of the note */
-   WORD     signal_flag;                /* signal and share warnings (return) */
-   BOOL     FirstTime = TRUE;           /* used in NIFReadEntries loop */
+   char               db_filename[STRING_LENGTH]; /* pathname of the database */
+   DBHANDLE           db_handle;                  /* handle of the database */
+   char               view_name[STRING_LENGTH];   /* name of the view we'll use */
+   NOTEID             view_id;                    /* note id of the view */
+   HCOLLECTION        coll_handle;                /* collection handle */
+   STATUS             error;                      /* return status from API calls */
+   DHANDLE            buffer_handle;              /* handle to buffer of note ids */
+   NOTEID             *id_list;                   /* pointer to a note id */
+   DWORD              notes_found;                /* number of notes found */
+   COLLECTIONPOSITION coll_pos;                   /* position within collection */
+   DWORD              i;                          /* a counter */
+   DWORD              note_count = 0;             /* ordinal number of the note */
+   WORD               signal_flag;                /* signal and share warnings (return) */
+   BOOL               FirstTime = TRUE;           /* used in NIFReadEntries loop */
 
 
    error = NotesInitExtended (argc, argv);
@@ -128,16 +128,16 @@ int main(int argc, char *argv[])
 /* Get a collection of notes using this view. */
 
    if (error = NIFOpenCollection (
-         db_handle,      /* handle of db with view */
-         db_handle,      /* handle of db with data */
-         view_id,        /* note id of the view */
-         0,              /* collection open flags */
-         NULLHANDLE,     /* handle to unread ID list (input and return) */
-         &coll_handle,   /* collection handle (return) */
-         NULLHANDLE,     /* handle to open view note (return) */
-         NULL,           /* universal note id of view (return) */
-         NULLHANDLE,     /* handle to collapsed list (return) */
-         NULLHANDLE))    /* handle to selected list (return) */
+                     db_handle,      /* handle of db with view */
+                     db_handle,      /* handle of db with data */
+                     view_id,        /* note id of the view */
+                     0,              /* collection open flags */
+                     NULLHANDLE,     /* handle to unread ID list (input and return) */
+                     &coll_handle,   /* collection handle (return) */
+                     NULLHANDLE,     /* handle to open view note (return) */
+                     NULL,           /* universal note id of view (return) */
+                     NULLHANDLE,     /* handle to collapsed list (return) */
+                     NULLHANDLE))    /* handle to selected list (return) */
 
    {
       PRINTERROR(error,"NIFOpenCollection");
@@ -156,18 +156,18 @@ want to start at the beginning. */
 /* Skip to start of 2nd major category. */
 
    if (error = NIFReadEntries (
-          coll_handle,         /* handle to this collection */
-          &coll_pos,           /* where to start in collection */
-          NAVIGATE_NEXT_PEER,  /* order to skip entries */
-          1L,                  /* number to skip */
-          NAVIGATE_CURRENT,    /* order to use after skipping */
-          0L,                  /* max return number */
-          0L,                  /* info we want */
-          NULLHANDLE,          /* handle to info (return)   */
-          NULL,                /* length of buffer (return) */
-          NULL,                /* entries skipped (return) */
-          &notes_found,        /* number of notes (return) */
-          NULL))               /* share warning (return) */
+                      coll_handle,         /* handle to this collection */
+                      &coll_pos,           /* where to start in collection */
+                      NAVIGATE_NEXT_PEER,  /* order to skip entries */
+                      1L,                  /* number to skip */
+                      NAVIGATE_CURRENT,    /* order to use after skipping */
+                      0L,                  /* max return number */
+                      0L,                  /* info we want */
+                      NULLHANDLE,          /* handle to info (return)   */
+                      NULL,                /* length of buffer (return) */
+                      NULL,                /* entries skipped (return) */
+                      &notes_found,        /* number of notes (return) */
+                      NULL))               /* share warning (return) */
 
    {
       PRINTERROR(error,"NIFReadEntries");
@@ -180,18 +180,18 @@ want to start at the beginning. */
 /* Go down one level, into subcategories. */
 
    if (error = NIFReadEntries (
-          coll_handle,         /* handle to this collection */
-          &coll_pos,           /* where to start in collection */
-          NAVIGATE_CHILD,      /* order to skip entries */
-          1L,                  /* number to skip */
-          NAVIGATE_CURRENT,    /* order to use after skipping */
-          0L,                  /* max return number */
-          0L,                  /* info we want */
-          NULLHANDLE,          /* handle to info (return)   */
-          NULL,                /* length of buffer (return) */
-          NULL,                /* entries skipped (return) */
-          &notes_found,        /* number of notes (return) */
-          NULL))               /* share warning (return) */
+                      coll_handle,         /* handle to this collection */
+                      &coll_pos,           /* where to start in collection */
+                      NAVIGATE_CHILD,      /* order to skip entries */
+                      1L,                  /* number to skip */
+                      NAVIGATE_CURRENT,    /* order to use after skipping */
+                      0L,                  /* max return number */
+                      0L,                  /* info we want */
+                      NULLHANDLE,          /* handle to info (return)   */
+                      NULL,                /* length of buffer (return) */
+                      NULL,                /* entries skipped (return) */
+                      &notes_found,        /* number of notes (return) */
+                      NULL))               /* share warning (return) */
 
    {
       PRINTERROR(error,"NIFReadEntries");
@@ -204,18 +204,18 @@ want to start at the beginning. */
 /* Advance one subcategory. */
 
    if (error = NIFReadEntries (
-          coll_handle,         /* handle to this collection */
-          &coll_pos,           /* where to start in collection */
-          NAVIGATE_NEXT_PEER,  /* order to skip entries */
-          1L,                  /* number to skip */
-          NAVIGATE_CURRENT,    /* order to use after skipping */
-          0L,                  /* max return number */
-          0L,                  /* info we want */
-          NULLHANDLE,          /* handle to info (return)   */
-          NULL,                /* length of buffer (return) */
-          NULL,                /* entries skipped (return) */
-          &notes_found,        /* number of notes (return) */
-          NULL))               /* share warning (return) */
+                      coll_handle,         /* handle to this collection */
+                      &coll_pos,           /* where to start in collection */
+                      NAVIGATE_NEXT_PEER,  /* order to skip entries */
+                      1L,                  /* number to skip */
+                      NAVIGATE_CURRENT,    /* order to use after skipping */
+                      0L,                  /* max return number */
+                      0L,                  /* info we want */
+                      NULLHANDLE,          /* handle to info (return)   */
+                      NULL,                /* length of buffer (return) */
+                      NULL,                /* entries skipped (return) */
+                      &notes_found,        /* number of notes (return) */
+                      NULL))               /* share warning (return) */
 
    {
        PRINTERROR(error,"NIFReadEntries");
@@ -231,19 +231,19 @@ want to start at the beginning. */
    do
       {
         if (error = NIFReadEntries (
-             coll_handle,         /* handle to this collection */
-             &coll_pos,           /* where to start in collection */
-             (WORD) (FirstTime ? NAVIGATE_CHILD : NAVIGATE_NEXT_PEER),
-                                  /* order to skip entries */
-             1L,                  /* number to skip */
-             NAVIGATE_NEXT_PEER,  /* order to use after skipping */
-             0xFFFFFFFF,          /* max return number */
-             READ_MASK_NOTEID,    /* info we want */
-             &buffer_handle,      /* handle to info (return)   */
-             NULL,                /* length of buffer (return) */
-             NULL,                /* entries skipped (return) */
-             &notes_found,        /* number of notes (return) */
-             &signal_flag))       /* more flag and share warning (return) */
+                           coll_handle,         /* handle to this collection */
+                           &coll_pos,           /* where to start in collection */
+                           (WORD) (FirstTime ? NAVIGATE_CHILD : NAVIGATE_NEXT_PEER),
+                                                /* order to skip entries */
+                           1L,                  /* number to skip */
+                           NAVIGATE_NEXT_PEER,  /* order to use after skipping */
+                           0xFFFFFFFF,          /* max return number */
+                           READ_MASK_NOTEID,    /* info we want */
+                           &buffer_handle,      /* handle to info (return)   */
+                           NULL,                /* length of buffer (return) */
+                           NULL,                /* entries skipped (return) */
+                           &notes_found,        /* number of notes (return) */
+                           &signal_flag))       /* more flag and share warning (return) */
 
         {
             PRINTERROR(error,"NIFReadEntries");

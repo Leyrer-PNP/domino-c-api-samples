@@ -25,12 +25,12 @@
 
     DESCRIPTION:
             With the given sample date and time extracted and compared with time
-        derived from different date and time functions.
+            derived from different date and time functions.
         
-        parameters compared are  date,time, daylight saving time and timezone 
+            parameters compared are  date,time, daylight saving time and timezone 
 
-        APIs explored : TimeExtractTicks,TimeExtractDate,TimeGMToLocalZone.
-                        TimeGMToLocal,ConvertTIMEDATEtoRFC3339Date
+            APIs explored : TimeExtractTicks,TimeExtractDate,TimeGMToLocalZone.
+                            TimeGMToLocal,ConvertTIMEDATEtoRFC3339Date
         
 ****************************************************************************/
 /*    C Includes */
@@ -50,19 +50,19 @@
 
 
 #define ZONE_MASK                0x0f000000L
-#define DST_MASK                0x80000000L
+#define DST_MASK                 0x80000000L
 #define DATE_MASK                0x00ffffffL
-#define ZONE_HOUR_MIN_MASK        0x7f000000
-#define CLEANUP_NOTHING            0x0000
+#define ZONE_HOUR_MIN_MASK       0x7f000000
+#define CLEANUP_NOTHING          0x0000
 /*Number of bits to be shifted to get Most significant byte from word */
-#define BIT_SHIFT_COUNT            24
+#define BIT_SHIFT_COUNT               24
 /* Below macros are  re-used from misc    ime.c of Notes source code */
 #define    ZONE_MINUTE_GRANULARITY    15
-#define    ZONE_HOURS(x)            ((x)&0x0f)
+#define    ZONE_HOURS(x)              ((x)&0x0f)
 #define    ZONE_MINUTES(x)            ((((x)&0x30)>>4)*ZONE_MINUTE_GRANULARITY)
 #define    ZONE_EAST_OF_GMT(x)        (((x)&0x40)!=0)
 
-#define    TEXTBUFSIZE 24
+#define    TEXTBUFSIZE                 24
 
 STATUS after_cleanup(STATUS exit_status);
 
@@ -72,12 +72,12 @@ WORD    cleanup = CLEANUP_NOTHING;
 int main(int argc, char *argv[])
 {
 
-    STATUS      error;                /* Notes return code variable */
+    STATUS    error;                /* Notes return code variable */
     DWORD     dwDate; 
     DWORD     dwTime;
     TIMEDATE  tdNowTime;
     TIMEDATE  tdReturnTime;
-    TIME tTime;
+    TIME      tTime;
     int       iTimeZone, iDst, iGMT_hour, iGMT_min, iGMT_datetime;
      
 
@@ -164,11 +164,11 @@ int main(int argc, char *argv[])
     char textBuffer[MAXSPRINTF] = {0}; /*String buffer to get the converted TIMEDATE. */
     /*
      * Parameters for ConvertTIMEDATEtoRFC3339Date API -
-     * tdNowTime = TIMEDATE that is needed for conversion.
-     * textBuffer = String Buffer to recieve converted TIMEDATE.
-     *              It should be of MAXSPRINTF = 256.
+     * tdNowTime      = TIMEDATE that is needed for conversion.
+     * textBuffer     = String Buffer to recieve converted TIMEDATE.
+     *                  It should be of MAXSPRINTF = 256.
      * textBufferSize = String Buffer Size. Big enough to inlude the trailing null char.
-     *              It should be greater than or equal to TIME_RFC3339_LEN(23) + 1.
+     *                  It should be greater than or equal to TIME_RFC3339_LEN(23) + 1.
     */
     if (error = ConvertTIMEDATEtoRFC3339Date(&tdNowTime,textBuffer,TEXTBUFSIZE)){
         PRINTLOG( "Error in converting TIMEDATE to RFC339 TIMEDATE\n");

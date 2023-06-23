@@ -23,9 +23,9 @@ PURPOSE:	Shows functions related to the OS such as
 			1.OSSetEnvironmentTIMEDATE	->	Set a timedate into an environment variable
 			2.OSGetEnvironmentTIMEDATE	->	Get a timedate from an environment variable
 			3.OSGetEnvironmentSeqNo 	->	returns a sequence number that represents the number of 
-											times any environment variable has been changed.
-											The sequence number changing means the notes.ini file has been changed. 
-											If our variable is dynamic then we can also check if our variable has changed or not.
+								times any environment variable has been changed.
+								The sequence number changing means the notes.ini file has been changed. 
+								If our variable is dynamic then we can also check if our variable has changed or not.
 
 SYNTAX:		environment
 

@@ -78,25 +78,25 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char     db_filename[STRING_LENGTH];            /* pathname of the database */
-   char     view_name[STRING_LENGTH];              /* name of the view we'll read */
-   char     category[STRING_LENGTH];               /* category to search for in view */
-   DBHANDLE db_handle;                             /* handle of the database */
-   NOTEID      view_id;                            /* note id of the view */
-   HCOLLECTION coll_handle;                        /* collection handle */
-   COLLECTIONPOSITION cat_index;                   /* index of category entry */
-   DHANDLE       buffer_handle;                    /* handle to buffer of info */
-   BYTE     *buff_ptr;                             /* pointer into info buffer */
-   NOTEID      entry_id;                           /* a collection entry id */
-   WORD     entry_indent;                          /* "indent level" of entry */
-   WORD     entry_index_size;                      /* size of index postion */
-   COLLECTIONPOSITION entry_index;                 /* an index position */
-   DWORD     entries_found;                        /* number of entries found */
-   DWORD   main_topics_found=0;                    /* number of main docs found */
-   DWORD   i;                                      /* a counter */
-   STATUS   error = NOERROR;                       /* return status from API calls */
-   WORD     signal_flag;                           /* signal and share warning flags */
-   BOOL     FirstTime = TRUE;                      /* used in NIFReadEntries loop */
+   char               db_filename[STRING_LENGTH];            /* pathname of the database */
+   char               view_name[STRING_LENGTH];              /* name of the view we'll read */
+   char               category[STRING_LENGTH];               /* category to search for in view */
+   DBHANDLE           db_handle;                             /* handle of the database */
+   NOTEID             view_id;                               /* note id of the view */
+   HCOLLECTION        coll_handle;                           /* collection handle */
+   COLLECTIONPOSITION cat_index;                             /* index of category entry */
+   DHANDLE            buffer_handle;                         /* handle to buffer of info */
+   BYTE               *buff_ptr;                             /* pointer into info buffer */
+   NOTEID             entry_id;                              /* a collection entry id */
+   WORD               entry_indent;                          /* "indent level" of entry */
+   WORD               entry_index_size;                      /* size of index postion */
+   COLLECTIONPOSITION entry_index;                           /* an index position */
+   DWORD              entries_found;                         /* number of entries found */
+   DWORD              main_topics_found=0;                   /* number of main docs found */
+   DWORD              i;                                     /* a counter */
+   STATUS             error = NOERROR;                       /* return status from API calls */
+   WORD               signal_flag;                           /* signal and share warning flags */
+   BOOL               FirstTime = TRUE;                      /* used in NIFReadEntries loop */
 
 
     /*   Start by calling Notes Init.  */
@@ -136,16 +136,16 @@ int main(int argc, char *argv[])
 /* Get the current collection using this view. */
 
    if (error = NIFOpenCollection(
-         db_handle,      /* handle of db with view */
-         db_handle,      /* handle of db with data */
-         view_id,        /* note id of the view */
-         0,              /* collection open flags */
-         NULLHANDLE,     /* handle to unread ID list (input and return) */
-         &coll_handle,   /* collection handle (return) */
-         NULLHANDLE,     /* handle to open view note (return) */
-         NULL,           /* universal note id of view (return) */
-         NULLHANDLE,     /* handle to collapsed list (return) */
-         NULLHANDLE))    /* handle to selected list (return) */
+                      db_handle,      /* handle of db with view */
+                      db_handle,      /* handle of db with data */
+                      view_id,        /* note id of the view */
+                      0,              /* collection open flags */
+                      NULLHANDLE,     /* handle to unread ID list (input and return) */
+                      &coll_handle,   /* collection handle (return) */
+                      NULLHANDLE,     /* handle to open view note (return) */
+                      NULL,           /* universal note id of view (return) */
+                      NULLHANDLE,     /* handle to collapsed list (return) */
+                      NULLHANDLE))    /* handle to selected list (return) */
    {
        NSFDbClose (db_handle);
        PRINTERROR (error,"NIFOpenCollection");  
@@ -159,11 +159,11 @@ Ignore the "match count" that this call returns, since it does not span
 subcategories. */
 
    error = NIFFindByName (
-          coll_handle,             /* collection to look in */
-          category,                /* string to match on */
-          FIND_CASE_INSENSITIVE,   /* match rules */
-          &cat_index,              /* where match begins (return) */
-          NULL);                   /* how many match (return) */
+                 coll_handle,             /* collection to look in */
+                 category,                /* string to match on */
+                 FIND_CASE_INSENSITIVE,   /* match rules */
+                 &cat_index,              /* where match begins (return) */
+                 NULL);                   /* how many match (return) */
 
    if (ERR(error) == ERR_NOT_FOUND) 
    {
@@ -197,21 +197,21 @@ arranged in the order of the bits in the READ_MASKs.
    do
       {
          if (error = NIFReadEntries(
-             coll_handle,            /* handle to this collection */
-             &cat_index,             /* where to start in collection */
-             (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
-                                     /* order to use when skipping */
-             FirstTime ? 0L : 1L,    /* number to skip */
-             NAVIGATE_NEXT,          /* order to use when reading */
-             0xFFFFFFFF,             /* max number to read */
-             READ_MASK_NOTEID +      /* info we want */
-             READ_MASK_INDENTLEVELS +
-             READ_MASK_INDEXPOSITION,
-             &buffer_handle,         /* handle to info buffer (return)  */
-             NULL,                   /* length of info buffer (return) */
-             NULL,                   /* entries skipped (return) */
-             &entries_found,         /* entries read (return) */
-             &signal_flag))          /* signal and share warnings (return) */
+                            coll_handle,            /* handle to this collection */
+                            &cat_index,             /* where to start in collection */
+                            (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
+                                                    /* order to use when skipping */
+                            FirstTime ? 0L : 1L,    /* number to skip */
+                            NAVIGATE_NEXT,          /* order to use when reading */
+                            0xFFFFFFFF,             /* max number to read */
+                            READ_MASK_NOTEID +      /* info we want */
+                            READ_MASK_INDENTLEVELS +
+                            READ_MASK_INDEXPOSITION,
+                            &buffer_handle,         /* handle to info buffer (return)  */
+                            NULL,                   /* length of info buffer (return) */
+                            NULL,                   /* entries skipped (return) */
+                            &entries_found,         /* entries read (return) */
+                            &signal_flag))          /* signal and share warnings (return) */
          {
             NIFCloseCollection (coll_handle);
             NSFDbClose (db_handle);

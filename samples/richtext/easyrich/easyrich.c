@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     DBHANDLE    hDB;            /* database handle */
     NOTEHANDLE  hNote;          /* note handle */
     TIMEDATE    timedate;       /* a time/date field */
-    DHANDLE       hCompound;      /* handle to CompoundText context */
+    DHANDLE     hCompound;      /* handle to CompoundText context */
     ORIGINATORID ViewOID;       /* OID of view note */
     short       NoteFound;      /* indicates whether a data note exists */
     NOTEID      FirstNoteID;    /* note id of first data note */
@@ -239,7 +239,9 @@ int main(int argc, char *argv[])
     */
 
     if (NoteFound)
+    {
         nErr = AddDocLink (hDB, FirstNoteID, ViewOID, hCompound);
+    }
 
     if (nErr != NOERROR)
     {
@@ -254,7 +256,9 @@ int main(int argc, char *argv[])
 
    /* Add rendered Note to the CompoundText context. */
     if (NoteFound)
+    {
       nErr = AddRenderedNote(hDB, FirstNoteID, hCompound);
+    }
 
     if (nErr != NOERROR)
     {
@@ -316,16 +320,16 @@ int main(int argc, char *argv[])
    /* Close the database */
 
     if ( (nErr = NSFDbClose (hDB)) != NOERROR )
-	{
+    {
         PRINTERROR (nErr,"NSFDbClose");  
         NotesTerm();     
         return (1);
-	}
+    }
 
    /* End of subroutine. */
     PRINTLOG("\nProgram completed successfully.\n");
-        NotesTerm();     
-        return (0);
+    NotesTerm();     
+    return (0);
 }
 
 /************************************************************************

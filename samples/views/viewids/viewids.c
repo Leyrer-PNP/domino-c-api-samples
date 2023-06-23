@@ -76,21 +76,21 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 
 int main ( int argc, char *argv[])
 {
-   char     DBFilename[NAME_LEN]="";/* pathname of the database */
-   char     ViewName[NAME_LEN]="";/* name of the view we'll read */
-   DBHANDLE hDB;                    /* handle of the database */
-   NOTEID   ViewID;                 /* note id of the view */
-   HCOLLECTION hCollection;         /* collection handle */
-   COLLECTIONPOSITION CollPosition; /* position within collection */
-   DHANDLE    hBuffer;                /* handle to buffer of note ids */
-   NOTEID   *IdList;                /* pointer to a note id */
-   DWORD    EntriesFound;           /* number of entries found */
-   DWORD    NotesFound=0;           /* number of documents found */
-   WORD     SignalFlag;             /* signal and share warning flags */
-   DWORD    i;                      /* a counter */
-   STATUS   error = NOERROR;        /* return status from API calls */
-   STATUS   returnCode = NOERROR;   /* supplementary return status */
-   WORD     cleanup=DO_NOTHING;
+   char               DBFilename[NAME_LEN]=""; /* pathname of the database */
+   char               ViewName[NAME_LEN]="";   /* name of the view we'll read */
+   DBHANDLE           hDB;                     /* handle of the database */
+   NOTEID             ViewID;                  /* note id of the view */
+   HCOLLECTION        hCollection;             /* collection handle */
+   COLLECTIONPOSITION CollPosition;            /* position within collection */
+   DHANDLE            hBuffer;                 /* handle to buffer of note ids */
+   NOTEID             *IdList;                 /* pointer to a note id */
+   DWORD              EntriesFound;            /* number of entries found */
+   DWORD              NotesFound=0;            /* number of documents found */
+   WORD               SignalFlag;              /* signal and share warning flags */
+   DWORD              i;                       /* a counter */
+   STATUS             error = NOERROR;         /* return status from API calls */
+   STATUS             returnCode = NOERROR;    /* supplementary return status */
+   WORD               cleanup=DO_NOTHING;
 
    if (error = NotesInitExtended(argc, argv))
    {
@@ -121,16 +121,16 @@ int main ( int argc, char *argv[])
 /* Get a collection using this view. */
 
    if (error = NIFOpenCollection(
-         hDB,            /* handle of db with view */
-         hDB,            /* handle of db with data */
-         ViewID,         /* note id of the view */
-         0,              /* collection open flags */
-         NULLHANDLE,     /* handle to unread ID list */
-         &hCollection,   /* collection handle */
-         NULLHANDLE,     /* handle to open view note */
-         NULL,           /* universal note id of view */
-         NULLHANDLE,     /* handle to collapsed list */
-         NULLHANDLE))    /* handle to selected list */
+                      hDB,            /* handle of db with view */
+                      hDB,            /* handle of db with data */
+                      ViewID,         /* note id of the view */
+                      0,              /* collection open flags */
+                      NULLHANDLE,     /* handle to unread ID list */
+                      &hCollection,   /* collection handle */
+                      NULLHANDLE,     /* handle to open view note */
+                      NULL,           /* universal note id of view */
+                      NULLHANDLE,     /* handle to collapsed list */
+                      NULLHANDLE))    /* handle to selected list */
       goto exit1;
 
    cleanup |= CLOSE_COLLECTION;
@@ -149,18 +149,18 @@ want to start at the beginning. */
    do
    {
       if ( error = NIFReadEntries(
-             hCollection,        /* handle to this collection */
-             &CollPosition,      /* where to start in collection */
-             NAVIGATE_NEXT,      /* order to use when skipping */
-             1L,                 /* number to skip */
-             NAVIGATE_NEXT,      /* order to use when reading */
-             0xFFFFFFFF,         /* max number to read */
-             READ_MASK_NOTEID,   /* info we want */
-             &hBuffer,           /* handle to info buffer */
-             NULL,               /* length of info buffer */
-             NULL,               /* entries skipped */
-             &EntriesFound,      /* entries read */
-             &SignalFlag))       /* share warning and more signal flag */
+                          hCollection,        /* handle to this collection */
+                          &CollPosition,      /* where to start in collection */
+                          NAVIGATE_NEXT,      /* order to use when skipping */
+                          1L,                 /* number to skip */
+                          NAVIGATE_NEXT,      /* order to use when reading */
+                          0xFFFFFFFF,         /* max number to read */
+                          READ_MASK_NOTEID,   /* info we want */
+                          &hBuffer,           /* handle to info buffer */
+                          NULL,               /* length of info buffer */
+                          NULL,               /* entries skipped */
+                          &EntriesFound,      /* entries read */
+                          &SignalFlag))       /* share warning and more signal flag */
          goto exit1;
 
 

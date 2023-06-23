@@ -95,29 +95,29 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 
 int main (int argc, char *argv[])
 {
-    STATUS error = NOERROR;
-    char   argNameSpaces[MAX_ARG_LEN];
-    char   argNames[MAX_ARG_LEN];
-    char   argItems[MAX_ARG_LEN];
-    char   ServerName[MAX_ARG_LEN];
-    char   *ptr;
-    char   *pItemName;
-    WORD    NumNameSpaces, NumNames, NumNameRecords, NumItems;
-    WORD    Length; /* NumMatches; */
-    DWORD   NumMatches;
-    WORD    i, j ;
-    WORD    usNameRecord, usMatch, usItem ;
-    char    NameSpaces[MAX_ARG_LEN];
-    char    Names[MAX_ARG_LEN];
-    char    Items[MAX_ARG_LEN];
+    STATUS   error = NOERROR;
+    char     argNameSpaces[MAX_ARG_LEN];
+    char     argNames[MAX_ARG_LEN];
+    char     argItems[MAX_ARG_LEN];
+    char     ServerName[MAX_ARG_LEN];
+    char     *ptr;
+    char     *pItemName;
+    WORD     NumNameSpaces, NumNames, NumNameRecords, NumItems;
+    WORD     Length; /* NumMatches; */
+    DWORD    NumMatches;
+    WORD     i, j ;
+    WORD     usNameRecord, usMatch, usItem ;
+    char     NameSpaces[MAX_ARG_LEN];
+    char     Names[MAX_ARG_LEN];
+    char     Items[MAX_ARG_LEN];
     DHANDLE  hLookup;
-    char   *pLookup;
-    BYTE   *pNameRecord;
-    char   *pView;
-    char   *pName;
-    char   *pMatch;
-    WORD    DataType, Size;
-    char   *pItemValue;
+    char     *pLookup;
+    BYTE     *pNameRecord;
+    char     *pView;
+    char     *pName;
+    char     *pMatch;
+    WORD     DataType, Size;
+    char     *pItemValue;
 
 
     memset(argNameSpaces, '\0', MAX_ARG_LEN);
@@ -286,17 +286,17 @@ STATUS  LNPUBLIC  DisplayItem(char   *pMatch,
                                   WORD    DataType, 
                                   WORD    Size)
 {
-    STATUS    error = NOERROR;
-    char      szItemText[MAX_ITEM_TEXT+1];  /* text of an item */
-    WORD      wItemTextLen = 0;         /* length of str in szItemText[] */
-    char     *szDataType;               /* printable version of DataType */
-    WORD      wElement;                 /* number of element of list */
-    char      szElement[MAX_ITEM_TEXT+1];  /* text of element of list */
-    NUMBER     NumericItem;              /* numeric item value */
-    TIMEDATE  TimeItem;                 /* time/date item value */
-    TIMEDATE_PAIR TimeDatePair;         /* time/date pair item value */
-    WORD      TimeStringLen;            /* length of ASCII time/date */
-    RANGE     Range;                    /* time list or number list header */
+    STATUS        error = NOERROR;
+    char          szItemText[MAX_ITEM_TEXT+1]; /* text of an item */
+    WORD          wItemTextLen = 0;            /* length of str in szItemText[] */
+    char          *szDataType;                 /* printable version of DataType */
+    WORD          wElement;                    /* number of element of list */
+    char          szElement[MAX_ITEM_TEXT+1];  /* text of element of list */
+    NUMBER        NumericItem;                 /* numeric item value */
+    TIMEDATE      TimeItem;                    /* time/date item value */
+    TIMEDATE_PAIR TimeDatePair;                /* time/date pair item value */
+    WORD          TimeStringLen;               /* length of ASCII time/date */
+    RANGE         Range;                       /* time list or number list header */
 
     PRINTLOG("item %d:", wItemNum+1);
     PRINTLOG("\tName   = '%s'\n", szItemName);

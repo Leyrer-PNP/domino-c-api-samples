@@ -22,13 +22,13 @@
     SYNTAX:     findbykeyextend <nsf file name> <View name> <First Key Value>  <Second Key Value>
 
     DESCRIPTION:
-   This program finds the documents in a view that have a primary key 
-   (the first sorted column in the view) of TYPE_TEXT and a secondary 
-   key (the second sorted column in the view) of TYPE_NUMBER.  For each 
-   document that matches, we get its noteID.
+       This program finds the documents in a view that have a primary key 
+       (the first sorted column in the view) of TYPE_TEXT and a secondary 
+       key (the second sorted column in the view) of TYPE_NUMBER.  For each 
+       document that matches, we get its noteID.
 
-   We don't actually read the data in the notes.  Reading a note, 
-   given its noteID, is shown in another example.
+       We don't actually read the data in the notes.  Reading a note, 
+       given its noteID, is shown in another example.
 
 ****************************************************************************/
 #if defined(OS400)
@@ -84,32 +84,32 @@ int main (int argc, char *argv[])
 
 /* Local data declarations */
 
-   STATUS         error=NOERROR;
-   STATUS         returnCode=NOERROR;
-   WORD           cleanup=DO_NOTHING;
-   char           dbFilename[STRING_LENGTH], ViewName[STRING_LENGTH];    
-   DBHANDLE       hDb;            
-   NOTEID         ViewID;         
-   HCOLLECTION    hCollection; 
+   STATUS                error=NOERROR;
+   STATUS                returnCode=NOERROR;
+   WORD                  cleanup=DO_NOTHING;
+   char                  dbFilename[STRING_LENGTH], ViewName[STRING_LENGTH];    
+   DBHANDLE              hDb;            
+   NOTEID                ViewID;         
+   HCOLLECTION           hCollection; 
    COLLECTIONPOSITION    posCollection;   
-   DHANDLE          hBuffer;        
-   NOTEID        *pNoteID;        
-   DWORD          NumNotesFound=0;     
-   DWORD          NumNotesMatch=0;     
-   DWORD          NoteCount = 0;     
-   DWORD          i;     
-   char          *Key1;               /* primary input key */
-   char          *TranslatedKey;      /* Translated string key */
-   char          *Key2;               /* secondary input key */
-   char          *pTemp, *pKey;
-   WORD           Item1ValueLen, Item2ValueLen, signal_flag;
-   WORD           TranslatedKeyLen;
-   BOOL           FirstTime = TRUE;    
+   DHANDLE               hBuffer;        
+   NOTEID                *pNoteID;        
+   DWORD                 NumNotesFound=0;     
+   DWORD                 NumNotesMatch=0;     
+   DWORD                 NoteCount = 0;     
+   DWORD                 i;     
+   char                  *Key1;               /* primary input key */
+   char                  *TranslatedKey;      /* Translated string key */
+   char                  *Key2;               /* secondary input key */
+   char                  *pTemp, *pKey;
+   WORD                  Item1ValueLen, Item2ValueLen, signal_flag;
+   WORD                  TranslatedKeyLen;
+   BOOL                  FirstTime = TRUE;    
 
-   ITEM_TABLE     Itemtbl;
-   ITEM           Item;
-   WORD           Word;
-   double         Double, dValue=0;
+   ITEM_TABLE            Itemtbl;
+   ITEM                  Item;
+   WORD                  Word;
+   double                Double, dValue=0;
 /* Initialize Domino and Notes */
 
    if (error = NotesInitExtended(argc, argv))
@@ -175,16 +175,16 @@ int main (int argc, char *argv[])
 /* Get the current collection using this view. */
 
    if (error = NIFOpenCollection(
-    hDb,           /* handle of db with view */
-    hDb,           /* handle of db with data */
-    ViewID,        /* noteID  of the view */
-    0,             /* collection open flags */
-    NULLHANDLE,    /* handle to unread ID list (input and return) */
-    &hCollection,  /* collection handle (return) */
-    NULLHANDLE,    /* handle to open view note (return) */
-    NULL,          /* universal noteID  of view (return) */
-    NULLHANDLE,    /* handle to collapsed list (return) */
-    NULLHANDLE))   /* handle to selected list (return) */
+                         hDb,           /* handle of db with view */
+                         hDb,           /* handle of db with data */
+                         ViewID,        /* noteID  of the view */
+                         0,             /* collection open flags */
+                         NULLHANDLE,    /* handle to unread ID list (input and return) */
+                         &hCollection,  /* collection handle (return) */
+                         NULLHANDLE,    /* handle to open view note (return) */
+                         NULL,          /* universal noteID  of view (return) */
+                         NULLHANDLE,    /* handle to collapsed list (return) */
+                         NULLHANDLE))   /* handle to selected list (return) */
       goto exit1;
 
    cleanup |= CLOSE_COLLECTION;
@@ -192,11 +192,11 @@ int main (int argc, char *argv[])
    /* Translate the input key to LMBCS */
 #ifndef OS400
    TranslatedKeyLen = OSTranslate (
-      OS_TRANSLATE_NATIVE_TO_LMBCS,
-      Key1,
-      (WORD) strlen (Key1),
-      TranslatedKey,
-      STRING_LENGTH);
+                          OS_TRANSLATE_NATIVE_TO_LMBCS,
+                          Key1,
+                          (WORD) strlen (Key1),
+                          TranslatedKey,
+                          STRING_LENGTH);
 #else
    strcpy(TranslatedKey, Key1);
    TranslatedKeyLen = strlen(TranslatedKey);
@@ -255,15 +255,15 @@ int main (int argc, char *argv[])
    do
    {
    error = NIFFindByKeyExtended2(
-           hCollection,
-           pKey,        /* refer to key   */
-           FIND_CASE_INSENSITIVE | FIND_EQUAL | FIND_AND_READ_MATCHES,   /* match rules */
-           READ_MASK_NOTEID,    /* info we want */
-           &posCollection, /* where match begins (return) */
-           &NumNotesMatch, /* how many match (return) */
-           &signal_flag,
-           &hBuffer,
-           NULL); 
+                        hCollection,
+                        pKey,                /* refer to key   */
+                        FIND_CASE_INSENSITIVE | FIND_EQUAL | FIND_AND_READ_MATCHES,   /* match rules */
+                        READ_MASK_NOTEID,    /* info we want */
+                        &posCollection,      /* where match begins (return) */
+                        &NumNotesMatch,      /* how many match (return) */
+                        &signal_flag,
+                        &hBuffer,
+                        NULL); 
 			
    if (hBuffer == NULLHANDLE)
    {

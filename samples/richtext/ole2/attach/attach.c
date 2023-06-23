@@ -101,25 +101,25 @@ STATUS LNPUBLIC AppendRichText(
 int main(int argc, char *argv[])
 {
 
-  LPMALLOC lpMalloc    = NULL;
-  LPSTORAGE lpRootStg  = NULL;
-  LPSTORAGE lpSubStg   = NULL;
-  LPOLEOBJECT lpOleObj = NULL;
-  LPPERSISTSTORAGE lpPersistStg = NULL;
-  WCHAR szSrcFile[]    = L"c:\\notesapi\\samples\\richtext\\ole2\\attach\\notes.bmp";
-  CLSID clsid;
-  LPOLESTR lpProgID;
-  DWORD dwMode         = STGM_READWRITE | STGM_SHARE_EXCLUSIVE;
-  STATSTG StatStg;
-  char szStgFile[MAXPATH_OLE];
-  DBHANDLE hDb;
-  NOTEHANDLE hNote;
-  char szObjectName[]  = "EXT12345";  /* should really be unique (random) number */
-  char szItemName[]    = "Body";
-  char szProgID[MAXPATH_OLE];
-  WORD ClassDocument   = NOTE_CLASS_DOCUMENT;
-  STATUS sError=0;
-  BOOL bError=0;
+  LPMALLOC          lpMalloc    = NULL;
+  LPSTORAGE         lpRootStg  = NULL;
+  LPSTORAGE         lpSubStg   = NULL;
+  LPOLEOBJECT       lpOleObj = NULL;
+  LPPERSISTSTORAGE  lpPersistStg = NULL;
+  WCHAR             szSrcFile[] = L"c:\\notesapi\\samples\\richtext\\ole2\\attach\\notes.bmp";
+  CLSID             clsid;
+  LPOLESTR          lpProgID;
+  DWORD             dwMode = STGM_READWRITE | STGM_SHARE_EXCLUSIVE;
+  STATSTG           StatStg;
+  char              szStgFile[MAXPATH_OLE];
+  DBHANDLE          hDb;
+  NOTEHANDLE        hNote;
+  char              szObjectName[] = "EXT12345";  /* should really be unique (random) number */
+  char              szItemName[] = "Body";
+  char              szProgID[MAXPATH_OLE];
+  WORD              ClassDocument   = NOTE_CLASS_DOCUMENT;
+  STATUS            sError=0;
+  BOOL              bError=0;
 
   /* Initialize Domino and Notes */
    
@@ -311,7 +311,7 @@ STATUS LNPUBLIC AppendRichText(
   char *szClassName)
 {
 
-  DHANDLE    hBuffer;
+  DHANDLE  hBuffer;
   BYTE    *pBuffer;
   STATUS   sError=0;
   BOOL     bError=0;
@@ -319,7 +319,7 @@ STATUS LNPUBLIC AppendRichText(
   DWORD    dwBytesLeft = MAXONESEGSIZE;  
   DWORD    dwItemLength = 0; /* Length of current item.  */
 
-  char nonZeroString[] = "Double-click here *** to activate the object.";
+  char     nonZeroString[] = "Double-click here *** to activate the object.";
 
   /*
    *  First, allocate and lock a buffer.

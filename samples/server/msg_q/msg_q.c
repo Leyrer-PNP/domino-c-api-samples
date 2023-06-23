@@ -80,12 +80,12 @@
  *                Application definitions
  */
 
-        /* Message queue name */
+/* Message queue name */
 char MsgQueueName [] = TASK_QUEUE_PREFIX "MSG_Q";
-                /* Note the implicit string concatenation!! */
+/* Note the implicit string concatenation!! */
 
 /*
- *                Function prototypes
+ * Function prototypes
  */
 
 STATUS OurJob (void);
@@ -95,7 +95,7 @@ STATUS ProcessMessage (
         WORD        msgLen
 );
 
-        /* Command operation functions */
+/* Command operation functions */
 STATUS CmdError (
         char        *pMsg,
         WORD        msgLen
@@ -128,7 +128,7 @@ STATUS CmdRun (
 
 
 /*
- *                Job control information
+ * Job control information
  */
 
 #define MAX_MESSAGE                 (256)
@@ -140,24 +140,24 @@ char        JobMessage [MAX_MESSAGE] = "";
 BOOL        JobEnabled = TRUE;        /* Run the job or not? */
 
 /*
- *                Command table
+ * Command table
  */
 
-        /* Pointer to command function */
+/* Pointer to command function */
 typedef STATUS (*PCMD_FN) (
         char        *pMsg,
         WORD        msgLen
 );
                                                                           
-        /* Command table entries */
+/* Command table entries */
 typedef struct {
         char        *pCmdName;
         PCMD_FN        pCmdFn;
 } CMD_ENTRY;
 
-        /* Table of commands */
-        /* "TELL MSG_Q QUIT" is handled by the server.  The        */
-        /*     state of the message queue is set to "QUIT".        */
+/* Table of commands */
+/* "TELL MSG_Q QUIT" is handled by the server. The */
+/* state of the message queue is set to "QUIT". */
 CMD_ENTRY CmdTable [] =
 {
         {"TIME",        CmdTime},
@@ -166,11 +166,11 @@ CMD_ENTRY CmdTable [] =
         {"WAIT",        CmdWait},
         {"RUN",         CmdRun},
 
-                /* This entry marks the end of the table! */
+/* This entry marks the end of the table! */
         {NULL,          CmdError}        
 };
 
-        /* Message strings */
+/* Message strings */
 char        MessageCmdError [] = "MSG_Q: Unknown command: ";
 
 /************************************************************************
@@ -208,13 +208,13 @@ STATUS LNPUBLIC AddInMain (
     
     /* Local data. */
 
-    STATUS                error;               /* return code from API calls */
-    DHANDLE               hOldStatusLine;      /* handle to initial default status line*/
-    DHANDLE               hStatusLineDesc;     /* handle to new default status line */
-    HMODULE               hMod;               /* add-in task's module handle */
-    MQHANDLE              hQueue;                    /* Handle to message queue */
-    char                  MsgBuffer [MAX_MESSAGE + 1];        /* Buffer for messages */
-    WORD                  MsgLen;                /* Size of message */
+    STATUS                error;                       /* return code from API calls */
+    DHANDLE               hOldStatusLine;              /* handle to initial default status line*/
+    DHANDLE               hStatusLineDesc;             /* handle to new default status line */
+    HMODULE               hMod;                        /* add-in task's module handle */
+    MQHANDLE              hQueue;                      /* Handle to message queue */
+    char                  MsgBuffer [MAX_MESSAGE + 1]; /* Buffer for messages */
+    WORD                  MsgLen;                      /* Size of message */
 
    /* 
       Initialization.
@@ -239,7 +239,7 @@ STATUS LNPUBLIC AddInMain (
     AddInSetStatusText("Initializing");
     
     /*
-           Create and open the message queue.
+       Create and open the message queue.
     */
 
     error = MQOpen (MsgQueueName, MQ_OPEN_CREATE, &hQueue);
@@ -343,8 +343,8 @@ STATUS ResetJobControls (void)
 
     PURPOSE:    Figure out which command we got (if any).
     
-    NOTE:                This function modifies the message buffer pointed
-                            to by the pMsg parameter!
+    NOTE:       This function modifies the message buffer pointed
+                to by the pMsg parameter!
 
 *************************************************************************/
 

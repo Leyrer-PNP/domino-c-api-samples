@@ -112,25 +112,25 @@ extern int      __argc;
 extern char **  __argv;
 
 /* global variables */
-HCURSOR     hSaveCursor;
-HCURSOR     hHourGlass;
+HCURSOR            hSaveCursor;
+HCURSOR            hHourGlass;
 
 static DHANDLE     hInst;
 static DHANDLE     hModule;
-static HWND      hwndMain;                     /* Handle to main window */
+static HWND        hwndMain;                        /* Handle to main window */
 
-STATUS      status;      /* Status returned from HCL C API for Notes/Domino function calls. */
+STATUS             status;                          /* Status returned from HCL C API for Notes/Domino function calls. */
 
-char        szMessageBoxTitle[TITLE_LEN+1];    /* "History Sample Program" */
-char        szErrStr[ERR_STR_LEN+1];           /* formatted error messages */
+char               szMessageBoxTitle[TITLE_LEN+1];  /* "History Sample Program" */
+char               szErrStr[ERR_STR_LEN+1];         /* formatted error messages */
 
-static char    szDBFileNameString[MAXPATH];    /* target DB filename */
-static char    szServerNameString[MAXPATH];    /* server of target DB */
-static char    szDBFullPathString[2*MAXPATH];  /* full path to target DB */
-static char    szDBTitleString[NSF_INFO_SIZE]; /* target DB title */
-static DBHANDLE    hNotesDB = NULLHANDLE;      /* target DB handle */
-static NOTEID      MainNoteID;                 /* ID of main document */
-static NOTEID      nidSelectedView;            /* ID of view to process */
+static char        szDBFileNameString[MAXPATH];     /* target DB filename */
+static char        szServerNameString[MAXPATH];     /* server of target DB */
+static char        szDBFullPathString[2*MAXPATH];   /* full path to target DB */
+static char        szDBTitleString[NSF_INFO_SIZE];  /* target DB title */
+static DBHANDLE    hNotesDB = NULLHANDLE;           /* target DB handle */
+static NOTEID      MainNoteID;                      /* ID of main document */
+static NOTEID      nidSelectedView;                 /* ID of view to process */
 
 /*************************************************************************
 
@@ -142,8 +142,8 @@ int WINAPI WinMain (
         HINSTANCE     hInstance,
         HINSTANCE     hPrevInstance,
         LPSTR         lpCmdLine,
-        int           nCmdShow
-) {
+        int           nCmdShow )
+{
     WORD    wLen;
     MSG     msg;      /* message.         */
 
@@ -171,10 +171,10 @@ int WINAPI WinMain (
 
     /* Acquire and dispatch messages until WM_QUIT message is received. */
 
-    while (GetMessage(&msg,     /* message structure                  */
-          (HWND) NULL,          /* handle of window receiving the msg */
-          (WORD) NULL,          /* lowest message to examine          */
-          (WORD) NULL))         /* highest message to examine         */
+    while (GetMessage(&msg,              /* message structure                  */
+                   (HWND) NULL,          /* handle of window receiving the msg */
+                   (WORD) NULL,          /* lowest message to examine          */
+                   (WORD) NULL))         /* highest message to examine         */
     {
         TranslateMessage(&msg); /* Translates virtual key codes.   */
         DispatchMessage(&msg);  /* Dispatches message to window.   */
@@ -247,18 +247,18 @@ BOOL InitInstance(hInstance, nCmdShow)
     /* Create a main window for this application instance.  */
 
     hWnd = CreateWindow(
-        "historyClass",                 /* See RegisterClass() call.    */
-        szMessageBoxTitle,              /* Text for window title bar.   */
-        WS_OVERLAPPEDWINDOW,            /* Window style.                */
-        CW_USEDEFAULT,                  /* Default horizontal position. */
-        CW_USEDEFAULT,                  /* Default vertical position.   */
-        CW_USEDEFAULT,                  /* Default width.               */
-        CW_USEDEFAULT,                  /* Default height.              */
-        (HWND) NULL,                    /* No parent.                   */
-        (HMENU) NULL,                   /* Use the window class menu.   */
-        hInstance,                      /* Owner of window.             */
-        (LONG) NULL                     /* Pointer not needed.          */
-    );
+                 "historyClass",                  /* See RegisterClass() call.    */
+                  szMessageBoxTitle,              /* Text for window title bar.   */
+                  WS_OVERLAPPEDWINDOW,            /* Window style.                */
+                  CW_USEDEFAULT,                  /* Default horizontal position. */
+                  CW_USEDEFAULT,                  /* Default vertical position.   */
+                  CW_USEDEFAULT,                  /* Default width.               */
+                  CW_USEDEFAULT,                  /* Default height.              */
+                  (HWND) NULL,                    /* No parent.                   */
+                  (HMENU) NULL,                   /* Use the window class menu.   */
+                  hInstance,                      /* Owner of window.             */
+                  (LONG) NULL                     /* Pointer not needed.          */
+                  );
 
     /* If window could not be created, return "failure" */
 
@@ -341,8 +341,8 @@ LRESULT CALLBACK MainWndProc (
         HWND        hWnd,
         UINT        message,
         WPARAM      wParam,
-        LPARAM      lParam
-) {
+        LPARAM      lParam )
+{
     FARPROC lpProcCollectHistory;   /* func ptr to CollectHistoryDlgProc */
     FARPROC lpProcSelectDB;         /* func ptr to SelectDatabaseDlgProc */
     int     nResult;                /* return code from DialogBox */
@@ -372,9 +372,9 @@ LRESULT CALLBACK MainWndProc (
                     */
 
                     nResult = DialogBox( hInst,   /* current instance */
-                               "HISTORYDLG",  /* resource to use  */
-                               hWnd,          /* parent handle    */
-                               (DLGPROC)lpProcCollectHistory ); /* instance address */
+                                   "HISTORYDLG",  /* resource to use  */
+                                   hWnd,          /* parent handle    */
+                                   (DLGPROC)lpProcCollectHistory ); /* instance address */
                                
                     FreeProcInstance( lpProcCollectHistory );
 
@@ -495,8 +495,8 @@ BOOL CALLBACK CollectHistoryDlgProc (
         HWND        hDlg,
         UINT        message,
         WPARAM      wParam,
-        LPARAM      lParam
-) {
+        LPARAM      lParam )
+{
     DWORD   dwIndex;
     DWORD   dwData;
     WORD    idItem;
@@ -598,8 +598,8 @@ BOOL CALLBACK SelectDatabaseDlgProc (
         HWND        hDlg,
         UINT        message,
         WPARAM      wParam,
-        LPARAM      lParam
-) {
+        LPARAM      lParam )
+{
     char        szUserDBFileName[MAXPATH];
     char        szUserServerName[MAXPATH];
     DBHANDLE    hUserDB;
@@ -642,19 +642,19 @@ BOOL CALLBACK SelectDatabaseDlgProc (
                           Return TRUE but do not call EndDialog. This way,
                           the user remains in this dialog box until success
                           or user clicks the Cancel button.
-                        */
+                       */
                         return (TRUE);
                     }
-                    /* else we successfully opened the specified Domino DB.
-                       If the global variable hNotesDB is non-NULL, close
-                       that database. Save the new open notes db handle in
-                       the global variable hNotesDB and copy the new file
-                       and server names to the global variables. Clear the
-                       database title stored it in the global variable
-                       szDBTitleString[] to force InitCollHistDlg to
-                       refresh this with the new DB. Enable the FILE_COLLECT
-                       menu item. Call EndDialog to exit the dialog box.
-                     */
+                       /* else we successfully opened the specified Domino DB.
+                          If the global variable hNotesDB is non-NULL, close
+                          that database. Save the new open notes db handle in
+                          the global variable hNotesDB and copy the new file
+                          and server names to the global variables. Clear the
+                          database title stored it in the global variable
+                          szDBTitleString[] to force InitCollHistDlg to
+                          refresh this with the new DB. Enable the FILE_COLLECT
+                          menu item. Call EndDialog to exit the dialog box.
+                       */
 
                     if (hNotesDB != NULLHANDLE)
                         NSFDbClose( hNotesDB );
@@ -771,15 +771,15 @@ STATUS LNPUBLIC InitViewTitleList( HWND hCollHistDlg )
     /* Search the DB for all view notes. */
 
     status = NSFSearch( hNotesDB,
-                NULLHANDLE,
-                NULL,
-                SEARCH_SUMMARY,     /* get summary buffer with each match */
-                NOTE_CLASS_VIEW,    /* find all views */
-                NULL,               /* starting date (unused) */
-                                    /* call for each note found */
-                (NSFSEARCHPROC)lpProcInsertOne,
-                (void*)(&hCollHistDlg),/* argument to InsertOneViewItem */
-                NULL);              /* returned ending date (unused) */
+                        NULLHANDLE,
+                        NULL,
+                        SEARCH_SUMMARY,     /* get summary buffer with each match */
+                        NOTE_CLASS_VIEW,    /* find all views */
+                        NULL,               /* starting date (unused) */
+                                            /* call for each note found */
+                        (NSFSEARCHPROC)lpProcInsertOne,
+                        (void*)(&hCollHistDlg),/* argument to InsertOneViewItem */
+                        NULL);              /* returned ending date (unused) */
 
     FreeProcInstance( lpProcInsertOne );
 
@@ -857,9 +857,9 @@ STATUS LNCALLBACK InsertOneViewItem( void * phCollHistDlg,
     }
 
     dwIndex = SendDlgItemMessage( hCollHistDlg,
-                            IDC_VIEW_TITLE,
-                            CB_ADDSTRING,
-                            0, (LPARAM)((LPSTR)szViewTitle) );
+                                  IDC_VIEW_TITLE,
+                                  CB_ADDSTRING,
+                                  0, (LPARAM)((LPSTR)szViewTitle) );
 
     if (dwIndex == CB_ERR)
     {
@@ -1007,7 +1007,7 @@ STATUS LNPUBLIC OpenNotesDB( LPSTR lpszServer, LPSTR lpszNsfName,
         The <error> code input to this function must contain the resource
         ID of a string in the HISTORY string table (see HISTORY.RC). The
         global variable <status> must contain a HCL C API for Domino and 
-		Notes error code.
+        Notes error code.
 
 ****************************************************************************/
 
@@ -1051,15 +1051,15 @@ LPCSTR LNPUBLIC BuildErrStr (STATUS error)
 
 STATUS LNPUBLIC  CollectHistory( DWORD * pdwResponsesProcessed )
 {
-    STATUS      error;
-    HCOLLECTION hCollection;            /* handle to open collection */
-    BOOL        fFirstTime = TRUE;      /* used to detect empty view */
-    COLLECTIONPOSITION  coll_pos;       /* collection position */
-    COLLECTIONPOSITION  SaveCollPos;    /* save coll_pos for comparison */
-    DHANDLE       hRetBuff;               /* return buffer from ReadEntries */
-    DWORD       dwNotesFound;           /* number of notes read */
-    int         i;
-    BOOL        fCollPosTumblerChanged; /* used when comparing coll_pos */
+    STATUS                error;
+    HCOLLECTION           hCollection;            /* handle to open collection */
+    BOOL                  fFirstTime = TRUE;      /* used to detect empty view */
+    COLLECTIONPOSITION    coll_pos;               /* collection position */
+    COLLECTIONPOSITION    SaveCollPos;            /* save coll_pos for comparison */
+    DHANDLE               hRetBuff;               /* return buffer from ReadEntries */
+    DWORD                 dwNotesFound;           /* number of notes read */
+    int                   i;
+    BOOL                  fCollPosTumblerChanged; /* used when comparing coll_pos */
 
     /* initialize return value to 0 */
     *pdwResponsesProcessed = (DWORD)0;
@@ -1329,14 +1329,14 @@ STATUS LNPUBLIC ProcessMainDocument( DHANDLE hBuff, DWORD dwNotesFound )
 
 STATUS LNPUBLIC ProcessResponses( DHANDLE hBuff, DWORD dwNotesFound )
 {
-    NOTEHANDLE  hMainDoc;               /* main doc handle */
-    char       *pBuffer = NULL;
-    NOTEID     *pNoteIDData = NULL;
-    int         i;
-    STATUS      error;
-    DHANDLE       hCompound;      /* handle to Compound Text context */
+    NOTEHANDLE    hMainDoc;               /* main doc handle */
+    char         *pBuffer = NULL;
+    NOTEID       *pNoteIDData = NULL;
+    int           i;
+    STATUS        error;
+    DHANDLE       hCompound;              /* handle to Compound Text context */
     COMPOUNDSTYLE Style;
-    DWORD       dwStyleID;
+    DWORD         dwStyleID;
 
     /* An empty buffer means there are no responses to this main document */
     if (dwNotesFound <= (DWORD)0)
@@ -1506,7 +1506,7 @@ STATUS LNPUBLIC ProcessOneResponse( NOTEID nidResp,
     WORD        wAuthorType, wTopicType;
     BLOCKID     bhAuthorValue, bhTopicValue;
     DWORD       dwAuthorValueLen, dwTopicValueLen;
-    DHANDLE       hAuthorText, hTopicText;
+    DHANDLE     hAuthorText, hTopicText;
     DWORD       dwAuthorTextLen, dwTopicTextLen;
     char        szDateText[MAXALPHATIMEDATE];
     WORD        wDateTextLen;
@@ -1884,7 +1884,7 @@ STATUS LNPUBLIC  ReplaceHistory( NOTEHANDLE  hMainDoc,
     Here's why:
         
     Domino and Notes creates two different types of Doc Links: "weak" 
-	and "strong".
+    and "strong".
 
     A "weak" Doc Link consist of a CDLINK2 record and a Doc Link Reference
     list.  A "strong" Doc Link consist of a CDLINKEXPORT2 record. I call
@@ -1892,9 +1892,9 @@ STATUS LNPUBLIC  ReplaceHistory( NOTEHANDLE  hMainDoc,
     note that also contains the Doc Link Reference List. I call the second
     type "strong" because it may be copied from one document to another
     and will still work. When a Domino and Notes user creates a Doc Link 
-	from the Domino and Notes editor, Notes creates a "weak" Doc Link.  
-	This function converts all the CDLINK2 ("weak") Doc Links in the named 
-	rich text field to CDLINKEXPORT2 ("strong") Doc Links.
+    from the Domino and Notes editor, Notes creates a "weak" Doc Link.  
+    This function converts all the CDLINK2 ("weak") Doc Links in the named 
+    rich text field to CDLINKEXPORT2 ("strong") Doc Links.
 
     Since CompoundTextAssimilateItem() only assimilates the CD records
     from the source to the destination, it effectively breaks "weak"
@@ -1908,10 +1908,10 @@ STATUS LNPUBLIC  ReplaceHistory( NOTEHANDLE  hMainDoc,
     CDLINKEXPORT2 record using the information in the $Links item.
 
     Internally, Domino and Notes converts CDLINK2 doc links to CDLINKEXPORT2 
-	doc links when exporting rich text data to the clipboard.  Domino and 
-	Notes performs this conversion because the corresponding Doc Link 
-	Reference List ($Links) item is not part of the rich text field and so 
-	is not exported to the clipboard. A CDLINKEXPORT2 record contains the
+    doc links when exporting rich text data to the clipboard.  Domino and 
+    Notes performs this conversion because the corresponding Doc Link 
+    Reference List ($Links) item is not part of the rich text field and so 
+    is not exported to the clipboard. A CDLINKEXPORT2 record contains the
     NOTELINK information that a CDLINK2 structure does not have.
     Therefore, a CDLINKEXPORT2 will function properly after the rich text
     data has been pasted into another document or database where the
@@ -2194,13 +2194,13 @@ STATUS  LNPUBLIC  ProcessOneBodyItem(
                         BODYVALUE  *pBodyValuesToAppend,
                         WORD       *pwBodyValuesToAppend )
 {
-    CONVERTCONTEXT  Context;
-    FARPROC     lpProc;         /* ProcessOneCDRecord function address */
-    DWORD       dwStructDiff;   /* difference between CDLINK2 and EXPORT2 */
-    DWORD       dwGrowthFactor; /* rich text grows by appx this much */
-    DWORD       dwNewBodyLen;
-    DHANDLE       hNewBody, hNewBody2;
-    BODYVALUE   bvalNewBody, bvalNewBody2;
+    CONVERTCONTEXT      Context;
+    FARPROC             lpProc;         /* ProcessOneCDRecord function address */
+    DWORD               dwStructDiff;   /* difference between CDLINK2 and EXPORT2 */
+    DWORD               dwGrowthFactor; /* rich text grows by appx this much */
+    DWORD               dwNewBodyLen;
+    DHANDLE             hNewBody, hNewBody2;
+    BODYVALUE           bvalNewBody, bvalNewBody2;
     ActionRoutinePtr    actionroutine_ptr;
 
    /* Initialize the CONVERTCONTEXT data structure in preparation for
@@ -2451,16 +2451,16 @@ STATUS  LNCALLBACK  ProcessOneCDRecord(
                                     DWORD   RecordLength, 
                                     void   *pvoidContext )
 {
-    CONVERTCONTEXT *pContext;
-    BYTE           *pDest;
-    BYTE           *pSource;
-    DWORD           dwCount;
-    WORD            wDisplayCommentLen;
-    CDLINK2        *pCDLINK2;
-    BYTE           *pCDLINK2DispComm;
-    WORD            wLinkID;
-    CDLINKEXPORT2  pCDLExport2;
-    BYTE           *pCurrCDLExport2;
+    CONVERTCONTEXT   *pContext;
+    BYTE             *pDest;
+    BYTE             *pSource;
+    DWORD             dwCount;
+    WORD              wDisplayCommentLen;
+    CDLINK2          *pCDLINK2;
+    BYTE             *pCDLINK2DispComm;
+    WORD              wLinkID;
+    CDLINKEXPORT2     pCDLExport2;
+    BYTE             *pCurrCDLExport2;
     DHANDLE           hCDLRecord;
 
     pContext = (CONVERTCONTEXT *)pvoidContext;

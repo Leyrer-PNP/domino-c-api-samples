@@ -38,7 +38,7 @@
 
     <destination database> must specify the file name of a Domino discussion
     database. An example database big_rich.nsf is included with the HCL C API
-	for Domino and Notes toolkit. The database must exist and the user must have at least
+    for Domino and Notes toolkit. The database must exist and the user must have at least
     author access. The design of the destination database must be the same
     as big_rich.nsf, based on the discussion DB template provided with Domino and Notes.
 
@@ -112,7 +112,6 @@ STATUS LNPUBLIC AppendFromItem       (NOTEHANDLE);
 STATUS LNPUBLIC AppendCategoriesItem (NOTEHANDLE, char *);
 STATUS LNPUBLIC AppendBodyItem       (NOTEHANDLE, char *);
 STATUS LNPUBLIC AppendSubjectItem    (NOTEHANDLE, char *);
-void PrintAPIError (STATUS);
 
 /* Local Defines */
 /* #define FILENAME_EXTENSION      ".txt" */
@@ -601,33 +600,5 @@ STATUS LNPUBLIC AppendSubjectItem( NOTEHANDLE hNote, char * szAsciiFileName)
     return (error);
 }
 
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
 
 
