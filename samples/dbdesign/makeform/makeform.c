@@ -376,7 +376,7 @@ STATUS LNPUBLIC CreateForm()
                                  &FormNoteID)) != ERR_NOT_FOUND)
     {
         sprintf(errMsg, "Error: Form named '%s' already exists in database. Duplicates not allowed.\n",
-             FormName );
+                FormName );
         sError = ERR_ALREADY_EXIST;
         goto Exit3;
     }
@@ -510,7 +510,7 @@ STATUS LNPUBLIC CreateForm()
                                0))
     {
         sprintf(errMsg,
-          "Error: Unable to append placeholder for field '%s' to form note.\n",
+                "Error: Unable to append placeholder for field '%s' to form note.\n",
                 GifImageFieldName );
         goto Exit4;
 
@@ -530,7 +530,7 @@ STATUS LNPUBLIC CreateForm()
                                0))
     {
         sprintf(errMsg,
-          "Error: Unable to append placeholder for field '%s' to form note.\n",
+                "Error: Unable to append placeholder for field '%s' to form note.\n",
                 TextFieldName );
         goto Exit4;
     }
@@ -549,7 +549,7 @@ STATUS LNPUBLIC CreateForm()
                                0))
     {
         sprintf(errMsg,
-          "Error: Unable to append placeholder for field '%s' to form note.\n",
+                "Error: Unable to append placeholder for field '%s' to form note.\n",
                 NumberFieldName );
         goto Exit4;
     }
@@ -567,7 +567,7 @@ STATUS LNPUBLIC CreateForm()
                                0))
     {
         sprintf(errMsg,
-         "Error: Unable to append placeholder for field '%s' to form note.\n",
+                "Error: Unable to append placeholder for field '%s' to form note.\n",
                 TimeFieldName );
         goto Exit4;
     }
@@ -585,7 +585,7 @@ STATUS LNPUBLIC CreateForm()
                                0))
     {
         sprintf(errMsg,
-          "Error: Unable to append placeholder for field '%s' to form note.\n",
+                "Error: Unable to append placeholder for field '%s' to form note.\n",
                 RichTextFieldName );
         goto Exit4;
 
@@ -605,7 +605,7 @@ STATUS LNPUBLIC CreateForm()
     {
 
         sprintf(errMsg,
-          "Error: Unable to append placeholder for field '%s' to form note.\n",
+                "Error: Unable to append placeholder for field '%s' to form note.\n",
                 KeyWordFieldName );
         goto Exit4;
     }
@@ -827,10 +827,10 @@ STATUS LNPUBLIC CreateForm()
 /*
  *  Import a Gif image into the main form.
  */
-  pBuffer = ImportGifImage(szImage_LotusGif, pBuffer, width, height);
+    pBuffer = ImportGifImage(szImage_LotusGif, pBuffer, width, height);
 
-  if (!pBuffer)
-    goto Exit5;
+    if (!pBuffer)
+        goto Exit5;
 
  /*********************************************************************
  *
@@ -920,7 +920,7 @@ STATUS LNPUBLIC CreateForm()
  * New CDEXT2FIELD for R5 that follows a CDBEGINRECORD type.
  */
  
-        /* init full structure */
+    /* init full structure */
     memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
 
     CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
@@ -1119,7 +1119,7 @@ STATUS LNPUBLIC CreateForm()
  */
  
     bError = PutPara(&pBuffer,
-                    (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
+                     (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
              
 /*
  * Leave if error returned...
@@ -1131,7 +1131,7 @@ STATUS LNPUBLIC CreateForm()
     }
     
     bError = PutPara(&pBuffer,
-                    (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
+                     (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
              
     if (bError == FALSE)
     {
@@ -1147,7 +1147,7 @@ STATUS LNPUBLIC CreateForm()
 
     bError = PutText (&pBuffer,
                       NumberString,
-                     (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
+                      (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
 
 
     if (bError == FALSE)
@@ -1255,7 +1255,7 @@ STATUS LNPUBLIC CreateForm()
  */
 
     ODSWriteMemory( (void far * far *)&pBuffer, _CDFIELD, 
-          (void far *)&CDField, 1 );
+                    (void far *)&CDField, 1 );
     
 /*
  *  Now set the field name.
@@ -1560,7 +1560,7 @@ STATUS LNPUBLIC CreateForm()
  * New CDEXT2FIELD for R5 that follows a CDBEGINRECORD type.
  */
  
-        /* init full structure */
+    /* init full structure */
     memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
 
     CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
@@ -1790,10 +1790,10 @@ STATUS LNPUBLIC CreateForm()
  */
 
     wTextListLen = ODSLength(_LIST)    + /* length of LIST header */    
-                  3 * ODSLength(_WORD) + /* array of 3 length words. */
-                  wKeyword1Len         + /* length of 1st string. */
-                  wKeyword2Len         + /* length of 2nd string. */
-                  wKeyword3Len;          /* length of 3rd string. */
+                   3 * ODSLength(_WORD) + /* array of 3 length words. */
+                   wKeyword1Len         + /* length of 1st string. */
+                   wKeyword2Len         + /* length of 2nd string. */
+                   wKeyword3Len;          /* length of 3rd string. */
 
     CDField.TextValueLength = wTextListLen;
 
@@ -1845,7 +1845,7 @@ STATUS LNPUBLIC CreateForm()
     /*  Set number of keywords.  */
     sList.ListEntries = 3;    
     ODSWriteMemory( (void far * far *)&pBuffer, _LIST, 
-          (void far *)&sList, 1 );
+                    (void far *)&sList, 1 );
     
     ODSWriteMemory( (void far * far *)&pBuffer, _WORD, 
                     (void far *)&wKeyword1Len, 1 );
@@ -1891,12 +1891,12 @@ STATUS LNPUBLIC CreateForm()
  ***********************************************************************/    
 
     if (sError = NSFItemAppend(hNote,
-                   0,
-                   ITEM_NAME_TEMPLATE,
-                   (WORD) strlen (ITEM_NAME_TEMPLATE),
-                   TYPE_COMPOSITE,
-                   (void*)pBufferStart,
-                   pBuffer-pBufferStart))
+                               0,
+                               ITEM_NAME_TEMPLATE,
+                               (WORD) strlen (ITEM_NAME_TEMPLATE),
+                               TYPE_COMPOSITE,
+                               (void*)pBufferStart,
+                               pBuffer-pBufferStart))
     {
         sprintf(errMsg, "Error: Unable to create $BODY item.\n");
         goto Exit5;
@@ -2007,93 +2007,93 @@ STATUS LNPUBLIC CreateForm()
 /*  
  * compile the formula.
  */
-   if (error = NSFFormulaCompile(NULL, 0, Formula, (WORD)strlen(Formula),
-                          &hFormula, &FormulaLen, &wdc, &wdc, 
-                          &wdc, &wdc, &wdc))
-   {
-      sprintf(errMsg, "Error compiling formula.\n");
-      goto Exit5;
-   }
+    if (error = NSFFormulaCompile(NULL, 0, Formula, (WORD)strlen(Formula),
+                                  &hFormula, &FormulaLen, &wdc, &wdc, 
+                                  &wdc, &wdc, &wdc))
+    {
+        sprintf(errMsg, "Error compiling formula.\n");
+        goto Exit5;
+    }
 
-   FormulaLen += FormulaLen%2;
-   TitleLen = (WORD)strlen(ACTIONTITLE);
-   TitleLen += TitleLen%2;
+    FormulaLen += FormulaLen%2;
+    TitleLen = (WORD)strlen(ACTIONTITLE);
+    TitleLen += TitleLen%2;
 /*
  * There is going to be only one ACTION button on the ACTION BAR.
  */
-   FormActionPtr = (BYTE *)malloc(ODSLength(_CDACTIONBAR) +
-                           ODSLength(_CDACTION) +
-                           TitleLen +
-                           FormulaLen);
+    FormActionPtr = (BYTE *)malloc(ODSLength(_CDACTIONBAR) +
+                    ODSLength(_CDACTION) +
+                    TitleLen +
+                    FormulaLen);
 
-   if (FormActionPtr == (BYTE *)NULL)
-   {
-      sprintf(errMsg, "Error:  Unable to allocate memory.\n");
-      goto Exit5;
-   }
+    if (FormActionPtr == (BYTE *)NULL)
+    {
+        sprintf(errMsg, "Error:  Unable to allocate memory.\n");
+        goto Exit5;
+    }
 
-   buff_ptr = FormActionPtr;
+    buff_ptr = FormActionPtr;
 
 /*
  * Fill in ActionBar structure. 
  */
-   /* init the structure... */
-   memset(&ActionBar, 0, sizeof(CDACTIONBAR));
+    /* init the structure... */
+    memset(&ActionBar, 0, sizeof(CDACTIONBAR));
 
-   ActionBar.Header.Signature = SIG_CD_ACTIONBAR;
-   ActionBar.Header.Length    = (BYTE)ODSLength(_CDACTIONBAR);
-   ActionBar.BackColor        = NOTES_COLOR_BLUE;
-   ActionBar.LineColor        = NOTES_COLOR_YELLOW;
-   ActionBar.LineStyle        = ACTION_LINE_TWO;
-   ActionBar.BorderStyle      = ACTION_BORDER_ABS;
-   ActionBar.BorderWidth      = 0;
-   ActionBar.dwFlags          = 0;
-   ActionBar.ShareID          = 0;
-   ActionBar.FontID           = 0;
+    ActionBar.Header.Signature = SIG_CD_ACTIONBAR;
+    ActionBar.Header.Length    = (BYTE)ODSLength(_CDACTIONBAR);
+    ActionBar.BackColor        = NOTES_COLOR_BLUE;
+    ActionBar.LineColor        = NOTES_COLOR_YELLOW;
+    ActionBar.LineStyle        = ACTION_LINE_TWO;
+    ActionBar.BorderStyle      = ACTION_BORDER_ABS;
+    ActionBar.BorderWidth      = 0;
+    ActionBar.dwFlags          = 0;
+    ActionBar.ShareID          = 0;
+    ActionBar.FontID           = 0;
 
-   ODSWriteMemory(&buff_ptr, _CDACTIONBAR, &ActionBar, 1);
+    ODSWriteMemory(&buff_ptr, _CDACTIONBAR, &ActionBar, 1);
 
 /*
  * Fill in Action structure.
  */
 
-   /* init the structure... */
-   memset(&Action, 0, sizeof(CDACTION));
+    /* init the structure... */
+    memset(&Action, 0, sizeof(CDACTION));
 
-   Action.Header.Signature = SIG_CD_ACTION;
-   Action.Header.Length = ODSLength(_CDACTION) + TitleLen + FormulaLen;
-   Action.Type          = ACTION_RUN_FORMULA;
-   Action.IconIndex     = 2;
-   Action.Flags         = 0x19F;
-   Action.TitleLen      = TitleLen;
-   Action.FormulaLen    = 0;     /* No "Hide-When" formula */
-   Action.ShareId       = 0;
+    Action.Header.Signature = SIG_CD_ACTION;
+    Action.Header.Length = ODSLength(_CDACTION) + TitleLen + FormulaLen;
+    Action.Type          = ACTION_RUN_FORMULA;
+    Action.IconIndex     = 2;
+    Action.Flags         = 0x19F;
+    Action.TitleLen      = TitleLen;
+    Action.FormulaLen    = 0;     /* No "Hide-When" formula */
+    Action.ShareId       = 0;
 
-   ODSWriteMemory(&buff_ptr, _CDACTION, &Action, 1);
+    ODSWriteMemory(&buff_ptr, _CDACTION, &Action, 1);
 
-   memcpy((char *)buff_ptr, ACTIONTITLE, Action.TitleLen);
-   buff_ptr += Action.TitleLen;
-   memcpy((char *)buff_ptr, OSLockObject(hFormula), FormulaLen);
-   buff_ptr += FormulaLen; 
+    memcpy((char *)buff_ptr, ACTIONTITLE, Action.TitleLen);
+    buff_ptr += Action.TitleLen;
+    memcpy((char *)buff_ptr, OSLockObject(hFormula), FormulaLen);
+    buff_ptr += FormulaLen; 
 
-   buff_len = (DWORD)(buff_ptr - FormActionPtr);
+    buff_len = (DWORD)(buff_ptr - FormActionPtr);
 
 /*
  * Append Action Item to Note.
  */
-   if (error = NSFItemAppend(
-               hNote,            /* handle to note to append to */
-               ITEM_SIGN,        /* item flags */
-               ACTION_ITEM,      /* item name $ACTIONS */
-               (WORD)strlen(ACTION_ITEM),
-               TYPE_COMPOSITE,      /* item type */
-               FormActionPtr,    /* item value */
-               (DWORD)buff_len))
-   {
-      sprintf(errMsg, "Error:  NSFItemAppend\n");
-      goto Exit5;
-   }
-   free (FormActionPtr);
+    if (error = NSFItemAppend(
+                              hNote,            /* handle to note to append to */
+                              ITEM_SIGN,        /* item flags */
+                              ACTION_ITEM,      /* item name $ACTIONS */
+                              (WORD)strlen(ACTION_ITEM),
+                              TYPE_COMPOSITE,      /* item type */
+                              FormActionPtr,    /* item value */
+                              (DWORD)buff_len))
+    {
+        sprintf(errMsg, "Error:  NSFItemAppend\n");
+        goto Exit5;
+    }
+    free (FormActionPtr);
 
 /*******************************************************************
  *
@@ -2175,7 +2175,7 @@ STATUS LNPUBLIC CreateSubForm()
  */
 
     if ((sError = NIFFindDesignNote(hDB, SubFormName, NOTE_CLASS_FORM, 
-                                 &FormNoteID)) != ERR_NOT_FOUND)
+                                    &FormNoteID)) != ERR_NOT_FOUND)
     {
         sprintf(errMsg, "Error: Form named '%s' already exists in database. Duplicates not allowed.\n",
              SubFormName );
@@ -2275,11 +2275,11 @@ STATUS LNPUBLIC CreateSubForm()
     sError = NSFItemAppend(hNewNote,
                            0,
                            ITEM_NAME_DOCUMENT,
-/*                           strlen(ITEM_NAME_DOCUMENT), */
-            (WORD) strlen(ITEM_NAME_DOCUMENT),
+/*                         strlen(ITEM_NAME_DOCUMENT), */
+             (WORD) strlen(ITEM_NAME_DOCUMENT),
                            TYPE_COMPOSITE,
                            (void far *)pInfoBufStart,
-            dwItemLength);
+             dwItemLength);
     
 /*                           (DWORD) wInfoBufLen); */
 
@@ -2308,12 +2308,12 @@ STATUS LNPUBLIC CreateSubForm()
     wLen = 4;
 
     if (sError = NSFItemAppend(hNewNote,
-                   ITEM_SUMMARY,
-                   DESIGN_FLAGS,
-                   (WORD) strlen (DESIGN_FLAGS),
-                   TYPE_TEXT,
-                   (void*)&FlagData[0],
-                   wLen))
+                               ITEM_SUMMARY,
+                               DESIGN_FLAGS,
+                               (WORD) strlen (DESIGN_FLAGS),
+                               TYPE_TEXT,
+                               (void*)&FlagData[0],
+                               wLen))
     {
         sprintf(errMsg, "Error: Unable to create $Flags item.\n");
         goto Exit4;
@@ -2396,7 +2396,7 @@ STATUS LNPUBLIC CreateSubForm()
  */
  
     bError = PutPara(&pBuffer,
-                    (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
+                     (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
              
     if (bError == FALSE)
     {
@@ -2625,17 +2625,17 @@ Exit3:
 STATUS LNPUBLIC CreateFrame()
 {
     NOTEHANDLE hNewNote = NULLHANDLE; 
-	NOTEHANDLE hNote = NULLHANDLE;
+    NOTEHANDLE hNote = NULLHANDLE;
     DHANDLE hMem;
     STATUS sError = NOERROR;
     
     char far   *pBufferStart, far *pBuffer;
     char far   FlagData[5];
-	char far   FrameLaunchFlag[]="wF";
-	
+    char far   FrameLaunchFlag[]="wF";
+    
     WORD       wCDBufferLength = MAXONESEGSIZE; /* Length of current CD buffer */
     WORD       ClassForm = NOTE_CLASS_FORM;
-	WORD       wLen;
+    WORD       wLen;
 
 /*
  * First create a note in database
@@ -2691,7 +2691,7 @@ STATUS LNPUBLIC CreateFrame()
     pBuffer = AddFrame(&pBuffer, pBufferStart);
 
     if (!pBuffer)
-      goto Exit5;
+        goto Exit5;
 
 /***********************************************************************
  *
@@ -2707,12 +2707,12 @@ STATUS LNPUBLIC CreateFrame()
     wLen = 4;
 
     if (sError = NSFItemAppend(hNewNote,
-                   ITEM_SUMMARY,
-                   DESIGN_FLAGS,
-                   (WORD) strlen (DESIGN_FLAGS),
-                   TYPE_TEXT,
-                   (void*)&FlagData[0],
-                   wLen))
+                               ITEM_SUMMARY,
+                               DESIGN_FLAGS,
+                               (WORD) strlen (DESIGN_FLAGS),
+                               TYPE_TEXT,
+                               (void*)&FlagData[0],
+                               wLen))
     {
         sprintf(errMsg, "Error: Unable to create $Flags item.\n");
         goto Exit5;
@@ -2726,12 +2726,12 @@ STATUS LNPUBLIC CreateFrame()
  ***********************************************************************/    
 
     if (sError = NSFItemAppend(hNewNote,
-                   0,
-                   ITEM_NAME_FRAMESET,
-                   (WORD) strlen (ITEM_NAME_FRAMESET),
-                   TYPE_COMPOSITE,
-                   (void*)pBufferStart,
-                   pBuffer-pBufferStart))
+                               0,
+                               ITEM_NAME_FRAMESET,
+                               (WORD) strlen (ITEM_NAME_FRAMESET),
+                               TYPE_COMPOSITE,
+                               (void*)pBufferStart,
+                               pBuffer-pBufferStart))
     {
         sprintf(errMsg, "Error: Unable to create $FrameSet item.\n");
         goto Exit5;
@@ -2744,7 +2744,7 @@ STATUS LNPUBLIC CreateFrame()
   */
 
     if (sError = GetNoteLinkInfo())
-    {			  
+    {  
         goto Exit5;
     }
     
@@ -2763,7 +2763,7 @@ STATUS LNPUBLIC CreateFrame()
     pBuffer = AddNoteLink(&pBuffer, pBufferStart);
 
     if (!pBuffer)
-      goto Exit5;
+        goto Exit5;
 
 
 /***********************************************************************
@@ -2773,12 +2773,12 @@ STATUS LNPUBLIC CreateFrame()
  ***********************************************************************/    
 
     if (sError = NSFItemAppend(hNewNote,
-                   0,
-                   ITEM_NAME_FORMLINK,
-                   (WORD) strlen (ITEM_NAME_FORMLINK),
-                   TYPE_NOTELINK_LIST,
-                   (void*)pBufferStart,
-                   pBuffer-pBufferStart))
+                               0,
+                               ITEM_NAME_FORMLINK,
+                               (WORD) strlen (ITEM_NAME_FORMLINK),
+                               TYPE_NOTELINK_LIST,
+                               (void*)pBufferStart,
+                               pBuffer-pBufferStart))
     {
         sprintf(errMsg, "Error: Unable to create $FormLinks item.\n");
         goto Exit5;
@@ -2851,10 +2851,10 @@ Exit5:
 Exit4:
 
     if (hNewNote)
-      NSFNoteClose( hNewNote );
+        NSFNoteClose( hNewNote );
 
     if (hNote)
-      NSFNoteClose( hNote );
+        NSFNoteClose( hNote );
     
 Exit3:
     return( sError );
@@ -2891,8 +2891,8 @@ char far * ImportGifImage(char *ImageFileName, char far *pBuf, WORD width, WORD 
 
     if (!pImageFD)
     {
-      sprintf(errMsg, "Error: Unable to open Gif file:%s.\n",ImageFileName);
-      return(NULL);
+        sprintf(errMsg, "Error: Unable to open Gif file:%s.\n",ImageFileName);
+        return(NULL);
     }
     
     /* get a handle to the file */
@@ -2905,8 +2905,8 @@ char far * ImportGifImage(char *ImageFileName, char far *pBuf, WORD width, WORD 
     /* get the file length of the file */
     if((fstat(ImageFDHandle, &buf) == -1))
     {
-      sprintf(errMsg, "Error: Unable to obtain file size.\n");
-      return(NULL);
+        sprintf(errMsg, "Error: Unable to obtain file size.\n");
+        return(NULL);
     }
 
     ImageFDSize = buf.st_size;
@@ -2944,10 +2944,10 @@ char far * ImportGifImage(char *ImageFileName, char far *pBuf, WORD width, WORD 
     CDImageHeader.SegCount         = ImageFDSize / IMAGE_SEGSIZE;
 
     if (CDImageHeader.ImageDataSize % IMAGE_SEGSIZE)
-      CDImageHeader.SegCount++;
+        CDImageHeader.SegCount++;
 
     if (CDImageHeader.SegCount == 0)
-      CDImageHeader.SegCount = 1;
+        CDImageHeader.SegCount = 1;
 
     /* write CDIMAGEHEADER structure to CD buffer */
     ODSWriteMemory(( void far * far* )&pBuf, _CDIMAGEHEADER, &CDImageHeader, 1);
@@ -2961,63 +2961,63 @@ char far * ImportGifImage(char *ImageFileName, char far *pBuf, WORD width, WORD 
     pSegmentBits = (BYTE *)malloc(IMAGE_SEGSIZE);
 
     if (!pSegmentBits)
-      return(NULL);
+        return(NULL);
 
     for (i=0,BytesLeft=CDImageHeader.ImageDataSize;i<(int)CDImageHeader.SegCount;i++)
     {
-      CopyCount = (BytesLeft < IMAGE_SEGSIZE) ? BytesLeft : IMAGE_SEGSIZE;
+        CopyCount = (BytesLeft < IMAGE_SEGSIZE) ? BytesLeft : IMAGE_SEGSIZE;
 
-      CDImageSegment.DataSize = (int)CopyCount;
+        CDImageSegment.DataSize = (int)CopyCount;
 
-      if (CopyCount & 1)
-        CDImageSegment.SegSize = (int)CopyCount+ 1;
-      else  
-        CDImageSegment.SegSize = (int)CopyCount;
+        if (CopyCount & 1)
+            CDImageSegment.SegSize = (int)CopyCount+ 1;
+        else  
+            CDImageSegment.SegSize = (int)CopyCount;
      
-      CDImageSegment.Header.Length = ODSLength(_CDIMAGESEGMENT)+ CDImageSegment.SegSize;
+        CDImageSegment.Header.Length = ODSLength(_CDIMAGESEGMENT)+ CDImageSegment.SegSize;
 
-      /* write CDIMAGESEGMENT structure to CD buffer */
-      ODSWriteMemory(( void far * far* )&pBuf, _CDIMAGESEGMENT, &CDImageSegment, 1);
+        /* write CDIMAGESEGMENT structure to CD buffer */
+        ODSWriteMemory(( void far * far* )&pBuf, _CDIMAGESEGMENT, &CDImageSegment, 1);
     
-      bufsize = ODSLength(_CDIMAGESEGMENT);
+        bufsize = ODSLength(_CDIMAGESEGMENT);
 
-      /* read from Gif image file to CD buffer */
-      numread = fread((void *)pSegmentBits,sizeof(BYTE),(size_t)CopyCount,pImageFD);
+        /* read from Gif image file to CD buffer */
+        numread = fread((void *)pSegmentBits,sizeof(BYTE),(size_t)CopyCount,pImageFD);
 
-      if (ferror(pImageFD))
-      {
-        sprintf(errMsg, "Error: Unable to read image data.\n");
-        goto Exit0;
-      }
-      else if (!numread)
-        goto Exit0;
+        if (ferror(pImageFD))
+        {
+            sprintf(errMsg, "Error: Unable to read image data.\n");
+            goto Exit0;
+        }
+        else if (!numread)
+            goto Exit0;
 
-      /* write Gif image data */
-      memcpy((BYTE *)pBuf, (BYTE *)pSegmentBits, (size_t)numread);
+        /* write Gif image data */
+        memcpy((BYTE *)pBuf, (BYTE *)pSegmentBits, (size_t)numread);
 
-      pBuf += (size_t)numread;
+        pBuf += (size_t)numread;
 
-      if (CopyCount & 1)
-      {
-        *pSegmentBits = '?';
-        memcpy(pBuf, pSegmentBits, 1);
-        pBuf += sizeof(BYTE);
-      }
+        if (CopyCount & 1)
+        {
+            *pSegmentBits = '?';
+            memcpy(pBuf, pSegmentBits, 1);
+            pBuf += sizeof(BYTE);
+        }
       
-      BytesLeft -= CopyCount; 
-   }
+        BytesLeft -= CopyCount; 
+    }
 
 Exit0:
 
-   if (fclose(pImageFD))
-   {
-      sprintf(errMsg, "Error: Unable to close image file.\n");
-   } 
-  
-   if(pSegmentBits)
-     free(pSegmentBits);
+    if (fclose(pImageFD))
+    {
+        sprintf(errMsg, "Error: Unable to close image file.\n");
+    } 
+    
+    if(pSegmentBits)
+        free(pSegmentBits);
  
-   return(pBuf);
+    return(pBuf);
 }
 
 
@@ -3156,7 +3156,7 @@ char far * AddFrame(char far * far *pBuf, char far *pBufStart)
     /* write CDRESOURCE structure to CD buffer */
     ODSWriteMemory(( void far * far* )pBuf, _TIMEDATE, &TimeDate, 1);
 
-     memcpy( *pBuf, &ViewName[0], CDResource.Length1);
+    memcpy( *pBuf, &ViewName[0], CDResource.Length1);
     *pBuf += CDResource.Length1;
 
 /*
@@ -3259,7 +3259,7 @@ STATUS LNPUBLIC GetNoteLinkInfo()
         
     /* next get the NOTEID of the Help-About document */
     if (sError = NSFDbGetSpecialNoteID(hDB, SPECIAL_ID_NOTE | NOTE_CLASS_INFO, 
-                                 &FormNoteID))
+                                       &FormNoteID))
     {
         sprintf(errMsg, "Error: Form '%s' not found.\n", HelpDoc );
         return(sError);

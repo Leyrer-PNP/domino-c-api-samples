@@ -46,45 +46,45 @@
 
 NAMRESULT LNCALLBACK AddinMenuProc (WORD wMsg, LONG lParam)
 {
-   switch (wMsg)
-   {
-      case NAMM_INIT:
-      {
-         NAM_INIT_INFO *pInitInfo;
+    switch (wMsg)
+    {
+        case NAMM_INIT:
+        {
+            NAM_INIT_INFO *pInitInfo;
 
-         /* lParam is a pointer to the NAM_INIT_INFO structure */
-         pInitInfo = (NAM_INIT_INFO *)lParam;
+            /* lParam is a pointer to the NAM_INIT_INFO structure */
+            pInitInfo = (NAM_INIT_INFO *)lParam;
 
-         /* Add the menu item to the Notes Actions menu */
-         /* Assign this menu item an id and a name */
-         pInitInfo->wMenuID = IDM_DOS_SHELL;
+            /* Add the menu item to the Notes Actions menu */
+            /* Assign this menu item an id and a name */
+            pInitInfo->wMenuID = IDM_DOS_SHELL;
 
-         strcpy (pInitInfo->MenuItemName, "&DOS Shell");
+            strcpy (pInitInfo->MenuItemName, "&DOS Shell");
 
-         /* tell Notes that there are no more menu items to add */
-         return (NAM_INIT_STOP);
-      }
+            /* tell Notes that there are no more menu items to add */
+            return (NAM_INIT_STOP);
+        }
 
-      case NAMM_COMMAND:
-      {
+        case NAMM_COMMAND:
+        {
 
-         NAM_COMMAND_INFO *cmdInfo;
-         WORD wSts;
+            NAM_COMMAND_INFO *cmdInfo;
+            WORD wSts;
 
-         /* The addin menu item was chosen */
-         /* lParam is a pointer to the NAM_COMMAND_INFO structure */
-         cmdInfo = (NAM_COMMAND_INFO *)lParam;
+            /* The addin menu item was chosen */
+            /* lParam is a pointer to the NAM_COMMAND_INFO structure */
+            cmdInfo = (NAM_COMMAND_INFO *)lParam;
 
-         wSts = WinExec("command.com", SW_SHOWMAXIMIZED);
-         if (wSts < 32 )
-               MessageBox (cmdInfo->hNotesWnd, "Cannot execute this item", 
-                           "Addin Error", MB_ICONHAND | MB_OK);
-         return (NAM_NOERROR);
-      }
+            wSts = WinExec("command.com", SW_SHOWMAXIMIZED);
+            if (wSts < 32 )
+                MessageBox (cmdInfo->hNotesWnd, "Cannot execute this item", 
+                            "Addin Error", MB_ICONHAND | MB_OK);
+                return (NAM_NOERROR);
+        }
 
-      default:          /* default processing for all other messages */
-         return (NAM_NOERROR);
-   }
+        default:          /* default processing for all other messages */
+            return (NAM_NOERROR);
+    }
 }
 
 

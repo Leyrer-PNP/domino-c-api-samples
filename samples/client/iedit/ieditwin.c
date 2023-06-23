@@ -102,7 +102,7 @@ VOID LNPUBLIC IeditMessageBox( char * szMessage, STATUS error  )
         lstrcat( szErrStr, " - \n" );
         wLen = lstrlen( szErrStr );
         OSLoadString ( NULLHANDLE, ERR(error), szErrStr+wLen,
-                                                (WORD)(ERR_STR_LEN-wLen) );
+                       (WORD)(ERR_STR_LEN-wLen) );
     }
     MessageBox( GetFocus(), szErrStr, "IEDIT Edit Level Import Sample",
                 MB_ICONHAND | MB_OK );

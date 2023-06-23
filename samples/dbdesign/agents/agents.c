@@ -98,8 +98,8 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE, NOTEHANDLE, WORD );
 /* Progam constants */
 char szAGENT_MANUAL[]     = "Send Reminder to Support Rep";
 char szAGENT_BACKGROUND[] = "Assign Support Rep";
-char szAGENT_SCHEDULED[]    = "Escalate Priority";
-char szAGENT_JAVA[]         = "Assign Hot Problems";
+char szAGENT_SCHEDULED[]  = "Escalate Priority";
+char szAGENT_JAVA[]       = "Assign Hot Problems";
 #define SHARED_AGENT        0
 #define PRIVATE_AGENT       1
 
@@ -172,7 +172,7 @@ Exit1:
 
 Exit0:
     if (error)
-	{
+    {
        PRINTERROR(error, "NSFDbOpen");
     }
 
@@ -223,9 +223,9 @@ STATUS  LNPUBLIC  AddManualAgent( DBHANDLE hDb )
 "Send a reminder email to the appropriate support reps for the documents \
 selected in the view.";
     char                szFormula[] = 
-"@MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
-\" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
-SELECT @All";
+                                      "@MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
+                                      \" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
+                                      SELECT @All";
 
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT ))
@@ -403,37 +403,37 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     char                szComment[] = "Assign all unassigned problems to Isabel Silton.";
 
     char                szScript[] = 
-"Sub Initialize\n\
-  Dim updcount As Integer\n\
-  Dim repname As String\n\
-  Dim session As New NotesSession\n\
-  Dim db As NotesDatabase\n\
-  Dim dc As NotesDocumentCollection\n\
-  Dim doc As NotesDocument\n\
-  Dim parm As NotesDocument\n\
-  Set db = session.CurrentDatabase\n\
-  Set dc = db.AllDocuments\n\
-  updcount = 0\n\
-  Set parm = session.DocumentContext\n\
- 'if running from UI, then hardcode new rep name\n\
-  If parm IS NOTHING then\n\
-   repname = \"Isabel Silton\"\n\
- 'else, use passed parameter document value\n\
-  Else\n\
-   repname = parm.NewRep(0)\n\
-  End If\n\
- 'assign passed name to all unassigned, open problems\n\
-  For j = 1 To dc.Count\n\
-   Set doc = dc.GetNthDocument(j)\n\
-   If doc.SRep(0) = \"\" AND doc.Status(0) = \"Open\" Then\n\
-    doc.SRep = repname\n\
-    updcount = updcount+1\n\
-   End If\n\
-   Call doc.Save(True,False)\n\
-  Next\n\
-  Print \"Support Rep parameter = \"+repname\n\
-  Print \"Updated documents = \"+STR$(updcount)\n\
- End Sub\n";
+                                     "Sub Initialize\n\
+                                      Dim updcount As Integer\n\
+                                      Dim repname As String\n\
+                                      Dim session As New NotesSession\n\
+                                      Dim db As NotesDatabase\n\
+                                      Dim dc As NotesDocumentCollection\n\
+                                      Dim doc As NotesDocument\n\
+                                      Dim parm As NotesDocument\n\
+                                      Set db = session.CurrentDatabase\n\
+                                      Set dc = db.AllDocuments\n\
+                                      updcount = 0\n\
+                                      Set parm = session.DocumentContext\n\
+                                      'if running from UI, then hardcode new rep name\n\
+                                      If parm IS NOTHING then\n\
+                                      repname = \"Isabel Silton\"\n\
+                                      'else, use passed parameter document value\n\
+                                      Else\n\
+                                      repname = parm.NewRep(0)\n\
+                                      End If\n\
+                                      'assign passed name to all unassigned, open problems\n\
+                                      For j = 1 To dc.Count\n\
+                                      Set doc = dc.GetNthDocument(j)\n\
+                                      If doc.SRep(0) = \"\" AND doc.Status(0) = \"Open\" Then\n\
+                                      doc.SRep = repname\n\
+                                      updcount = updcount+1\n\
+                                      End If\n\
+                                      Call doc.Save(True,False)\n\
+                                      Next\n\
+                                      Print \"Support Rep parameter = \"+repname\n\
+                                      Print \"Updated documents = \"+STR$(updcount)\n\
+                                      End Sub\n";
 
     /* Create Agent note and set note class to 
      * NOTE_CLASS_PRIVATE | NOTE_CLASS_FILTER 
@@ -502,8 +502,8 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
        null terminator.  */
     if (error = OSMemAlloc(0,strlen(szScript)+1,&hSource))
     {
-       PRINTLOG("Error: unable to alloc hSource.\n");
-       goto Exit1;
+        PRINTLOG("Error: unable to alloc hSource.\n");
+        goto Exit1;
     }
     sourceAllocated=1;
 
@@ -525,25 +525,25 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
 
     if (error )
     { 
-       PRINTLOG("Error: Error in AgentLSTextFormat.\n");
-       goto Exit1;
+        PRINTLOG("Error: Error in AgentLSTextFormat.\n");
+        goto Exit1;
     }
 
     /*** If any script error, retrieve the error text from hErrorBuffer 
     handle; otherwise, retrieve the IDE compliant script.  */
     if (hErrorBuffer)
     {
-       pFormattedLS=OSLock(char,hErrorBuffer);
-       PRINTLOG("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
-       OSUnlock(hErrorBuffer);
-       error=1;
-       goto Exit1;
+        pFormattedLS=OSLock(char,hErrorBuffer);
+        PRINTLOG("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
+        OSUnlock(hErrorBuffer);
+        error=1;
+        goto Exit1;
     }
     else if (hDest)
     {
-       OSMemFree(hErrorBuffer);
-       errorBufferAllocated=0;
-       pFormattedLS=OSLock(char,hDest);
+        OSMemFree(hErrorBuffer);
+        errorBufferAllocated=0;
+        pFormattedLS=OSLock(char,hDest);
 
        /*** When saving the formatted LS in the "$AssistAction" item, 
        the script should be ended with a null terminator, therefore, 
@@ -611,8 +611,8 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     /* Compile the LS script to object code.  */
     if (error = NSFNoteLSCompile(hDb, hAgent, 0))
     {
-       PRINTLOG("Error: unable to compile Agent note to database.\n");
-       goto Exit1;
+        PRINTLOG("Error: unable to compile Agent note to database.\n");
+        goto Exit1;
     }
 
     /* Finally update note */
@@ -623,10 +623,10 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     }
 Exit1:
     if (sourceAllocated)
-       OSMemFree(hSource);
+        OSMemFree(hSource);
 
     if (destAllocated)
-       OSMemFree(hDest);
+        OSMemFree(hDest);
 
     if (errorBufferAllocated)
        OSMemFree(hErrorBuffer);
@@ -682,12 +682,12 @@ STATUS  LNPUBLIC  AddScheduleAgent( DBHANDLE hDb )
     DWORD               dwBuffLen;
 
     char                szComment[] = "Once per month, search for all open \
-problems that are older than one month and escalate the priority \
-one level.";
+                                       problems that are older than one month and escalate the priority \
+                                       one level.";
     char                szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
-SELECT((DateOpened<OneMonthAgo) & (Status=\"Open\"));\n\
-FIELD Priority := @If(Priority=\"Low\";\"Medium\";\
-Priority=\"Medium\";\"High\";\"High\");";
+                                       SELECT((DateOpened<OneMonthAgo) & (Status=\"Open\"));\n\
+                                       FIELD Priority := @If(Priority=\"Low\";\"Medium\";\
+                                       Priority=\"Medium\";\"High\";\"High\");";
 
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT))
@@ -1048,13 +1048,13 @@ STATUS  LNPUBLIC  SetAgentTitle(NOTEHANDLE hAgent, char *szTitle)
     STATUS      error=NOERROR;
 
     if (error = NSFItemAppend(
-                hAgent,                       /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,     /* item flags */
-                FIELD_TITLE,                  /* item name: "$TITLE" */
-                (WORD) strlen(FIELD_TITLE),
-                TYPE_TEXT,                    /* item type */
-                szTitle,                      /* item value */
-                (DWORD) strlen(szTitle)))     /* value length */
+                              hAgent,                       /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,     /* item flags */
+                              FIELD_TITLE,                  /* item name: "$TITLE" */
+                              (WORD) strlen(FIELD_TITLE),
+                              TYPE_TEXT,                    /* item type */
+                              szTitle,                      /* item value */
+                              (DWORD) strlen(szTitle)))     /* value length */
     {
         PRINTLOG("Error: unable to set Title field of Agent note.\n");
     }
@@ -1078,13 +1078,13 @@ STATUS  LNPUBLIC  SetAgentComment(NOTEHANDLE hAgent, char *szComment)
     STATUS      error=NOERROR;
 
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                FILTER_COMMENT_ITEM,                /* item name: "$Comment" */
-                (WORD) strlen(FILTER_COMMENT_ITEM),
-                TYPE_TEXT,                          /* item type */
-                szComment,                          /* item value */
-                (DWORD) strlen(szComment)))         /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              FILTER_COMMENT_ITEM,                /* item name: "$Comment" */
+                              (WORD) strlen(FILTER_COMMENT_ITEM),
+                              TYPE_TEXT,                          /* item type */
+                              szComment,                          /* item value */
+                              (DWORD) strlen(szComment)))         /* value length */
     {
         PRINTLOG("Error: unable to set Comment field of Agent note.\n");
     }
@@ -1117,13 +1117,13 @@ STATUS  LNPUBLIC  SetAgentDesignFlags( NOTEHANDLE hAgent, char *szFlags )
     STATUS      error=NOERROR;
 
     if (error = NSFItemAppend(
-                hAgent,                      /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,    /* item flags */
-                DESIGN_FLAGS,                /* "$Flags" */
-                (WORD) strlen(DESIGN_FLAGS),
-                TYPE_TEXT,                   /* item type */
-                szFlags,                     /* item value */
-                (DWORD) strlen(szFlags)))    /* value length */
+                              hAgent,                      /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,    /* item flags */
+                              DESIGN_FLAGS,                /* "$Flags" */
+                              (WORD) strlen(DESIGN_FLAGS),
+                              TYPE_TEXT,                   /* item type */
+                              szFlags,                     /* item value */
+                              (DWORD) strlen(szFlags)))    /* value length */
     {
         PRINTLOG("Error: unable to set Design Flags field in Agent note.\n");
     }
@@ -1157,13 +1157,13 @@ STATUS  LNPUBLIC  SetAgentMachineName( NOTEHANDLE hAgent )
         return(error);
     }
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                FILTER_MACHINE_ITEM,                /* "$MachineName" */
-                (WORD) strlen(FILTER_MACHINE_ITEM),
-                TYPE_TEXT,                          /* item type */
-                szUserName,                         /* item value */
-                (DWORD) strlen(szUserName)))        /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              FILTER_MACHINE_ITEM,                /* "$MachineName" */
+                              (WORD) strlen(FILTER_MACHINE_ITEM),
+                              TYPE_TEXT,                          /* item type */
+                              szUserName,                         /* item value */
+                              (DWORD) strlen(szUserName)))        /* value length */
     {
         PRINTLOG("Error: unable to set Machine Name field in Agent note.\n");
     }
@@ -1219,13 +1219,13 @@ STATUS  LNPUBLIC  SetAgentType (NOTEHANDLE hAgent, WORD wActionType)
 
     TempNumber = (NUMBER) wActionType;
     if (error = NSFItemAppend(
-                hAgent,                        /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,      /* item flags */
-                ASSIST_TYPE_ITEM,              /* item name: "$AssistType" */
-                (WORD) strlen(ASSIST_TYPE_ITEM),
-                TYPE_NUMBER,                   /* item type */
-                &TempNumber,                   /* item value */
-                (DWORD) sizeof(TempNumber)))   /* value length */
+                              hAgent,                        /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,      /* item flags */
+                              ASSIST_TYPE_ITEM,              /* item name: "$AssistType" */
+                              (WORD) strlen(ASSIST_TYPE_ITEM),
+                              TYPE_NUMBER,                   /* item type */
+                              &TempNumber,                   /* item value */
+                              (DWORD) sizeof(TempNumber)))   /* value length */
     {
         PRINTLOG("Error: unable to set AssistType field in Agent note.\n");
     }
@@ -1255,13 +1255,13 @@ STATUS  LNPUBLIC  SetAgentLastInfo(NOTEHANDLE hAgent)
     EmptyTimeDate.Innards[0] = (DWORD) 0;
     EmptyTimeDate.Innards[1] = (DWORD) 0;
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                ASSIST_LASTRUN_ITEM,                /* $AssistLastRun */
-                (WORD) strlen(ASSIST_LASTRUN_ITEM),
-                TYPE_TIME,                          /* item type */
-                &EmptyTimeDate,                     /* item value */
-                (DWORD) sizeof(EmptyTimeDate)))     /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              ASSIST_LASTRUN_ITEM,                /* $AssistLastRun */
+                              (WORD) strlen(ASSIST_LASTRUN_ITEM),
+                              TYPE_TIME,                          /* item type */
+                              &EmptyTimeDate,                     /* item value */
+                              (DWORD) sizeof(EmptyTimeDate)))     /* value length */
     {
         PRINTLOG("Error: unable to set LastRun field of Agent note.\n");
         return(error);
@@ -1269,13 +1269,13 @@ STATUS  LNPUBLIC  SetAgentLastInfo(NOTEHANDLE hAgent)
 
     /* set empty DocCountRun info */
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                ASSIST_DOCCOUNT_ITEM,               /* "$AssistDocCount" */
-                (WORD) strlen(ASSIST_DOCCOUNT_ITEM),
-                TYPE_NUMBER,                        /* item type */
-                &DocCount,                          /* item value */
-                (DWORD) sizeof(DocCount)))          /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              ASSIST_DOCCOUNT_ITEM,               /* "$AssistDocCount" */
+                              (WORD) strlen(ASSIST_DOCCOUNT_ITEM),
+                              TYPE_NUMBER,                        /* item type */
+                              &DocCount,                          /* item value */
+                              (DWORD) sizeof(DocCount)))          /* value length */
     {
         PRINTLOG("Error: unable to set DocCount field of Agent note.\n");
     }
@@ -1305,13 +1305,13 @@ STATUS  LNPUBLIC  SetAgentAssistFlags( NOTEHANDLE hAgent, char *szFlags )
     STATUS      error=NOERROR;
 
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                ASSIST_FLAGS_ITEM,                  /* "$AssistFlags" */
-                (WORD) strlen(ASSIST_FLAGS_ITEM),
-                TYPE_TEXT,                          /* item type */
-                szFlags,                            /* item value */
-                (DWORD) strlen(szFlags)))           /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              ASSIST_FLAGS_ITEM,                  /* "$AssistFlags" */
+                              (WORD) strlen(ASSIST_FLAGS_ITEM),
+                              TYPE_TEXT,                          /* item type */
+                              szFlags,                            /* item value */
+                              (DWORD) strlen(szFlags)))           /* value length */
     {
         PRINTLOG("Error: unable to set AssistFlags field in Agent note.\n"); 
     }
@@ -1345,10 +1345,10 @@ STATUS  LNPUBLIC  SetAgentTrigger( NOTEHANDLE hAgent, WORD wTrigger )
 
     cType = (char)('0' + wTrigger);
     if (error = NSFItemSetText(
-                hAgent,
-                ASSIST_TRIGGER_ITEM,   /* "$AssistTrigger" */
-                &cType, 
-                (WORD)1))
+                               hAgent,
+                               ASSIST_TRIGGER_ITEM,   /* "$AssistTrigger" */
+                               &cType, 
+                               (WORD)1))
     {
         PRINTLOG("Error: unable to set AssistTrigger field in Agent note.\n");
     }
@@ -1406,11 +1406,11 @@ STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE hAgent, ODS_ASSISTSTRUCT AgentInfo )
         /*      Save the item to the note */
  
         if (error = NSFItemAppendByBLOCKID(hAgent, /* handle to note to append*/
-                        ITEM_SIGN,                 /* item flags */
-                        ASSIST_INFO_ITEM,          /* item name: "$AssistInfo" */
-                       sizeof(ASSIST_INFO_ITEM)-1,/* item length */
-                        bhValue,                   /* BLOCKID with value */
-                        dwItemLen, NULL))          /* value length */
+                                           ITEM_SIGN,                 /* item flags */
+                                           ASSIST_INFO_ITEM,          /* item name: "$AssistInfo" */
+                                           sizeof(ASSIST_INFO_ITEM)-1,/* item length */
+                                           bhValue,                   /* BLOCKID with value */
+                                           dwItemLen, NULL))          /* value length */
         {
             OSMemFree(hItem);
             goto Exit0;
@@ -1468,13 +1468,13 @@ STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE hAgent,
     AgentQuery.dwFlags = (DWORD)0;
 
     if (error = NSFItemAppend(
-                hAgent,                            /* handle to note to append to */
-                ITEM_SIGN,                         /* item flags */
-                ASSIST_QUERY_ITEM,                 /* item name: "$AssistQuery" */
-                (WORD) strlen(ASSIST_QUERY_ITEM),
-                TYPE_QUERY,                        /* item type */
-                &AgentQuery,                       /* item value */
-                (DWORD) AgentQuery.Header.Length)) /* value length */
+                              hAgent,                            /* handle to note to append to */
+                              ITEM_SIGN,                         /* item flags */
+                              ASSIST_QUERY_ITEM,                 /* item name: "$AssistQuery" */
+                              (WORD) strlen(ASSIST_QUERY_ITEM),
+                              TYPE_QUERY,                        /* item type */
+                              &AgentQuery,                       /* item value */
+                              (DWORD) AgentQuery.Header.Length)) /* value length */
     {
         PRINTLOG("Error: unable to append AssistQuery item to Agent note.\n");
         return (error);
@@ -1482,13 +1482,13 @@ STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE hAgent,
 
 /* Then apppend TYPE_ACTION item */ 
     if (error = NSFItemAppend(
-                hAgent,                           /* handle to note to append to */
-                ITEM_SIGN,                        /* item flags */
-                ASSIST_ACTION_ITEM,               /* item name: "$AssistAction" */
-                (WORD) strlen(ASSIST_ACTION_ITEM),
-                TYPE_ACTION,                      /* item type */
-                AgentAction,                      /* item value */
-                (DWORD) dwActionLen ))           /* value length */
+                              hAgent,                           /* handle to note to append to */
+                              ITEM_SIGN,                        /* item flags */
+                              ASSIST_ACTION_ITEM,               /* item name: "$AssistAction" */
+                              (WORD) strlen(ASSIST_ACTION_ITEM),
+                              TYPE_ACTION,                      /* item type */
+                              AgentAction,                      /* item value */
+                              (DWORD) dwActionLen ))           /* value length */
     {
         PRINTLOG("Error: unable to append AssistAction item to Agent note.\n");
         return (error);
@@ -1496,13 +1496,13 @@ STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE hAgent,
 
 /* Lastly, append "empty" TYPE_LSOBJECT (extra Action data) item */
     if (error = NSFItemAppend(
-                hAgent,                           /* handle to note to append to */
-                ITEM_SIGN,                        /* item flags */
-                ASSIST_EXACTION_ITEM,             /* item name: "$AssistAction_Ex" */
-                (WORD) strlen(ASSIST_EXACTION_ITEM),
-                TYPE_LSOBJECT,                    /* item type */
-                AgentAction,                      /* item value */
-                (DWORD) sizeof(WORD)))            /* value length */
+                              hAgent,                           /* handle to note to append to */
+                              ITEM_SIGN,                        /* item flags */
+                              ASSIST_EXACTION_ITEM,             /* item name: "$AssistAction_Ex" */
+                              (WORD) strlen(ASSIST_EXACTION_ITEM),
+                              TYPE_LSOBJECT,                    /* item type */
+                              AgentAction,                      /* item value */
+                              (DWORD) sizeof(WORD)))            /* value length */
     {
         PRINTLOG("Error: unable to append AssistActionEx item to Agent note.\n");
     }
@@ -1614,11 +1614,11 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
 
     /* finally append RunInfo object item */
     if (error = NSFItemAppendObject(hAgent, ITEM_SUMMARY,
-                            ASSIST_RUNINFO_ITEM, 
-                            (WORD) strlen (ASSIST_RUNINFO_ITEM),
-                            bidRunInfo,
-                            dwItemSize,
-                            TRUE))      /* Domino and Notes will deallocate memory */
+                                    ASSIST_RUNINFO_ITEM, 
+                                    (WORD) strlen (ASSIST_RUNINFO_ITEM),
+                                    bidRunInfo,
+                                    dwItemSize,
+                                    TRUE))      /* Domino and Notes will deallocate memory */
     {
         PRINTLOG("Error: unable to append %s item.\n", ASSIST_RUNINFO_ITEM);
         OSMemFree(bidRunInfo.pool);
