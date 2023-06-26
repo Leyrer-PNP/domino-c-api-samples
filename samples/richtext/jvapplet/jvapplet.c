@@ -142,16 +142,16 @@ STATUS InsertJavaAppletAttachment(NOTEHANDLE hNote,
 int main (int argc, char *argv[])
 {
     char       *db_filename;
-    DHANDLE       hNewNote;
+    DHANDLE     hNewNote;
     DBHANDLE    hDbNSFFile;
     STATUS      sError = NOERROR;
     char        database_name[STRING_LENGTH];
 
-    /*   Read in the database name.  */
+    /* Read in the database name. */
     db_filename = database_name;
     ProcessArgs(argc, argv, db_filename);
 
-    /*   Start by calling Notes Init.  */
+    /* Start by calling Notes Init. */
 
     if (sError = NotesInitExtended (argc, argv))
     {
@@ -194,11 +194,11 @@ int main (int argc, char *argv[])
      */
 
     if (sError = NSFNoteAttachFile(hNewNote,
-                                ITEM_NAME_ATTACHMENT,
-                                (WORD) strlen(ITEM_NAME_ATTACHMENT),
-                                CodeStringFullPath,
-                                CodeString,
-                                HOST_STREAM))
+                                   ITEM_NAME_ATTACHMENT,
+                                   (WORD) strlen(ITEM_NAME_ATTACHMENT),
+                                   CodeStringFullPath,
+                                   CodeString,
+                                   HOST_STREAM))
      {
         PRINTLOG("Error: Couldn't find the class file at %s\n",CodeStringFullPath);
         goto exitCloseNote;
@@ -221,14 +221,14 @@ exitCloseDB:
 
 
 exit0:
-	if (sError)
-	{
-		PRINTERROR(sError, "NSFNoteUpdate");
-	}
-	else
-	{
-		PRINTLOG("\nProgram completed successfully.\n");
-	}
+    if (sError)
+    {
+        PRINTERROR(sError, "NSFNoteUpdate");
+    }
+    else
+    {
+        PRINTLOG("\nProgram completed successfully.\n");
+    }
 
     NotesTerm();
     return(sError);
@@ -253,11 +253,11 @@ exit0:
 STATUS InsertRichText(NOTEHANDLE hNote)
 
 {
-    DHANDLE     hMem;
-    STATUS    sError=NOERROR;   /* Domino and Notes error status        */
+    DHANDLE    hMem;
+    STATUS     sError=NOERROR;   /* Domino and Notes error status  */
     char FAR  *pCDBuffer;
     char FAR  *pCDBufferStart;
-    WORD      wItemSize = 0, wBufferSize = MAXONESEGSIZE;
+    WORD       wItemSize = 0, wBufferSize = MAXONESEGSIZE;
 
 /*
  *  Allocate a buffer.
@@ -357,7 +357,7 @@ STATUS InsertJavaAppletLink(NOTEHANDLE hNote,
                  WORD wBufferSize)
 
 {
-    STATUS sError = NOERROR;
+    STATUS                  sError = NOERROR;
     CDBEGINRECORD           BeginRecord;
     CDHOTSPOTBEGIN          V4HotSpotBegin;
     ACTIVEOBJECT            ao;
@@ -366,21 +366,21 @@ STATUS InsertJavaAppletLink(NOTEHANDLE hNote,
     CDENDRECORD             EndRecord;
     CDHOTSPOTEND            V4HotSpotEnd;
   
-    FORMULAHANDLE hFormula1;
-    FORMULAHANDLE hFormula2;
-    char * pFormula1;
-    char * pFormula2;
-    WORD   wFormulaLen1;
-    WORD   wFormulaLen2;
-    WORD   wdc;
+    FORMULAHANDLE           hFormula1;
+    FORMULAHANDLE           hFormula2;
+    char *                  pFormula1;
+    char *                  pFormula2;
+    WORD                    wFormulaLen1;
+    WORD                    wFormulaLen2;
+    WORD                    wdc;
 	
     /* Info Needed to Sign Variable Data */
-    DHANDLE		hMem, hSignature;
-    DWORD		dwSigLen;
-    BLOCK		bSigData = NULLBLOCK;
-    char FAR	        *pVariableData, *pBeginVariData;
-    WORD		wVariSize = MAXONESEGSIZE, TotalVariLen=0;
-    char		*pData;	
+    DHANDLE		    hMem, hSignature;
+    DWORD		    dwSigLen;
+    BLOCK		    bSigData = NULLBLOCK;
+    char FAR	           *pVariableData, *pBeginVariData;
+    WORD		    wVariSize = MAXONESEGSIZE, TotalVariLen=0;
+    char		   *pData;	
 
 /*
  *  Compile Java Applet's parameter.
@@ -748,14 +748,14 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
 
     if (argc != 2)  
     {
-      printf("Enter name of database: ");      
-      fflush (stdout);
-      gets(db_filename);
+        printf("Enter name of database: ");      
+        fflush (stdout);
+        gets(db_filename);
     }    
     else
     {
-         strcpy(db_filename, argv[1]);    
-      } /* end if */
+        strcpy(db_filename, argv[1]);    
+    }   /* end if */
 
 } /* ProcessArgs */
 

@@ -61,22 +61,22 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char     db_filename[STRING_LENGTH];        /* pathname of the database */
-   char     view_name[STRING_LENGTH];          /* name of the view we'll read */
-   char     text_key[STRING_LENGTH];           /* key to search for in view */
-   DBHANDLE db_handle;                         /* handle of the database */
-   NOTEID      view_id;                        /* note id of the view */
-   HCOLLECTION coll_handle;                    /* collection handle */
-   COLLECTIONPOSITION coll_pos;                /* position within collection */
-   DHANDLE       buffer_handle;                /* handle to buffer of note ids */
-   NOTEID      *id_list;                       /* pointer to a note id */
-   DWORD     notes_found;                      /* number of notes found */
-   DWORD     match_size;                       /* number of notes matching key */
-   DWORD     i;                                /* a counter */
-   DWORD     note_count = 0;                   /* ordinal number of the note */
-   STATUS   error = NOERROR;                   /* return status from API calls */
-   WORD     signal_flag;                       /* signal and share warning flag */
-   BOOL     FirstTime = TRUE;                  /* used in NIFReadEntries loop */
+   char               db_filename[STRING_LENGTH];        /* pathname of the database */
+   char               view_name[STRING_LENGTH];          /* name of the view we'll read */
+   char               text_key[STRING_LENGTH];           /* key to search for in view */
+   DBHANDLE           db_handle;                         /* handle of the database */
+   NOTEID             view_id;                           /* note id of the view */
+   HCOLLECTION        coll_handle;                       /* collection handle */
+   COLLECTIONPOSITION coll_pos;                          /* position within collection */
+   DHANDLE            buffer_handle;                     /* handle to buffer of note ids */
+   NOTEID             *id_list;                          /* pointer to a note id */
+   DWORD              notes_found;                       /* number of notes found */
+   DWORD              match_size;                        /* number of notes matching key */
+   DWORD              i;                                 /* a counter */
+   DWORD              note_count = 0;                    /* ordinal number of the note */
+   STATUS             error = NOERROR;                   /* return status from API calls */
+   WORD               signal_flag;                       /* signal and share warning flag */
+   BOOL               FirstTime = TRUE;                  /* used in NIFReadEntries loop */
 
    if (error = NotesInitExtended (argc, argv))
    {
@@ -113,16 +113,16 @@ int main(int argc, char *argv[])
 /* Get a collection of notes using this view. */
 
    if (error = NIFOpenCollection(
-         db_handle,      /* handle of db with view */
-         db_handle,      /* handle of db with data */
-         view_id,        /* note id of the view */
-         0,              /* collection open flags */
-         NULLHANDLE,     /* handle to unread ID list (input and return) */
-         &coll_handle,   /* collection handle (return) */
-         NULLHANDLE,     /* handle to open view note (return) */
-         NULL,           /* universal note id of view (return) */
-         NULLHANDLE,     /* handle to collapsed list (return) */
-         NULLHANDLE))    /* handle to selected list (return) */
+                      db_handle,      /* handle of db with view */
+                      db_handle,      /* handle of db with data */
+                      view_id,        /* note id of the view */
+                      0,              /* collection open flags */
+                      NULLHANDLE,     /* handle to unread ID list (input and return) */
+                      &coll_handle,   /* collection handle (return) */
+                      NULLHANDLE,     /* handle to open view note (return) */
+                      NULL,           /* universal note id of view (return) */
+                      NULLHANDLE,     /* handle to collapsed list (return) */
+                      NULLHANDLE))    /* handle to selected list (return) */
    {
       NSFDbClose (db_handle);
       PRINTERROR (error,"NIFOpenCollection");  
@@ -136,13 +136,13 @@ first such note is in the collection, and a count of how many such notes
 there are. Check the return code for "not found" versus a real error. */
 
    error = NIFFindByName (
-          coll_handle,       /* collection to look in */
-          text_key,          /* string to match on */
-          FIND_CASE_INSENSITIVE, /* match rules */
-            /* another FIND_ option to add to experiment with is
-               FIND_PARTIAL - to do wildcard searches             */
-          &coll_pos,         /* where match begins (return) */
-          &match_size);      /* how many match (return) */
+                  coll_handle,           /* collection to look in */
+                  text_key,              /* string to match on */
+                  FIND_CASE_INSENSITIVE, /* match rules */
+                                         /* another FIND_ option to add to experiment with is
+                                            FIND_PARTIAL - to do wildcard searches */
+                  &coll_pos,             /* where match begins (return) */
+                  &match_size);          /* how many match (return) */
 
    if (ERR(error) == ERR_NOT_FOUND) 
    {
@@ -168,19 +168,19 @@ there are. Check the return code for "not found" versus a real error. */
    {
 
       if (error = NIFReadEntries(
-             coll_handle,         /* handle to this collection */
-             &coll_pos,           /* where to start in collection */
-             (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
-                                  /* order to use when skipping */
-             FirstTime ? 0L : 1L, /* number to skip */
-             NAVIGATE_NEXT,       /* order to use when reading */
-             match_size - note_count,    /* max number to read */
-             READ_MASK_NOTEID,    /* info we want */
-             &buffer_handle,      /* handle to info (return)   */
-             NULL,                /* length of buffer (return) */
-             NULL,                /* entries skipped (return) */
-             &notes_found,        /* entries read (return) */
-             &signal_flag))       /* signal and share warnings (return) */
+                         coll_handle,         /* handle to this collection */
+                         &coll_pos,           /* where to start in collection */
+                         (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
+                                              /* order to use when skipping */
+                         FirstTime ? 0L : 1L, /* number to skip */
+                         NAVIGATE_NEXT,       /* order to use when reading */
+                         match_size - note_count,    /* max number to read */
+                         READ_MASK_NOTEID,    /* info we want */
+                         &buffer_handle,      /* handle to info (return)   */
+                         NULL,                /* length of buffer (return) */
+                         NULL,                /* entries skipped (return) */
+                         &notes_found,        /* entries read (return) */
+                         &signal_flag))       /* signal and share warnings (return) */
 
       {
          NIFCloseCollection (coll_handle);

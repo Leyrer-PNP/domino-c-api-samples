@@ -87,26 +87,26 @@
 STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 {
 
-char QueueName[] = "TEST_EVENT_QUEUE";   /*  Name of queue that will be created. */
-char InputDestName[] = "EVENT.NSF"; /*  A database name to associate with   */
-                                    /*  events of a certain type.           */
+char            QueueName[] = "TEST_EVENT_QUEUE";   /*  Name of queue that will be created. */
+char            InputDestName[] = "EVENT.NSF";      /*  A database name to associate with   */
+                                                    /*  events of a certain type.           */
 
-char OutputDestName[20];            /*  A buffer in which to read the name  */
-                                    /*  associated with a certain event.    */
-                                    /*  (Probably will be the same as       */
-                                    /*  InputDestName, but this is defined  */
-                                    /*  seperately for demonstration        */
-                                    /*  purposes).                          */
+char            OutputDestName[20];                 /*  A buffer in which to read the name  */
+                                                    /*  associated with a certain event.    */
+                                                    /*  (Probably will be the same as       */
+                                                    /*  InputDestName, but this is defined  */
+                                                    /*  seperately for demonstration        */
+                                                    /*  purposes).                          */
 
-BOOL   bDestNameReturned;           /*  TRUE if a name returned by call to  */
-                                    /*  EventGetDestName.                   */
+BOOL            bDestNameReturned;                  /*  TRUE if a name returned by call to  */
+                                                    /*  EventGetDestName.                   */
                                     
-DHANDLE hEventData;                  /*  A handle to event specific data.    */
-STATUS sError;
-BYTE far *pBuf;
+DHANDLE         hEventData;                         /*  A handle to event specific data.    */
+STATUS          sError;
+BYTE far       *pBuf;
 EVENT_DATA far *pEventData;
-BYTE   DataBuf[64];                 /* A temp buf to hold event data.       */
-BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
+BYTE            DataBuf[64];                        /* A temp buf to hold event data.       */
+BYTE            MessageBuf[128];                    /* A buffer in which to build log msgs. */
 
 /*
  *  Initialize this task. 
@@ -220,7 +220,7 @@ BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
 /*
  *  We get here when the server notifies us that it is time to terminate.  
  *  This is usually when the user has entered "quit" to the server console. 
- * Clean up anything we have been doing.
+ *  Clean up anything we have been doing.
  */
 
 #if defined (OS400)

@@ -151,17 +151,17 @@ STATUS RFC3339TimeConversion()
 {
     STATUS sError = NOERROR;
     
-    char rfc3339Date[STRING_LENGTH] = { 0 };
-    char timeDateBuf[STRING_LENGTH] = { 0 };
-    char errBuf[STRING_LENGTH] = { 0 };
-    char subStr[STRING_LENGTH] = { 0 };
-    char subStr2[STRING_LENGTH] = { 0 };
-    WORD timedateLen = 0;
-    char sZone[STRING_LENGTH] = { 0 };
-    TIMEDATE td = { 0 };
-    char *pcrfc3339Date = (char*) rfc3339Date;
-    time_t rawtime;
-    short count = 0;
+    char     rfc3339Date[STRING_LENGTH] = { 0 };
+    char     timeDateBuf[STRING_LENGTH] = { 0 };
+    char     errBuf[STRING_LENGTH]      = { 0 };
+    char     subStr[STRING_LENGTH]      = { 0 };
+    char     subStr2[STRING_LENGTH]     = { 0 };
+    WORD     timedateLen                = 0;
+    char     sZone[STRING_LENGTH]       = { 0 };
+    TIMEDATE td                         = { 0 };
+    char     *pcrfc3339Date             = (char*) rfc3339Date;
+    time_t   rawtime;
+    short    count                      = 0;
  
     do 
     {

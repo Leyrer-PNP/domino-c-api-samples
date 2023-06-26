@@ -272,11 +272,11 @@ int main(int argc, char *argv[])
 {
 
     char        szNSFFile[] = "makeform.nsf";
-    DHANDLE       hNewNote;
+    DHANDLE     hNewNote;
     DBHANDLE    hDbNSFFile;
     STATUS      sError = NOERROR;
 
-    /*   Start by calling Notes Init.  */
+    /* Start by calling Notes Init. */
 
     if (sError = NotesInitExtended (argc, argv))
     {
@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
 STATUS InsertRichText(NOTEHANDLE hNote)
 
 {
-    DHANDLE     hMem;
+    DHANDLE   hMem;
     STATUS    sError;         /* Domino and Notes error status        */
     char FAR  *pCDBuffer;
     char FAR  *pCDBufferStart;
@@ -802,21 +802,21 @@ STATUS InsertButton(NOTEHANDLE hNote,
                     WORD wBufferSize)
 
 {
-    STATUS         sError;                   /* Domino and Notes error status        */
+    STATUS         sError;            /* Domino and Notes error status */
     CDHOTSPOTBEGIN pHotSpotBegin;
     char           szButtonText[] = "Print...";
     char           szButtonFormula[] = "@Command([FilePrint])";
     char far      *bufPtr;
     FORMULAHANDLE  hFormula;
-    char *pFormula;        /* pointer to compiled formula. */
-    WORD wFormulaLen = 0;
-    WORD wdc;              /* "We Don't Care" - We're not interested in some
-                            * of the info passed back by NSFFormulaCompile(),
-                            * but the function call requires the addresses of
-                            * several words to be passed in. The address of
-                            * this word is used for all parameters in which
-                            * we have no interest.
-                            */
+    char          *pFormula;         /* pointer to compiled formula. */
+    WORD           wFormulaLen = 0;
+    WORD           wdc;              /* "We Don't Care" - We're not interested in some
+                                      * of the info passed back by NSFFormulaCompile(),
+                                      * but the function call requires the addresses of
+                                      * several words to be passed in. The address of
+                                      * this word is used for all parameters in which
+                                      * we have no interest.
+                                      */
 
     /*
      * Set various flags
@@ -868,7 +868,7 @@ STATUS InsertButton(NOTEHANDLE hNote,
             pFormula,
             wFormulaLen);
 
-    OSUnlockObject(hFormula);    /* unlock and free formula's memory.  */
+    OSUnlockObject(hFormula);    /* unlock and free formula's memory. */
 
     OSMemFree(hFormula);
 
@@ -1160,11 +1160,11 @@ STATUS InsertAction(NOTEHANDLE hNote,
  */
 
     if (sError = PutAction(ppCDBuffer,
-                      (char *)ToInfo,
-                      (char *)SubjectField,
-                      (char *)BodyField,
-                      (WORD)(wBufferSize - *pwItemSize),
-                      pwItemSize))
+                          (char *)ToInfo,
+                          (char *)SubjectField,
+                          (char *)BodyField,
+                          (WORD)(wBufferSize - *pwItemSize),
+                          pwItemSize))
     {
         return (ERR(sError));
     }
@@ -1179,7 +1179,7 @@ STATUS InsertAction(NOTEHANDLE hNote,
     }
 
 /*
- * Done with the CDTEXT item.  Now insert a CDHOTSPOTEND item.
+ * Done with the CDTEXT item. Now insert a CDHOTSPOTEND item.
  */
 
     if (sError = PutV4HotSpotEnd(ppCDBuffer,
@@ -1423,8 +1423,8 @@ STATUS InsertFile(
  */
 
     if (sError = PutHotSpotEnd(ppCDBuffer,
-                           (WORD)(wBufferSize - *pwItemSize),
-                           pwItemSize))
+                              (WORD)(wBufferSize - *pwItemSize),
+                              pwItemSize))
     {
         return (ERR(sError));
     }
@@ -1472,14 +1472,14 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
                     WORD wBufferSize)
 
 {
-    STATUS         sError=NOERROR;  /* Domino and Notes error status  */
-    CDHOTSPOTBEGIN pHotSpotBegin;
-    CDBEGINRECORD  pBeginRecord;
-    CDENDRECORD    pEndRecord;
-    char far      *bufPtr;
-    char szButtonText[]="LS Button";
+    STATUS              sError=NOERROR;  /* Domino and Notes error status  */
+    CDHOTSPOTBEGIN      pHotSpotBegin;
+    CDBEGINRECORD       pBeginRecord;
+    CDENDRECORD         pEndRecord;
+    char far           *bufPtr;
+    char                szButtonText[]="LS Button";
 
-    char                *pFormattedLS;
+    char               *pFormattedLS;
     int                 FormattedLSLen;
 
     int                 sourceAllocated=0;
@@ -1487,33 +1487,33 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
     int                 contextAllocated=0;
     int                 errorBufferAllocated=0;
 
-    DHANDLE               hSource=NULL;
-    DHANDLE               hDest=NULL;
-    DHANDLE               hErrorBuffer=NULL;
-    DHANDLE               hData=NULLHANDLE;
-    SCRIPTCONTEXTDESCR * pSCD;
+    DHANDLE             hSource=NULL;
+    DHANDLE             hDest=NULL;
+    DHANDLE             hErrorBuffer=NULL;
+    DHANDLE             hData=NULLHANDLE;
+    SCRIPTCONTEXTDESCR *pSCD;
     
-    static char szScript[] = "Sub Click(Source As Button)\n\
- \tMsgbox(\"I love LotusScript.\")\n\
- End Sub\n";
+    static char         szScript[] = "Sub Click(Source As Button)\n\
+                                     \tMsgbox(\"I love LotusScript.\")\n\
+                                      End Sub\n";
 
 
     /* Following steps will convert raw Lotus Script to a format
-       that IDE uses when rendering the script.  */
+       that IDE uses when rendering the script. */
 
-    /*** Be sure to allocate enough memory for the script and the 
-       null terminator.  */
+    /* Be sure to allocate enough memory for the script and the 
+       null terminator. */
     if (sError = OSMemAlloc(0,strlen(szScript)+1,&hSource))
        return(ERR_MEMORY);
     sourceAllocated=1;
 
-    /*** Copy the raw Lotus Script into the newly allocated memory 
-    space. */
+    /* Copy the raw Lotus Script into the newly allocated memory 
+       space. */
     pFormattedLS=OSLock(char,hSource);
     strcpy(pFormattedLS,szScript);
     OSUnlock(hSource);
 
-    /*** Set up SCRIPTCONTEXTDESCR */
+    /* Set up SCRIPTCONTEXTDESCR */
     if (sError=OSMemAlloc(0,sizeof(SCRIPTCONTEXTDESCR),&hData))
        goto Exit1;
     contextAllocated=1;
@@ -1522,11 +1522,11 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
     strcpy(pSCD->szNameOfContextClass,"BUTTON");
     OSUnlock(hData);
       
-    /*** Convert the raw Lotus Script to IDE compliant format.  */
+    /* Convert the raw Lotus Script to IDE compliant format. */
     sError = AgentLSTextFormat(hSource,&hDest, &hErrorBuffer,0,&hData);
 
-    /*** Free hSource handle, and update memory allocation flags for
-    hSource, hDest and hErrorBuffer handles. */
+    /* Free hSource handle, and update memory allocation flags for
+       hSource, hDest and hErrorBuffer handles. */
     OSMemFree(hSource);
     sourceAllocated=0;
     destAllocated=1;
@@ -1538,8 +1538,8 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
        goto Exit1;
     }
 
-    /*** If any script error, retrieve the error text from hErrorBuffer 
-    handle; otherwise, retrieve the IDE compliant script.  */
+    /* If any script error, retrieve the error text from hErrorBuffer 
+       handle; otherwise, retrieve the IDE compliant script. */
     if (hErrorBuffer)
     {
        pFormattedLS=OSLock(char,hErrorBuffer);
@@ -1554,16 +1554,16 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
        errorBufferAllocated=0;
        pFormattedLS=OSLock(char,hDest);
 
-       /*** When saving the formatted LS in the buffer,
-       the script should be ended with a null terminator, therefore, 
-       we'll add one to the strlen(pFormattedLS) and save it in the 
-       FormattedLSLen variable.  */
+       /* When saving the formatted LS in the buffer,
+          the script should be ended with a null terminator, therefore, 
+          we'll add one to the strlen(pFormattedLS) and save it in the 
+          FormattedLSLen variable. */
 
        FormattedLSLen=strlen(pFormattedLS)+1;
     }
    
 /*
- * *** write CDBEGINRECORD ***
+ * write CDBEGINRECORD
  */
     pBeginRecord.Signature = SIG_CD_V4HOTSPOTBEGIN;
     pBeginRecord.Version = 0;
@@ -1578,12 +1578,12 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
     ODSWriteMemory( (void far * far *)ppCDBuffer, _CDBEGINRECORD, &pBeginRecord, 1 );
 
 /*
- * *** write CDHOTSPOTBEGIN ***
+ * write CDHOTSPOTBEGIN
  */
 
- /*
-  * Set various flags
-  */
+/*
+ * Set various flags
+ */
 
     pHotSpotBegin.Type = HOTSPOTREC_TYPE_BUTTON;
     pHotSpotBegin.Flags = HOTSPOTREC_RUNFLAG_BEGIN |
@@ -1609,7 +1609,7 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
     ODSWriteMemory( (void far * far *)ppCDBuffer, _CDHOTSPOTBEGIN, &pHotSpotBegin, 1 );
 
 /*
- * *** write button content. ***
+ * write button content.
  */
 
     memcpy(*ppCDBuffer,
@@ -1628,8 +1628,8 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
 #endif
 
 /*
- * *** Done with the CDHOTSPOTBEGIN. Now add a CDBUTTON item to define the
- * appearance of the button being inserted. ***
+ * Done with the CDHOTSPOTBEGIN. Now add a CDBUTTON item to define the
+ * appearance of the button being inserted.
  */
 
     bufPtr = *ppCDBuffer;
@@ -1642,7 +1642,7 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
     *pwItemSize += *ppCDBuffer - bufPtr;
 
 /*
- * *** Done with the CDBUTTON item.  Now insert a CDHOTSPOTEND item. ***
+ * Done with the CDBUTTON item.  Now insert a CDHOTSPOTEND item.
  */
 
     if (sError = PutV4HotSpotEnd(ppCDBuffer,
@@ -1651,7 +1651,7 @@ STATUS InsertLSButton(NOTEHANDLE hNote,
        goto Exit1;
 
 /*
- * *** write CDENDRECORD ***
+ * write CDENDRECORD
  */
     pEndRecord.Signature = SIG_CD_V4HOTSPOTEND;
     pEndRecord.Version = 0;

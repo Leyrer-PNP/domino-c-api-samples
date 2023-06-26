@@ -58,13 +58,13 @@
 #define STRING_LENGTH   256
 
 /* cleanup flag values */
-#define DO_NOTHING      0x0000
-#define CLOSE_DB        0x0001
+#define DO_NOTHING               0x0000
+#define CLOSE_DB                 0x0001
 #define CLOSE_COLLECTION         0x0002
-#define FREE_KEY1       0x0004
+#define FREE_KEY1                0x0004
 #define FREE_TRANSLATEDKEY       0x0008
-#define FREE_KEY2       0x0010
-#define FREE_PKEY       0x0011
+#define FREE_KEY2                0x0010
+#define FREE_PKEY                0x0011
 #define FIND_SPECIFIC_MATCHES    0x00400000
 
 typedef unsigned short ushort;
@@ -90,8 +90,8 @@ void  ProcessArgs (int argc, char *argv[],
 STATUS far PASCAL NIFFindByKeyCallBack(NIFFINDBYKEYCTX *Ctx)
 {
        STATUS stat = NOERROR;
-       BYTE *p = NULL;
-       DWORD dwCurSpot = Ctx->TotalDataInBuffer;
+       BYTE   *p = NULL;
+       DWORD  dwCurSpot = Ctx->TotalDataInBuffer;
 
        if (Ctx->UserDataLen <= Ctx->TotalDataInBuffer + Ctx->wSizeOfChunk)
        {
@@ -117,12 +117,12 @@ STATUS far PASCAL NIFFindByKeyCallBack(NIFFINDBYKEYCTX *Ctx)
  */
 STATUS PrintSummaryValues(ITEM_TABLE *pITable)
 {
-       STATUS stat = NOERROR;
-       BYTE *p, *pvalbuf;
-       ushort *pinamlength = NULL;
-       ushort *pidatalength = NULL;
-       int vlen = 0;
-       BYTE tmp[STRING_LENGTH] = { 0 };
+       STATUS  stat = NOERROR;
+       BYTE    *p, *pvalbuf;
+       ushort  *pinamlength       = NULL;
+       ushort  *pidatalength      = NULL;
+       int     vlen               = 0;
+       BYTE    tmp[STRING_LENGTH] = { 0 };
        p=pvalbuf=NULL;
 
        pinamlength = (ushort*)&pITable[1];
@@ -143,36 +143,36 @@ int main (int argc, char *argv[])
 
 /* Local data declarations */
 
-   STATUS         error = NOERROR;
-   STATUS         returnCode = NOERROR;
-   WORD           cleanup = DO_NOTHING;
-   char           dbFilename[STRING_LENGTH] = { 0 }, ViewName[STRING_LENGTH] = { 0 };    
-   DBHANDLE       hDb = NULLHANDLE;            
-   NOTEID         ViewID; 
-   HCOLLECTION    hCollection = NULLHCOLLECTION; 
+   STATUS                error = NOERROR;
+   STATUS                returnCode = NOERROR;
+   WORD                  cleanup = DO_NOTHING;
+   char                  dbFilename[STRING_LENGTH] = { 0 }, ViewName[STRING_LENGTH] = { 0 };    
+   DBHANDLE              hDb = NULLHANDLE;            
+   NOTEID                ViewID; 
+   HCOLLECTION           hCollection = NULLHCOLLECTION; 
    COLLECTIONPOSITION    posCollection; 
-   DHANDLE        hBuffer = NULLHANDLE, rethBuffer = NULLHANDLE; 
-   NOTEHANDLE     hNote = NULLHANDLE; 
-   NOTEID        *pNoteID = NULL;
-   DWORD          NumNotesFound = 0;     
-   DWORD          NumNotesMatch = 0;     
-   DWORD          NoteCount = 0;     
-   char          *Key1 = NULL;               /* primary input key */
-   char          *TranslatedKey = NULL;      /* Translated string key */
-   char          *Key2 = NULL;               /* secondary input key */
-   char          *pTemp = NULL, *pKey = NULL;
-   WORD           Item1ValueLen = 0, Item2ValueLen = 0, signal_flag;
-   WORD           TranslatedKeyLen = 0;
-   BOOL           FirstTime = TRUE;    
-   BYTE		 *tmp = NULL;
-   ITEM_TABLE     Itemtbl = { 0 };
-   ITEM_TABLE     *pITable = NULL;
-   ITEM           Item = { 0 };
-   WORD           Word = 0;
-   double         Double = 0, dValue = 0;
-   NIFFINDBYKEYCTX ctx = { 0 };
-   int i = 0;
-   DWORD ReturnFlags = 0;
+   DHANDLE               hBuffer = NULLHANDLE, rethBuffer = NULLHANDLE; 
+   NOTEHANDLE            hNote = NULLHANDLE; 
+   NOTEID                *pNoteID = NULL;
+   DWORD                 NumNotesFound = 0;     
+   DWORD                 NumNotesMatch = 0;     
+   DWORD                 NoteCount = 0;     
+   char                  *Key1 = NULL;               /* primary input key */
+   char                  *TranslatedKey = NULL;      /* Translated string key */
+   char                  *Key2 = NULL;               /* secondary input key */
+   char                  *pTemp = NULL, *pKey = NULL;
+   WORD                  Item1ValueLen = 0, Item2ValueLen = 0, signal_flag;
+   WORD                  TranslatedKeyLen = 0;
+   BOOL                  FirstTime = TRUE;    
+   BYTE		         *tmp = NULL;
+   ITEM_TABLE            Itemtbl = { 0 };
+   ITEM_TABLE            *pITable = NULL;
+   ITEM                  Item = { 0 };
+   WORD                  Word = 0;
+   double                Double = 0, dValue = 0;
+   NIFFINDBYKEYCTX       ctx = { 0 };
+   int                   i = 0;
+   DWORD                 ReturnFlags = 0;
 
    hBuffer = rethBuffer = NULLHANDLE;
    memset( &ctx, sizeof(NIFFINDBYKEYCTX), 0 );
@@ -243,16 +243,16 @@ int main (int argc, char *argv[])
 /* Get the current collection using this view. */
 
    if ( error = NIFOpenCollection (
-    hDb,           /* handle of db with view */
-    hDb,           /* handle of db with data */
-    ViewID,        /* noteID  of the view */
-    0,             /* collection open flags */
-    NULLHANDLE,    /* handle to unread ID list (input and return) */
-    &hCollection,  /* collection handle (return) */
-    NULLHANDLE,    /* handle to open view note (return) */
-    NULL,          /* universal noteID  of view (return) */
-    NULLHANDLE,    /* handle to collapsed list (return) */
-    NULLHANDLE) )   /* handle to selected list (return) */
+                      hDb,           /* handle of db with view */
+                      hDb,           /* handle of db with data */
+                      ViewID,        /* noteID  of the view */
+                      0,             /* collection open flags */
+                      NULLHANDLE,    /* handle to unread ID list (input and return) */
+                      &hCollection,  /* collection handle (return) */
+                      NULLHANDLE,    /* handle to open view note (return) */
+                      NULL,          /* universal noteID  of view (return) */
+                      NULLHANDLE,    /* handle to collapsed list (return) */
+                      NULLHANDLE) )   /* handle to selected list (return) */
       goto EXIT1;
 
    cleanup |= CLOSE_COLLECTION;
@@ -260,11 +260,11 @@ int main (int argc, char *argv[])
    /* Translate the input key to LMBCS */
 #ifndef OS400
    TranslatedKeyLen = OSTranslate (
-      OS_TRANSLATE_NATIVE_TO_LMBCS,
-      Key1,
-      (WORD) strlen (Key1),
-      TranslatedKey,
-      STRING_LENGTH);
+                          OS_TRANSLATE_NATIVE_TO_LMBCS,
+                          Key1,
+                          (WORD) strlen (Key1),
+                          TranslatedKey,
+                          STRING_LENGTH);
 #else
    strncpy( TranslatedKey, Key1, STRING_LENGTH );
    TranslatedKeyLen = strlen( TranslatedKey );
@@ -343,12 +343,12 @@ int main (int argc, char *argv[])
    }
 
    error = NIFFindByKeyExtended4 (
-       hCollection,
-       pKey,          /* refer to key   */
-       FIND_CASE_INSENSITIVE|FIND_AND_READ_MATCHES | FIND_SPECIFIC_MATCHES | FIND_FIRST_EQUAL,     /* match rules */
-       ReturnFlags, NULL,
-       &posCollection, /* where match begins (return) */
-       &NumNotesMatch, NULL, NULL, NULL, NIFFindByKeyCallBack, &ctx, 1);/* how many match (return) */
+                        hCollection,
+                        pKey,                                                                                   /* refer to key   */
+                        FIND_CASE_INSENSITIVE|FIND_AND_READ_MATCHES | FIND_SPECIFIC_MATCHES | FIND_FIRST_EQUAL, /* match rules */
+                        ReturnFlags, NULL,
+                        &posCollection,                                                  /* where match begins (return) */
+                        &NumNotesMatch, NULL, NULL, NULL, NIFFindByKeyCallBack, &ctx, 1);/* how many match (return) */
 
        
 
@@ -393,19 +393,19 @@ int main (int argc, char *argv[])
         /* Read entries in the collection */
 
       if (error = NIFReadEntries (
-                  hCollection,         /* handle to this collection           */
-                  &posCollection,      /* where to start in collection        */
-                  (WORD)(FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
-                  /* order to use when skipping */
-                  FirstTime ? 0L : 1L, /* number to skip i                    */
-                  NAVIGATE_NEXT,       /* order to use when reading           */
-                  NumNotesMatch - NoteCount,  /* max number to read           */
-                  READ_MASK_NOTEID,    /* info we want                        */
-                  &hBuffer,            /* handle to info (return)             */
-                  NULL,                /* length of buffer (return)           */
-                  NULL,                /* entries skipped (return)            */
-                  &NumNotesFound,      /* entries read (return)               */
-                  &signal_flag) )       /* signal and share warnings (return)  */
+                          hCollection,                /* handle to this collection */
+                          &posCollection,             /* where to start in collection */
+                          (WORD)(FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
+                                                      /* order to use when skipping */
+                          FirstTime ? 0L : 1L,        /* number to skip i */
+                          NAVIGATE_NEXT,              /* order to use when reading */
+                          NumNotesMatch - NoteCount,  /* max number to read */
+                          READ_MASK_NOTEID,           /* info we want */
+                          &hBuffer,                   /* handle to info (return) */
+                          NULL,                       /* length of buffer (return) */
+                          NULL,                       /* entries skipped (return) */
+                          &NumNotesFound,             /* entries read (return) */
+                          &signal_flag) )             /* signal and share warnings (return) */
       goto EXIT1;
 
       if ( hBuffer == NULLHANDLE )

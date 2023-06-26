@@ -142,7 +142,7 @@ STATUS LNPUBLIC ProcessOneNote(void far *         phDB,
   NOTEHANDLE   hNote;
   STATUS       rc=NOERROR;
   DWORD        dwId = 0;	
-  DHANDLE        hszAttachmentName = NULLHANDLE;
+  DHANDLE      hszAttachmentName = NULLHANDLE;
   char *       pszAttachmentName = NULL;
 
   memcpy((char *)&SearchMatch, (char *)pSearchMatch, sizeof(SEARCH_MATCH));

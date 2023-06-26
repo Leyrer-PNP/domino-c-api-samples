@@ -37,7 +37,7 @@
 #include <windows.h>
 #endif
 
-/* standard header files     */
+/* standard header files */
 
 #include <stdio.h>
 #include <string.h>
@@ -118,13 +118,13 @@ int main(int argc, char *argv[])
     char *bufPtr;
     WORD bufLen;
 
-    /*   Start by calling Notes Init.  */
+    /* Start by calling Notes Init */
 
     error = NotesInitExtended (argc, argv);
     if (error)
     {
-		 PRINTLOG("Error: Unable to initialize Notes.\n");
-		 return (1);
+        PRINTLOG("Error: Unable to initialize Notes.\n");
+        return (1);
     }
 
 
@@ -134,9 +134,9 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen(szFileName1, &hDB))
     {
-		 PRINTERROR(error,"NSFDbOpen");
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFDbOpen");
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -145,10 +145,10 @@ int main(int argc, char *argv[])
 
     if (error = NIFFindView (hDB, szViewName, &ViewNoteID))
     {
-		  PRINTERROR(error,"NIFFindView");
-		  NSFDbClose(hDB);             /* Close database            */
-		  NotesTerm();
-		  return(1);
+        PRINTERROR(error,"NIFFindView");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -157,10 +157,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteOpen (hDB, ViewNoteID, 0, &hViewNote))
     {
-		  PRINTERROR(error,"NSFNoteOpen");
-		  NSFDbClose(hDB);             /* Close database            */
-		  NotesTerm();
-		  return(1);
+        PRINTERROR(error,"NSFNoteOpen");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -175,10 +175,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hViewNote))
     {
-		  PRINTERROR(error,"NSFNoteClose");
-		  NSFDbClose(hDB);             /* Close database            */
-		  NotesTerm();
-		  return(1);
+        PRINTERROR(error,"NSFNoteClose");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -187,10 +187,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate(hDB, &hNote))
     {
-		 PRINTERROR(error,"NSFNoteCreate");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFNoteCreate");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -202,10 +202,10 @@ int main(int argc, char *argv[])
                                SubjectText1,            /* Text to set */
                                sizeof(SubjectText1)))   /* Text length */
     {
-		 PRINTERROR(error,"NSFItemSetText");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFItemSetText");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     bufPtr = &szBuffer[0];           /* set bufPtr to start of szbuffer */
@@ -222,10 +222,10 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PRINTERROR(error,"NSFItemAppend");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFItemAppend");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     memset(&szBuffer, 0, sizeof(szBuffer));    /* init buffer */
@@ -238,10 +238,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteUpdate(hNote, 0))
     {
-		 PRINTERROR(error,"NSFNoteUpdate");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFNoteUpdate");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -256,10 +256,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hNote))
     {
-		 PRINTERROR(error,"NSFNoteClose");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFNoteClose");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -268,10 +268,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbReplicaInfoGet (hDB, &DBReplica))
     {
-		 PRINTERROR(error,"NSFDbReplicaInfoGet");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFDbReplicaInfoGet");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -279,22 +279,22 @@ int main(int argc, char *argv[])
      */
 
     if (error = NSFDbClose(hDB))
-	 {
-		 PRINTERROR(error,"NSFDbClose");
-		 NotesTerm();
-		 return(1);
-	 }
+    {
+        PRINTERROR(error,"NSFDbClose");
+        NotesTerm();
+        return(1);
+    }
 
     /*
      * Open database 2
      */
 
     if (error = NSFDbOpen(szFileName2, &hDB))
-	 {
-		 PRINTERROR(error,"NSFDbOpen");
-		 NotesTerm();
-		 return(1);
-	 }
+    {
+        PRINTERROR(error,"NSFDbOpen");
+        NotesTerm();
+        return(1);
+    }
 
     /*
      * Now create a note in database 2
@@ -302,10 +302,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate(hDB, &hNote2))
     {
-		 PRINTERROR(error,"NSFNoteCreate");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFNoteCreate");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -317,10 +317,10 @@ int main(int argc, char *argv[])
                                SubjectText2,            /* Text to set */
                                sizeof(SubjectText2)))   /* Text length */
     {
-		 PRINTERROR(error,"NSFItemSetText");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFItemSetText");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
 
@@ -341,10 +341,10 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PRINTERROR(error,"NSFItemAppend");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFItemAppend");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     memset(&szBuffer, 0, sizeof(szBuffer));    /* init buffer */
@@ -365,10 +365,10 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PRINTERROR(error,"NSFItemAppend");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFItemAppend");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     memset(&szBuffer, 0, sizeof(szBuffer));  /* init buffer */
@@ -389,10 +389,10 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PRINTERROR(error,"NSFItemAppend");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFItemAppend");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
 
@@ -414,10 +414,10 @@ int main(int argc, char *argv[])
                                TYPE_COMPOSITE, szBuffer,
                                bufLen))
     {
-		 PRINTERROR(error,"NSFItemAppend");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFItemAppend");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     memset(&szBuffer, 0, sizeof(szBuffer));    /* init buffer */
@@ -430,10 +430,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteUpdate(hNote2, 0))
     {
-		 PRINTERROR(error,"NSFNoteUpdate");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFNoteUpdate");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -442,10 +442,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteClose(hNote2))
     {
-		 PRINTERROR(error,"NSFNoteClose");
-		 NSFDbClose(hDB);             /* Close database            */
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFNoteClose");
+        NSFDbClose(hDB);             /* Close database */
+        NotesTerm();
+        return(1);
     }
 
     /*
@@ -455,20 +455,20 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose(hDB))
     {
-		 PRINTERROR(error,"NSFDbClose");
-		 NotesTerm();
-		 return(1);
+        PRINTERROR(error,"NSFDbClose");
+        NotesTerm();
+        return(1);
     }
 
     /*
      * leave with no error
      */
 
-	 NotesTerm();
+    NotesTerm();
 
-	 PRINTLOG("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 
-	 return(0);
+    return(0);
 
 }
 
@@ -521,11 +521,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -533,17 +533,19 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
 
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -574,11 +576,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -586,17 +588,19 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
 
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -621,16 +625,16 @@ void CreateBody(char **ppBuf, WORD *pLength)
     strcpy(TextString,"doclink - Sample Notes API Program: shows how to create ");
     wTextLength = strlen(TextString);
 
-    /* Fill in the TEXT item structure.       */
+    /* Fill in the TEXT item structure. */
 
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -638,16 +642,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -677,11 +683,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -689,16 +695,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -728,11 +736,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -740,16 +748,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -779,11 +789,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -791,16 +801,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }    
 
     *ppBuf += wTextLength;
 
@@ -830,11 +842,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -842,16 +854,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -881,11 +895,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -893,16 +907,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -933,11 +949,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -945,16 +961,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -985,11 +1003,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -997,16 +1015,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -1037,11 +1057,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1049,16 +1069,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -1110,11 +1132,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1122,16 +1144,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -1162,11 +1186,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1174,16 +1198,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -1214,11 +1240,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1226,16 +1252,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -1266,11 +1294,11 @@ void CreateBody(char **ppBuf, WORD *pLength)
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1278,16 +1306,18 @@ void CreateBody(char **ppBuf, WORD *pLength)
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
     memcpy(*ppBuf, &TextString[0], wTextLength);  /* Append string to CDTEXT. */
     if (wTextLength % 2)
+    {
         wTextLength += 1;
+    }
 
     *ppBuf += wTextLength;
 
@@ -1351,11 +1381,11 @@ void CreateDocLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1363,10 +1393,10 @@ void CreateDocLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
@@ -1385,7 +1415,9 @@ void CreateDocLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     strcpy(DocTextString,"Database 'DocLink 1 Test database', View 'Main View', Document 'This is a document.'");
     wDocTextLength = strlen(DocTextString);
     if (wDocTextLength % 2)
+    {
         wDocTextLength++;
+    }
 
     /*
      *  Create Export Link (CDLINKEXPORT2) structure
@@ -1510,11 +1542,11 @@ void CreateViewLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1522,10 +1554,10 @@ void CreateViewLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
@@ -1544,7 +1576,9 @@ void CreateViewLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     strcpy(ViewTextString,"Database 'DocLink 1 Test database', View 'Main View'");
     wViewTextLength = strlen(ViewTextString);
     if (wViewTextLength % 2)
+    {
         wViewTextLength++;
+    }
 
     /*
      *  Create Export Link (CDLINKEXPORT2) structure
@@ -1670,11 +1704,11 @@ void CreateDBLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1682,10 +1716,10 @@ void CreateDBLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
@@ -1704,7 +1738,9 @@ void CreateDBLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     strcpy(DBTextString,"Database 'DocLink 1 Test database'");
     wDBTextLength = strlen(DBTextString);
     if (wDBTextLength % 2)
+    {
         wDBTextLength++;
+    }
 
     /*
      *  Create Export Link (CDLINKEXPORT2) structure
@@ -1831,11 +1867,11 @@ void CreateAnchorLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+    /*
+     *  Fill in the font information for this run of text. Note that
+     *  we must overlay the FONTIDFIELDS structure onto the
+     *  CDText.FontID data item.
+     */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
     pFont->Face = FONT_FACE_SWISS;
@@ -1843,10 +1879,10 @@ void CreateAnchorLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     pFont->Color = NOTES_COLOR_BLACK;
     pFont->PointSize = 10;
 
-  /*
-   *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
-   *  the ODS buffer.
-   */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 
@@ -1871,13 +1907,17 @@ void CreateAnchorLink(char **ppBuf, WORD *pLength, DBREPLICAINFO DBRep,
     strcpy(AnchorTextString,"Database 'DocLink 1 Test database', View 'Main View', Document 'This is a document.', Anchor '2'");
     wAnchorTextLength = strlen(AnchorTextString);
     if (wAnchorTextLength % 2)
+    {
         wAnchorTextLength++;
+    }
 
     /* here's the anchor text to link to */
     strcpy(AnchorTextString1,"3");
     wAnchorTextLength1 = strlen(AnchorTextString1);
     if (wAnchorTextLength1 % 2)
+    {
         wAnchorTextLength1++;
+    }
 
     NullString[0] = '\0';
 

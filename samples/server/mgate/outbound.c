@@ -65,19 +65,19 @@ void near pascal OutboundTask()
 *		None.
 */
 {
-register STATUS error;
-char RecipientName[MAXRECIPIENTNAME+1];
-WORD RecipientNameLength;
-char UserName[MAXUSERNAME + 1];
-WORD UserNameLength;
-char DomainName[MAXDOMAINNAME+1];
-WORD DomainNameLength;
-char String[MAXSPRINTF], Originator[MAXRECIPIENTNAME+1];
-WORD StringLength;
-DHANDLE hMessageList = NULLHANDLE, hMessage;
-DARRAY *MessageList;
-WORD MessageCount, RecipientCount;
-WORD Msg, Rec;
+	register STATUS error;
+	char            RecipientName[MAXRECIPIENTNAME+1];
+	WORD            RecipientNameLength;
+	char            UserName[MAXUSERNAME + 1];
+	WORD            UserNameLength;
+	char            DomainName[MAXDOMAINNAME+1];
+	WORD            DomainNameLength;
+	char            String[MAXSPRINTF], Originator[MAXRECIPIENTNAME+1];
+	WORD            StringLength;
+	DHANDLE         hMessageList = NULLHANDLE, hMessage;
+	DARRAY          *MessageList;
+	WORD            MessageCount, RecipientCount;
+	WORD            Msg, Rec;
 
 	AddInSetStatus(ERR_MGATE_TRANSFERING, 0L);
 
@@ -86,15 +86,15 @@ WORD Msg, Rec;
 	error = MailCreateMessageList(hMessageFile,
 				 &hMessageList, &MessageList, &MessageCount);
 	if (error)
-		{
+	{
 		AddInLogError(ERR_MGATE_MSGLIST, error, MGATE_MSGFILE_NAME);
 		return;
-		}
+	}
 
 	/* Deliver each of the outbound messages. */
 
 	for (Msg = 0; Msg < MessageCount; Msg++)
-		{
+	{
 
 		/* Open the outbound Domino and Notes message. */
 
@@ -111,7 +111,7 @@ WORD Msg, Rec;
 
 		MailGetMessageInfo(MessageList, Msg, &RecipientCount, NULL, NULL);
 		for (Rec = 0; Rec < RecipientCount; Rec++)
-			{
+		{
 
 			/* Get recipient address and parse into user and domain.  The
 				recipient's "user name" is actually his/her directory. */
@@ -127,25 +127,26 @@ WORD Msg, Rec;
 				message, creating it in the recipient's directory. */
 
 			error = CreateForeignMessage(hMessage, Originator, UserName);
-			if (error) goto next;
+			if (error) 
+				goto next;
 
 			/* 	If creation was successful delete the recipient from the
 				message.  Otherwise, save error text and try again next time. */
 
 			if (!error)
-				{
+			{
 				MailSendDeliveryReport(MessageList, Msg, 1, &Rec);
 				MailDeleteMessageRecipient(MessageList, Msg, Rec);
 				AddInLogError(ERR_MGATE_SENDSUCCESS, NOERROR, RecipientName);
-				}
+			}
 			else
-				{
+			{
 				AddInFormatError(String, error);
 				MailSetMessageLastError(MessageList, Msg, String);
-				}
+			}
 
 next:		AddInSetStatus(ERR_MGATE_TRANSFERING, 0L);
-			}
+		}
 
 		/* If the message has been delivered to all the recipients, */
 		/* purge the message from the mail file. If the message is */
@@ -154,22 +155,21 @@ next:		AddInSetStatus(ERR_MGATE_TRANSFERING, 0L);
 
 		MailCloseMessage(hMessage);
 		MailPurgeMessage(MessageList, Msg);
-		}
+	}
 
 	/* Free the message list and close the message file */
 
 	if (hMessageList != NULLHANDLE)
-		{
+	{
 		OSUnlockObject(hMessageList);
 		OSMemFree(hMessageList);
-		}
+	}
 
 	AddInSetStatus(ERR_MGATE_IDLE, 0L);
 }	
 
 STATUS CreateForeignMessage(DHANDLE hMessage,
-                            char *OriginatorName,
-									 char *RecipientName)
+                            char *OriginatorName, char *RecipientName)
 
 /* CreateForeignMessage - Create a foreign mail system message file.
 *
@@ -182,16 +182,16 @@ STATUS CreateForeignMessage(DHANDLE hMessage,
 *		Return value - error status.
 */
 {
-STATUS error;
-FILE *ForeignFile, *BodyFile;
-char String[MAXSPRINTF], FileName[_MAX_PATH], RecipientDir[_MAX_PATH];
-char AttachmentFileName[_MAX_PATH], OriginalFileName[_MAX_PATH];
-char BodyFileName[_MAX_PATH], *delim;
-WORD StringLength, Length, Att;
-BLOCKID bhAttachment;
-DWORD BodyFileSize;
-TIMEDATE Time;
-BOOL NonDeliveryReport;
+	STATUS   error;
+	FILE     *ForeignFile, *BodyFile;
+	char     String[MAXSPRINTF], FileName[_MAX_PATH], RecipientDir[_MAX_PATH];
+	char     AttachmentFileName[_MAX_PATH], OriginalFileName[_MAX_PATH];
+	char     BodyFileName[_MAX_PATH], *delim;
+	WORD     StringLength, Length, Att;
+	BLOCKID  bhAttachment;
+	DWORD    BodyFileSize;
+	TIMEDATE Time;
+	BOOL     NonDeliveryReport;
 
 	/* Create a foreign message file in recipient's directory. */
 
@@ -200,13 +200,14 @@ BOOL NonDeliveryReport;
 	strcat(RecipientDir, RecipientName);
 	error = GetUniqueFileName(GatewayDrive, RecipientDir,
 							  MGATE_MSG_EXT, FileName);
-	if (error) return(error);
+	if (error) 
+		return(error);
 	ForeignFile = fopen(FileName, "w");		
 	if (ForeignFile == NULL)
-		{
+	{
 		AddInLogError(ERR_MGATE_RECIPCREATE, NOERROR, FileName);
 		return(ERR_MGATE_RECIPCREATE);
-		}
+	}
 
 	/* Write the "Date" item line. */
 
@@ -217,9 +218,11 @@ BOOL NonDeliveryReport;
 	/* Write the "To" and "CC" item lines */
 
 	error = AddToItems(ForeignFile, hMessage, MAIL_SENDTO_ITEM_NUM, ToFormat);
-	if (error) goto Close;
+	if (error) 
+		goto Close;
 	error = AddToItems(ForeignFile, hMessage, MAIL_COPYTO_ITEM_NUM, CCFormat);
-	if (error) goto Close;
+	if (error) 
+		goto Close;
 
 	/* Write the "Originator" item line. */
 
@@ -228,12 +231,12 @@ BOOL NonDeliveryReport;
 	/* Write the "Subject" string. If message is non-delivery report,
 		prefix subject with "NonDelivery of:" */
 
-    if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
-    {
+	if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
+    	{
 		strcpy(String, NonDeliverySubject);
 		Length = strlen(NonDeliverySubject);
-    }
-    else
+    	}	
+    	else
 		Length = 0;
 	MailGetMessageItem(hMessage, MAIL_SUBJECT_ITEM_NUM,
 			&String[Length], (WORD) (sizeof(String) - Length), &StringLength);
@@ -242,7 +245,7 @@ BOOL NonDeliveryReport;
 	/* If the message is a non-delivery report, add the error info. */
 
 	if (NonDeliveryReport)
-		{
+	{
 		MailGetMessageItem(hMessage, MAIL_INTENDEDRECIPIENT_ITEM_NUM,
 							String, sizeof(String), &StringLength);
 		fprintf(ForeignFile, IntendedRecipientsFormat, String);
@@ -250,7 +253,7 @@ BOOL NonDeliveryReport;
 		MailGetMessageItem(hMessage, MAIL_FAILUREREASON_ITEM_NUM,
 							String, sizeof(String), &StringLength);
 		fprintf(ForeignFile, FailureReasonFormat, String);
-		}
+	}
 
 	/* Get the message body and copy each line of text to the foreign file. */
 
@@ -266,19 +269,19 @@ BOOL NonDeliveryReport;
 	if (!error)
 		BodyFile = fopen(BodyFileName, "r");
 	if (error || (BodyFile == NULL))
-		{
+	{
 		AddInLogError(ERR_MGATE_TEXT_OPEN, error, BodyFileName);
 		goto Close;
-		}
+	}
 
 	/* Copy each line of body text to the foreign file. */
 
-    while (fgets(String, sizeof(String), BodyFile))
-    {
-        if (delim = strchr(String, '\n'))  /* Remove trailing newline */
-			*delim = '\0';
+	while (fgets(String, sizeof(String), BodyFile))
+    	{
+        	if (delim = strchr(String, '\n'))  /* Remove trailing newline */
+				*delim = '\0';
 		fprintf(ForeignFile, BodyFormat, String);
-    }
+   	 }	
 	fclose(BodyFile);
 	unlink(BodyFileName);
 
@@ -287,7 +290,7 @@ BOOL NonDeliveryReport;
 	for (Att = 0; MailGetMessageAttachmentInfo(hMessage, Att,
 				&bhAttachment, OriginalFileName,
 				NULL, NULL, NULL, NULL, NULL); Att++)
-		{
+	{
 		error = GetUniqueFileName(GatewayDrive, RecipientDir, MGATE_ATT_EXT,
 				 AttachmentFileName);
 		if (!error)
@@ -297,11 +300,11 @@ BOOL NonDeliveryReport;
 			fprintf(ForeignFile, AttachmentFormat,
 				AttachmentFileName, OriginalFileName);
 		else
-			{
+		{
 			AddInLogError(ERR_MGATE_ATT_CREATE, error, AttachmentFileName);
 			goto Close;
-			}
 		}
+	}
 
 	/* Close the message file */
 
@@ -326,28 +329,28 @@ STATUS near pascal GetUniqueFileName(char *Drive, char *Dir, char *Ext,
 *		*FileName - Unqiue file name.
 */
 {
-int file;
-WORD Num;
-char Name[17];
+	int  file;
+	WORD Num;
+	char Name[17];
 
 	/* Increment through numbered file names until a non-existent one found. */
 
 	for (Num = 0; Num <= 32767; Num++)
-		{
+	{
 		itoa(Num, Name, 10);
 		_makepath(FileName, Drive, Dir, Name, Ext);
 		if ((file = open(FileName, O_BINARY | O_RDONLY, 0)) == -1)
 			return(NOERROR);
 		close(file);
-		}
+	}
 	FileName[0] = '\0';
 	return(ERR_MGATE_NOUNIQUE);
-	}
+}
 
 
 
 STATUS AddToItems(FILE *ForeignFile,
-		 				DHANDLE hMessage, WORD ItemNum, char *Format)
+		 	DHANDLE hMessage, WORD ItemNum, char *Format)
 
 /* AddToItems - Add To/CC names to message.
 *
@@ -361,11 +364,11 @@ STATUS AddToItems(FILE *ForeignFile,
 *		Return value - error status.
 */
 {
-STATUS error;
-BLOCKID bhValue;
-WORD ValueType,  RecipientNameLength, n;
-DWORD ValueLength;
-char *Value, *RecipientName;
+	STATUS  error;
+	BLOCKID bhValue;
+	WORD    ValueType,  RecipientNameLength, n;
+	DWORD   ValueLength;
+	char    *Value, *RecipientName;
 
 	error = MailGetMessageItemHandle(hMessage, ItemNum, &bhValue, &ValueType, &ValueLength);
 	if (error) return(NOERROR); /* Optional field */
@@ -373,22 +376,22 @@ char *Value, *RecipientName;
 	Value = OSLockBlock(char, bhValue);
 
 	for (n = 0;;n++)
-		{
+	{
 
 		/* Get the next name in the list. */
 
 		if (ValueType == TYPE_TEXT_LIST)
-			{
+		{
 			if (ListGetText(Value, TRUE, n,
-							&RecipientName, &RecipientNameLength) != NOERROR)
+						&RecipientName, &RecipientNameLength) != NOERROR)
 				break;
-			}
+		}
 		else if (ValueType == TYPE_TEXT)
-			{
+		{
 			if (n != 0) break; /* Only one entry */
 			RecipientName = Value + sizeof(WORD);
 			RecipientNameLength = (WORD) ValueLength - sizeof(WORD);
-			}
+		}
 		else
 			break;
 
@@ -396,7 +399,7 @@ char *Value, *RecipientName;
 
 		if (RecipientNameLength != 0)
 			fprintf(ForeignFile, Format, RecipientNameLength, RecipientName);
-		}
+	}
 	
 	OSUnlockBlock(bhValue);
 	return(NOERROR);

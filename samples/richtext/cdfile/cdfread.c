@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
         return (1);
     }
    
-   /* Create a new data note. */
+    /* Create a new data note. */
 
     if ( (nErr = NSFNoteCreate (hDB, &hNote)) != NOERROR )
     {
@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
         return (1);
     }
 
-   /* Write a field named FORM to the note -- this field specifies the
-      default form to use when the note is displayed. */
+    /* Write a field named FORM to the note -- this field specifies the
+       default form to use when the note is displayed. */
 
     nErr = NSFItemSetText( hNote, FIELD_FORM, "RichTextForm", MAXWORD );
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         return (1);
     }
 
-   /* Get the current time/date and write it to a field named TIME_DATE. */
+    /* Get the current time/date and write it to a field named TIME_DATE. */
 
     OSCurrentTIMEDATE(&timedate);
 
@@ -156,9 +156,9 @@ int main(int argc, char *argv[])
         return (1);
     }
 
-   /* Create the CompoundText context. We get an Item Context (as opposed
-      to a stand-alone context) by specifying the handle to an open note 
-      and the name of a rich text field.
+    /* Create the CompoundText context. We get an Item Context (as opposed
+       to a stand-alone context) by specifying the handle to an open note 
+       and the name of a rich text field.
     */
 
     nErr = CompoundTextCreate (
@@ -177,6 +177,7 @@ int main(int argc, char *argv[])
     }
 
     /* Open the CD file. */
+
     pCDFile = fopen( pszCDFileName, "r" );
 
     if (pCDFile == NULL)
@@ -190,6 +191,7 @@ int main(int argc, char *argv[])
     }
 
     /* Read the contents of the file in a buffer. */
+
     sRetVal = fread( szBuffer, sizeof(char), sizeof(szBuffer)-1, pCDFile );
 
     if (ferror(pCDFile))
@@ -213,7 +215,8 @@ int main(int argc, char *argv[])
         return (1);
     }
 
-    /* Close the file */
+    /* Close the file. */
+
     if (fclose( pCDFile ))
     {
         PRINTLOG("Error: unable to close file '%s'.\n", pszCDFileName);
@@ -225,6 +228,7 @@ int main(int argc, char *argv[])
     }
 
     /* Add the data from the buffer to compound text context. */
+
     nErr = CompoundTextAssimilateBuffer(hCompound,(void *) pszBuffer,(DWORD) sizeof(szBuffer));
 
     if (nErr != NOERROR)
@@ -257,9 +261,9 @@ int main(int argc, char *argv[])
         return (1);
     }
 
-   /* Add the CompoundText context to the note. Since this is an Item 
-      Context, (associated with the newly created note), only specify 
-      hCompound parameter. 
+    /* Add the CompoundText context to the note. Since this is an Item 
+       Context, (associated with the newly created note), only specify 
+       hCompound parameter. 
     */
 
     nErr = CompoundTextClose (
@@ -280,7 +284,7 @@ int main(int argc, char *argv[])
         return (1);
     }
 
-   /* Add the new note to the database. */
+    /* Add the new note to the database. */
 
     if ( (nErr = NSFNoteUpdate (hNote, 0)) != NOERROR )
     {
@@ -291,7 +295,8 @@ int main(int argc, char *argv[])
         NotesTerm();
         return (1);
     }
-   /* Close the new note. */
+
+    /* Close the new note. */
 
     if ( (nErr = NSFNoteClose (hNote)) != NOERROR )
     {
@@ -303,7 +308,7 @@ int main(int argc, char *argv[])
 
     PRINTLOG("New note successfully created.\n");
 
-   /* Close the database */
+    /* Close the database. */
 
     if ( (nErr = NSFDbClose (hDB)) != NOERROR )
 	{
@@ -312,7 +317,8 @@ int main(int argc, char *argv[])
         return (1);
 	}
 
-   /* End of subroutine. */
+    /* End of subroutine. */
+
     PRINTLOG("\nProgram completed successfully\n");
     NotesTerm();
     return (0); 

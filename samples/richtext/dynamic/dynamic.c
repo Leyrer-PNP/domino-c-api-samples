@@ -129,9 +129,9 @@ int main(int argc, char *argv[])
      */
     
     if (error = NSFItemSetText ( note_handle, 
-                "FORM",
-                "RichTextForm", 
-                MAXWORD))
+                                      "FORM",
+                                      "RichTextForm", 
+                                      MAXWORD))
     {
         PRINTLOG("Error: unable to set text item into new document.\n");
         NSFNoteClose (note_handle);
@@ -309,10 +309,10 @@ int main(int argc, char *argv[])
     rt_size = (DWORD)(buff_ptr - rt_field);
 
     error = NSFItemAppend( note_handle,
-                0,
-                "RICH_TEXT", (WORD) strlen("RICH_TEXT"),
-                TYPE_COMPOSITE,
-                rt_field, rt_size );
+                                0,
+                                "RICH_TEXT", (WORD) strlen("RICH_TEXT"),
+                                TYPE_COMPOSITE,
+                                rt_field, rt_size );
 
     free( rt_field );
     

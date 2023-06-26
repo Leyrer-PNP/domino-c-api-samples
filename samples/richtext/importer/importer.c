@@ -114,10 +114,10 @@ STATUS (LNCALLBACKPTR ProcAddress)(VOID *IXContext, WORD Flags,
 
 int main(int argc, char *argv[])
 {
-    char    achTempName[MAXPATH], *szModPath, *szFilePath, *szNSFFile, *szDLL;
-    char    szCompanyName[] = "Acme Computing, Inc"; /* Text field */
+    char        achTempName[MAXPATH], *szModPath, *szFilePath, *szNSFFile, *szDLL;
+    char        szCompanyName[] = "Acme Computing, Inc"; /* Text field */
 
-    DHANDLE       hImpBuffer, hNewNote;
+    DHANDLE     hImpBuffer, hNewNote;
     DBHANDLE    hDbNSFFile;
     DWORD       dwImpBufLen;
     STATUS      error;    /* Return status from Domino and Notes and OS calls */
@@ -136,25 +136,25 @@ int main(int argc, char *argv[])
     szFilePath   = argv[3];
 
 
-/*  If a 2nd DLL name was entered, set szDLL to it.  Otherwise, set */
-/*  szDLL to null.                                                  */
+    /*  If a 2nd DLL name was entered, set szDLL to it.  Otherwise, set */
+    /*  szDLL to null.                                                  */
 
     if (argc == 5)
     {
         szDLL = argv[4];
     }
     else
-       szDLL = 0;
+        szDLL = 0;
 
 
-    /*   Start by calling Notes Init.  */
+    /* Start by calling Notes Init. */
 
-	 error = NotesInitExtended (argc, argv);
-	 if (error)
-	 {
-		 PRINTLOG("Error: Unable to initialize Notes.\n");
-		 return (1);
-	 }
+    error = NotesInitExtended (argc, argv);
+    if (error)
+    {
+        PRINTLOG("Error: Unable to initialize Notes.\n");
+        return (1);
+    }
 
     /* Call the appropriate Import/Export DLL with the appropriate  */
     /* source file to create a char buffer containing the data      */
@@ -236,48 +236,48 @@ int main(int argc, char *argv[])
         goto Done;
     }
 
-    /* We got this far without error.  Now free up the Import buffer.  */
+    /* We got this far without error.  Now free up the Import buffer. */
 
     OSMemFree(hImpBuffer);
 
     /* Start cleaning up.  First, Close the Note */
 
     if (error = NSFNoteClose(hNewNote))
-	 {
+    {
         PRINTLOG("\nUnable to close Note.  Terminating..\n");
         PRINTERROR(error,"NSFNoteClose");
         goto Done;
-	 }
+    }
 
 
-    /* Now close the database.              */
+    /* Now close the database. */
 
     if (error = NSFDbClose(hDbNSFFile))
-	 {
+    {
         PRINTLOG("\nError closing database '%s'. Terminating...\n, szNSFFile");
         PRINTERROR(error,"NSFDbClose");
         goto Done;
-	 }
+    }
 
     /* delete the temp file */
 
-	if (unlink(achTempName))
-	 {
+    if (unlink(achTempName))
+    {
         PRINTLOG("\nError deleting temporary file %s\n", achTempName);
         goto Done;
-	 }
+    }
 
-	 PRINTLOG("\nAll Done!\n");
+    PRINTLOG("\nAll Done!\n");
 
-	 NotesTerm();
+    NotesTerm();
 
-	 PRINTLOG("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 
-	 return(0);
+    return(0);
 
 Done:
     NotesTerm();
-    return (1);        /* Return Domino and Notes error code.  */
+    return (1);        /* Return Domino and Notes error code. */
 }
 
 /************************************************************************
@@ -305,14 +305,14 @@ Done:
 STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
                            char *szTempName, char *szDLL)
 {
-    EDITIMPORTDATA EditImportData;  /* Import DLL data structure                 */
-    HMODULE hmod;                   /* module handle                             */
-    STATUS error;                   /* Return status from Domino and Notes calls */
-    char *FileName;                 /* File name to be imported                  */
-    char TempName[] = "DEFAULT.CD"; /* Temp Filename for import.                 */
-    char *ModuleName;               /* pointer to DLL module name                */
-    char *DLLName;                  /* 2nd DLL for import of                     */
-                                    /*  word-processing docs.                    */
+    EDITIMPORTDATA EditImportData;            /* Import DLL data structure                 */
+    HMODULE        hmod;                      /* module handle                             */
+    STATUS         error;                     /* Return status from Domino and Notes calls */
+    char          *FileName;                  /* File name to be imported                  */
+    char           TempName[] = "DEFAULT.CD"; /* Temp Filename for import.                 */
+    char          *ModuleName;                /* pointer to DLL module name                */
+    char          *DLLName;                   /* 2nd DLL for import of                     */
+                                              /*  word-processing docs.                    */
     ModuleName = szModulePath;
     FileName   = szFileName;
     DLLName   = szDLL;
@@ -353,14 +353,14 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
     /* imported.                                                        */
 
     if (error = (*ProcAddress) (&EditImportData,
-        IXFLAG_FIRST | IXFLAG_LAST,         /* Both 1st and last import */
-        0,                                  /* Use default hmodule      */
-        DLLName,                            /* 2nd DLL, if needed.      */
-        FileName))                          /* File to import.          */
-        {
-            PRINTLOG ("Call to DLL Entry point failed.\n");
-            goto Done;
-        }
+                                IXFLAG_FIRST | IXFLAG_LAST,         /* Both 1st and last import */
+                                0,                                  /* Use default hmodule      */
+                                DLLName,                            /* 2nd DLL, if needed.      */
+                                FileName))                          /* File to import.          */
+    {
+        PRINTLOG ("Call to DLL Entry point failed.\n");
+        goto Done;
+    }
 
 
     /* return the temp filename to calling routine */
@@ -400,11 +400,11 @@ STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
                          DWORD *retdwLen)
 {
     DHANDLE  hBuffer;       /* handle for memory buffer for CD file read            */
-    FILE    *pCDFile;      /* File pointer to CD file                              */
-    STATUS  error;         /* Return status from Domino and Notes and OS calls     */
-    char    *FileName;     /* File name to be imported                             */
-    char    *pBuffer;      /* pointer to memory buffer for CD file read            */
-    DWORD   CDFileLength;  /* Size of CD file created during import                */
+    FILE    *pCDFile;       /* File pointer to CD file                              */
+    STATUS   error;         /* Return status from Domino and Notes and OS calls     */
+    char    *FileName;      /* File name to be imported                             */
+    char    *pBuffer;       /* pointer to memory buffer for CD file read            */
+    DWORD    CDFileLength;  /* Size of CD file created during import                */
 
     error = NOERROR;
     FileName = szFileName;
@@ -426,7 +426,7 @@ STATUS LNPUBLIC LoadCD(char *szFileName, DHANDLE *rethImpBuffer,
 	CDFileLength = (DWORD) ftell(pCDFile);
 	fseek (pCDFile, 0L, SEEK_SET);
 	
-	/* In this example imports must be < MAXONESGESIZE; error otherwise. */
+    /* In this example imports must be < MAXONESGESIZE; error otherwise. */
 
     if (CDFileLength > MAXONESEGSIZE)
     {
@@ -518,15 +518,15 @@ STATUS LNPUBLIC AddRichText (DHANDLE hNote, DHANDLE hImpBuffer,
 
 {
     char    *pImpBuffer;
-    STATUS  rError;                   /* Error code to be returned    */
-    DWORD   dwItemBufLen;             /* length of rich text block    */
-    DWORD   dwCDMaxBuf = CDBUFLEN;    /* Maximum length of block      */
-    char    *pCDBuffer;               /* Pointer to rich text buffer. */
-    char    *pCurrent;                /* Pointer to the current location in the buffer */
+    STATUS   rError;                   /* Error code to be returned    */
+    DWORD    dwItemBufLen;             /* length of rich text block    */
+    DWORD    dwCDMaxBuf = CDBUFLEN;    /* Maximum length of block      */
+    char    *pCDBuffer;                /* Pointer to rich text buffer. */
+    char    *pCurrent;                 /* Pointer to the current location in the buffer */
 
     DHANDLE  hCDBuffer;                /* handle to dynamic mem.       */
-    DWORD   dwCDBufLen = 0;
-    WORD                wPara = 1;
+    DWORD    dwCDBufLen = 0;
+    WORD     wPara = 1;
 
     CDPARAGRAPH         CDPara;
     CDPABREFERENCE      CDPabRef;
@@ -543,7 +543,7 @@ STATUS LNPUBLIC AddRichText (DHANDLE hNote, DHANDLE hImpBuffer,
     pCDBuffer = (char *) OSLockObject(hCDBuffer);
 
 
-	 /* Keep a pointer to our current position in the buffer */
+    /* Keep a pointer to our current position in the buffer */
 
 	 pCurrent = pCDBuffer;
 
@@ -615,7 +615,7 @@ STATUS LNPUBLIC AddRichText (DHANDLE hNote, DHANDLE hImpBuffer,
 
     ODSWriteMemory( &pCurrent, _CDPABREFERENCE, &CDPabRef, 1 );
 
-    /* Lock down the Import buffer and get a pointer to it.    */
+    /* Lock down the Import buffer and get a pointer to it. */
 
     pImpBuffer = (char *) OSLockObject(hImpBuffer) + sizeof(WORD);
     dwItemBufLen = dwBufLen - sizeof(WORD);

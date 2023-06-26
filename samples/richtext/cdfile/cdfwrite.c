@@ -81,10 +81,10 @@ int main(int argc, char *argv[])
     char           *szCDFileName;
     char            szText[128];
     STATUS          nErr = NOERROR;  /* return code from API calls */
-    DHANDLE           hCompound;       /* handle to CompoundText context */
+    DHANDLE         hCompound;       /* handle to CompoundText context */
     COMPOUNDSTYLE   Style;
     DWORD           dwStyleID;
-    DHANDLE           hCDBuffer;       /* handle to buffer of CD records */
+    DHANDLE         hCDBuffer;       /* handle to buffer of CD records */
     DWORD           dwBufferSize;
     SIZE_T          sBufferSize;
     char            szTempFileName[MAXPATH+1];  /* created by Domino and Notes */
@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
 
     if (nErr = NotesInitExtended (argc, argv))
     {
-		PRINTLOG("\n Unable to initialize Notes.\n");
-		return (1);
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
     }
 
 
@@ -109,16 +109,16 @@ int main(int argc, char *argv[])
     /* Create a "stand-alone" Compound Text context */
 
     nErr = CompoundTextCreate (
-             NULLHANDLE,        /* no note handle */
-             NULL,              /* no item name */
-             &hCompound);       /* returned handle to CompoundText context */
+                NULLHANDLE,        /* no note handle */
+                NULL,              /* no item name */
+                &hCompound);       /* returned handle to CompoundText context */
 
     if (nErr != NOERROR)
     {
-		PRINTLOG( "Error: unable to create CompoundText context.\n" );
-		PRINTERROR (nErr,"CompoundTextCreate");  
-		NotesTerm();
-		return (1);
+        PRINTLOG( "Error: unable to create CompoundText context.\n" );
+        PRINTERROR (nErr,"CompoundTextCreate");  
+        NotesTerm();
+        return (1);
     }
 
     /* Add text from szString to the CompoundText context */
@@ -133,29 +133,29 @@ int main(int argc, char *argv[])
  
    if (nErr != NOERROR)
    {
-		PRINTLOG( "Error: unable to define CompoundText style no. 1.\n" );
-		PRINTERROR (nErr,"CompoundTextDefineStyle");  
-		NotesTerm();
-		return (1);
+        PRINTLOG( "Error: unable to define CompoundText style no. 1.\n" );
+        PRINTERROR (nErr,"CompoundTextDefineStyle");  
+        NotesTerm();
+        return (1);
    }
 
    nErr = CompoundTextAddTextExt (
-             hCompound,               /* handle to CompoundText context */
-             dwStyleID,               /* style ID */
-             DEFAULT_FONT_ID,         /* font ID */
-             szText,                  /* text to add */
-             (DWORD) strlen (szText), /* length of text */
-             NewLine,                    /* newline delimiter */
-             COMP_PRESERVE_LINES,     /* preserve line breaks */
-             NULLHANDLE);             /* handle of CLS translation table */
+                hCompound,               /* handle to CompoundText context */
+                dwStyleID,               /* style ID */
+                DEFAULT_FONT_ID,         /* font ID */
+                szText,                  /* text to add */
+                (DWORD) strlen (szText), /* length of text */
+                NewLine,                    /* newline delimiter */
+                COMP_PRESERVE_LINES,     /* preserve line breaks */
+                NULLHANDLE);             /* handle of CLS translation table */
 
     if (nErr != NOERROR)
     {
-		PRINTLOG( "Error: unable to Add text to CompoundText context .\n" );
-		CompoundTextDiscard (hCompound);
-		PRINTERROR (nErr,"CompoundTextAddTextExt");  
-		NotesTerm();
-		return (1);
+        PRINTLOG( "Error: unable to Add text to CompoundText context .\n" );
+        CompoundTextDiscard (hCompound);
+        PRINTERROR (nErr,"CompoundTextAddTextExt");  
+        NotesTerm();
+        return (1);
     }
 
    /* Close the CompoundText context in stand-alone mode. This returns the
@@ -163,19 +163,19 @@ int main(int argc, char *argv[])
     */
    
     nErr = CompoundTextClose (
-            hCompound,          /* handle to CompoundText context */
-            &hCDBuffer,         /* if result is a buffer, handle goes here */
-            &dwBufferSize,
-            szTempFileName,     /* if this creates a file, name goes here */
-            MAXPATH );
+                hCompound,          /* handle to CompoundText context */
+                &hCDBuffer,         /* if result is a buffer, handle goes here */
+                &dwBufferSize,
+                szTempFileName,     /* if this creates a file, name goes here */
+                MAXPATH );
              
     if (nErr != NOERROR)
     {
-		PRINTLOG("Error: unable to close compound text context.\n");
-		CompoundTextDiscard (hCompound);
-		PRINTERROR (nErr,"CompoundTextClose");  
-		NotesTerm();
-		return (1);
+        PRINTLOG("Error: unable to close compound text context.\n");
+        CompoundTextDiscard (hCompound);
+        PRINTERROR (nErr,"CompoundTextClose");  
+        NotesTerm();
+        return (1);
     }
 
     if (hCDBuffer == NULLHANDLE)
@@ -199,8 +199,8 @@ int main(int argc, char *argv[])
     	    return (PKG_ADDIN);
         }
    
-		NotesTerm();
-		return (0); 
+        NotesTerm();
+        return (0); 
 
     }
 
@@ -210,18 +210,18 @@ int main(int argc, char *argv[])
 
     if (pData == NULL)
     {
-		PRINTLOG( "Error: unable to lock compount text buffer.\n" );
-		NotesTerm();
-		return (0); 
+        PRINTLOG( "Error: unable to lock compount text buffer.\n" );
+        NotesTerm();
+        return (0); 
     }
 
     pCDFile = fopen( szCDFileName, FOPEN_MODE );
 
     if (pCDFile == (FILE*)NULL)
     {
-		PRINTLOG( "Error: unable to open output file '%s'.\n", szCDFileName );
-		NotesTerm();
-		return (0); 
+        PRINTLOG( "Error: unable to open output file '%s'.\n", szCDFileName );
+        NotesTerm();
+        return (0); 
     }
 
     sBufferSize = (SIZE_T)dwBufferSize ;
@@ -247,9 +247,9 @@ int main(int argc, char *argv[])
 
     OSMemFree( hCDBuffer );
 
-	PRINTLOG("\nProgram completed successfully.\n");
-	NotesTerm();
-	return (0); 
+    PRINTLOG("\nProgram completed successfully.\n");
+    NotesTerm();
+    return (0); 
 }
 
 /************************************************************************

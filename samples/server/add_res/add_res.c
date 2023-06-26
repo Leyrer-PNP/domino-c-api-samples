@@ -71,25 +71,25 @@ STATUS OurJob (char *);
  
 STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 {
-    STATUS       error;        /* return code from API calls */
-    DHANDLE      hOldStatusLine;  /* handle to initial default status line*/
-    DHANDLE      hStatusLineDesc; /* handle to new default status line */
-    HMODULE    hMod;            /* add-in task's module handle */
-    int count = 0;
-    bool Automation = false;            /* Automation flag set to false */
+    STATUS       error;               /* return code from API calls */
+    DHANDLE      hOldStatusLine;      /* handle to initial default status line*/
+    DHANDLE      hStatusLineDesc;     /* handle to new default status line */
+    HMODULE      hMod;                /* add-in task's module handle */
+    int          count = 0;
+    bool         Automation = false;  /* Automation flag set to false */
 
-    char string1[] = "Sample Add-in";
-    char string2[] = "Initializing";
-    char string3[] = "Add-in Test: Initialization complete.";
-    char string4[] = "Idle";     /* 'Idle' replaces 'Initializing' */
-    char string5[] = "Doing daily job";
-    char string6[] = "Add-in Test: Daily job complete.";
-    char string7[] = "Doing two-minute job";
-    char string8[] = "Add-in Test: Two-minute job complete.";
-    char string9[] = "Doing 20-second job";
-    char string10[] = "Add-in Test: 20-second job complete.";
-    char string11[] = "Terminating";
-    char string12[] = "Add-in Test: Termination complete.";
+    char         string1[] = "Sample Add-in";
+    char         string2[] = "Initializing";
+    char         string3[] = "Add-in Test: Initialization complete.";
+    char         string4[] = "Idle";     /* 'Idle' replaces 'Initializing' */
+    char         string5[] = "Doing daily job";
+    char         string6[] = "Add-in Test: Daily job complete.";
+    char         string7[] = "Doing two-minute job";
+    char         string8[] = "Add-in Test: Two-minute job complete.";
+    char         string9[] = "Doing 20-second job";
+    char         string10[] = "Add-in Test: 20-second job complete.";
+    char         string11[] = "Terminating";
+    char         string12[] = "Add-in Test: Termination complete.";
 
     if (argc > 1)
     {
@@ -109,7 +109,7 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 
     AddInSetStatusText(string2);
     
-    /* Initialization is complete */
+/* Initialization is complete */
 
     AddInLogMessageText(string3, NOERROR);
     AddInSetStatusText(string4);     /* 'Idle' replaces 'Initializing' */	
@@ -167,10 +167,10 @@ proceed.  The server returns TRUE when it is time to shut down this task.
     }
 
 /* We get here when the server notifies us that it is time to terminate.  
-This is usually when the user has entered "quit" to the server console. 
-Clean up anything we have been doing.  */
+   This is usually when the user has entered "quit" to the server console. 
+   Clean up anything we have been doing.  */
 
-AddInSetStatusText(string11);
+    AddInSetStatusText(string11);
 
     AddInLogMessageText(string12, NOERROR);
   

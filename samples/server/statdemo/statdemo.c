@@ -110,17 +110,17 @@ STATUS StatNoteClose (DBHANDLE hDB, NOTEHANDLE hNote, DHANDLE hCompound);
 STATUS LNPUBLIC AddInMain (HMODULE hModule, int argc, char *argv[])
 {
    int i;
-   STATUS nError;       /* return code from API calls */
-   DHANDLE hStatBuffer;
-   DWORD dwStatBufferLen;
-   char *pStatBuffer;
-   DBHANDLE hDB;
-   NOTEHANDLE hNote;
-   DHANDLE hCompound; 
-   char msgBuffer[LINEOTEXT];
+   STATUS       nError;          /* return code from API calls */
+   DHANDLE      hStatBuffer;
+   DWORD        dwStatBufferLen;
+   char        *pStatBuffer;
+   DBHANDLE     hDB;
+   NOTEHANDLE   hNote;
+   DHANDLE      hCompound; 
+   char         msgBuffer[LINEOTEXT];
    DHANDLE      hOldStatusLine;  /* handle to initial default status line*/
    DHANDLE      hStatusLineDesc; /* handle to new default status line */
-   HMODULE    hMod;            /* add-in task's module handle */
+   HMODULE      hMod;            /* add-in task's module handle */
   
    /* Initialize this task. */
 
@@ -154,11 +154,11 @@ STATUS LNPUBLIC AddInMain (HMODULE hModule, int argc, char *argv[])
    /* Get all statistics in a formatted statistics buffer */
 
    nError = StatQuery ("From Stat Query:\n", /* Header string */
-                       "  ",               /* chars to preceed stat name */
-                       "\t",               /* char to preceed stat value */
-                       "\n",               /* char to terminate stat value */
-                       &hStatBuffer,       /* return buffer handle */
-                       &dwStatBufferLen);  /* return buffer length */
+                       "  ",                 /* chars to preceed stat name */
+                       "\t",                 /* char to preceed stat value */
+                       "\n",                 /* char to terminate stat value */
+                       &hStatBuffer,         /* return buffer handle */
+                       &dwStatBufferLen);    /* return buffer length */
 
    if (nError != NOERROR)
       return (ERR(nError));
@@ -197,10 +197,10 @@ STATUS LNPUBLIC AddInMain (HMODULE hModule, int argc, char *argv[])
       This will not modify the administrator's name in the server record.
     */
 
-   nError = StatUpdate (STATPKG_SERVER,          /* name of facility */
-                        "Administrator",         /* stat name */
-                        ST_UNIQUE,               /* stat is unique */
-                        VT_TEXT,                 /* stat value type */
+   nError = StatUpdate (STATPKG_SERVER,            /* name of facility */
+                        "Administrator",           /* stat name */
+                        ST_UNIQUE,                 /* stat is unique */
+                        VT_TEXT,                   /* stat value type */
                         NEW_SERVER_ADMINISTRATOR); /* new name */
 
    if (nError != NOERROR)
@@ -307,8 +307,8 @@ STATUS LNCALLBACK DisplayTrav(void *Context, char *Facility,
    STATUS nError;       /* return code from API calls */
 
    StatToText(Facility, StatName, ValueType, Value,
-            NameBuffer, sizeof(NameBuffer)-1,
-            ValueBuffer, sizeof(ValueBuffer)-1);
+                        NameBuffer, sizeof(NameBuffer)-1,
+                        ValueBuffer, sizeof(ValueBuffer)-1);
    sprintf(OutBuffer, "  %s = %s\n", NameBuffer, ValueBuffer);
 
    nError = StatNoteAddText (*(DHANDLE*)Context, OutBuffer);
@@ -351,7 +351,7 @@ STATUS StatNoteCreate (DBHANDLE *phDB, NOTEHANDLE *phNote,
    TIMEDATE StartTime;  /* contents of a time/date field */
    char *TempBuffer;
 
-/* Open the database. */
+    /* Open the database. */
 
     if (nError = NSFDbOpen (SERVER_DATABASE_NAME, phDB))
         return (nError);
@@ -455,11 +455,11 @@ STATUS StatNoteClose (DBHANDLE hDB, NOTEHANDLE hNote, DHANDLE hCompound)
       parameter */
 
    nError = CompoundTextClose (
-             hCompound,            /* handle to CompoundText context */
-             0,                    
-             0L,
-             NULL,
-             0);
+                   hCompound,            /* handle to CompoundText context */
+                   0,                    
+                   0L,
+                   NULL,
+                   0);
    if (nError != NOERROR)
    {
       CompoundTextDiscard (hCompound);
@@ -513,29 +513,29 @@ STATUS StatNoteAddText (DHANDLE hCompound, char *StatText)
 {
    COMPOUNDSTYLE Style;
    DWORD         dwStyleID;
-   STATUS nError;       /* return code from API calls */
+   STATUS        nError;              /* return code from API calls */
 
    CompoundTextInitStyle (&Style);    /* initializes Style to the defaults */
 
    nError = CompoundTextDefineStyle (
-               hCompound,          /* handle to CompoundText context */
-               "Normal",           /* style name */
-               &Style,
-               &dwStyleID);        /* style id */
+                  hCompound,          /* handle to CompoundText context */
+                  "Normal",           /* style name */
+                  &Style,
+                  &dwStyleID);        /* style id */
  
    if (nError != NOERROR)
       return (nError);
 
    nError = CompoundTextAddTextExt (
-             hCompound,                 /* handle to CompoundText context */
-             dwStyleID,                 /* style ID */
-             DEFAULT_FONT_ID,           /* font ID */
-             StatText,                  /* text to add */
-             (DWORD) strlen (StatText), /* length of text */
-             "\r\n",                    /* newline delimiter - handle \r \n 
-                                           and combinations of \r\n */
-             COMP_PRESERVE_LINES,       /* preserve line breaks */
-             NULLHANDLE);               /* handle of CLS translation table */
+                  hCompound,                 /* handle to CompoundText context */
+                  dwStyleID,                 /* style ID */
+                  DEFAULT_FONT_ID,           /* font ID */
+                  StatText,                  /* text to add */
+                  (DWORD) strlen (StatText), /* length of text */
+                  "\r\n",                    /* newline delimiter - handle \r \n 
+                                                and combinations of \r\n */
+                  COMP_PRESERVE_LINES,       /* preserve line breaks */
+                  NULLHANDLE);               /* handle of CLS translation table */
 
    return (nError);
 }

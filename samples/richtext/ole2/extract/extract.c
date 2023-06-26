@@ -131,8 +131,8 @@ Done2:
     FUNCTION:   ProcessOneNote
 
     PURPOSE:    Action routine called for each note containing an embedded
-	            OLE2 object.  In turn, calls action routine for each CD
-				record in the $OLEOBJINFO item.
+	        OLE2 object. In turn, calls action routine for each CD
+                record in the $OLEOBJINFO item.
 
 *************************************************************************/
 
@@ -143,12 +143,12 @@ STATUS LNPUBLIC ProcessOneNote(
 {
 
   SEARCH_MATCH SearchMatch;
-  DBHANDLE hDB;
-  NOTEHANDLE hNote;
-  WORD wDataType;
-  BLOCKID bidValue;
-  DWORD dwValueLen;
-  STATUS error=NOERROR;
+  DBHANDLE     hDB;
+  NOTEHANDLE   hNote;
+  WORD         wDataType;
+  BLOCKID      bidValue;
+  DWORD        dwValueLen;
+  STATUS       error=NOERROR;
 
   memcpy((char *)&SearchMatch, (char *)pSearchMatch, sizeof(SEARCH_MATCH));
 
@@ -200,7 +200,7 @@ STATUS LNPUBLIC ProcessOneNote(
     FUNCTION:   ProcessOneCDRecord
 
     PURPOSE:    Action routine called for each embedded OLE2 object.
-	            Extracts OLE2 object to Structured Storage file.
+	        Extracts OLE2 object to Structured Storage file.
 
 *************************************************************************/
 
@@ -211,26 +211,26 @@ STATUS LNPUBLIC ProcessOneCDRecord(
   void far *phNote)
 {
 
-  char far *pData = pRecord;
-  NOTEHANDLE hNote;
-  CDOLEOBJ_INFO cdOleObjInfo;
-  ENCRYPTION_KEY EncryptKey;
+  char far       *pData = pRecord;
+  NOTEHANDLE      hNote;
+  CDOLEOBJ_INFO   cdOleObjInfo;
+  ENCRYPTION_KEY  EncryptKey;
   ENCRYPTION_KEY *pEncryptKey;
-  char szFileName[MAXPATH];
-  char szObjectName[MAXPATH];
-  STATUS error = NOERROR;
+  char            szFileName[MAXPATH];
+  char            szObjectName[MAXPATH];
+  STATUS          error = NOERROR;
 
-  LPMALLOC lpMalloc    = NULL;
-  LPSTORAGE lpRootStg  = NULL;
-  LPSTORAGE lpSubStg   = NULL;
-  LPSTREAM lpStream    = NULL;
-	WCHAR wcsStgFile[MAXPATH_OLE];
-  WCHAR wcsStream[]    = L"Contents";
-  LPOLESTR lpProgID;
-  DWORD dwMode         = STGM_READWRITE | STGM_SHARE_EXCLUSIVE;
-  char szProgID[MAXPATH_OLE];
-  char szContents[1024];
-  ULONG cbRead;
+  LPMALLOC        lpMalloc    = NULL;
+  LPSTORAGE       lpRootStg  = NULL;
+  LPSTORAGE       lpSubStg   = NULL;
+  LPSTREAM        lpStream    = NULL;
+  WCHAR           wcsStgFile[MAXPATH_OLE];
+  WCHAR           wcsStream[]    = L"Contents";
+  LPOLESTR        lpProgID;
+  DWORD           dwMode         = STGM_READWRITE | STGM_SHARE_EXCLUSIVE;
+  char            szProgID[MAXPATH_OLE];
+  char            szContents[1024];
+  ULONG           cbRead;
 
   if (wRecordType != SIG_CD_OLEOBJINFO)
     goto exit1;

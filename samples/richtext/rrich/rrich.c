@@ -69,12 +69,12 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-    char        *db_filename;   /* pathname of source database */
-    DBHANDLE    db_handle;      /* handle of source database */
-    char        *formula;       /* a note selection formula */
-    FORMULAHANDLE    formula_handle; /* handle to compiled formula */
-    STATUS        error;        /* return status from API calls */
-    WORD        wdc;            /* a word we don't care about */
+    char          *db_filename;    /* pathname of source database */
+    DBHANDLE       db_handle;      /* handle of source database */
+    char          *formula;        /* a note selection formula */
+    FORMULAHANDLE  formula_handle; /* handle to compiled formula */
+    STATUS         error;          /* return status from API calls */
+    WORD           wdc;            /* a word we don't care about */
 
 
 /* Get the command line parameters that the user entered. 
@@ -113,14 +113,14 @@ int main(int argc, char *argv[])
 /* Compile the selection formula. */
 
     if (error = NSFFormulaCompile (
-        NULL,            /* name of formula (none) */
-        0,            /* length of name */
-        formula,        /* the ASCII formula */
-        (WORD) strlen(formula),    /* length of ASCII formula */
-        &formula_handle,    /* handle to compiled formula */
-        &wdc,            /* compiled formula length (don't care) */
-        &wdc,             /* return code from compile (don't care) */
-        &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
+                          NULL,                    /* name of formula (none) */
+                          0,                       /* length of name */
+                          formula,                 /* the ASCII formula */
+                          (WORD) strlen(formula),  /* length of ASCII formula */
+                          &formula_handle,         /* handle to compiled formula */
+                          &wdc,                    /* compiled formula length (don't care) */
+                          &wdc,                    /* return code from compile (don't care) */
+                          &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
 
     {
         PRINTERROR(error,"NSFFormulaCompile");
@@ -133,15 +133,15 @@ int main(int argc, char *argv[])
 note found, the routine print_fields is called. */
 
     if (error = NSFSearch (
-        db_handle,        /* database handle */
-        formula_handle,        /* selection formula */
-        NULL,            /* title of view in selection formula */
-        0,            /* search flags */
-        NOTE_CLASS_DOCUMENT,    /* note class to find */
-        NULL,            /* starting date (unused) */
-        print_fields,        /* call for each note found */
-        &db_handle,        /* argument to print_fields */
-        NULL))            /* returned ending date (unused) */
+                     db_handle,           /* database handle */
+                     formula_handle,      /* selection formula */
+                     NULL,                /* title of view in selection formula */
+                     0,                   /* search flags */
+                     NOTE_CLASS_DOCUMENT, /* note class to find */
+                     NULL,                /* starting date (unused) */
+                     print_fields,        /* call for each note found */
+                     &db_handle,          /* argument to print_fields */
+                     NULL))               /* returned ending date (unused) */
 
     {
         PRINTERROR(error,"NSFSearch");
@@ -210,7 +210,7 @@ STATUS LNPUBLIC print_fields
     BLOCKID      field_block;
     DWORD        field_length, text_length;
     WORD         field_type;
-    DHANDLE        text_buffer;
+    DHANDLE      text_buffer;
     char         *text_ptr;
     STATUS       error;
 
@@ -232,10 +232,10 @@ but is shown here in case a starting date was used in the search. */
 /* Open the note. */
 
     if (error = NSFNoteOpen (
-            *(DBHANDLE*)db_handle,  /* database handle */
-            SearchMatch.ID.NoteID,  /* note ID */
-            0,                      /* open flags */
-            &note_handle))          /* note handle (return) */
+                       *(DBHANDLE*)db_handle,  /* database handle */
+                       SearchMatch.ID.NoteID,  /* note ID */
+                       0,                      /* open flags */
+                       &note_handle))          /* note handle (return) */
 
         return (error);
 
@@ -245,13 +245,13 @@ within Domino and Notes' memory. Check the return code for "field not found" ver
 a real error. */
 
     error = NSFItemInfo (
-            note_handle,        /* note handle */
-            "RICH_TEXT",        /* field we want */
-            (WORD)strlen("RICH_TEXT"),    /* length of above */
-            NULL,            /* full field (return) */
-            &field_type,        /* field type (return) */
-            &field_block,        /* field contents (return) */
-            &field_length);        /* field length (return) */
+                   note_handle,               /* note handle */
+                   "RICH_TEXT",               /* field we want */
+                   (WORD)strlen("RICH_TEXT"), /* length of above */
+                   NULL,                      /* full field (return) */
+                   &field_type,               /* field type (return) */
+                   &field_block,              /* field contents (return) */
+                   &field_length);            /* field length (return) */
 
     if (ERR(error) == NOERROR)
         field_found = TRUE;
@@ -275,42 +275,42 @@ a real error. */
 
 /* Extract only the text from the rich-text field into an ASCII string. */
 
-        if (error = ConvertItemToText (
-                field_block,    /* BLOCKID of field */
-                field_length,    /* length of field */
-                "\n",        /* line separator for output */
-                60,        /* line length in output */
-                &text_buffer,    /* output buffer */
-                &text_length,    /* output length */
-                TRUE))        /* strip tabs */
+    if (error = ConvertItemToText (
+                           field_block,     /* BLOCKID of field */
+                           field_length,    /* length of field */
+                           "\n",            /* line separator for output */
+                           60,              /* line length in output */
+                           &text_buffer,    /* output buffer */
+                           &text_length,    /* output length */
+                           TRUE))           /* strip tabs */
 
-        {
-            NSFNoteClose (note_handle);
-            return (error);
-        }
+    {
+        NSFNoteClose (note_handle);
+        return (error);
+    }
 
 /* Lock the memory allocated for the text buffer. Cast the resulting
 pointer to the type we need. */
 
-        text_ptr = (char *) OSLockObject (text_buffer);
+    text_ptr = (char *) OSLockObject (text_buffer);
 
 /* Move the text from the text buffer into a character array,
 truncate if necessary to fit the character array, and append a null
 to it. (We do this so that we now have a regular C text string.) */
 
-        text_length = (text_length > BUFSIZE ? BUFSIZE : text_length);
-        memcpy (field_text, text_ptr, (short) text_length);
-        field_text[text_length] = '\0';
+    text_length = (text_length > BUFSIZE ? BUFSIZE : text_length);
+    memcpy (field_text, text_ptr, (short) text_length);
+    field_text[text_length] = '\0';
 
 /* Print the text of the RICH_TEXT field. */
 
-        PRINTLOG ("\nRICH_TEXT field is:\n\n%s\n", field_text);
+    PRINTLOG ("\nRICH_TEXT field is:\n\n%s\n", field_text);
 
 /* Unlock and free the text buffer. */
 
-        OSUnlockObject (text_buffer);
-        OSMemFree (text_buffer);
-        }
+    OSUnlockObject (text_buffer);
+    OSMemFree (text_buffer);
+    }
 
 /* If the RICH_TEXT field is not there, print a message. */
 

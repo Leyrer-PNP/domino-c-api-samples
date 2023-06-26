@@ -63,7 +63,7 @@
  *       WORD wJustifyMode    Justify mode of paragraph. 
  *
  *    Returns:
- *        BOOL TRUE if Successful
+ *        BOOL TRUE  if Successful
  *        BOOL FALSE if Not Successful
  *
  *    Comments:
@@ -126,7 +126,7 @@ BOOL LNPUBLIC PutPabDef(char far * far * ppBuf,
  *       WORD wLength          Number of bytes remaining in the buffer. 
  *
  *    Returns:
- *        BOOL TRUE if Successful
+ *        BOOL TRUE  if Successful
  *        BOOL FALSE if Not Successful
  *     
  * 
@@ -147,7 +147,7 @@ BOOL LNPUBLIC PutPara( char far * far *ppBuf,
     if (wLength < ODSLength(_CDPARAGRAPH))
         return (FALSE);
 
-/* Fill in PARAGRAPH item structure  */
+    /* Fill in PARAGRAPH item structure  */
         
     CDPara.Header.Length = bLength;/* (BYTE) ODSLength(_CDPARAGRAPH); */
     CDPara.Header.Signature = bSig;/* SIG_CD_PARAGRAPH; */
@@ -172,13 +172,13 @@ BOOL LNPUBLIC PutPara( char far * far *ppBuf,
  * 
  *   Arguments:
  *       char far * far *ppBuf  Address of pointer to next available byte in 
- *                            buffer containing the item being created.
- *       WORD wPabDefNumber   The paragraph definition to which this pabref
- *                            refers.
- *       WORD wLength         Number of bytes remaining in the buffer. 
+ *                              buffer containing the item being created.
+ *       WORD wPabDefNumber     The paragraph definition to which this pabref
+ *                              refers.
+ *       WORD wLength           Number of bytes remaining in the buffer. 
  *
  *    Returns:
- *        BOOL TRUE if Successful
+ *        BOOL TRUE  if Successful
  *        BOOL FALSE if Not Successful
  *
  *

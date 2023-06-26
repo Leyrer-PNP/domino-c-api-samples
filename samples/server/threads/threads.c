@@ -104,11 +104,11 @@ NOTEHANDLE  note_handle;     /* note handle */
 int         semaphore;       /* thread semaphore count */
 int         filelock;        /* nsf file lock count */
 
-char        MsgQueueName[3][128];                 /* generic Message queue name */
+char        MsgQueueName[3][128];                     /* generic Message queue name */
 char        MsgQueue1[] = TASK_QUEUE_PREFIX "MSG_Q1"; /* Message queue name */
 char        MsgQueue2[] = TASK_QUEUE_PREFIX "MSG_Q2"; /* Message queue name */
 char        MsgQueue3[] = TASK_QUEUE_PREFIX "MSG_Q3"; /* Message queue name */
-MQHANDLE hQueue[3];                              /* Handles to message queue */
+MQHANDLE hQueue[3];                                   /* Handles to message queue */
 
    
 /* Macros */
@@ -197,32 +197,32 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
     
     /* Local data. */
 
-    DHANDLE      hOldStatusLine;  /* handle to initial default status line*/
-    DHANDLE      hStatusLineDesc; /* handle to new default status line */
+    DHANDLE    hOldStatusLine;  /* handle to initial default status line*/
+    DHANDLE    hStatusLineDesc; /* handle to new default status line */
     HMODULE    hMod;            /* add-in task's module handle */
     STATUS     error;           /* return code from HCL C API for Notes/Domino */
-    char    MsgBuffer[3] [MAX_MESSAGE + 1];      /* Buffer for messages */
-    WORD    MsgLen;                           /* Size of message */
+    char       MsgBuffer[3] [MAX_MESSAGE + 1];   /* Buffer for messages */
+    WORD       MsgLen;                           /* Size of message */
 
-   long       cur_time;    /* current time of day */
-   long       op_time_1;      /* current time of day + 30 seconds */
-   long       op_time_2;      /* current time of day + 60 seconds */
-   long       op_time_3;      /* current time of day + 120 seconds */
-   int        counter1=0;
-   int        counter2=0;
-   int        counter3=0;
-   int        threadsdone = 0;
-   int        quit_thread[3];
-   int         i;
+    long       cur_time;       /* current time of day */
+    long       op_time_1;      /* current time of day + 30 seconds */
+    long       op_time_2;      /* current time of day + 60 seconds */
+    long       op_time_3;      /* current time of day + 120 seconds */
+    int        counter1=0;
+    int        counter2=0;
+    int        counter3=0;
+    int        threadsdone = 0;
+    int        quit_thread[3];
+    int         i;
 
-   char message1[] = "Sample Multithread Add-in";
-   char message2[] = "Initializing Add-in";
-   char message3[] = "THREADS: Initialization complete.";
-   char message4[] = "Idle";
-   char mesasge5[] = "Error opening database.";
-   char message6[] = "Terminating Add-In Threads";
-   char message7[] = "Terminating Add-in";
-   char message8[] = "THREADS: Termination complete.";
+    char message1[] = "Sample Multithread Add-in";
+    char message2[] = "Initializing Add-in";
+    char message3[] = "THREADS: Initialization complete.";
+    char message4[] = "Idle";
+    char mesasge5[] = "Error opening database.";
+    char message6[] = "Terminating Add-In Threads";
+    char message7[] = "Terminating Add-in";
+    char message8[] = "THREADS: Termination complete.";
 
 #if defined (UNIX)
     /* points to where thread IDs will be stored */
@@ -311,13 +311,13 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
     quit_thread[1] = 0;
     quit_thread[2] = 0;
 
-         /* let's sleep until at least one thread starts */
+    /* let's sleep until at least one thread starts */
 
     while (semaphore == 0)
         SLEEP(1000L);
 
 
-      /*
+    /*
      * thread message queues.  Each thread is then told to terminate after a specific number
      * of job assignments have been sent.
      */
@@ -426,7 +426,7 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
             
    /* We get here when the server notifies us that it is time to terminate.  
       This can occur when 
-         1) The user has entered "quit" at the server console. 
+        1) The user has entered "quit" at the server console. 
         2) The user has entered "tell <ThisTask> quit" at the server console.
         3) When all three operation threads have ended.
     */
@@ -476,13 +476,13 @@ void *ThirtySecOps(void *dummy)
     char    MsgBuffer [MAX_MESSAGE + 1];  /* Buffer for messages */
     WORD    MsgLen;                       /* Size of message */
 
-    char message9[]  = "Error initializing 30 Second operation thread.";
-    char message10[] = "Performing 30 Second operation";
-    char message11[] = "Error writing 30 Second operation  Note to database.";
-    char message12[] = "THREADS: 1 Second operation complete.";
-    char message13[] = "30 Second operation Idle";
-    char message14[] = "THREADS: Ending 30 Second operation thread.";
-    char message15[] = "Exiting 30 Second operation";
+    char    message9[]  = "Error initializing 30 Second operation thread.";
+    char    message10[] = "Performing 30 Second operation";
+    char    message11[] = "Error writing 30 Second operation  Note to database.";
+    char    message12[] = "THREADS: 1 Second operation complete.";
+    char    message13[] = "30 Second operation Idle";
+    char    message14[] = "THREADS: Ending 30 Second operation thread.";
+    char    message15[] = "Exiting 30 Second operation";
 
       
    /* First increment semaphore */
@@ -607,15 +607,15 @@ void *OneMinOps(void *dummy)
     STATUS  error;
     int     counter = 0;
     int     op = 0;
-    char MsgBuffer [MAX_MESSAGE + 1];  /* Buffer for messages */
-    WORD MsgLen;                       /* Size of message */
-    char message16[] = "Error initializing 1 Minute operation thread.";
-    char message17[] = "Performing 1 Minute operation";
-    char message18[] = "Error writing 1 Minute operation note to database.";
-    char message19[] = "THREADS: 2 Second operation complete.";
-    char message20[] = "1 Minute operation idle";
-    char message21[] = "THREADS: Ending 1 Minute operation thread.";
-    char message22[] = "Exiting 1 Minute operation";
+    char    MsgBuffer [MAX_MESSAGE + 1];  /* Buffer for messages */
+    WORD    MsgLen;                       /* Size of message */
+    char    message16[] = "Error initializing 1 Minute operation thread.";
+    char    message17[] = "Performing 1 Minute operation";
+    char    message18[] = "Error writing 1 Minute operation note to database.";
+    char    message19[] = "THREADS: 2 Second operation complete.";
+    char    message20[] = "1 Minute operation idle";
+    char    message21[] = "THREADS: Ending 1 Minute operation thread.";
+    char    message22[] = "Exiting 1 Minute operation";
 
    /* First increment semaphore */
 
@@ -740,16 +740,16 @@ void *TwoMinOps(void *dummy)
     char     MsgBuffer [MAX_MESSAGE + 1]; /* Buffer for messages */
     WORD     MsgLen;                      /* Size of message */
 
-    char message23[] = "Error initializing 2 Minute operation thread.";
-    char message24[] = "Performing 2 Minute operation";
-    char message25[] = "THREADS: Begin 2 Minute Database Summary:";
-    char message26[] = "Error opening database.";
-    char message27[] = "Error reading notes from database.";
-    char message28[] = "Error closing database."; 
-    char message29[] = "THREADS: 4 Second operation complete."; 
-    char message30[] = "2 Minute operation Idle";
-    char message31[] = "THREADS: Ending 2 Minute operation thread.";
-    char message32[] = "Exiting 2 Minute operation";
+    char     message23[] = "Error initializing 2 Minute operation thread.";
+    char     message24[] = "Performing 2 Minute operation";
+    char     message25[] = "THREADS: Begin 2 Minute Database Summary:";
+    char     message26[] = "Error opening database.";
+    char     message27[] = "Error reading notes from database.";
+    char     message28[] = "Error closing database."; 
+    char     message29[] = "THREADS: 4 Second operation complete."; 
+    char     message30[] = "2 Minute operation Idle";
+    char     message31[] = "THREADS: Ending 2 Minute operation thread.";
+    char     message32[] = "Exiting 2 Minute operation";
 
    /* First increment semaphore */
 
@@ -821,15 +821,15 @@ void *TwoMinOps(void *dummy)
                 /* Call NSFSearch to find all data notes in the database. */
 
                     if (error = NSFSearch (
-                     read_handle,        /* database handle */
-                     NULLHANDLE,       /* selection formula (all) */
-                     NULL,             /* title of view in selection formula */
-                     0,                /* search flags */
-                     NOTE_CLASS_DOCUMENT,  /* note class to find */
-                     NULL,             /* starting date (unused) */
-                     ReadOpNote,       /* action routine for notes found */
-                     &read_handle,       /* argument to action routine */
-                     NULL))            /* returned ending date (unused) */
+                                    read_handle,         /* database handle */
+                                    NULLHANDLE,          /* selection formula (all) */
+                                    NULL,                /* title of view in selection formula */
+                                    0,                   /* search flags */
+                                    NOTE_CLASS_DOCUMENT, /* note class to find */
+                                    NULL,                /* starting date (unused) */
+                                    ReadOpNote,          /* action routine for notes found */
+                                    &read_handle,        /* argument to action routine */
+                                    NULL))               /* returned ending date (unused) */
                     {
                       NSFDbClose (read_handle);
                       AddInLogMessageText(message27, ERR(error));
@@ -1050,10 +1050,10 @@ STATUS LNPUBLIC ReadOpNote ( VOID *read_handle,
     /* Open the note. */
 
     if (error = NSFNoteOpen (
-            *(DBHANDLE *)read_handle,         /* database handle */
-            SearchMatch.ID.NoteID,          /* note ID */
-            0,                              /* open flags */
-            &note_handle))                  /* note handle (return) */
+                       *(DBHANDLE *)read_handle,       /* database handle */
+                       SearchMatch.ID.NoteID,          /* note ID */
+                       0,                              /* open flags */
+                       &note_handle))                  /* note handle (return) */
        
         return (ERR(error));
 
@@ -1089,16 +1089,16 @@ STATUS LNPUBLIC ReadOpNote ( VOID *read_handle,
 
     PURPOSE:    Figure out which command we got (if any).
     
-    NOTE:      This function modifies the message buffer pointed
-            to by the pMsg parameter!
+    NOTE:       This function modifies the message buffer pointed
+                to by the pMsg parameter!
 
 *************************************************************************/
 
 STATUS ProcessMessage(char *pMsg,   WORD msgLen) 
 {
    CMD_ENTRY   *pEntry;
-   char    *pCmd;
-   WORD     originalLen;
+   char        *pCmd;
+   WORD        originalLen;
 
    originalLen = msgLen;
          

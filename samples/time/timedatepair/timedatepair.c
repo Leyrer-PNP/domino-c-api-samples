@@ -109,18 +109,18 @@ int main(int argc, char *argv[])
 
 STATUS LNPUBLIC TimeConversion()
 {
-    STATUS sError = NOERROR;
+    STATUS        sError = NOERROR;
     TIMEDATE_PAIR theApptInterval;
-    WORD wLen;
+    WORD          wLen;
           
-    char lTimeRange[STRING_LENGTH];
-    char startTime[STRING_LENGTH];
-    char endTime[STRING_LENGTH];
-    char lstartTime[STRING_LENGTH];
-    char lendTime[STRING_LENGTH];
-    struct tm *date = NULL;
-    time_t timer;
-    char *plTimeRange=(char*)&lTimeRange;
+    char          lTimeRange[STRING_LENGTH];
+    char          startTime[STRING_LENGTH];
+    char          endTime[STRING_LENGTH];
+    char          lstartTime[STRING_LENGTH];
+    char          lendTime[STRING_LENGTH];
+    struct        tm *date = NULL;
+    time_t        timer;
+    char          *plTimeRange=(char*)&lTimeRange;
 
     /* Get current date and time */
     timer=time(NULL);

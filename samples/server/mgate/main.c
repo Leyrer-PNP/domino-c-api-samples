@@ -41,10 +41,10 @@ STATUS LNPUBLIC AddInMain(HMODULE hResourceModule, int argc, char *argv[])
 */
 
 {
-STATUS error = NOERROR;
-DWORD DeliveryInterval;
-TIMEDATE CurrentTime, ModifiedTime;
-TIMEDATE NextInboundTime, LastOutboundTime, NextOutboundTime;
+	STATUS   error = NOERROR;
+	DWORD    DeliveryInterval;
+	TIMEDATE CurrentTime, ModifiedTime;
+	TIMEDATE NextInboundTime, LastOutboundTime, NextOutboundTime;
 
 	hModule = hResourceModule;
 	AddInSetStatus(ERR_MGATE_INITIALIZING);
@@ -53,18 +53,18 @@ TIMEDATE NextInboundTime, LastOutboundTime, NextOutboundTime;
 	/* Get the gateway's foreign domain name. */
 
 	if (!OSGetEnvironmentString(MGATE_DOMAIN, GatewayDomain, sizeof(GatewayDomain)-1))
-		{
+	{
 		AddInLogError(ERR_MGATE_NODOMAIN, NOERROR, NULL);
 		goto quit;
-		}
+	}
 
 	/* Get the gateway's inbound/outbound directory drive letter. */
 
 	if (!OSGetEnvironmentString(MGATE_DRIVE, GatewayDrive, sizeof(GatewayDrive)-1))
-		{
+	{
 		AddInLogError(ERR_MGATE_NODRIVE, NOERROR, NULL);
 		goto quit;
-		}
+	}
 
 	/* Get the outbound delivery interval retry time */
 
@@ -81,16 +81,16 @@ TIMEDATE NextInboundTime, LastOutboundTime, NextOutboundTime;
 
 	error = MailOpenMessageFile(MGATE_MSGFILE_NAME, &hMessageFile);
 	if (error == ERR_NOEXIST)
-		{
+	{
 		error = MailCreateMessageFile(MGATE_MSGFILE_NAME, 
 						MAILBOX_TEMPLATE_NAME, "Mail Gateway", &hMessageFile);
 		AddInLogError(ERR_MGATE_MSGFILE_CREATE, NOERROR, MGATE_MSGFILE_NAME);
-		}
+	}
 	if (error) 
-		{
+	{
 		AddInLogError(ERR_MGATE_MSGFILE_OPEN, error, MGATE_MSGFILE_NAME);
 		goto quit;
-		}
+	}
 
 	/* Loop */
 
@@ -112,23 +112,23 @@ TIMEDATE NextInboundTime, LastOutboundTime, NextOutboundTime;
 
 		if ((TimeDateCompare(&CurrentTime, &NextOutboundTime) > 0) ||
 			(TimeDateCompare(&ModifiedTime, &LastOutboundTime) > 0))
-			{
+		{
 			OutboundTask();
 			OSCurrentTIMEDATE(&LastOutboundTime); /* Set AFTER running task */
 			NextOutboundTime = LastOutboundTime;
 			TimeDateIncrement(&NextOutboundTime, DeliveryInterval);
-			}
+		}
 
 		/* If it is time to poll for inbound messages, run the task. */
 
 		OSCurrentTIMEDATE(&CurrentTime);
 		if (TimeDateCompare(&CurrentTime, &NextInboundTime) > 0)
 
-			{
+		{
 			InboundTask();
 			OSCurrentTIMEDATE(&NextInboundTime);
 			TimeDateIncrement(&NextInboundTime, DeliveryInterval);
-			}
+		}
 
 		/* Do once/day housekeeping, if necessary. */
 
