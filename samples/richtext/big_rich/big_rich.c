@@ -138,23 +138,23 @@ STATUS LNPUBLIC AppendSubjectItem    (NOTEHANDLE, char *);
 
 int main (int argc, char *argv[])
 {
-    char       * szServerName;    /* name of HCL Domino Server where DB resides */
-    char       * szDbPathName;    /* pathname of database, e.g. "big_rich" */
-    char       szDirectory[MAX_SIZE];     /* directory containing ASCII files */
-    char       * szFileName;      /* filename to be created*/
-    char       szFilenamePath[MAX_SIZE];
+    char            * szServerName;        /* name of HCL Domino Server where DB resides */
+    char            * szDbPathName;        /* pathname of database, e.g. "big_rich" */
+    char            szDirectory[MAX_SIZE]; /* directory containing ASCII files */
+    char            * szFileName;          /* filename to be created*/
+    char            szFilenamePath[MAX_SIZE];
 	
 
-    DBHANDLE     hDb;             /* handle to database specified */
-    char         szFileSpec[MAXPATH]; /* filespec = path\*.txt */
+    DBHANDLE        hDb;                   /* handle to database specified */
+    char            szFileSpec[MAXPATH];   /* filespec = path\*.txt */
 	
     unsigned long   count, l_count, c_count;
     int             hFile;
     unsigned long   i;
     char            line[LINE_LEN + 1];
 
-    USHORT       usFileCount;
-    STATUS       error = NOERROR; /* return code from API calls */
+    USHORT          usFileCount;
+    STATUS          error = NOERROR; /* return code from API calls */
 
     /*  Process arguments. */
     if (argc < 6)
@@ -164,10 +164,10 @@ int main (int argc, char *argv[])
         goto Exit0;
     }
 
-	szServerName = argv[1];
-	szDbPathName = argv[2];
-	szFileName = argv[4];
-	count = atol(argv[5]);
+    szServerName = argv[1];
+    szDbPathName = argv[2];
+    szFileName = argv[4];
+    count = atol(argv[5]);
 
     /* Initialize Notes */
     if (error = NotesInitExtended (argc, argv))
@@ -187,20 +187,20 @@ int main (int argc, char *argv[])
 	
 		
 #if defined (LINUX)
-	strcpy(szFilenamePath, "/");
+    strcpy(szFilenamePath, "/");
 #else
-	strcpy(szFilenamePath, "c:\\");
+    strcpy(szFilenamePath, "c:\\");
 #endif
 
-	strcat(szFilenamePath, argv[3]);
-	strcpy(szDirectory, szFilenamePath);
+    strcat(szFilenamePath, argv[3]);
+    strcpy(szDirectory, szFilenamePath);
 	
 #if defined (LINUX)
-	strcat(szFilenamePath, "/");
+    strcat(szFilenamePath, "/");
 #else
-	strcat(szFilenamePath, "\\");
+    strcat(szFilenamePath, "\\");
 #endif
-	strcat(szFilenamePath, szFileName);
+    strcat(szFilenamePath, szFileName);
 
 	
 	
@@ -208,7 +208,7 @@ int main (int argc, char *argv[])
     strcpy (szFileSpec, szDirectory);
     strcat (szFileSpec, "\\*");
     strcat (szFileSpec, FILENAME_EXTENSION); /*.TXT*/
-	usFileCount = 0;
+    usFileCount = 0;
 
     /* Create file */
 #if defined (LINUX)
@@ -345,7 +345,7 @@ STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
     if (strlen (fullpath_name) > MAXPATH)
     {
         PRINTLOG ("Error: Database full path name: '%s'\n is longer than %i\n",
-                fullpath_name, MAXPATH);
+                      fullpath_name, MAXPATH);
         return (ERR_BIGRICH_DBOPEN);
     }
 
