@@ -138,23 +138,23 @@ STATUS LNPUBLIC AppendSubjectItem    (NOTEHANDLE, char *);
 
 int main (int argc, char *argv[])
 {
-    char       * szServerName;    /* name of HCL Domino Server where DB resides */
-    char       * szDbPathName;    /* pathname of database, e.g. "big_rich" */
-    char       szDirectory[MAX_SIZE];     /* directory containing ASCII files */
-    char       * szFileName;      /* filename to be created*/
-    char       szFilenamePath[MAX_SIZE];
+    char            * szServerName;        /* name of HCL Domino Server where DB resides */
+    char            * szDbPathName;        /* pathname of database, e.g. "big_rich" */
+    char            szDirectory[MAX_SIZE]; /* directory containing ASCII files */
+    char            * szFileName;          /* filename to be created*/
+    char            szFilenamePath[MAX_SIZE];
 	
 
-    DBHANDLE     hDb;             /* handle to database specified */
-    char         szFileSpec[MAXPATH]; /* filespec = path\*.txt */
+    DBHANDLE        hDb;                   /* handle to database specified */
+    char            szFileSpec[MAXPATH];   /* filespec = path\*.txt */
 	
     unsigned long   count, l_count, c_count;
     int             hFile;
     unsigned long   i;
     char            line[LINE_LEN + 1];
 
-    USHORT       usFileCount;
-    STATUS       error = NOERROR; /* return code from API calls */
+    USHORT          usFileCount;
+    STATUS          error = NOERROR; /* return code from API calls */
 
     /*  Process arguments. */
     if (argc < 6)
@@ -164,128 +164,128 @@ int main (int argc, char *argv[])
         goto Exit0;
     }
 
-	szServerName = argv[1];
-	szDbPathName = argv[2];
-	szFileName = argv[4];
-	count = atol(argv[5]);
+    szServerName = argv[1];
+    szDbPathName = argv[2];
+    szFileName = argv[4];
+    count = atol(argv[5]);
 
-	/* Initialize Notes */
-	if (error = NotesInitExtended (argc, argv))
-	{
-		PRINTLOG("\n Unable to initialize Notes.\n");
-		return (1);
-	}
+    /* Initialize Notes */
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
 
 	
-	/* Open Domino DB. Sets hDb */
-	if (error = OpenNotesDB(szServerName, szDbPathName, &hDb))
-	{
-		goto Exit0;
-	}
+    /* Open Domino DB. Sets hDb */
+    if (error = OpenNotesDB(szServerName, szDbPathName, &hDb))
+    {
+        goto Exit0;
+    }
 	
 
 	
 		
 #if defined (LINUX)
-	strcpy(szFilenamePath, "/");
+    strcpy(szFilenamePath, "/");
 #else
-	strcpy(szFilenamePath, "c:\\");
+    strcpy(szFilenamePath, "c:\\");
 #endif
 
-	strcat(szFilenamePath, argv[3]);
-	strcpy(szDirectory, szFilenamePath);
+    strcat(szFilenamePath, argv[3]);
+    strcpy(szDirectory, szFilenamePath);
 	
 #if defined (LINUX)
-	strcat(szFilenamePath, "/");
+    strcat(szFilenamePath, "/");
 #else
-	strcat(szFilenamePath, "\\");
+    strcat(szFilenamePath, "\\");
 #endif
-	strcat(szFilenamePath, szFileName);
+    strcat(szFilenamePath, szFileName);
 
 	
 	
-/*  Loop over ASCII files in the directory. Add a new note for each.*/
+    /*  Loop over ASCII files in the directory. Add a new note for each.*/
     strcpy (szFileSpec, szDirectory);
     strcat (szFileSpec, "\\*");
     strcat (szFileSpec, FILENAME_EXTENSION); /*.TXT*/
-	usFileCount = 0;
+    usFileCount = 0;
 
-	/* Create file */
+    /* Create file */
 #if defined (LINUX)
-	hFile = open(szFilenamePath, O_WRONLY | O_CREAT, S_IWRITE);
+    hFile = open(szFilenamePath, O_WRONLY | O_CREAT, S_IWRITE);
 #else
-	hFile = open(szFilenamePath, O_WRONLY | O_TEXT | O_CREAT, S_IWRITE);
+    hFile = open(szFilenamePath, O_WRONLY | O_TEXT | O_CREAT, S_IWRITE);
 #endif
 
-	if (hFile == 0)
-	{
-		PRINTLOG("Error: unable to open file '%s' for write.\n", szFilenamePath);
-		exit(1);
-	}
+    if (hFile == 0)
+    {
+        PRINTLOG("Error: unable to open file '%s' for write.\n", szFilenamePath);
+        exit(1);
+    }
 
-	for (i = 0; i < LINE_LEN; i++)
-	{
-		line[i] = (char)((i % 10) + '0');
-	}
-	line[LINE_LEN] = '\n';
+    for (i = 0; i < LINE_LEN; i++)
+    {
+        line[i] = (char)((i % 10) + '0');
+    }
+    line[LINE_LEN] = '\n';
 
-	l_count = count / (LINE_LEN + 2);
-	c_count = count % (LINE_LEN + 2);
-	PRINTLOG("Writing %ld lines plus %ld characters.\n", l_count, c_count);
+    l_count = count / (LINE_LEN + 2);
+    c_count = count % (LINE_LEN + 2);
+    PRINTLOG("Writing %ld lines plus %ld characters.\n", l_count, c_count);
 
-	for (i = 0; i < l_count; i++)
-	{
-		if (write(hFile, line, LINE_LEN + 1) == -1)
-		{
-			PRINTLOG("Error: write.\n");
-			close(hFile);
-			exit(1);
-		}
-	}
+    for (i = 0; i < l_count; i++)
+    {
+        if (write(hFile, line, LINE_LEN + 1) == -1)
+        {
+            PRINTLOG("Error: write.\n");
+            close(hFile);
+            exit(1);
+        }
+    }
 	
-	if (write(hFile, line, (unsigned)c_count) == -1)
-	{
-		PRINTLOG("Error: write.\n");
-		close(hFile);
-		exit(1);
-	}
+    if (write(hFile, line, (unsigned)c_count) == -1)
+    {
+        PRINTLOG("Error: write.\n");
+        close(hFile);
+        exit(1);
+    }
 	
-	close(hFile);
+    close(hFile);
 	
-	PRINTLOG("Created ASCII file '%s' containing %ld characters.\n",
-		szFilenamePath, count);
+    PRINTLOG("Created ASCII file '%s' containing %ld characters.\n",
+                szFilenamePath, count);
 
 
 
 #if defined (LINUX)
-	DIR* dirHandle;
-	struct dirent* filelHandle;
-	dirHandle = opendir(szDirectory);
-	if (dirHandle)
-	{
-		while ((filelHandle = readdir(dirHandle)) != NULL)
-		{
-			if (filelHandle->d_type == DT_REG)	//condition check for file
-			{
-				if (strstr(filelHandle->d_name, FILENAME_EXTENSION ) != NULL) 	//Condition check for text file
-				{
-					if (error = ProcessOneFile(hDb, filelHandle->d_name, szDirectory))
-					{
-						goto Exit1;
-					}
-					usFileCount++;					
-				}
-			}
-		}
-		closedir(dirHandle);
-	}
+    DIR* dirHandle;
+    struct dirent* filelHandle;
+    dirHandle = opendir(szDirectory);
+    if (dirHandle)
+    {
+        while ((filelHandle = readdir(dirHandle)) != NULL)
+        {
+            if (filelHandle->d_type == DT_REG)	//condition check for file
+            {
+                if (strstr(filelHandle->d_name, FILENAME_EXTENSION ) != NULL) 	//Condition check for text file
+                {
+                    if (error = ProcessOneFile(hDb, filelHandle->d_name, szDirectory))
+                    {
+                        goto Exit1;
+                    }
+                    usFileCount++;					
+                }
+            }
+        }
+        closedir(dirHandle);
+    }
 #else
 	
-	HANDLE		hFind;				/* File search handle */
-	WIN32_FIND_DATA	FileFindData = { 0 };	/* File search data */
+    HANDLE		hFind;                  /* File search handle */
+    WIN32_FIND_DATA	FileFindData = { 0 };   /* File search data */
 	
-	hFind = FindFirstFile (szFileSpec, &FileFindData);
-	if (INVALID_HANDLE_VALUE == hFind)
+    hFind = FindFirstFile (szFileSpec, &FileFindData);
+    if (INVALID_HANDLE_VALUE == hFind)
     {
         PRINTLOG ("Error: no files found matching '%s'\n", szFileSpec);
         goto Exit1;
@@ -299,7 +299,7 @@ int main (int argc, char *argv[])
         }
         usFileCount++;
 
-	}  while (FindNextFile (hFind, &FileFindData));
+    }  while (FindNextFile (hFind, &FileFindData));
 	
 #endif
 
@@ -323,7 +323,7 @@ Exit0:
 *************************************************************************/
 
 STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
-                                DBHANDLE * phDb)
+                               DBHANDLE * phDb)
 {
     STATUS  error ;
     char    fullpath_name[MAXPATH];
@@ -345,7 +345,7 @@ STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
     if (strlen (fullpath_name) > MAXPATH)
     {
         PRINTLOG ("Error: Database full path name: '%s'\n is longer than %i\n",
-                fullpath_name, MAXPATH);
+                      fullpath_name, MAXPATH);
         return (ERR_BIGRICH_DBOPEN);
     }
 
@@ -367,20 +367,20 @@ STATUS LNPUBLIC   OpenNotesDB (char * pServer, char * pNsfName,
 *************************************************************************/
 
 STATUS  LNPUBLIC  ProcessOneFile(DBHANDLE    hDb, char * szAsciiFileName,
-                                                 char * szDirectory)
+                                 char * szDirectory)
 {
     char        szFullFilePath[MAXPATH]; /* path and file name */
     NOTEHANDLE  hNote;
-    STATUS        error;      /* return code from API calls */
-    STATUS        error2;     /* return code from API calls in exit path */
+    STATUS      error;                   /* return code from API calls */
+    STATUS      error2;                  /* return code from API calls in exit path */
 
     /* Format the qualified input file name. */
 
     strcpy (szFullFilePath, szDirectory);
 #if defined (LINUX)
-	strcat(szFullFilePath, "/");
+    strcat(szFullFilePath, "/");
 #else
-	strcat(szFullFilePath, "\\");
+    strcat(szFullFilePath, "\\");
 #endif
     strcat (szFullFilePath, szAsciiFileName);
 
@@ -392,15 +392,20 @@ STATUS  LNPUBLIC  ProcessOneFile(DBHANDLE    hDb, char * szAsciiFileName,
         goto Exit0;
     }
     /* Append Form item to the note: "MainTopic" */
-    if (error = AppendFormItem (hNote))  goto Exit1;
+    if (error = AppendFormItem (hNote))
+        goto Exit1;
     /* Append From item to note = name of user. Author Names data type. */
-    if (error = AppendFromItem (hNote)) goto Exit1;
+    if (error = AppendFromItem (hNote))
+        goto Exit1;
     /* Append Categories Item to note = the directory name specified */
-    if (error = AppendCategoriesItem (hNote, szDirectory)) goto Exit1;
+    if (error = AppendCategoriesItem (hNote, szDirectory))
+        goto Exit1;
     /* Append Body Item to note containing text from the file */
-    if (error = AppendBodyItem (hNote, szFullFilePath)) goto Exit1;
+    if (error = AppendBodyItem (hNote, szFullFilePath))
+        goto Exit1;
     /* Append Subject item to note = name of ascii file */
-    if (error = AppendSubjectItem (hNote, szAsciiFileName))  goto Exit1;
+    if (error = AppendSubjectItem (hNote, szAsciiFileName))
+        goto Exit1;
     /* Add the entire new note (with all items) to the database. */
 
     if (error = NSFNoteUpdate (hNote, 0))
@@ -417,7 +422,8 @@ Exit1:
     if (error2 = NSFNoteClose (hNote))
     {
         PRINTLOG ("Error: unable to close note.\n");
-        if (error == NOERROR) error = error2;
+        if (error == NOERROR)
+	    error = error2;
     }
 Exit0:
     return (ERR(error));
@@ -434,9 +440,9 @@ STATUS  LNPUBLIC  AppendFormItem (NOTEHANDLE  hNote)
     STATUS  error;
 
     if (error = NSFItemSetText ( hNote,
-                    FIELD_FORM,         /* "Form" */
-                    "Main Topic",
-                    MAXWORD))
+                                 FIELD_FORM,         /* "Form" */
+                                 "Main Topic",
+                                 MAXWORD))
     {
         PRINTLOG ("Error: unable to set text in Form field.\n");
     }
@@ -461,14 +467,13 @@ STATUS LNPUBLIC AppendFromItem (NOTEHANDLE  hNote)
         return (error);
     }
 
-    if (error = NSFItemAppend (
-                    hNote,
-                    ITEM_SUMMARY | ITEM_NAMES | ITEM_READWRITERS,
-                    BIGRICH_ITEM_FROM,      /* "From" */
-                    (WORD) strlen(BIGRICH_ITEM_FROM),
-                    TYPE_TEXT,
-                    szDocAuthor,
-                    (DWORD) strlen (szDocAuthor)))
+    if (error = NSFItemAppend (hNote,
+                               ITEM_SUMMARY | ITEM_NAMES | ITEM_READWRITERS,
+                               BIGRICH_ITEM_FROM,      /* "From" */
+                               (WORD) strlen(BIGRICH_ITEM_FROM),
+                               TYPE_TEXT,
+                               szDocAuthor,
+                               (DWORD) strlen (szDocAuthor)))
     {
         PRINTLOG ("Error: unable to set From item in note.\n");
     }
@@ -484,7 +489,7 @@ STATUS LNPUBLIC AppendFromItem (NOTEHANDLE  hNote)
 STATUS  LNPUBLIC  AppendCategoriesItem (NOTEHANDLE hNote, char * szFullPath)
 {
     STATUS      error;
-    char      * szCategories;
+    char        *szCategories;
 
     /* parse the last dir from the path and use it as the category */
 
@@ -497,9 +502,9 @@ STATUS  LNPUBLIC  AppendCategoriesItem (NOTEHANDLE hNote, char * szFullPath)
         szCategories = szFullPath;
 
     if (error = NSFItemSetText (hNote,
-                    BIGRICH_ITEM_CATEGORIES,/* "Categories" */
-                    szCategories,
-                    MAXWORD))
+                                BIGRICH_ITEM_CATEGORIES,/* "Categories" */
+                                szCategories,
+                                MAXWORD))
     {
         PRINTLOG ("Error: unable to set text in Categories field.\n");
     }
@@ -526,15 +531,14 @@ STATUS  LNPUBLIC  AppendCategoriesItem (NOTEHANDLE hNote, char * szFullPath)
 STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFullFilePath)
 {
     STATUS          error;
-    DHANDLE           hCompound;      /* Compound Text context */
+    DHANDLE         hCompound;      /* Compound Text context */
     COMPOUNDSTYLE   Style;
     DWORD           dwStyleID;
 
     /* Create compound text context. This initializes hCompound. */
-    if (error = CompoundTextCreate (
-                        hNote,
-                        BIGRICH_ITEM_BODY,  /* "Body" */
-                        &hCompound))
+    if (error = CompoundTextCreate (hNote,
+                                    BIGRICH_ITEM_BODY,  /* "Body" */
+                                    &hCompound))
     {
         PRINTLOG ("Error: unable to create Compound Text context.\n");
         return (error);
@@ -553,17 +557,16 @@ STATUS  LNPUBLIC  AppendBodyItem (NOTEHANDLE hNote, char * szFullFilePath)
     }
 
     /* Add text from the file to the compound text context */
-    if (error = CompoundTextAddTextExt (
-                        hCompound,              /* context */
-                        dwStyleID,              /* style  */
-                        DEFAULT_FONT_ID,        /* font ID */
-                        szFullFilePath,         /* text file name */
-                        (DWORD) strlen (szFullFilePath),/* name length */
-                        "\r\n",                 /* newline delimiter */
-                        COMP_FROM_FILE |        /* take input from file */
-                        COMP_PRESERVE_LINES,    /* preserve line breaks */
-                        /* don't specify any paragraph directive: 1K each */
-                        NULLHANDLE))            /* CLS translation table */
+    if (error = CompoundTextAddTextExt (hCompound,              /* context */
+                                        dwStyleID,              /* style  */
+                                        DEFAULT_FONT_ID,        /* font ID */
+                                        szFullFilePath,         /* text file name */
+                                        (DWORD) strlen (szFullFilePath),/* name length */
+                                        "\r\n",                 /* newline delimiter */
+                                        COMP_FROM_FILE |        /* take input from file */
+                                        COMP_PRESERVE_LINES,    /* preserve line breaks */
+                                        /* don't specify any paragraph directive: 1K each */
+                                        NULLHANDLE))            /* CLS translation table */
     {
         PRINTLOG("Error: unable to add text from file '%s' to Compound Text.\n",
                                  szFullFilePath);
@@ -591,9 +594,9 @@ STATUS LNPUBLIC AppendSubjectItem( NOTEHANDLE hNote, char * szAsciiFileName)
     STATUS  error;
 
     if (error = NSFItemSetText (hNote,
-                    BIGRICH_ITEM_SUBJECT,   /* "Subject" */
-                    szAsciiFileName,
-                    MAXWORD))
+                                BIGRICH_ITEM_SUBJECT,   /* "Subject" */
+                                szAsciiFileName,
+                                MAXWORD))
     {
         PRINTLOG ("Error: unable to set Subject field in note.\n");
     }

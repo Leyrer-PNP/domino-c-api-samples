@@ -197,9 +197,9 @@ int main(int argc, char *argv[])
               
     /* Initialize a CDPABDEFINITION structure.We use all defaults, 
        except for centered justification. 
-     */
+    */
 
-	memset(&pabdef, 0, sizeof(CDPABDEFINITION));
+    memset(&pabdef, 0, sizeof(CDPABDEFINITION));
 
     pabdef.Header.Signature = SIG_CD_PABDEFINITION;
     pabdef.Header.Length = ODSLength( _CDPABDEFINITION );

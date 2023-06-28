@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
 
     /* Create file */
 #if defined (LINUX)
-	hFile = open (file_name, O_WRONLY| O_CREAT, S_IWRITE);
+    hFile = open (file_name, O_WRONLY| O_CREAT, S_IWRITE);
 #else
-	hFile = open(file_name, O_WRONLY | O_TEXT | O_CREAT, S_IWRITE);
+    hFile = open(file_name, O_WRONLY | O_TEXT | O_CREAT, S_IWRITE);
 #endif
        
     if (hFile == 0)
