@@ -259,8 +259,8 @@ not test for or return any errors, although it could.) */
 
     {
         fprintf (logfile,
-         "\n%s: %s \nNear line number %ld, byte number %ld.\n",
-         severity, message, line_count, byte_count);
+                 "\n%s: %s \nNear line number %ld, byte number %ld.\n",
+                 severity, message, line_count, byte_count);
 
         return;
     }
@@ -288,10 +288,10 @@ errors, although it could.)*/
 table. */
 
         text_len = OSLoadString (
-                   NULLHANDLE,
-                   ERR(api_code),
-                   message,
-                   sizeof(message));
+                                 NULLHANDLE,
+                                 ERR(api_code),
+                                 message,
+                                 sizeof(message));
 
 /* Print the error message. */
 

@@ -914,11 +914,11 @@ Outputs:
 	Converted mail file (implicit).
 *************************************************************************/
 STATUS LNCALLBACK DUSConvertMailFile(DHANDLE hContext,
-				     char *UserName,
-				     char *MailFilePath,
-				     NOTEHANDLE hUserNote,
-				     NOTEHANDLE hNewPersonNote,
-				     REGSIGNALPROC SignalStatus)
+                                     char *UserName,
+                                     char *MailFilePath,
+                                     NOTEHANDLE hUserNote,
+                                     NOTEHANDLE hNewPersonNote,
+                                     REGSIGNALPROC SignalStatus)
 {
 
 	/*
@@ -955,9 +955,9 @@ STATUS LNCALLBACK DUSConvertMailFile(DHANDLE hContext,
 			       display of the error if or'd in.
 *******************************************************************************/
 void LNCALLBACK DUSExtendedErrorText(DHANDLE hContext,
-				     char * ErrorBuffer,
-				     WORD BufferLen,
-				     WORD *pErrorLevel)
+                                     char * ErrorBuffer,
+                                     WORD BufferLen,
+                                     WORD *pErrorLevel)
 {
 
 	if(hContext)

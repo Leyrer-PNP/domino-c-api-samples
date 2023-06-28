@@ -134,13 +134,13 @@ int main(int argc, char *argv[])
     DBREPLICAINFO    ReplicaInfo;  /* replication info for the databases */
     TIMEDATE         StartTime;    /* time and date used to control what
                                       notes we copy */
-    TIMEDATE    LastTime;          /* returned from 
+    TIMEDATE         LastTime;          /* returned from 
                                       NSFDbGetModifiedNoteTable */
-    DBID        OrigDBID;          /* dbid of input database */
-    DBID        RepDBID;           /* dbid of output database */
-    DHANDLE       pIDTable;          /* handle to id table */
-    DWORD       NumScanned, NumEntries;
-    NOTEID      nid;
+    DBID             OrigDBID;          /* dbid of input database */
+    DBID             RepDBID;           /* dbid of output database */
+    DHANDLE          pIDTable;          /* handle to id table */
+    DWORD            NumScanned, NumEntries;
+    NOTEID           nid;
 
     if (argc != 2)
     {
@@ -279,9 +279,9 @@ int main(int argc, char *argv[])
 
 /* Get the NoteID table for all notes in the input database */
     if (sError = NSFDbGetModifiedNoteTable (hOrigDB,
-                                           NOTE_CLASS_ALL,
-                                           StartTime, &LastTime,
-                                           &pIDTable) )
+                                            NOTE_CLASS_ALL,
+                                            StartTime, &LastTime,
+                                            &pIDTable) )
         if (sError != ERR_NO_MODIFIED_NOTES)
         {
             IDDestroyTable (pIDTable);
@@ -297,10 +297,10 @@ int main(int argc, char *argv[])
     if (NumEntries)
         while (IDScan (pIDTable, (FLAG)(NumScanned++ == 0), &nid) )
             if (sError = NSFDbCopyNote (hOrigDB, NULL,
-                                       &ReplicaInfo.ID, nid,
-                                       hDB, &RepDBID,
-                                       &ReplicaInfo.ID, NULL,
-                                       NULL) )
+                                        &ReplicaInfo.ID, nid,
+                                        hDB, &RepDBID,
+                                        &ReplicaInfo.ID, NULL,
+                                        NULL) )
             {
                 IDDestroyTable (pIDTable);
                 NSFDbClose (hOrigDB);
@@ -326,10 +326,10 @@ int main(int argc, char *argv[])
 
     if (sError = NSFNoteCreate(hDB, &hNote))
     {
-         NSFDbClose(hDB);            /* Close database            */
-         PRINTERROR (sError,"NSFNoteCreate");  
-         NotesTerm();
-         return (1);
+        NSFDbClose(hDB);            /* Close database            */
+        PRINTERROR (sError,"NSFNoteCreate");  
+        NotesTerm();
+        return (1);
     }
 
 /*
@@ -467,12 +467,12 @@ int main(int argc, char *argv[])
  */
 
     if (sError = NSFItemAppend(hNote,
-                ITEM_SUMMARY,
-                REPLFORMULA_SOURCE_SERVERS,
-                sizeof (REPLFORMULA_SOURCE_SERVERS)-1,
-                TYPE_TEXT_LIST,
-                pBuffer,
-                wItemLength))
+                               ITEM_SUMMARY,
+                               REPLFORMULA_SOURCE_SERVERS,
+                               sizeof (REPLFORMULA_SOURCE_SERVERS)-1,
+                               TYPE_TEXT_LIST,
+                               pBuffer,
+                               wItemLength))
     {
         OSUnlockObject (hMem);
         OSMemFree (hMem);
@@ -532,12 +532,12 @@ int main(int argc, char *argv[])
  */
 
     if (sError = NSFItemAppend(hNote,
-                ITEM_SUMMARY,
-                REPLFORMULA_NOTECLASS_ITEM,
-                sizeof (REPLFORMULA_NOTECLASS_ITEM)-1,
-                TYPE_TEXT_LIST,
-                pBuffer,
-                wItemLength))
+                               ITEM_SUMMARY,
+                               REPLFORMULA_NOTECLASS_ITEM,
+                               sizeof (REPLFORMULA_NOTECLASS_ITEM)-1,
+                               TYPE_TEXT_LIST,
+                               pBuffer,
+                               wItemLength))
     {
         OSUnlockObject (hMem);
         OSMemFree (hMem);
@@ -558,13 +558,13 @@ int main(int argc, char *argv[])
  */
      
     if (sError = NSFFormulaCompile(NULL,
-               0,
-               szSelFormula,
-               (WORD)strlen(szSelFormula),
-               &hSelFormula,
-               &wSelFormulaLen,
-               &wdc, &wdc, &wdc,
-               &wdc, &wdc))
+                                   0,
+                                   szSelFormula,
+                                   (WORD)strlen(szSelFormula),
+                                   &hSelFormula,
+                                   &wSelFormulaLen,
+                                   &wdc, &wdc, &wdc,
+                                   &wdc, &wdc))
     {
         OSUnlockObject (hMem);
         OSMemFree (hMem);
@@ -581,12 +581,12 @@ int main(int argc, char *argv[])
  */
 
     if (sError = NSFItemAppend(hNote,
-                ITEM_SUMMARY,
-                REPLFORMULA_FORMULA_ITEM,
-                sizeof (REPLFORMULA_FORMULA_ITEM)-1,
-                TYPE_FORMULA,
-                pSelFormula,
-                wSelFormulaLen))
+                               ITEM_SUMMARY,
+                               REPLFORMULA_FORMULA_ITEM,
+                               sizeof (REPLFORMULA_FORMULA_ITEM)-1,
+                               TYPE_FORMULA,
+                               pSelFormula,
+                               wSelFormulaLen))
     {
         OSUnlockObject (hMem);
         OSMemFree (hMem);

@@ -75,7 +75,7 @@ int main (int argc, char *argv[])
     if (pReqNumFile == (FILE*)NULL)
     {
         PRINTLOG("Error: unable to open file '%s': %d.\n",
-                            REQNUM_FILENAME, errno);
+                  REQNUM_FILENAME, errno);
         return 0;
     }
 
@@ -86,7 +86,7 @@ int main (int argc, char *argv[])
     if (count != 1)
     {
         PRINTLOG("Error: error writing file '%s' : %d.\n",
-                            REQNUM_FILENAME, errno);
+                  REQNUM_FILENAME, errno);
     }
 
     return 0;

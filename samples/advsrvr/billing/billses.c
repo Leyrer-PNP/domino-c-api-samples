@@ -176,15 +176,15 @@ STATUS LNPUBLIC AddInMain (HMODULE hResourceModule, int argc, char *argv[])
 /* Default is to wake up every minute and run for 10 seconds. */
 
    if (! (Wakeup = OSGetEnvironmentLong("BillingAddinWakeup")) )
-	   Wakeup = 60;
+       Wakeup = 60;
 
    if (! (Runtime = OSGetEnvironmentLong("BillingAddinRuntime")) )
-	   Runtime = 10;
+       Runtime = 10;
 
    if (Runtime > Wakeup)
    {
-      AddInLogMessageText(MSG_ADDIN_TERMINATING, NULL);
-      return (NOERROR);
+       AddInLogMessageText(MSG_ADDIN_TERMINATING, NULL);
+       return (NOERROR);
    }
 
 /* Log that the billing task has started. */
@@ -199,33 +199,33 @@ STATUS LNPUBLIC AddInMain (HMODULE hResourceModule, int argc, char *argv[])
 
    if (error = MQCreate(BILL_QUEUE_NAME, MAXWORD, 0))
    {
-      if (error != ERR_DUPLICATE_MQ)
-      {
-         AddInLogErrorText(MSG_ADDIN_ERROR, error, "MQCreate");
-         return (NOERROR);
-      }
+       if (error != ERR_DUPLICATE_MQ)
+       {
+           AddInLogErrorText(MSG_ADDIN_ERROR, error, "MQCreate");
+           return (NOERROR);
+       }
    }
  
    if (error = MQOpen (BILL_QUEUE_NAME, 0, &bMsgQueue))
    {
-      AddInLogErrorText(MSG_ADDIN_ERROR, error,"MQOpen");
-      return (NOERROR);
+       AddInLogErrorText(MSG_ADDIN_ERROR, error,"MQOpen");
+       return (NOERROR);
    }
 
 /* Allocate enough memory to hold the session struct returned in message */
 
    if( (Message = (char *)malloc( msgsize)) == NULL)
    {
-      AddInLogErrorText(MSG_ADDIN_ERROR_NOMEMORY, 0L,"Malloc()");
-      return(NOERROR);
+       AddInLogErrorText(MSG_ADDIN_ERROR_NOMEMORY, 0L,"Malloc()");
+       return(NOERROR);
    }
 
 /* Create/Open the billing sample database */
 
    if (error = BillingDBOpen (&hDB))
    {
-      AddInLogErrorText (MSG_ADDIN_ERROR_DBOPEN, error, NULL); 
-      goto done;
+       AddInLogErrorText (MSG_ADDIN_ERROR_DBOPEN, error, NULL); 
+       goto done;
    }
    else
       fBillingDBOpen = TRUE;
@@ -234,108 +234,108 @@ STATUS LNPUBLIC AddInMain (HMODULE hResourceModule, int argc, char *argv[])
 
    while (!MQIsQuitPending(bMsgQueue))
    {
-      WORD len;
+       WORD len;
 
-      AddInSetStatusText(MSG_ADDIN_IDLE, 0L);
+       AddInSetStatusText(MSG_ADDIN_IDLE, 0L);
 		
-   /* Yield processor to other tasks and reset schedules. 
-      Quit if server terminates. */
+       /* Yield processor to other tasks and reset schedules. 
+          Quit if server terminates. */
 
-      if (AddInIdle())
-      {
+       if (AddInIdle())
+       {
 		
-      /* Empty the queue. */
+           /* Empty the queue. */
 	   
-         AddInSetStatusText(MSG_ADDIN_PROCESSBILLING, 0L);
-         while (TRUE)
-         {
-            error=MQGet(bMsgQueue, Message, msgsize, 0, 0, &len);
+           AddInSetStatusText(MSG_ADDIN_PROCESSBILLING, 0L);
+           while (TRUE)
+           {
+               error=MQGet(bMsgQueue, Message, msgsize, 0, 0, &len);
     
-	 /* Queue is empty.  Stop processing. */
+               /* Queue is empty.  Stop processing. */
 
-            if (error) 
-            {
-               if (error != ERR_MQ_EMPTY)
-                  AddInLogErrorText(MSG_ADDIN_ERROR, error,"MQGet Quit");
-            }
+               if (error) 
+               {
+                   if (error != ERR_MQ_EMPTY)
+                       AddInLogErrorText(MSG_ADDIN_ERROR, error,"MQGet Quit");
+               }
 		
-            if ((len <= 0) || (error))
-               break;
+               if ((len <= 0) || (error))
+                   break;
     
-            if (error = BillingMessageToDB ((BILLMSG*) Message, hDB, len))
-                AddInLogErrorText (MSG_ADDIN_ERROR_WRITEDB, error, NULL);
-         }
-		 
-         goto done;
-      }
+               if (error = BillingMessageToDB ((BILLMSG*) Message, hDB, len))
+                   AddInLogErrorText (MSG_ADDIN_ERROR_WRITEDB, error, NULL);
+           }  
+           
+           goto done;
+       }
 	
    /* Read the Billing message queue every X (default: 60) seconds. */
 
-      if (AddInSecondsHaveElapsed(Wakeup))
-      {
+       if (AddInSecondsHaveElapsed(Wakeup))
+       {
 
-         TIMEDATE Now, DueTime;
+           TIMEDATE Now, DueTime;
 
-         AddInSetStatusText(MSG_ADDIN_PROCESSBILLING, 0L);
+           AddInSetStatusText(MSG_ADDIN_PROCESSBILLING, 0L);
 
-      /* Get a billing message */
+           /* Get a billing message */
       
-         error=MQGet(bMsgQueue, Message, msgsize, 0, 0, &len);
+           error=MQGet(bMsgQueue, Message, msgsize, 0, 0, &len);
 
-         if (error) 
-         {
-            if (error != ERR_MQ_EMPTY)
-               AddInLogErrorText(MSG_ADDIN_ERROR, error,"MQGet");
-         } 
+           if (error) 
+           {
+               if (error != ERR_MQ_EMPTY)
+                   AddInLogErrorText(MSG_ADDIN_ERROR, error,"MQGet");
+           } 
 
      /* Got a message, bill it (and the rest) to the database. */
 	 
-         if ((len > 0) && (error==NOERROR) )
-         {              
-            OSCurrentTIMEDATE(&DueTime);
-            TimeDateIncrement(&DueTime, Runtime*100);
+           if ((len > 0) && (error==NOERROR) )
+           {              
+               OSCurrentTIMEDATE(&DueTime);
+               TimeDateIncrement(&DueTime, Runtime*100);
 
-            while (TRUE)
-            {
-               if (error = BillingMessageToDB ((BILLMSG*) Message, hDB, len))
-                  AddInLogErrorText (MSG_ADDIN_ERROR_WRITEDB, error, NULL);
+               while (TRUE)
+               {
+                   if (error = BillingMessageToDB ((BILLMSG*) Message, hDB, len))
+                       AddInLogErrorText (MSG_ADDIN_ERROR_WRITEDB, error, NULL);
 
-               OSCurrentTIMEDATE(&Now);
+                   OSCurrentTIMEDATE(&Now);
 			
-         /* Time is up.  Stop processsing. */
+                   /* Time is up.  Stop processsing. */
 
-               if (TimeDateCompare(&Now, &DueTime) >= 0)
-               {
-                  OSCurrentTIMEDATE(&DueTime);
-                  TimeDateIncrement(&DueTime, Runtime*100);
-                  break;
-               }
+                   if (TimeDateCompare(&Now, &DueTime) >= 0)
+                   {
+                       OSCurrentTIMEDATE(&DueTime);
+                       TimeDateIncrement(&DueTime, Runtime*100);
+                       break;
+                   }
 
-               error=MQGet(bMsgQueue, Message, msgsize, 0, 0, &len);
+                   error=MQGet(bMsgQueue, Message, msgsize, 0, 0, &len);
 	    
-               if (error)
-               {
-                  if (error != ERR_MQ_EMPTY)
-                     AddInLogErrorText(MSG_ADDIN_ERROR, error,"MQGet");
-               }
+                   if (error)
+                   {
+                        if (error != ERR_MQ_EMPTY)
+                            AddInLogErrorText(MSG_ADDIN_ERROR, error,"MQGet");
+                   }
 
-         /* Queue is empty.  Stop processing. */
+                   /* Queue is empty.  Stop processing. */
 
-               if ((len == 0) || (error))
-                  break;
+                   if ((len == 0) || (error))
+                       break;
       
-            }  /* end while true- mqget */
+               }  /* end while true- mqget */
 
-         } /* end len > 0 */
-		
-      }  /* end minutes elapsed*/
-		
+           } /* end len > 0 */
+        
+       }  /* end minutes elapsed*/
+      
    } /* end while !quit */
 
 
 done:
    if (Message)
-      free (Message);
+       free (Message);
 
    AddInLogMessageText(MSG_ADDIN_TERMINATING, NULL);
 
@@ -343,8 +343,8 @@ done:
 
    if (fBillingDBOpen)
    {
-      if (error = NSFDbClose (hDB))
-         AddInLogErrorText (MSG_ADDIN_ERROR, error, "closing sessbill.nsf");
+       if (error = NSFDbClose (hDB))
+           AddInLogErrorText (MSG_ADDIN_ERROR, error, "closing sessbill.nsf");
    }
 
    return(NOERROR);
@@ -373,12 +373,12 @@ STATUS LNPUBLIC BillingDBOpen (DHANDLE *RethDb)
 
    if (error = NSFDbOpen(BillingPathName, &hDb))
    {
-      if (error == ERR_NOEXIST)
-         error = BillingCreateDB (BillingPathName, &hDb);
+       if (error == ERR_NOEXIST)
+           error = BillingCreateDB (BillingPathName, &hDb);
    }
 
    if (!error)
-      *RethDb = hDb;
+       *RethDb = hDb;
 
    return (error);
 }
@@ -423,81 +423,81 @@ STATUS LNPUBLIC BillingCreateDB (char *BillingPathName, DHANDLE *RethDb)
    NOTEHANDLE hNote;
    
    if (error = NSFDbOpen(BillingTemplateName, &hTemplateDb))
-      return (error);
-	
+       return (error);
+
    error = NSFDbCreate(BillingPathName, DBCLASS_NOTEFILE, TRUE);
 
    if (!error)
-      error = NSFDbOpen(BillingPathName, &hBillingDb);
+       error = NSFDbOpen(BillingPathName, &hBillingDb);
 
    if (!error)
    {
 
    /* Copy notes from template file to new file */
-	   
-      TimeConstant(TIMEDATE_WILDCARD, &Time);
-      error = NSFDbCopyExtended(hTemplateDb, hBillingDb, Time, NOTE_CLASS_ALLNONDATA, DBCOPY_REPLICA|DBCOPY_SUBCLASS_TEMPLATE, NULL);
-      if (error)
-      {
-         if (ERR(error) == ERR_NO_MODIFIED_NOTES)
-            error = NOERROR;
-         else
-         {
-            NSFDbClose(hBillingDb);
-            goto done;
-         }
-      }
+      
+       TimeConstant(TIMEDATE_WILDCARD, &Time);
+       error = NSFDbCopyExtended(hTemplateDb, hBillingDb, Time, NOTE_CLASS_ALLNONDATA, DBCOPY_REPLICA|DBCOPY_SUBCLASS_TEMPLATE, NULL);
+       if (error)
+       {
+           if (ERR(error) == ERR_NO_MODIFIED_NOTES)
+               error = NOERROR;
+           else
+           {
+               NSFDbClose(hBillingDb);
+               goto done;
+           }
+       }
 
    /* Copy notes from template file to new file */
 
-      TimeConstant(TIMEDATE_WILDCARD, &Time);
-      error = NSFDbCopy(hTemplateDb, hBillingDb, Time, NOTE_CLASS_DOCUMENT);
-      if (error)
-      {
-         if (ERR(error) == ERR_NO_MODIFIED_NOTES)
-            error = NOERROR;
-         else
-         {
-            NSFDbClose(hBillingDb);
-            goto done;
-         }
-      }
+       TimeConstant(TIMEDATE_WILDCARD, &Time);
+       error = NSFDbCopy(hTemplateDb, hBillingDb, Time, NOTE_CLASS_DOCUMENT);
+       if (error)
+       {
+           if (ERR(error) == ERR_NO_MODIFIED_NOTES)
+               error = NOERROR;
+           else
+           {
+               NSFDbClose(hBillingDb);
+               goto done;
+           }
+       }
 
-      if (NSFDbInfoGet(hTemplateDb, TemplateInfo))
-         TemplateInfo[0] = 0;
+       if (NSFDbInfoGet(hTemplateDb, TemplateInfo))
+           TemplateInfo[0] = 0;
 
    /* Update the notefile info with that from the template including
       automatically inheriting design changes. */
 
-      strcpy(NewInfo, TemplateInfo);
-      NSFDbInfoModify(NewInfo, INFOPARSE_DESIGN_CLASS, NULL);
-      NSFDbInfoParse(NewInfo, INFOPARSE_CLASS, Class, sizeof(Class)-1);
-      NSFDbInfoModify(NewInfo, INFOPARSE_DESIGN_CLASS, Class);
-      NSFDbInfoModify(NewInfo, INFOPARSE_CLASS, NULL);
+       strcpy(NewInfo, TemplateInfo);
+       NSFDbInfoModify(NewInfo, INFOPARSE_DESIGN_CLASS, NULL);
+       NSFDbInfoParse(NewInfo, INFOPARSE_CLASS, Class, sizeof(Class)-1);
+       NSFDbInfoModify(NewInfo, INFOPARSE_DESIGN_CLASS, Class);
+       NSFDbInfoModify(NewInfo, INFOPARSE_CLASS, NULL);
 
-      if (!error)
-         error = NSFDbInfoSet(hBillingDb, NewInfo);
+       if (!error)
+           error = NSFDbInfoSet(hBillingDb, NewInfo);
 
    /* Update the icon note's title with that from the NTF */
 
-      if (!error)
-      {
-         if (!NSFNoteOpen(hBillingDb, NOTE_ID_SPECIAL+NOTE_CLASS_ICON, 0, &hNote))
-         {
-            NSFItemSetText(hNote, FIELD_TITLE, NewInfo, MAXWORD);
-            NSFNoteUpdate(hNote, 0);
-            NSFNoteClose(hNote);
-         }
-      }
+       if (!error)
+       {
+          if (!NSFNoteOpen(hBillingDb, NOTE_ID_SPECIAL+NOTE_CLASS_ICON, 0, &hNote))
+          {
+              NSFItemSetText(hNote, FIELD_TITLE, NewInfo, MAXWORD);
+              NSFNoteUpdate(hNote, 0);
+              NSFNoteClose(hNote);
+          }
+       }
 
-      if (!error)
-         error = NSFDbCopyTemplateACL( hTemplateDb, hBillingDb, 
-                                       NULL, ACL_LEVEL_EDITOR );
+       if (!error)
+           error = NSFDbCopyTemplateACL( hTemplateDb, hBillingDb, 
+                                         NULL, ACL_LEVEL_EDITOR );
    
-      if (!error)
-         *RethDb = hBillingDb;
-      else
-         NSFDbClose(hBillingDb);
+       if (!error)
+           *RethDb = hBillingDb;
+       else
+           NSFDbClose(hBillingDb);
    }
 
 done:
@@ -556,234 +556,234 @@ STATUS LNPUBLIC BillingMessageToDB (BILLMSG *Message, DHANDLE hDb, DWORD len)
 
    FloatTemp = (NUMBER) Message->Class;
    if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_HEADER_CLASS, 
-                     sizeof(BILL_ITEM_HEADER_CLASS) - 1, 	    
-                     TYPE_NUMBER,                                                                        	    
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))                                             	    
-      goto Done;
+                             BILL_ITEM_HEADER_CLASS, 
+                             sizeof(BILL_ITEM_HEADER_CLASS) - 1, 	    
+                             TYPE_NUMBER,                                                                        	    
+                             &FloatTemp, (DWORD) sizeof(FloatTemp)))                                             	    
+       goto Done;
 	    
    /* Header:  Add Message StructType */
 
    FloatTemp = (NUMBER) Message->StructType;
    if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_HEADER_STRUCTTYPE, 
-                     sizeof(BILL_ITEM_HEADER_STRUCTTYPE) - 1, 
-                     TYPE_NUMBER,
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
-      goto Done;
+                             BILL_ITEM_HEADER_STRUCTTYPE, 
+                             sizeof(BILL_ITEM_HEADER_STRUCTTYPE) - 1, 
+                             TYPE_NUMBER,
+                             &FloatTemp, (DWORD) sizeof(FloatTemp)))
+       goto Done;
 
    /* Header:  Add timestamp */
 
    if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_HEADER_TIMESTAMP, 
-                     sizeof(BILL_ITEM_HEADER_TIMESTAMP) - 1, 
-                     TYPE_TIME, 
-                     &Message->TimeStamp, (DWORD) sizeof(TIMEDATE)))
-      goto Done;
+                             BILL_ITEM_HEADER_TIMESTAMP, 
+                             sizeof(BILL_ITEM_HEADER_TIMESTAMP) - 1, 
+                             TYPE_TIME, 
+                             &Message->TimeStamp, (DWORD) sizeof(TIMEDATE)))
+       goto Done;
 
    /* Header:  Add Servername */
 
    if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_HEADER_SERVERNAME, 
-                     sizeof(BILL_ITEM_HEADER_SERVERNAME) - 1, 
-                     TYPE_TEXT,
-                     Message->ServerName, (DWORD) strlen(Message->ServerName)))
-      goto Done;
+                             BILL_ITEM_HEADER_SERVERNAME, 
+                             sizeof(BILL_ITEM_HEADER_SERVERNAME) - 1, 
+                             TYPE_TEXT,
+                             Message->ServerName, (DWORD) strlen(Message->ServerName)))
+       goto Done;
 
    /* Then write the billing message structtype specific info to the note */
 
    switch (Message->StructType)
    {
 
-   /* Standard Session billing */
+       /* Standard Session billing */
 
-      case BILL_SESSIONREC:
+       case BILL_SESSIONREC:
 		  
-      /* Set the billing record type to type Session */
+           /* Set the billing record type to type Session */
 
-         if (error = NSFItemSetText(hNote, FIELD_FORM, BILLING_SESSION_FORM,
-                     (WORD) strlen(BILLING_SESSION_FORM)))              
-            goto Done;
+           if (error = NSFItemSetText(hNote, FIELD_FORM, BILLING_SESSION_FORM,
+                                      (WORD) strlen(BILLING_SESSION_FORM)))              
+               goto Done;
 
-      /* Session:  Add SessionID*/
+           /* Session:  Add SessionID*/
 
-         memmove( &tmp, &Message->rec.sess.SessionID, sizeof( long));
+           memmove( &tmp, &Message->rec.sess.SessionID, sizeof( long));
 	
-         FloatTemp = (NUMBER) tmp;
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_SESSION_SESSIONID, 
-                     sizeof(BILL_ITEM_SESSION_SESSIONID) - 1, 
-                     TYPE_NUMBER,
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
-            goto Done;
+           FloatTemp = (NUMBER) tmp;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_SESSION_SESSIONID, 
+                                     sizeof(BILL_ITEM_SESSION_SESSIONID) - 1, 
+                                     TYPE_NUMBER,
+                                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
+               goto Done;
 
-      /* Session:  Add BytesIn */
+           /* Session:  Add BytesIn */
 
-         FloatTemp = (NUMBER) Message->rec.sess.BytesIn;
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_SESSION_BYTESIN, 
-                     sizeof(BILL_ITEM_SESSION_BYTESIN) - 1, 
-                     TYPE_NUMBER,
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
-            goto Done;
+           FloatTemp = (NUMBER) Message->rec.sess.BytesIn;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_SESSION_BYTESIN, 
+                                     sizeof(BILL_ITEM_SESSION_BYTESIN) - 1, 
+                                     TYPE_NUMBER,
+                                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
+               goto Done;
 
-      /* Session:  Add BytesOut */
+           /* Session:  Add BytesOut */
 
-         FloatTemp = (NUMBER) Message->rec.sess.BytesOut;
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_SESSION_BYTESOUT, 
-                     sizeof(BILL_ITEM_SESSION_BYTESOUT) - 1, 
-                     TYPE_NUMBER,
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
-            goto Done;
+           FloatTemp = (NUMBER) Message->rec.sess.BytesOut;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_SESSION_BYTESOUT, 
+                                     sizeof(BILL_ITEM_SESSION_BYTESOUT) - 1, 
+                                     TYPE_NUMBER,
+                                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
+               goto Done;
 	
-      /* Session:  Username */
+           /* Session:  Username */
 
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_SESSION_USERNAME, 
-                     sizeof(BILL_ITEM_SESSION_USERNAME) - 1, 
-                     TYPE_TEXT,
-                     Message->rec.sess.Username, 
-                     (DWORD) strlen(Message->rec.sess.Username)))
-            goto Done;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_SESSION_USERNAME, 
+                                     sizeof(BILL_ITEM_SESSION_USERNAME) - 1, 
+                                     TYPE_TEXT,
+                                     Message->rec.sess.Username, 
+                                     (DWORD) strlen(Message->rec.sess.Username)))
+               goto Done;
   
-      /* Session:  Add Action*/
+           /* Session:  Add Action*/
 
-         FloatTemp = (NUMBER) Message->rec.sess.Action;
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_SESSION_ACTION, 
-                     sizeof(BILL_ITEM_SESSION_ACTION) - 1, 
-                     TYPE_NUMBER,
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
-            goto Done;
+           FloatTemp = (NUMBER) Message->rec.sess.Action;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_SESSION_ACTION, 
+                                     sizeof(BILL_ITEM_SESSION_ACTION) - 1, 
+                                     TYPE_NUMBER,
+                                      &FloatTemp, (DWORD) sizeof(FloatTemp)))
+               goto Done;
 
-      /* Session:  Network Address of client */
+           /* Session:  Network Address of client */
 
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_SESSION_NETADR,
-                     sizeof(BILL_ITEM_SESSION_NETADR) - 1, 
-                     TYPE_TEXT,
-                     Message->rec.sess.NetAdr, 
-                     (DWORD) strlen(Message->rec.sess.NetAdr)))
-            goto Done;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_SESSION_NETADR,
+                                     sizeof(BILL_ITEM_SESSION_NETADR) - 1, 
+                                     TYPE_TEXT,
+                                     Message->rec.sess.NetAdr, 
+                                     (DWORD) strlen(Message->rec.sess.NetAdr)))
+               goto Done;
 
-         break;
+               break;
 
 
-   /* Standard Database billing */
+       /* Standard Database billing */
 
-      case BILL_DBREC:
+       case BILL_DBREC:
 
-      /* Set the billing record type to type DB */
+           /* Set the billing record type to type DB */
 
-         if (error = NSFItemSetText(hNote, FIELD_FORM, BILLING_DB_FORM, 
-                     (WORD) strlen(BILLING_DB_FORM)))           
-            goto Done;
+           if (error = NSFItemSetText(hNote, FIELD_FORM, BILLING_DB_FORM, 
+                                      (WORD) strlen(BILLING_DB_FORM)))           
+               goto Done;
 
-      /* Database:  Add SessionID*/
+           /* Database:  Add SessionID*/
 
-         memmove (&tmp, &Message->rec.db.SessionID, sizeof (long));
+           memmove (&tmp, &Message->rec.db.SessionID, sizeof (long));
    
-         FloatTemp = (NUMBER) tmp;
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_DB_SESSIONID, 
-                     sizeof(BILL_ITEM_DB_SESSIONID) - 1, 
-                     TYPE_NUMBER,
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
-            goto Done;
+           FloatTemp = (NUMBER) tmp;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_DB_SESSIONID, 
+                                     sizeof(BILL_ITEM_DB_SESSIONID) - 1, 
+                                     TYPE_NUMBER,
+                                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
+               goto Done;
 
-      /* Database:  Add ReplicaID */
+           /* Database:  Add ReplicaID */
 
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_DB_REPLICAID, 
-                     sizeof(BILL_ITEM_DB_REPLICAID) - 1, 
-                     TYPE_TIME,
-                     &Message->rec.db.ReplicaID, (DWORD) sizeof(TIMEDATE)))
-            goto Done;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_DB_REPLICAID, 
+                                     sizeof(BILL_ITEM_DB_REPLICAID) - 1, 
+                                     TYPE_TIME,
+                                     &Message->rec.db.ReplicaID, (DWORD) sizeof(TIMEDATE)))
+               goto Done;
 
-      /* Database:  Username */
+           /* Database:  Username */
 
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_DB_USERNAME, 
-                     sizeof(BILL_ITEM_DB_USERNAME) - 1, 
-                     TYPE_TEXT,
-                     Message->rec.db.Username, 
-                     (DWORD) strlen(Message->rec.sess.Username)))
-            goto Done;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_DB_USERNAME, 
+                                     sizeof(BILL_ITEM_DB_USERNAME) - 1, 
+                                     TYPE_TEXT,
+                                     Message->rec.db.Username, 
+                                     (DWORD) strlen(Message->rec.sess.Username)))
+               goto Done;
 
-      /* Database:  Add DBOpenTime */
-      /* Convert from Centiseconds to Seconds, and Round up */
+           /* Database:  Add DBOpenTime */
+           /* Convert from Centiseconds to Seconds, and Round up */
 
-         tmp = (Message->rec.db.DBOpenTime + 50) / 100;
-         FloatTemp = (NUMBER) tmp;
+           tmp = (Message->rec.db.DBOpenTime + 50) / 100;
+           FloatTemp = (NUMBER) tmp;
 
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_DB_OPENTIME, 
-                     sizeof(BILL_ITEM_DB_OPENTIME) - 1, 
-                     TYPE_NUMBER,
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
-            goto Done;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                   BILL_ITEM_DB_OPENTIME, 
+                                   sizeof(BILL_ITEM_DB_OPENTIME) - 1, 
+                                   TYPE_NUMBER,
+                                   &FloatTemp, (DWORD) sizeof(FloatTemp)))
+               goto Done;
 
-      /* Database:  Add Action*/
-         FloatTemp = (NUMBER) Message->rec.db.Action;
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_DB_ACTION, 
-                     sizeof(BILL_ITEM_DB_ACTION) - 1, 
-                     TYPE_NUMBER,
-                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
-            goto Done;
+           /* Database:  Add Action*/
+           FloatTemp = (NUMBER) Message->rec.db.Action;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_DB_ACTION, 
+                                     sizeof(BILL_ITEM_DB_ACTION) - 1, 
+                                     TYPE_NUMBER,
+                                     &FloatTemp, (DWORD) sizeof(FloatTemp)))
+               goto Done;
 
-         break;
+           break;
       
 
-   /* Note Create (extended) billing */
+       /* Note Create (extended) billing */
 
-      case BILL_NOTECREATEREC:
+       case BILL_NOTECREATEREC:
 
-      /* Set the billing record type to type  NOTECREATE */
+           /* Set the billing record type to type  NOTECREATE */
 
-         if (error = NSFItemSetText(hNote, FIELD_FORM, BILLING_NOTECREATE_FORM, 
-                     (WORD) strlen(BILLING_NOTECREATE_FORM)))              
-             goto Done;
+           if (error = NSFItemSetText(hNote, FIELD_FORM, BILLING_NOTECREATE_FORM, 
+                                      (WORD) strlen(BILLING_NOTECREATE_FORM)))              
+               goto Done;
 
-      /* Note Create:  Add NoteUser*/
+           /* Note Create:  Add NoteUser*/
 
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_NOTECREATE_USER, 
-                     sizeof(BILL_ITEM_NOTECREATE_USER) - 1, 
-                     TYPE_TEXT,
-                     Message->rec.notecreate.Username,
-                     (DWORD) strlen(Message->rec.notecreate.Username)))
-            goto Done;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_NOTECREATE_USER, 
+                                     sizeof(BILL_ITEM_NOTECREATE_USER) - 1, 
+                                     TYPE_TEXT,
+                                     Message->rec.notecreate.Username,
+                                     (DWORD) strlen(Message->rec.notecreate.Username)))
+               goto Done;
 
-      /* Note Create:  Add NOTEID */
-         DWordTemp = (NUMBER) Message->rec.notecreate.dbNoteID;
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_NOTECREATE_NOTEID, 
-                     sizeof(BILL_ITEM_NOTECREATE_NOTEID) - 1, 
-                     TYPE_NUMBER,
-                     &DWordTemp, (DWORD) sizeof(DWordTemp)))
-            goto Done;
+           /* Note Create:  Add NOTEID */
+           DWordTemp = (NUMBER) Message->rec.notecreate.dbNoteID;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_NOTECREATE_NOTEID, 
+                                     sizeof(BILL_ITEM_NOTECREATE_NOTEID) - 1, 
+                                     TYPE_NUMBER,
+                                     &DWordTemp, (DWORD) sizeof(DWordTemp)))
+               goto Done;
 
 
-      /* Note Create:  Add ReplicaID */
+           /* Note Create:  Add ReplicaID */
 
-         if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
-                     BILL_ITEM_NOTECREATE_REPLICAID,
-                     sizeof(BILL_ITEM_NOTECREATE_REPLICAID) - 1, 
-                     TYPE_TIME,
-                     &Message->rec.notecreate.ReplicaID, (DWORD) sizeof(TIMEDATE)))
-            goto Done;
+           if (error = NSFItemAppend(hNote, ITEM_SUMMARY, 
+                                     BILL_ITEM_NOTECREATE_REPLICAID,
+                                     sizeof(BILL_ITEM_NOTECREATE_REPLICAID) - 1, 
+                                     TYPE_TIME,
+                                     &Message->rec.notecreate.ReplicaID, (DWORD) sizeof(TIMEDATE)))
+               goto Done;
 
-         break;
+           break;
 	 
 
-      default:
+       default:
 
-	 /* No processing for "other" billing record messages */
+       /* No processing for "other" billing record messages */
 
-         goto Done; 
-         break;
+        goto Done; 
+        break;
 
    }  /* end switch */
 
@@ -796,7 +796,7 @@ STATUS LNPUBLIC BillingMessageToDB (BILLMSG *Message, DHANDLE hDb, DWORD len)
 
 Done:
    if (hNote != NULLHANDLE)
-      NSFNoteClose(hNote);
+       NSFNoteClose(hNote);
    return (error);
 
 }

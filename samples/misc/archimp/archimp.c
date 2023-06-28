@@ -24,7 +24,7 @@
    SYNTAX:     archimp  <Input file> <Target database> [server name - optional]
 
    DESCRIPTION:
-		This program shows how to restore the archived file back to a note in a db. 
+        This program shows how to restore the archived file back to a note in a db. 
 
 *************************************************************************/
 #if defined(OS400)
@@ -62,25 +62,25 @@ BOOL  LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileN
 /* Callback for ArchiveDocumentImport */
 
 DWORD far PASCAL NoteImportCallback
-	(BYTE *Buffer,
-	DWORD MaxToRead,
-	void *pUserCtx);
+                                   (BYTE *Buffer,
+                                    DWORD MaxToRead,
+                                    void *pUserCtx);
 
 /* Callback for ArchiveRestoreDocument */
 
 STATUS far PASCAL  AttachImportCallback
-	(const char *FileName,
-	DWORD FileNameLen,
-	DWORD dwDupIdx,
-	BYTE *Buffer,
-	DWORD MaxToRead,
-	void *pUserCtx);
+                                       (const char *FileName,
+                                        DWORD FileNameLen,
+                                        DWORD dwDupIdx,
+                                        BYTE *Buffer,
+                                        DWORD MaxToRead,
+                                        void *pUserCtx);
 
 
 typedef struct {
-	FILE *pInFile;
-	FILE *pAttachFile;
-	DWORD dwBytesLeft;
+    FILE *pInFile;
+    FILE *pAttachFile;
+    DWORD dwBytesLeft;
 } IMPORTCONTEXT;
 
 
@@ -109,8 +109,8 @@ int main(int argc, char *argv[])
     error = NotesInitExtended (argc, argv);
     if (error)
     {
-      fprintf (stderr, "\nError initializing Notes.\n");
-      return (1);
+        fprintf (stderr, "\nError initializing Notes.\n");
+        return (1);
     }
 
     if(!ProcessArgs(argc, argv, pname, achInFileName))
@@ -119,88 +119,88 @@ int main(int argc, char *argv[])
         PRINTLOG("\nOptions: -s ServerName\n"); 
         return (0);
     }
-	
-	PRINTLOG("Opening %s\n", pname);
-
-	/* Create the database if it doesn't exist */
-	error = NSFDbCreate(pname, DBCLASS_NOTEFILE, FALSE);
-	if(error && ERR(error) != ERR_EXISTS)
-		{
-		PRINTERROR (error,"NSFDbCreate");
-		goto cleanup;
-		}
     
-	/* open the db. */
+    PRINTLOG("Opening %s\n", pname);
+
+    /* Create the database if it doesn't exist */
+    error = NSFDbCreate(pname, DBCLASS_NOTEFILE, FALSE);
+    if(error && ERR(error) != ERR_EXISTS)
+    {
+        PRINTERROR (error,"NSFDbCreate");
+        goto cleanup;
+    }
+    
+    /* open the db. */
     if (error = NSFDbOpen (pname, &db_handle))
     {
         PRINTERROR (error,"NSFDbOpen");
         goto cleanup;
     }
 
-	/* open the input file. */
-	Ctx.pInFile = fopen(achInFileName, "rb");
+    /* open the input file. */
+    Ctx.pInFile = fopen(achInFileName, "rb");
 
-	if(Ctx.pInFile == NULL)
-	{
-		PRINTLOG("Error creating %s\n",achInFileName);
-		goto cleanup;
-	}
-	else
-	{
-		PRINTLOG("Input file successfully opened\n");
-	}
+    if(Ctx.pInFile == NULL)
+    {
+        PRINTLOG("Error creating %s\n",achInFileName);
+        goto cleanup;
+    }
+    else
+    {
+        PRINTLOG("Input file successfully opened\n");
+    }
 
-	fseek(Ctx.pInFile, 0, SEEK_END);
-	Ctx.dwBytesLeft = ftell(Ctx.pInFile);
-	rewind(Ctx.pInFile);
+    fseek(Ctx.pInFile, 0, SEEK_END);
+    Ctx.dwBytesLeft = ftell(Ctx.pInFile);
+    rewind(Ctx.pInFile);
 
-	
-	/* ArchiveDocumentImport will call NoteImportCallback to read bytes from the input file.
-	 * This file should contain the output produced by ArchiveExportDatabase NoteExportCallback function.
-	 * See the archexp sample for more details */	
-		
-	if(error = ArchiveDocumentImport(0, NoteImportCallback, &Ctx, &hDoc))
-		{
-		PRINTERROR(error,"ArchiveDocumentImport");
-	   	goto cleanup;	   
-   		}
-	else
-	    {
-		PRINTLOG("Successfully executed ArchiveDocumentImport API\n");
-	    }
+    
+    /* ArchiveDocumentImport will call NoteImportCallback to read bytes from the input file.
+     * This file should contain the output produced by ArchiveExportDatabase NoteExportCallback function.
+     * See the archexp sample for more details */	
+    
+    if(error = ArchiveDocumentImport(0, NoteImportCallback, &Ctx, &hDoc))
+    {
+        PRINTERROR(error,"ArchiveDocumentImport");
+        goto cleanup;	   
+    }
+    else
+    {
+        PRINTLOG("Successfully executed ArchiveDocumentImport API\n");
+    }
 
-	/*  The ArchiveRestoreDocument function restores a note and its related attachments from the data stream
-	*   produced by ArchiveExportDatabase. The document restored will have the same UNID as the one exported.
-	* 	If a document with that UNID exists, it will be replaced with the document produced by this function. 
-	* 	See below for NoteImportCallback and AttachImportCallback definitions 
-	*	This function optionally returns an hNote of the note that was created. */
+    /*  The ArchiveRestoreDocument function restores a note and its related attachments from the data stream
+    *   produced by ArchiveExportDatabase. The document restored will have the same UNID as the one exported.
+    * 	If a document with that UNID exists, it will be replaced with the document produced by this function. 
+    * 	See below for NoteImportCallback and AttachImportCallback definitions 
+    *	This function optionally returns an hNote of the note that was created. */
 
-	if(error = ArchiveRestoreDocument(db_handle, 0, hDoc,  AttachImportCallback, &Ctx, &hNote))
-		{
-		PRINTERROR(error,"ArchiveRestoreDocument");
-	   	goto cleanup;	   
-   		}
-	else
-	    {
-		PRINTLOG("Succesfully executed ArchiveRestoreDocument API\n");
-	    }
+    if(error = ArchiveRestoreDocument(db_handle, 0, hDoc,  AttachImportCallback, &Ctx, &hNote))
+    {
+        PRINTERROR(error,"ArchiveRestoreDocument");
+        goto cleanup;	   
+    }
+    else
+    {
+        PRINTLOG("Succesfully executed ArchiveRestoreDocument API\n");
+    }
 
-	ArchiveDocumentDestroy(hDoc);
-	hDoc = NULLHANDLE;
+    ArchiveDocumentDestroy(hDoc);
+    hDoc = NULLHANDLE;
 
-	PRINTLOG("Program completed successfully\n");
+    PRINTLOG("Program completed successfully\n");
 
 cleanup:
 
-	if(hNote)
-		NSFNoteClose(hNote);
+    if(hNote)
+        NSFNoteClose(hNote);
 
-	if(Ctx.pInFile)
-		fclose(Ctx.pInFile);
+    if(Ctx.pInFile)
+        fclose(Ctx.pInFile);
 
-	/* Close the database. */
-	if(db_handle)
-		NSFDbClose (db_handle);    
+    /* Close the database. */
+    if(db_handle)
+        NSFDbClose (db_handle);    
 
 
     /* Terminate Domino and Notes. */
@@ -225,51 +225,51 @@ cleanup:
 
 BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileName)
 {
-	int curarg = 1;
-	char* pDBName;
-	char* pServerName = NULL;
-	STATUS Error = NOERROR;
+    int curarg = 1;
+    char* pDBName;
+    char* pServerName = NULL;
+    STATUS Error = NOERROR;
 
-	if(argc < 3)
-  		return FALSE;
+    if(argc < 3)
+        return FALSE;
 
-   	if(argv[curarg][0] == '=')
-		curarg++;
+    if(argv[curarg][0] == '=')
+        curarg++;
 
-	strncpy(pInFileName, argv[curarg], MAXPATH);
+    strncpy(pInFileName, argv[curarg], MAXPATH);
 
-	curarg++;
+    curarg++;
 
-	if(curarg == argc)
-		{
-		PRINTLOG("Missing required target database\n");
-		return FALSE;
-		}
-	
-	pDBName = argv[curarg];	
-	
-	curarg++;
+    if(curarg == argc)
+    {
+        PRINTLOG("Missing required target database\n");
+        return FALSE;
+    }
+    
+    pDBName = argv[curarg];	
+    
+    curarg++;
    
-   while(curarg < argc)
-		{
-		if(argv[curarg][0] == '-' &&  argv[curarg][1] == 's')
-			{
-			curarg++;
-			if(curarg == argc)
-				{
-				PRINTLOG("ERROR: Missing server argument after -s\n");
-				return FALSE;
-				}
-			pServerName = argv[curarg];					
-			}
-		curarg++;
-		}
-
-	if (Error = OSPathNetConstruct( NULL, pServerName, pDBName, dbPath))
+    while(curarg < argc)
+    {
+        if(argv[curarg][0] == '-' &&  argv[curarg][1] == 's')
         {
-		PRINTERROR (Error,"OSPathNetConstruct");
-		return FALSE;
-		}
+            curarg++;
+            if(curarg == argc)
+            {
+                PRINTLOG("ERROR: Missing server argument after -s\n");
+                return FALSE;
+            }
+            pServerName = argv[curarg];					
+        }
+        curarg++;
+    }
+
+    if (Error = OSPathNetConstruct( NULL, pServerName, pDBName, dbPath))
+    {
+        PRINTERROR (Error,"OSPathNetConstruct");
+        return FALSE;
+    }
 
   return TRUE;  
 } /* ProcessArgs */
@@ -282,23 +282,23 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, char *pInFileNa
 				data from the note.
 
     DESCRIPTION:
-		It will be called repeatedly until the amount returned is less than the
-		MaxToRead argument. In some cases, that means that it will be called 
-		with MaxToRead == 0
+        It will be called repeatedly until the amount returned is less than the
+        MaxToRead argument. In some cases, that means that it will be called 
+        with MaxToRead == 0
 *************************************************************************/
 
 DWORD far PASCAL NoteImportCallback
-	(BYTE *Buffer,
-	DWORD MaxToRead,
-	void *pUserCtx)
+                                   (BYTE *Buffer,
+                                    DWORD MaxToRead,
+                                    void *pUserCtx)
 {
-	IMPORTCONTEXT *pCtx = (IMPORTCONTEXT *)pUserCtx;
-	DWORD dwBytesToRead =  MaxToRead <= pCtx->dwBytesLeft ? MaxToRead : pCtx->dwBytesLeft; 
-	
-	fread(Buffer, dwBytesToRead, 1, pCtx->pInFile);
-	
-	pCtx->dwBytesLeft -= dwBytesToRead;
-	return dwBytesToRead;
+    IMPORTCONTEXT *pCtx = (IMPORTCONTEXT *)pUserCtx;
+    DWORD dwBytesToRead =  MaxToRead <= pCtx->dwBytesLeft ? MaxToRead : pCtx->dwBytesLeft; 
+    
+    fread(Buffer, dwBytesToRead, 1, pCtx->pInFile);
+    
+    pCtx->dwBytesLeft -= dwBytesToRead;
+    return dwBytesToRead;
 }
 
 /************************************************************************
@@ -306,61 +306,61 @@ DWORD far PASCAL NoteImportCallback
     CALLBACK:   AttachImportCallback
 
     PURPOSE:    This is the callback that ArchiveRestoreDocument uses to retrieve 
-				data from attachment.
+                data from attachment.
 
     DESCRIPTION:
-		It will be called repeatedly until the amount returned is less than the
-		MaxToRead argument. In some cases, that means that it will be called 
-		with MaxToRead == 0
+        It will be called repeatedly until the amount returned is less than the
+        MaxToRead argument. In some cases, that means that it will be called 
+        with MaxToRead == 0
 *************************************************************************/
 
 STATUS far PASCAL AttachImportCallback
-   	(const char *FileName,
-	DWORD FileNameLen,
-	DWORD dwDupIdx,
-	BYTE *Buffer,
-	DWORD MaxToRead,
-	void *pUserCtx)
+                                      (const char *FileName,
+                                       DWORD FileNameLen,
+                                       DWORD dwDupIdx,
+                                       BYTE *Buffer,
+                                       DWORD MaxToRead,
+                                       void *pUserCtx)
 {
-	IMPORTCONTEXT *pCtx = (IMPORTCONTEXT *)pUserCtx;
-	DWORD dwBytesToRead = 0;
-	STATUS Error = NOERROR;
+    IMPORTCONTEXT *pCtx = (IMPORTCONTEXT *)pUserCtx;
+    DWORD dwBytesToRead = 0;
+    STATUS Error = NOERROR;
 
 
-	if (pCtx->pAttachFile == NULL)
-	{
+    if (pCtx->pAttachFile == NULL)
+    {
 
-		/* We'll read bytes from the input file and pass back to ArchiveDocumentImport */
-		/* This file should contain the output produced by ArchiveExportDatabase NoteExportCallback function */
-		/* See the archexp sample for more details */
-		pCtx->pAttachFile = fopen(FileName, "rb");
+        /* We'll read bytes from the input file and pass back to ArchiveDocumentImport */
+        /* This file should contain the output produced by ArchiveExportDatabase NoteExportCallback function */
+        /* See the archexp sample for more details */
+        pCtx->pAttachFile = fopen(FileName, "rb");
 
-		if(pCtx->pAttachFile == NULL)
-		{
-			PRINTLOG("Error opening %s\n", FileName);
-			goto cleanup;
-		}
+        if(pCtx->pAttachFile == NULL)
+        {
+            PRINTLOG("Error opening %s\n", FileName);
+            goto cleanup;
+        }
 
-		fseek(pCtx->pAttachFile, 0, SEEK_END);
-	    pCtx->dwBytesLeft = ftell(pCtx->pAttachFile);
-		rewind(pCtx->pAttachFile);
-	}
+        fseek(pCtx->pAttachFile, 0, SEEK_END);
+        pCtx->dwBytesLeft = ftell(pCtx->pAttachFile);
+        rewind(pCtx->pAttachFile);
+    }
 
-	dwBytesToRead =  MaxToRead <= pCtx->dwBytesLeft ? MaxToRead : pCtx->dwBytesLeft; 
-	
-	fread(Buffer, dwBytesToRead, 1, pCtx->pAttachFile);
-	
-	pCtx->dwBytesLeft -= dwBytesToRead;
+    dwBytesToRead =  MaxToRead <= pCtx->dwBytesLeft ? MaxToRead : pCtx->dwBytesLeft; 
+    
+    fread(Buffer, dwBytesToRead, 1, pCtx->pAttachFile);
+    
+    pCtx->dwBytesLeft -= dwBytesToRead;
 
-	if (pCtx->dwBytesLeft == 0)
-	{
-		fclose(pCtx->pAttachFile);
-		pCtx->pAttachFile = NULL;
-	}
+    if (pCtx->dwBytesLeft == 0)
+    {
+        fclose(pCtx->pAttachFile);
+        pCtx->pAttachFile = NULL;
+    }
 
 cleanup:
-	
-	return Error;
+
+    return Error;
 
 }
 

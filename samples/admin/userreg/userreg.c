@@ -140,141 +140,141 @@ BOOL LocalServer;
 
 int main(int argc, char *argv[])
 {
-   STATUS   error;              /* return code from API calls */
-   char     *ServName;          /* server name entered on the command line */
-   char     MailServName[MAXUSERNAME + 1]; /* mail server name */
-   char     FullDBPath[MAXPATH];  /* complete pathname for Name and Address
+    STATUS   error;              /* return code from API calls */
+    char     *ServName;          /* server name entered on the command line */
+    char     MailServName[MAXUSERNAME + 1]; /* mail server name */
+    char     FullDBPath[MAXPATH];  /* complete pathname for Name and Address
                                      Book */
-   char     ServLocation[MAXLOCATIONNAME] = "Sales LAB";
-   char     WorkLocation[MAXLOCATIONNAME] = "323 West";
+    char     ServLocation[MAXLOCATIONNAME] = "Sales LAB";
+    char     WorkLocation[MAXLOCATIONNAME] = "323 West";
 
-   HCERTIFIER hCertCtx;
-   DBHANDLE hNABook;              /* handle to name and address book */
-   NOTEID NoteID;
+    HCERTIFIER hCertCtx;
+    DBHANDLE hNABook;              /* handle to name and address book */
+    NOTEID NoteID;
 
    /* if no server name on the command line, assume local machine */
    if (argc == 1)
-   {
-      ServName = '\0';
-      LocalServer = TRUE;
-   }
-   else if (argc == 2) /* else we have the remote server name */
-   {
-      ServName = argv[1];
-      strcpy(MailServName, ServName);
-      LocalServer = FALSE;
-   }
+    {
+        ServName = '\0';
+        LocalServer = TRUE;
+    }
+    else if (argc == 2) /* else we have the remote server name */
+    {
+        ServName = argv[1];
+        strcpy(MailServName, ServName);
+        LocalServer = FALSE;
+    }
 
-   FullDBPath[0] = '\0';
+    FullDBPath[0] = '\0';
 
-   error = NotesInitExtended (argc, argv);
-   if (error)
-   {
-      PRINTLOG("Error: Unable to initialize Notes.\n");
-      return (1);
-   }
+    error = NotesInitExtended (argc, argv);
+    if (error)
+    {
+        PRINTLOG("Error: Unable to initialize Notes.\n");
+        return (1);
+    }
 
-   PRINTLOG ("\n");
-   /* Create and register new organizational certifier - ABCorp */
-   error = REGNewCertifier (
-              NULLHANDLE,            /* no certifier context */
-              KFM_IDFILE_TYPE_ORG,   /* Organizational certifier */
-              ServName,              /* registration server */
-              US,                  /* country code - optional */
-              ORG_CERTNAME,          /* Organization */
-              NULL,                  /* Org Unit */
-              PASSWORD,              /* password */
-              ORG_CERT_ID,           /* ID file for new certifier */
-              NULL,                  /* location of certifier - optional */
-              NULL,                  /* comment - optional */
-              NULL,                  /* Mail Server's name - optional */
-              NULL,                  /* Mail file's name - optional */
-              NULL,                  /* no forwarding address */
-              fREGCreateIDFileNow |  /* flags - only create ID file */
-              fREGUSARequested |
-              fREGCreateAddrBookEntry|
-				  fREGOkayToModifyID|
-				  fREGOkayToModifyAddrbook,
-              0,                     /* key width (must be 0) */
-              MIN_PASS_LEN,          /* minimum password length */
-              &REGCallback,          /* pointer to callback function */
-              FullDBPath);           /* returned pathname of file where
+    PRINTLOG ("\n");
+    /* Create and register new organizational certifier - ABCorp */
+    error = REGNewCertifier (
+                             NULLHANDLE,            /* no certifier context */
+                             KFM_IDFILE_TYPE_ORG,   /* Organizational certifier */
+                             ServName,              /* registration server */
+                             US,                  /* country code - optional */
+                             ORG_CERTNAME,          /* Organization */
+                             NULL,                  /* Org Unit */
+                             PASSWORD,              /* password */
+                             ORG_CERT_ID,           /* ID file for new certifier */
+                             NULL,                  /* location of certifier - optional */
+                             NULL,                  /* comment - optional */
+                             NULL,                  /* Mail Server's name - optional */
+                             NULL,                  /* Mail file's name - optional */
+                             NULL,                  /* no forwarding address */
+                             fREGCreateIDFileNow |  /* flags - only create ID file */
+                             fREGUSARequested |
+                             fREGCreateAddrBookEntry|
+                             fREGOkayToModifyID|
+                             fREGOkayToModifyAddrbook,
+                             0,                     /* key width (must be 0) */
+                             MIN_PASS_LEN,          /* minimum password length */
+                             &REGCallback,          /* pointer to callback function */
+                             FullDBPath);           /* returned pathname of file where
                                         error occurred */
 
-   PRINTLOG ("\n\n");
+    PRINTLOG ("\n\n");
    
 
-   if (error)
-   {
-      PRINTLOG("Error: unable to register new organizational certifier.\n");
-      if (FullDBPath[0] != '\0')
-      PRINTLOG ("Error occurred in file %s\n", FullDBPath);
-      PRINTERROR(error,"REGNewCertifier");
-      NotesTerm();
-      return (1);
+    if (error)
+    {
+        PRINTLOG("Error: unable to register new organizational certifier.\n");
+        if (FullDBPath[0] != '\0')
+            PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+        PRINTERROR(error,"REGNewCertifier");
+        NotesTerm();
+        return (1);
    }
 
-   /* Prepare to call REGNewCertifier to create and register a new
-      organizational unit certifier - Sales org unit of ABCorp.
-      First get the Organization Certifier context for ABCorp, then pass
-      this context as input to REGNewCertifier.
-   */
+    /* Prepare to call REGNewCertifier to create and register a new
+       organizational unit certifier - Sales org unit of ABCorp.
+       First get the Organization Certifier context for ABCorp, then pass
+       this context as input to REGNewCertifier.
+    */
 
-   if (error = GetCertCtx(ORG_CERT_ID, &hCertCtx, PASSWORD))
-   {
-      PRINTERROR(error,"GetCertCtx");
-      NotesTerm();
-      return (1);
-   }
+    if (error = GetCertCtx(ORG_CERT_ID, &hCertCtx, PASSWORD))
+    {
+        PRINTERROR(error,"GetCertCtx");
+        NotesTerm();
+        return (1);
+    }
 
-   error = REGNewCertifier (
-              hCertCtx,              /* certifier context */
-              KFM_IDFILE_TYPE_ORGUNIT, /* Organizational Unit certifier */
-              ServName,              /* registration server */
-              NULL,                  /* country code - optional*/
-              NULL,                  /* Organization - Just use the above
+    error = REGNewCertifier (
+                             hCertCtx,              /* certifier context */
+                             KFM_IDFILE_TYPE_ORGUNIT, /* Organizational Unit certifier */
+                             ServName,              /* registration server */
+                             NULL,                  /* country code - optional*/
+                             NULL,                  /* Organization - Just use the above
                                         certifier context */
-              ORGUNIT_CERTNAME,      /* Org Unit */
-              PASSWORD,              /* password */
-              ORGUNIT_CERT_ID,       /* ID file for new certifier */
-              NULL,                  /* location of certifier - optional */
-              NULL,                  /* comment - optional*/
-              NULL,                  /* Mail Server's name - optional */
-              NULL,                  /* Mail file's name - optional */
-              DNAME_JAYNE,           /* forwarding address */
-              fREGCreateIDFileNow |  /* flags */
-              fREGUSARequested    |
-              fREGCreateAddrBookEntry|
-				  fREGOkayToModifyID|
-				  fREGOkayToModifyAddrbook,
-              0,                     /* key width (must be 0) */
-              MIN_PASS_LEN,          /* minimum password length */
-              &REGCallback,          /* pointer to callback function */
-              FullDBPath);           /* returned pathname of file where
+                             ORGUNIT_CERTNAME,      /* Org Unit */
+                             PASSWORD,              /* password */
+                             ORGUNIT_CERT_ID,       /* ID file for new certifier */
+                             NULL,                  /* location of certifier - optional */
+                             NULL,                  /* comment - optional*/
+                             NULL,                  /* Mail Server's name - optional */
+                             NULL,                  /* Mail file's name - optional */
+                             DNAME_JAYNE,           /* forwarding address */
+                             fREGCreateIDFileNow |  /* flags */
+                             fREGUSARequested    |
+                             fREGCreateAddrBookEntry|
+                             fREGOkayToModifyID|
+                             fREGOkayToModifyAddrbook,
+                             0,                     /* key width (must be 0) */
+                             MIN_PASS_LEN,          /* minimum password length */
+                             &REGCallback,          /* pointer to callback function */
+                             FullDBPath);           /* returned pathname of file where
                                         error occurred */
 
-   PRINTLOG ("\n\n");
-   if (error)
-   {
-      PRINTLOG("Error: unable to register new organizational unit certifier.\n");
-      if (FullDBPath[0] != '\0')
-         PRINTLOG ("Error occurred in file %s\n", FullDBPath);
-      SECKFMFreeCertifierCtx (hCertCtx);
-      PRINTERROR(error,"REGNewCertifier");
-      NotesTerm();
-      return (1);
-   }
+    PRINTLOG ("\n\n");
+    if (error)
+    {
+        PRINTLOG("Error: unable to register new organizational unit certifier.\n");
+        if (FullDBPath[0] != '\0')
+            PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+        SECKFMFreeCertifierCtx (hCertCtx);
+        PRINTERROR(error,"REGNewCertifier");
+        NotesTerm();
+        return (1);
+    }
 
-   /* Create and Register a new server.  Certify server with the Organization
-      certifier created earlier (use the above Organization certifier
-      context).
+    /* Create and Register a new server.  Certify server with the Organization
+       certifier created earlier (use the above Organization certifier
+       context).
     */
 #if 0
-   /* 
+    /* 
      We have commented out code to make the sample run manually. 
      As with the previous code , 
      it was unable to register a new server using the current server ID.
-	*/
+    */
 
    //error = REGNewServer (
    //           hCertCtx,              /* certifier context */
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
       if (FullDBPath[0] != '\0')
          printf ("Error occurred in file %s\n", FullDBPath);
       PrintAPIError(error);
-		NotesTerm();
+      NotesTerm();
       return (1);
    }
    */
@@ -322,188 +322,188 @@ int main(int argc, char *argv[])
      Sales Unit. Then, pass this certifier context as input to
      REGNewWorkstation(). It will certify the new user with this certifier.
    */
-   if (error = GetCertCtx(ORGUNIT_CERT_ID, &hCertCtx, PASSWORD))
-   {
-      PRINTERROR(error,"GetCertCtx");
-		NotesTerm();
-      return (1);
-   }
+    if (error = GetCertCtx(ORGUNIT_CERT_ID, &hCertCtx, PASSWORD))
+    {
+        PRINTERROR(error,"GetCertCtx");
+        NotesTerm();
+        return (1);
+    }
 
-   /* if local machine, need to get the User Name of this workstation */
-   if (LocalServer)
-   {
-     if (error = SECKFMGetUserName(MailServName))
-     {
-       PRINTERROR(error,"SECKFMGetUserName");
-       NotesTerm();
-       return (1);
-     }
-   }
+    /* if local machine, need to get the User Name of this workstation */
+    if (LocalServer)
+    {
+        if (error = SECKFMGetUserName(MailServName))
+        {
+            PRINTERROR(error,"SECKFMGetUserName");
+            NotesTerm();
+            return (1);
+        }
+    }
 
-   error = REGNewWorkstation (
-              hCertCtx,              /* certifier context */
-              KFM_IDFILE_TYPE_DERIVED, /* derived from certifier context */
-              ServName,              /* Registration server */
-              ORG_UNIT,              /* Org Unit - provides uniqueness to the name */
-              LAST_NAME,             /* Last name */
-              FIRST_NAME,            /* First name */
-              NULL,                  /* no middle initial */
-              NULL,                  /* no password initially */
-              USER_ID,               /* ID file name */
-              WorkLocation,          /* location - optional */
-              NULL,                  /* comment - optional */
-              MAILSYSTEM_NOTES,      /* mail system  */
-              MailServName,          /* mail server name */
-              MAILFILENAME,          /* pathname of mail file */
-              NULL,                  /* forward address - optional */
-              fREGCreateIDFileNow |  /* flags */
-              fREGUSARequested    |
-              fREGCreateMailFileNow |
-              fREGCreateAddrBookEntry|
-              fREGOkayToModifyID|
-              fREGOkayToModifyAddrbook,
-              0,                      /* minimum password length */
-              &REGCallback,           /* pointer to callback function */
-              FullDBPath);            /* returned pathname of file where
+    error = REGNewWorkstation (
+                               hCertCtx,              /* certifier context */
+                               KFM_IDFILE_TYPE_DERIVED, /* derived from certifier context */
+                               ServName,              /* Registration server */
+                               ORG_UNIT,              /* Org Unit - provides uniqueness to the name */
+                               LAST_NAME,             /* Last name */
+                               FIRST_NAME,            /* First name */
+                               NULL,                  /* no middle initial */
+                               NULL,                  /* no password initially */
+                               USER_ID,               /* ID file name */
+                               WorkLocation,          /* location - optional */
+                               NULL,                  /* comment - optional */
+                               MAILSYSTEM_NOTES,      /* mail system  */
+                               MailServName,          /* mail server name */
+                               MAILFILENAME,          /* pathname of mail file */
+                               NULL,                  /* forward address - optional */
+                               fREGCreateIDFileNow |  /* flags */
+                               fREGUSARequested    |
+                               fREGCreateMailFileNow |
+                               fREGCreateAddrBookEntry|
+                               fREGOkayToModifyID|
+                               fREGOkayToModifyAddrbook,
+                               0,                      /* minimum password length */
+                               &REGCallback,           /* pointer to callback function */
+                               FullDBPath);            /* returned pathname of file where
                                          error occurred */
 
-   PRINTLOG ("\n\n");
+    PRINTLOG ("\n\n");
 
-   /* Free the certifier context */
-   SECKFMFreeCertifierCtx (hCertCtx);
+    /* Free the certifier context */
+    SECKFMFreeCertifierCtx (hCertCtx);
 
-   if (error)
-   {
-      PRINTLOG("Error: unable to register a new user. Error:%x\n", error);
-      PRINTERROR(error,"REGNewWorkstation");
-      if (FullDBPath[0] != '\0')
-      PRINTLOG ("Error occurred in file %s\n", FullDBPath);
-      NotesTerm();
-      return (1);
-   }
-
-
-  /* Prepare to call REGReCertifyID() to recertify a new user.
-     First get the Organization Unit Certifier context for ABCorp,
-     Sales Unit. Then, pass this certifier context as input to
-     REGReCertify(). It will recertify the new user with this certifier.
-   */
-   if (error = GetCertCtx(ORGUNIT_CERT_ID, &hCertCtx, PASSWORD))
-   {
-      PRINTERROR(error,"GetCertCtx");
-      NotesTerm();
-      return (1);
-   }
-
-   PRINTLOG("Begin recertifying %s...\n", NEW_USERNAME);
-
-   error = REGReCertifyID (
-              hCertCtx,              /* certifier context */
-              0,                     /* Spare1 - reserved */
-              ServName,              /* Registration server */
-              NULL,                  /* Org Unit name */
-              USER_ID,               /* ID file name */
-              &ExpireDate,           /* Expiration Date */
-              0,                     /* Spare2 - reserved */
-              NULL,                  /* Spare3 - reserved */
-              NULL,                  /* pointer to callback function - optional */
-              NULL);                 /* Error path name */
-
-   if (!error)
-     PRINTLOG("%s successfully recertified.\n", NEW_USERNAME);
-
-   PRINTLOG ("\n\n");
-
-   /* Free the certifier context */
-   SECKFMFreeCertifierCtx (hCertCtx);
-
-   if (error)
-   {
-      PRINTLOG("Error: unable to recertify a new user. Error:%x\n", error);
-      PRINTERROR(error,"REGReCertifyID");
-      if (FullDBPath[0] != '\0')
-         PRINTLOG ("Error occurred in file %s\n", FullDBPath);
-         NotesTerm();
-         return (1);
-   }
+    if (error)
+    {
+        PRINTLOG("Error: unable to register a new user. Error:%x\n", error);
+        PRINTERROR(error,"REGNewWorkstation");
+        if (FullDBPath[0] != '\0')
+            PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+        NotesTerm();
+        return (1);
+    }
 
 
-   /* Find the new entries in the Name and Address book */
+    /* Prepare to call REGReCertifyID() to recertify a new user.
+      First get the Organization Unit Certifier context for ABCorp,
+      Sales Unit. Then, pass this certifier context as input to
+      REGReCertify(). It will recertify the new user with this certifier.
+    */
+    if (error = GetCertCtx(ORGUNIT_CERT_ID, &hCertCtx, PASSWORD))
+    {
+        PRINTERROR(error,"GetCertCtx");
+        NotesTerm();
+        return (1); 
+    }
 
-   /* Construct the path for the Name and Address book */
+    PRINTLOG("Begin recertifying %s...\n", NEW_USERNAME);
 
-   if (error = OSPathNetConstruct(NULL, ServName, NA_NAME, FullDBPath))
-   {
-      PRINTLOG("Error: unable to construct network path to N&A book.\n");
-      PRINTERROR(error,"OSPathNetConstruct");
-      NotesTerm();
-      return (1);
-   }
+    error = REGReCertifyID (
+                            hCertCtx,              /* certifier context */
+                            0,                     /* Spare1 - reserved */
+                            ServName,              /* Registration server */
+                            NULL,                  /* Org Unit name */
+                            USER_ID,               /* ID file name */
+                            &ExpireDate,           /* Expiration Date */
+                            0,                     /* Spare2 - reserved */
+                            NULL,                  /* Spare3 - reserved */
+                            NULL,                  /* pointer to callback function - optional */
+                            NULL);                 /* Error path name */
 
-   /* Open the database. */
+    if (!error)
+        PRINTLOG("%s successfully recertified.\n", NEW_USERNAME);
 
-   if (error = NSFDbOpen (FullDBPath, &hNABook))
-   {
-      PRINTLOG("Error: unable to open N&A book '%s'.\n", FullDBPath);
-      PRINTERROR(error,"NSFDbOpen");
-      NotesTerm();
-      return (1);
-   }
+    PRINTLOG ("\n\n");
 
-   /* Look up the Organization certifier entry */
-   if (error = REGFindAddressBookEntry (hNABook,
-                                        CERTS_FLD,
-                                        DNAME_ORG_CERT,
-                                        &NoteID))
-   {
-      PRINTLOG("Unable to find orgainizational certifier entry in N&A book.\n");
-      PRINTERROR(error,"REGFindAddressBookEntry");
-      NSFDbClose(hNABook);
-      NotesTerm();
-      return (1);
-   }
+    /* Free the certifier context */
+    SECKFMFreeCertifierCtx (hCertCtx);
 
-   if (NoteID)
-      PRINTLOG (
-         "\nOrganization Certifier, %s, found in NA Book.\nNoteID = %#lX\n\n",
-         DNAME_ORG_CERT, NoteID);
+    if (error)
+    {
+        PRINTLOG("Error: unable to recertify a new user. Error:%x\n", error);
+        PRINTERROR(error,"REGReCertifyID");
+        if (FullDBPath[0] != '\0')
+            PRINTLOG ("Error occurred in file %s\n", FullDBPath);
+        NotesTerm();
+        return (1);
+    }
+
+
+    /* Find the new entries in the Name and Address book */
+
+    /* Construct the path for the Name and Address book */
+
+    if (error = OSPathNetConstruct(NULL, ServName, NA_NAME, FullDBPath))
+    {
+        PRINTLOG("Error: unable to construct network path to N&A book.\n");
+        PRINTERROR(error,"OSPathNetConstruct");
+        NotesTerm();
+        return (1);
+    }
+
+    /* Open the database. */
+
+    if (error = NSFDbOpen (FullDBPath, &hNABook))
+    {
+        PRINTLOG("Error: unable to open N&A book '%s'.\n", FullDBPath);
+        PRINTERROR(error,"NSFDbOpen");
+        NotesTerm();
+        return (1);
+    }
+
+    /* Look up the Organization certifier entry */
+    if (error = REGFindAddressBookEntry (hNABook,
+                                         CERTS_FLD,
+                                         DNAME_ORG_CERT,
+                                         &NoteID))
+    {
+        PRINTLOG("Unable to find orgainizational certifier entry in N&A book.\n");
+        PRINTERROR(error,"REGFindAddressBookEntry");
+        NSFDbClose(hNABook);
+        NotesTerm();
+        return (1);
+    }
+
+    if (NoteID)
+       PRINTLOG (
+                 "\nOrganization Certifier, %s, found in NA Book.\nNoteID = %#lX\n\n",
+                 DNAME_ORG_CERT, NoteID);
 
    /* Look for the Org Unit certifier entry */
    if (error = REGFindAddressBookEntry (hNABook,
-                                       CERTS_FLD,
-                                       DNAME_ORGUNIT_CERT,
-                                       &NoteID))
-   {
-      PRINTLOG("Unable to find orgainizational unit certifier entry in N&A book.\n");
-      PRINTERROR(error,"REGFindAddressBookEntry");
-      NSFDbClose(hNABook);
-      NotesTerm();
-      return (1);
-   }
+                                        CERTS_FLD,
+                                        DNAME_ORGUNIT_CERT,
+                                        &NoteID))
+    {
+        PRINTLOG("Unable to find orgainizational unit certifier entry in N&A book.\n");
+        PRINTERROR(error,"REGFindAddressBookEntry");
+        NSFDbClose(hNABook);
+        NotesTerm();
+        return (1);
+    }
 
-   if (NoteID)
-      PRINTLOG (
-         "\nOrg Unit Certifier, %s, found in NA Book.\nNoteID = %#lX\n\n",
-         DNAME_ORGUNIT_CERT, NoteID);
+    if (NoteID)
+        PRINTLOG (
+                  "\nOrg Unit Certifier, %s, found in NA Book.\nNoteID = %#lX\n\n",
+                  DNAME_ORGUNIT_CERT, NoteID);
 
    /* Look for the new server entry */
    /*
-	 We have commented out code to make the sample run manually.
-	 As with the previous code ,
-	 it was unable to register a new server using the current server ID.
-	*/
+    We have commented out code to make the sample run manually.
+    As with the previous code ,
+    it was unable to register a new server using the current server ID.
+    */
    /*
    if (error = REGFindAddressBookEntry (hNABook,
-                                       SERVERS_FLD,
-                                       DNAME_OTTO,
-                                       &NoteID))
-   {
-      PRINTLOG("Error: unable to find server entry in N&A book.\n");
-  		PrintAPIError(error);
-		NSFDbClose(hNABook);
-      NotesTerm();
-      return (1);
-   }
+                                        SERVERS_FLD,
+                                        DNAME_OTTO,
+                                        &NoteID))
+    {
+        PRINTLOG("Error: unable to find server entry in N&A book.\n");
+        PrintAPIError(error);
+        NSFDbClose(hNABook);
+        NotesTerm();
+        return (1);
+    }
 
    if (NoteID)
       printf ("\nServer, %s, found in NA Book.\nNoteID = %#lX\n\n",
@@ -512,36 +512,36 @@ int main(int argc, char *argv[])
    /* Look for the new user entry */
 
    if (error = REGFindAddressBookEntry (hNABook,
-                                       USERS_FLD,
-                                       DNAME_JAYNE,
-                                       &NoteID))
-   {
-      PRINTLOG("Unable to find new user entry in N&A book.\n");
-      PRINTERROR(error,"REGFindAddressBookEntry");
-      NSFDbClose(hNABook);
-      NotesTerm();
-      return (1);
-   }
+                                        USERS_FLD,
+                                        DNAME_JAYNE,
+                                        &NoteID))
+    {
+        PRINTLOG("Unable to find new user entry in N&A book.\n");
+        PRINTERROR(error,"REGFindAddressBookEntry");
+        NSFDbClose(hNABook);
+        NotesTerm();
+        return (1);
+    }
 
-   if (NoteID)
-      PRINTLOG ("\nUser, %s, found in NA Book.\nNoteID = %#lX\n\n",
-              DNAME_JAYNE, NoteID);
+    if (NoteID)
+        PRINTLOG ("\nUser, %s, found in NA Book.\nNoteID = %#lX\n\n",
+                  DNAME_JAYNE, NoteID);
 
-   /* Close the database. */
+    /* Close the database. */
 
-   if(error = NSFDbClose (hNABook))
-   {
-      PRINTERROR(error,"NSFDbClose");
-      NotesTerm();
-      return (1);
-   }
-   NSFDbDelete(MAILFILENAME);
-   NotesTerm();
+    if(error = NSFDbClose (hNABook))
+    {
+        PRINTERROR(error,"NSFDbClose");
+        NotesTerm();
+        return (1);
+    }
+    NSFDbDelete(MAILFILENAME);
+    NotesTerm();
 
 /* End of main routine */
-   PRINTLOG("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 
-   return (0);
+    return (0);
 }
 
 
@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
 
 void LNCALLBACK REGCallback (char far *msg)
 {
-   PRINTLOG("%s\n",msg);
+    PRINTLOG("%s\n",msg);
 }
 
 /************************************************************************
@@ -580,46 +580,46 @@ void LNCALLBACK REGCallback (char far *msg)
 STATUS GetCertCtx (char far *pCertFile, HCERTIFIER *phCertCtx,
                    char far *szPassword)
 {
-   TIMEDATE ExpDate;
-   STATUS error;
-   char CertName[MAXSPRINTF];    /* Note:  Org names may be up to 64 chars
+    TIMEDATE ExpDate;
+    STATUS error;
+    char CertName[MAXSPRINTF];    /* Note:  Org names may be up to 64 chars
                                    The CertName in this example is an org
                                    name plus a  country code. */
-   BOOL IsHierarchical;
-   WORD FileVersion;
-   KFM_PASSWORD KFMPassword, *pKFMPassword;    /* encoded password */
+    BOOL IsHierarchical;
+    WORD FileVersion;
+    KFM_PASSWORD KFMPassword, *pKFMPassword;    /* encoded password */
 
-   OSCurrentTIMEDATE(&ExpDate);
+    OSCurrentTIMEDATE(&ExpDate);
 
-   /* set the expiration date to two years from today (Domino and Notes default) */
-   error = TimeDateAdjust(&ExpDate, 0, 0, 0, 0, 0, 2);
-   ExpireDate = ExpDate;
+    /* set the expiration date to two years from today (Domino and Notes default) */
+    error = TimeDateAdjust(&ExpDate, 0, 0, 0, 0, 0, 2);
+    ExpireDate = ExpDate;
 
-   if (error)
-      return (error);
+    if (error)
+        return (error);
 
    /* get the encoded password */
-   if (szPassword == NULL)
-      pKFMPassword = NULL;
-   else
-   {
-      pKFMPassword = &KFMPassword;
-      SECKFMCreatePassword (szPassword, pKFMPassword);
-   }
+    if (szPassword == NULL)
+        pKFMPassword = NULL;
+    else
+    {
+        pKFMPassword = &KFMPassword;
+        SECKFMCreatePassword (szPassword, pKFMPassword);
+    }
 
    /* get the certifier context */
-   error = SECKFMGetCertifierCtx (
-              pCertFile,       /* Certifier file path spec */
-              pKFMPassword,    /* encoded password */
-              NULL,            /* no certifier log */
-              &ExpDate,        /* expiration date */
-              CertName,        /* returned name of certifier */
-              phCertCtx,       /* returned handle to certifier context */
-              &IsHierarchical, /* returned TRUE if certifier is
-                                  hierarchical */
-              &FileVersion);   /* returned file version */
+    error = SECKFMGetCertifierCtx (
+                                   pCertFile,       /* Certifier file path spec */
+                                   pKFMPassword,    /* encoded password */
+                                   NULL,            /* no certifier log */
+                                   &ExpDate,        /* expiration date */
+                                   CertName,        /* returned name of certifier */
+                                   phCertCtx,       /* returned handle to certifier context */
+                                   &IsHierarchical, /* returned TRUE if certifier is
+                                   hierarchical */
+                                   &FileVersion);   /* returned file version */
 
-   return (error);
+    return (error);
 }
 #ifdef __cplusplus
 }

@@ -135,9 +135,9 @@ int main(int argc, char *argv[])
        form to use when displaying the note. */
 
     if (error = NSFItemSetText (hNote, 
-                               "FORM",
-                               "SimpleDataForm", 
-                                MAXWORD))
+                                "FORM",
+                                "SimpleDataForm", 
+                                 MAXWORD))
     {
         PRINTERROR(error,"NSFItemSetText");
         NSFNoteClose (hNote);
@@ -466,8 +466,8 @@ int main(int argc, char *argv[])
     }
 
 /* End of subroutine. */
-   PRINTLOG("\nProgram completed successfully.\n");
-   return (0);
+    PRINTLOG("\nProgram completed successfully.\n");
+    return (0);
 }
 
 /************************************************************************
@@ -495,72 +495,72 @@ int main(int argc, char *argv[])
 STATUS DecryptAndReadNoteItem (DBHANDLE hDB, NOTEID dwNoteID, char *ItemName)
 
 {
-   NOTEHANDLE hNote;           /* note handle */
-   STATUS     error;           /* return code from API calls */
-   FLAG       fSealed;         /* Is not encrypted? */
-   BOOL       FieldFound;
-   WORD          len;
-   char          ItemText[500];
+    NOTEHANDLE hNote;           /* note handle */
+    STATUS     error;           /* return code from API calls */
+    FLAG       fSealed;         /* Is not encrypted? */
+    BOOL       FieldFound;
+    WORD          len;
+    char          ItemText[500];
 
 
-   if (error = NSFNoteOpen (
-                            hDB,           /* database handle */
-                            dwNoteID,      /* note id */
-                            0,             /* open flags */
-                           &hNote))        /* note handle (return) */
+    if (error = NSFNoteOpen (
+                             hDB,           /* database handle */
+                             dwNoteID,      /* note id */
+                             0,             /* open flags */
+                             &hNote))        /* note handle (return) */
       
       return (error);
 
    /* If the note is encrypted, decrypt it. */
 
-   if (NSFNoteIsSignedOrSealed (hNote, (BOOL far *) NULL, (BOOL far *) &fSealed) )
-      if (fSealed)
-         if (error = NSFNoteDecrypt (
-                                     hNote,    /* note handle */
-                                     0,        /* reserved */
-                                     NULL))    /* Key for attachments - not
+    if (NSFNoteIsSignedOrSealed (hNote, (BOOL far *) NULL, (BOOL far *) &fSealed) )
+        if (fSealed)
+            if (error = NSFNoteDecrypt (
+                                         hNote,    /* note handle */
+                                         0,        /* reserved */
+                                         NULL))    /* Key for attachments - not
                                                   needed */
-         {
-            NSFNoteClose (hNote);
-            return (error);
-         }
+            {
+                NSFNoteClose (hNote);
+                return (error);
+            }
 
-   PRINTLOG("\n\n\nNote ID:  %lX\n\n", dwNoteID);
+    PRINTLOG("\n\n\nNote ID:  %lX\n\n", dwNoteID);
 
-   FieldFound = NSFItemIsPresent (hNote,
-                                  ItemName,
-                                  (WORD)strlen (ItemName));
+    FieldFound = NSFItemIsPresent (hNote,
+                                   ItemName,
+                                   (WORD)strlen (ItemName));
 
-   if (FieldFound)
-   {
+    if (FieldFound)
+    {
 
-      len = NSFItemGetText ( 
-                            hNote, 
-                            ItemName,
-                            ItemText,
-                            sizeof (ItemText));
+        len = NSFItemGetText ( 
+                               hNote, 
+                               ItemName,
+                               ItemText,
+                               sizeof (ItemText));
 
-      if (fSealed)
-      {
-         PRINTLOG ("The %s field has been decrypted.\n", ItemName);
-      }
-      else
-      {
-         PRINTLOG ("The %s field is not encrypted.\n", ItemName);
-      }
+        if (fSealed)
+        {
+            PRINTLOG ("The %s field has been decrypted.\n", ItemName);
+        }
+        else
+        {
+            PRINTLOG ("The %s field is not encrypted.\n", ItemName);
+        }
 
-      PRINTLOG ("Contents of %s field:\n\n%s\n", ItemName, ItemText);
+        PRINTLOG ("Contents of %s field:\n\n%s\n", ItemName, ItemText);
 
-   }
+    }
 
-   /* If the specified field is not there, print a message. */
+    /* If the specified field is not there, print a message. */
 
-   else
-   {
-      PRINTLOG ("%s field not found.\n", ItemName);
-   }
+    else
+    {
+        PRINTLOG ("%s field not found.\n", ItemName);
+    }
 
-   return (NOERROR);
+    return (NOERROR);
                      
 }
 
@@ -592,11 +592,11 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         fflush (stdout);
         gets(ekey);
 
-	printf ("Enter user1 (e.g. CN=test user/O=testorg):  ");
+        printf ("Enter user1 (e.g. CN=test user/O=testorg):  ");
         fflush (stdout);
         gets(user1);
 
-	printf ("Enter user2 (e.g. CN=test user1/O=testorg): ");
+        printf ("Enter user2 (e.g. CN=test user1/O=testorg): ");
         fflush (stdout);
         gets(user2);
     }    

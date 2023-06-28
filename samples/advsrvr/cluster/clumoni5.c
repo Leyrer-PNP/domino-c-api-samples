@@ -105,8 +105,8 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-     printf("\n Unable to initialize Notes.\n");
-     return (1);
+        printf("\n Unable to initialize Notes.\n");
+        return (1);
     }
 
 /* 
@@ -137,7 +137,7 @@ void MainPrompt(void)
     /* clear server and database name context strings */
     szDBServerNameString[0] = szDBNameString[0] = '\0';
 
-	/* loop until user wishes to exit */ 
+    /* loop until user wishes to exit */ 
     while (iSelection != 3)
     { 
         printf("Main Menu\n");
@@ -162,7 +162,7 @@ void MainPrompt(void)
             case 3: printf("\n"); break;
             
             default: printf("Invalid selection.  Try again.\n"); 
-                     break;
+                break;
         }
     }                
 }        
@@ -180,7 +180,7 @@ void InfoPrompt(void)
     int iSelection=0;
 
 
-	/* loop until user wishes to return to Main Menu */ 
+    /* loop until user wishes to return to Main Menu */ 
     while (iSelection != 5)
     { 
         printf("\nCluster Information Menu\n"); 
@@ -227,7 +227,7 @@ void AdmPrompt(void)
 {
     int iSelection=0;
 
-	/* loop until user wishes to return to Main Menu */ 
+    /* loop until user wishes to return to Main Menu */ 
     while (iSelection != 5)
     { 
         printf("\nCluster Administration Menu\n"); 
@@ -374,7 +374,7 @@ void GetServerRestrict (void)
         return;
     }
 
-	/* display server restriction setting */
+    /* display server restriction setting */
     dspServerRestrict (szDBServerNameString);
 
     fflush(stdin);
@@ -548,14 +548,14 @@ void SetServerRestrict (void)
         /* modify server restriction setting */
         case 0:
         case 1: setServerRestrict (szDBServerNameString, iRestrict);
-                break;
+            break;
 
         /* shutdown server */
         case 2: shutdownServer (szDBServerNameString);
-                break;
+            break;
 
         default: printf("Invalid selection.  Cancelling operation.\n"); 
-                 return;
+            return;
     }
 
     fflush(stdin);
@@ -729,15 +729,15 @@ void CreateCopyDB (void)
               information for the specified server. The GetServerCluster, 
               GetServerLoad, and GetServerClusterMates routines (clfunc.c) 
               are called to perform the relevant HCL C API for Domino and 
-			  Notes functions.
+              Notes functions.
 
     COMMENTS:
 
-  		  Although designed to retrieve each piece separately,
-  		  this routine currently is called by the GetClusterInfo() 
-	      function passing a NPN_CLU_SHOW_ALL flag.  This enables 
-  		  displaying all the three server cluster information
-  		  elements. 
+          Although designed to retrieve each piece separately,
+          this routine currently is called by the GetClusterInfo() 
+          function passing a NPN_CLU_SHOW_ALL flag.  This enables 
+          displaying all the three server cluster information
+          elements. 
 
           Any errors are processed and displayed to the user as 
           appropriate.
@@ -920,7 +920,7 @@ void dspDBOptions (char *szServerName, char *szDBName )
         printf ("\n%s\n", szErrorString);
     }
 
-  	/* Report Mark Options */
+    /* Report Mark Options */
     if (dwOptionMask & DBOPTION_OUT_OF_SERVICE)        
         printf("\tMarked Out Of Service\n");
     else
@@ -934,7 +934,7 @@ Cleanup:
     if ( nError != NOERROR)
     {
         OSLoadString(hModule, ERR(nError),
-            	     szErrorString, LINEOTEXT-1);
+                     szErrorString, LINEOTEXT-1);
         printf("%s\n", szErrorString);
     }
    return;
@@ -982,7 +982,7 @@ void dspThresholdInfo (char *szServerName)
     /* First retrieve and display the server availability (if noerror) */
     nError = GetServerLoad (szServerName, &dwAvailability);
     if (nError != NOERROR)
-	    goto Cleanup;
+        goto Cleanup;
 
     sprintf (szInfo, "%lu", dwAvailability);
     printf("Availability: %s\n", szInfo);
@@ -1010,10 +1010,10 @@ void dspThresholdInfo (char *szServerName)
         i = strlen(THRESHOLD); 
         strcpy(szInfo, "");
         while (szServerResponse[i] != '\0')  
-            sprintf(szInfo, "%s%c", szInfo, szServerResponse[i++]);
+               sprintf(szInfo, "%s%c", szInfo, szServerResponse[i++]);
     }
 
-  	/* and display to the dialog box */
+    /* and display to the dialog box */
     printf("Availability Threshold: %s\n", szInfo);
 
 Cleanup:
@@ -1104,7 +1104,7 @@ Cleanup:
 
         default:
             OSLoadString(hModule, ERR(nError),
-                    	 szErrorString, LINEOTEXT-1);
+                         szErrorString, LINEOTEXT-1);
             printf("%s\n", szErrorString);
             break;
     }
@@ -1151,9 +1151,9 @@ void dspServerRestrict (char *szServerName)
     if (nError != NOERROR)
         goto Cleanup;
 
-  	/* and check Server Restricted checkbox if SERVER_RESTRICT=1 
-  	 * response is returned
-  	 */
+    /* and check Server Restricted checkbox if SERVER_RESTRICT=1 
+     * response is returned
+     */
     if (!strcmp(szServerResponse, RESTRICTED))        
         printf("\tServer Restricted\n");
     else
@@ -1178,10 +1178,10 @@ Cleanup:
     PURPOSE:  Sets and displays the Server Restriction state for the
               specified server.  The RemoteCommand routine (clfunc.c) is 
               called to perform the relevant HCL C API for Domino and 
-			  Notes functions.  Specifically, this routine programmatically 
-			  uses Notes and Domino remote console commands to set/unset 
-			  the server restriction configuration. The referenced commands 
-			  are defined in clumon.h.
+              Notes functions.  Specifically, this routine programmatically 
+              uses Notes and Domino remote console commands to set/unset 
+              the server restriction configuration. The referenced commands 
+              are defined in clumon.h.
 
     COMMENTS:
 
@@ -1313,7 +1313,7 @@ void shutdownServer (char *szServerName)
 
         default:
             OSLoadString(hModule, ERR(nError),
-                    	 szErrorString, LINEOTEXT-1);
+                         szErrorString, LINEOTEXT-1);
             printf("%s\n", szErrorString);
             break;
     }

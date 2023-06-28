@@ -235,13 +235,13 @@ int main (int argc, char *argv[])
 /* Put the time/date text into Domino and Notes binary form. */
 
         if (error = ConvertTextToTIMEDATE(NULL,
-                      NULL,
-                      &text_pointer,
-                      (WORD) strlen(timetext),
-                      &tdEndAway))
+                                          NULL,
+                                          &text_pointer,
+                                          (WORD) strlen(timetext),
+                                          &tdEndAway))
         {
-           PRINTERROR (error,"ConvertTextToTIMEDATE");
-           goto EXIT1;
+            PRINTERROR (error,"ConvertTextToTIMEDATE");
+            goto EXIT1;
 
         }
 
@@ -301,8 +301,8 @@ int main (int argc, char *argv[])
         }
 
         if (error = ConvertTIMEDATEToText(NULL, NULL,&tdStartAway,
-                            timetext, MAXALPHATIMEDATE,
-                            &TimeStringLen))
+                                          timetext, MAXALPHATIMEDATE,
+                                          &TimeStringLen))
         {
             PRINTERROR (error,"ConvertTIMEDATEToText");
             goto EXIT1;
@@ -313,8 +313,8 @@ int main (int argc, char *argv[])
 
 
         if (error = ConvertTIMEDATEToText(NULL, NULL,&tdEndAway,
-                            timetext, MAXALPHATIMEDATE,
-                            &TimeStringLen))
+                                          timetext, MAXALPHATIMEDATE,
+                                          &TimeStringLen))
         {
             PRINTERROR (error,"ConvertTIMEDATEToText");
             goto EXIT1;
@@ -346,9 +346,9 @@ EXIT2:
         {
            if (error = MailCloseMessageFile(hMailFile))
            {
-               PRINTERROR (error,"MailCloseMessageFile");
-               NotesTerm();
-               return (1);
+                PRINTERROR (error,"MailCloseMessageFile");
+                NotesTerm();
+                return (1);
            }
         }
 

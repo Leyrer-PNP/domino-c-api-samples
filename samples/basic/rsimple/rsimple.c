@@ -72,7 +72,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 /* Function prototypes */
 
 STATUS LNPUBLIC print_fields (void far *, SEARCH_MATCH far *, 
-                                ITEM_TABLE far *);
+                              ITEM_TABLE far *);
 
 /************************************************************************
 
@@ -115,14 +115,14 @@ int main(int argc, char *argv[])
     /* Compile the selection formula. */
 
     if (error = NSFFormulaCompile (
-                NULL,               /* name of formula (none) */
-                (WORD) 0,           /* length of name */
-                formula,            /* the ASCII formula */
-                (WORD) strlen(formula),    /* length of ASCII formula */
-                &formula_handle,    /* handle to compiled formula */
-                &wdc,               /* compiled formula length (don't care) */
-                &wdc,               /* return code from compile (don't care) */
-                &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
+                                   NULL,               /* name of formula (none) */
+                                   (WORD) 0,           /* length of name */
+                                   formula,            /* the ASCII formula */
+                                   (WORD) strlen(formula),    /* length of ASCII formula */
+                                   &formula_handle,    /* handle to compiled formula */
+                                   &wdc,               /* compiled formula length (don't care) */
+                                   &wdc,               /* return code from compile (don't care) */
+                                   &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
         
     {
         NSFDbClose (db_handle);
@@ -137,19 +137,19 @@ to find all the documents in the database, you can set the 2nd argument
 to NULLHANDLE and eliminate the formula compilation.) */
 
     if (error = NSFSearchExt2 (
-                db_handle,      /* database handle */
-                formula_handle, /* selection formula */
-                NULLHANDLE,   /* handle to the filter */
-                SEARCH_FILTER_NONE, /* filter flags */
-                NULL,           /* title of view in selection formula */
-                0,              /* search flags (unused) */
-                0,              /* search flags (unused) */
-                NOTE_CLASS_DOCUMENT,/* note class to find */
-                NULL,           /* starting date (unused) */
-                print_fields,   /* call for each note found */
-                &db_handle,     /* argument to print_fields */
-                NULL,           /* returned ending date (unused) */
-                5))            /* timeout seconds. if = "0" then, NO timeout */
+                               db_handle,      /* database handle */
+                               formula_handle, /* selection formula */
+                               NULLHANDLE,   /* handle to the filter */
+                               SEARCH_FILTER_NONE, /* filter flags */
+                               NULL,           /* title of view in selection formula */
+                               0,              /* search flags (unused) */
+                               0,              /* search flags (unused) */
+                               NOTE_CLASS_DOCUMENT,/* note class to find */
+                               NULL,           /* starting date (unused) */
+                               print_fields,   /* call for each note found */
+                               &db_handle,     /* argument to print_fields */
+                               NULL,           /* returned ending date (unused) */
+                               5))            /* timeout seconds. if = "0" then, NO timeout */
     {
         OSMemFree (formula_handle);
         NSFDbClose (db_handle);
@@ -245,19 +245,19 @@ but is shown here in case a starting date was used in the search. */
 /* Open the note. */
 
     if (error = NSFNoteOpen (
-                *(DBHANDLE far *)db_handle,  /* database handle */
-                SearchMatch.ID.NoteID, /* note ID */
-                0,                      /* open flags */
-                &note_handle))          /* note handle (return) */
+                             *(DBHANDLE far *)db_handle,  /* database handle */
+                             SearchMatch.ID.NoteID, /* note ID */
+                             0,                      /* open flags */
+                             &note_handle))          /* note handle (return) */
         
-    return (ERR(error));
+        return (ERR(error));
 
 /* Look for the PLAIN_TEXT field within this note. */
 
     field_found = NSFItemIsPresent ( 
-                note_handle,
-                "PLAIN_TEXT",
-                (WORD) strlen ("PLAIN_TEXT"));
+                                     note_handle,
+                                     "PLAIN_TEXT",
+                                     (WORD) strlen ("PLAIN_TEXT"));
 
 /* If the PLAIN_TEXT field is there, get the contents of the field and 
 print it. */
@@ -265,10 +265,10 @@ print it. */
     if (field_found)
     {
         field_len = NSFItemGetText ( 
-                    note_handle, 
-                    "PLAIN_TEXT",
-                    field_text,
-                    (WORD) sizeof (field_text));
+                                     note_handle, 
+                                     "PLAIN_TEXT",
+                                     field_text,
+                                     (WORD) sizeof (field_text));
 
         PRINTLOG ("PLAIN_TEXT field is: %s\n", field_text);
 
@@ -284,18 +284,18 @@ print it. */
 /* Look for (and get if it's there) the NUMBER field within this note.*/
 
     field_found = NSFItemGetNumber ( 
-                note_handle, 
-                "NUMBER",
-                &number_field);
+                                     note_handle, 
+                                     "NUMBER",
+                                     &number_field);
 
 /* If the NUMBER field was found, print it. */
 
     if (field_found)
     {
 #ifdef OS390
-       /* Domino and Notes gave us an IEEE double which must be converted to native. */
-          ConvertIEEEToDouble(&number_field, &number_field);
-#endif /* OS390 */
+        /* Domino and Notes gave us an IEEE double which must be converted to native. */
+        ConvertIEEEToDouble(&number_field, &number_field);
+#endif  /* OS390 */
         PRINTLOG ("NUMBER field is: %f\n", number_field);
     }
 
@@ -309,9 +309,9 @@ print it. */
 /* Look for the TIME_DATE field within this note. */
 
     field_found = NSFItemIsPresent ( 
-                note_handle,
-                "TIME_DATE",
-                (WORD) strlen ("TIME_DATE"));
+                                     note_handle,
+                                     "TIME_DATE",
+                                     (WORD) strlen ("TIME_DATE"));
 
 /* If the TIME_DATE field is there, get the contents of the field as an 
 ASCII string and print it out. */
@@ -319,11 +319,11 @@ ASCII string and print it out. */
     if (field_found)
     {
         field_len = NSFItemConvertToText ( 
-                note_handle, 
-                "TIME_DATE",
-                field_text,
-                (WORD) sizeof (field_text),
-                ';'); /* multi-value separator */
+                                           note_handle, 
+                                           "TIME_DATE",
+                                           field_text,
+                                           (WORD) sizeof (field_text),
+                                           ';'); /* multi-value separator */
 
         PRINTLOG ("TIME_DATE field is: %s\n", field_text);
 
@@ -339,8 +339,8 @@ ASCII string and print it out. */
 /* Look for the TEXT_LIST field within this note. */
 
     field_found = NSFItemIsPresent ( note_handle,
-                    "TEXT_LIST",
-                    (WORD) strlen ("TEXT_LIST"));
+                                     "TEXT_LIST",
+                                     (WORD) strlen ("TEXT_LIST"));
 
 /* Do the next few sections of code if the TEXT_LIST field is present. */
 
@@ -350,18 +350,18 @@ ASCII string and print it out. */
 /* Find the number of entries in TEXT_LIST */
     
         list_entries = NSFItemGetTextListEntries ( 
-                    note_handle, 
-                    "TEXT_LIST");
+                                                   note_handle, 
+                                                   "TEXT_LIST");
 
 /* Get the last entry in TEXT_LIST. (The fields are numbered from 0 to 
 n-1. So we subtract one from the number returned above.) */
 
         field_len = NSFItemGetTextListEntry (
-                    note_handle,
-                    "TEXT_LIST",
-                    (WORD) (list_entries - 1),  /* which field to get */
-                    field_text,
-                    (WORD) (sizeof (field_text) -1) );        
+                                              note_handle,
+                                              "TEXT_LIST",
+                                              (WORD) (list_entries - 1),  /* which field to get */
+                                              field_text,
+                                              (WORD) (sizeof (field_text) -1) );        
 
 /* Print out the last entry in TEXT_LIST. */
 

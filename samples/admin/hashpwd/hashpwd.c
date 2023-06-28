@@ -65,7 +65,7 @@ int main (int argc, char *argv[])
 	}
 
 	if (error = SECHashPassword (strlen ("viking"), (BYTE*) "viking",
-	   52, &Digest2Len, Digest2, 0, NULL))
+	    52, &Digest2Len, Digest2, 0, NULL))
 	{
 	   PRINTERROR (error,"SECHashPassword");
 	}
@@ -94,15 +94,15 @@ int main (int argc, char *argv[])
 	}
 
 	if (error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
-					SEC_pwddigest_V1, 0, NULL,
-					12345, NULL, 0,
-					52, &Digest3Len, Digest3, 0, NULL))
+	                             SEC_pwddigest_V1, 0, NULL,
+	                             12345, NULL, 0,
+	                             52, &Digest3Len, Digest3, 0, NULL))
 	{
 	   PRINTERROR (error,"SECHashPassword3");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
-		Digest3Len, Digest3, 0, NULL);
+	                           Digest3Len, Digest3, 0, NULL);
 
 	if (Verify != NOERROR)
 	{
@@ -115,15 +115,15 @@ int main (int argc, char *argv[])
 						   	 
 
 	if (error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
-					SEC_pwddigest_V2, 0, NULL,
-					12345, NULL, 0,
-					52, &Digest3Len, Digest3, 0, NULL))
+	                             SEC_pwddigest_V2, 0, NULL,
+	                             12345, NULL, 0,
+	                             52, &Digest3Len, Digest3, 0, NULL))
 	{
 	   PRINTERROR (error,"SECHashPassword3");
 	}
 
 	Verify = SECVerifyPassword(strlen ("viking"), (BYTE*)"viking",
-		Digest3Len, Digest3, 0, NULL);
+	                           Digest3Len, Digest3, 0, NULL);
 
 	if (Verify != NOERROR)
 	{
@@ -135,9 +135,9 @@ int main (int argc, char *argv[])
 	}
 
 	if (error = SECHashPassword3(strlen ("viking"), (BYTE*)"viking",
-					SEC_pwddigest_V3, SEC_ai_HMAC_SHA1, NULL,
-					12345, NULL, 0,
-					52, &Digest3Len, Digest3, 0, NULL))
+	                             SEC_pwddigest_V3, SEC_ai_HMAC_SHA1, NULL,
+	                             12345, NULL, 0,
+	                             52, &Digest3Len, Digest3, 0, NULL))
 	{
 	   PRINTERROR (error,"SECHashPassword3");
 	}

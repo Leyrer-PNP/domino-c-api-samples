@@ -83,7 +83,7 @@ void createcopyDB(HWND, char *, char *, char *, char *, BOOL);
 /* static values */
 static DHANDLE     hInst;                       /* current instance */
 static DHANDLE     hModule;                     /* module handle */
-static HWND      hWnd;                        /* Main window handle */
+static HWND        hWnd;                        /* Main window handle */
 
 static char  szDBServerNameString[LINEOTEXT]; /* String to hold Name of Server */
 static char  szDBServerNamePrev[LINEOTEXT];   /* "Previous" Server String */
@@ -133,7 +133,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     if (nError != NOERROR)
     {
         MessageBox (GetFocus(), "Unable to Initialize Notes!",
-                                    "Error!", MB_OK);
+                    "Error!", MB_OK);
         return (FALSE);
     }
 
@@ -147,9 +147,9 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     /* Acquire and dispatch messages until WM_QUIT message is received. */
     while (GetMessage(&msg,     /* message structure                  */
-          (HWND) NULL,          /* handle of window receiving the msg */
-          (WORD) NULL,          /* lowest message to examine          */
-          (WORD) NULL))         /* highest message to examine         */
+                      (HWND) NULL,          /* handle of window receiving the msg */
+                      (WORD) NULL,          /* lowest message to examine          */
+                      (WORD) NULL))         /* highest message to examine         */
     {
         TranslateMessage(&msg);     /* Translates virtual key codes.   */
         DispatchMessage(&msg);      /* Dispatches message to window.   */
@@ -233,17 +233,17 @@ BOOL InitInstance(DHANDLE hInstance, int nCmdShow)
 
     /* Create a main window for this application instance.  */
     hWnd = CreateWindow(
-        "clumonClass",                  /* See RegisterClass() call.    */
-        CLUMON_TITLE,					/* Text for window title bar.   */
-        WS_OVERLAPPEDWINDOW,            /* Window style.                */
-        CW_USEDEFAULT,                  /* Default horizontal position. */
-        CW_USEDEFAULT,                  /* Default vertical position.   */
-        CW_USEDEFAULT,                  /* Default width.               */
-        CW_USEDEFAULT,                  /* Default height.              */
-        (HWND) NULL,                    /* No parent.                   */
-        (HMENU) NULL,                   /* Use the window class menu.   */
-        hInstance,                      /* Owner of window.             */
-        (LPVOID) NULL                   /* Pointer not needed.          */
+                        "clumonClass",                  /* See RegisterClass() call.    */
+                        CLUMON_TITLE,					/* Text for window title bar.   */
+                        WS_OVERLAPPEDWINDOW,            /* Window style.                */
+                        CW_USEDEFAULT,                  /* Default horizontal position. */
+                        CW_USEDEFAULT,                  /* Default vertical position.   */
+                        CW_USEDEFAULT,                  /* Default width.               */
+                        CW_USEDEFAULT,                  /* Default height.              */
+                        (HWND) NULL,                    /* No parent.                   */
+                        (HMENU) NULL,                   /* Use the window class menu.   */
+                        hInstance,                      /* Owner of window.             */
+                        (LPVOID) NULL                   /* Pointer not needed.          */
     );
 
     /* If window could not be created, return "failure" */
@@ -317,7 +317,7 @@ LRESULT FAR PASCAL MainWndProc(HWND hWnd, UINT message,
                                     hWnd,                   /* parent handle    */
                                     (DLGPROC)lpProcGetClusterInfo);  /* instance address */
                 FreeProcInstance(lpProcGetClusterInfo);
-    			return 0;
+                return 0;
             
                              
                 /* Process Information-Database Options menu */
@@ -335,7 +335,7 @@ LRESULT FAR PASCAL MainWndProc(HWND hWnd, UINT message,
                                     hWnd,                /* parent handle    */
                                     (DLGPROC)lpProcGetDBOptions); /* instance address */
                 FreeProcInstance(lpProcGetDBOptions);
-	    		return 0;
+                return 0;
             
 
                 /*  Process Administration-Manage Database menu */
@@ -353,7 +353,7 @@ LRESULT FAR PASCAL MainWndProc(HWND hWnd, UINT message,
                                     hWnd,                   /* parent handle    */
                                     (DLGPROC)lpProcManageDBOptions); /* instance address */
                 FreeProcInstance(lpProcManageDBOptions);
-		    	return 0;
+                return 0;
 
 
                 /*  Process Administration-Server Restriction menu */
@@ -370,7 +370,7 @@ LRESULT FAR PASCAL MainWndProc(HWND hWnd, UINT message,
                                     hWnd,                   /* parent handle    */
                                     (DLGPROC)lpProcRestrictServer);  /* instance address */
                 FreeProcInstance(lpProcRestrictServer);
-		    	return 0;
+                return 0;
             
                 /*  Process Administration-Server Availability Threshold menu */
                 case ADMIN_MODIFY_THRESHOLD:
@@ -386,7 +386,7 @@ LRESULT FAR PASCAL MainWndProc(HWND hWnd, UINT message,
                                     hWnd,                   /* parent handle    */
                                     (DLGPROC)lpProcSetThreshold);  /* instance address */
                 FreeProcInstance(lpProcSetThreshold);
-		    	return 0;
+                return 0;
 
                 /*  Process Administration-Create and Copy Database menu */
                 case ADMIN_CREATECOPY_DB:
@@ -405,7 +405,7 @@ LRESULT FAR PASCAL MainWndProc(HWND hWnd, UINT message,
                                     hWnd,                   /* parent handle    */
                                     (DLGPROC)lpProcCreateCopyDB);  /* instance address */
                 FreeProcInstance(lpProcCreateCopyDB);
-		    	return 0;
+                return 0;
 
                 /*  Process File-Exit menu */
                 case FILE_EXIT:
@@ -414,7 +414,7 @@ LRESULT FAR PASCAL MainWndProc(HWND hWnd, UINT message,
                 SendMessage (hWnd, WM_CLOSE, 0, 0L); 
                 break;
 
-          }
+            }
 
         case WM_DESTROY:            /* Message: window being destroyed */
             PostQuitMessage(0);
@@ -472,12 +472,12 @@ BOOL FAR PASCAL GetClusterInfo (HWND hDlg, WORD message,
                 SetCursor (LoadCursor (NULL, IDC_WAIT));
                 dspClusterInfo(hDlg, szDBServerNameString, NPN_CLU_SHOW_ALL);
                 SetCursor (LoadCursor (NULL, IDC_ARROW));
-             }
-             return TRUE;
+            }
+            return TRUE;
 
         case WM_COMMAND:            /* Message: received a command */
-             switch (wParam)
-             {
+            switch (wParam)
+            {
                 case IDOK:          /* "Info" button */
 
                     /* Clear out "old" cluster information */
@@ -491,9 +491,9 @@ BOOL FAR PASCAL GetClusterInfo (HWND hDlg, WORD message,
                            
                     /* Get Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
 
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -506,17 +506,17 @@ BOOL FAR PASCAL GetClusterInfo (HWND hDlg, WORD message,
 
                     /* Display the cluster name, load index, and clustermates
                        of the specified server. */
-		  	        SetCursor (LoadCursor (NULL, IDC_WAIT));
+                    SetCursor (LoadCursor (NULL, IDC_WAIT));
                     dspClusterInfo(hDlg, szDBServerNameString, NPN_CLU_SHOW_ALL);
-        		    SetCursor (LoadCursor (NULL, IDC_ARROW));
+                    SetCursor (LoadCursor (NULL, IDC_ARROW));
 
-        			return TRUE;
+                    return TRUE;
                         
                 case IDCANCEL:      /* "Done" button */
-                     EndDialog(hDlg, FALSE); 
-                     return TRUE;
+                    EndDialog(hDlg, FALSE); 
+                    return TRUE;
             }
-        break;
+            break;
     }
     return FALSE;                 /* Message not processed.  */
 }
@@ -564,11 +564,11 @@ BOOL FAR PASCAL GetDBOptions (HWND hDlg, WORD message,
                 if (szDBNameString[0] != '\0')
                 {
                     SetDlgItemText(hDlg, DBNAME_EDIT, szDBNameString);
-			
-		        	/* Get and display the Option Mask of the database */
-    		        SetCursor (LoadCursor (NULL, IDC_WAIT));
+            
+                    /* Get and display the Option Mask of the database */
+                    SetCursor (LoadCursor (NULL, IDC_WAIT));
                     dspDBOptions (hDlg, szDBServerNameString, szDBNameString);
-        		    SetCursor (LoadCursor (NULL, IDC_ARROW));
+                    SetCursor (LoadCursor (NULL, IDC_ARROW));
                 }
             }
             return TRUE;
@@ -583,14 +583,14 @@ BOOL FAR PASCAL GetDBOptions (HWND hDlg, WORD message,
                            
                    /* Get Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
                     /* Get Database Name */
                     GetDlgItemText(hDlg,
-                                    DBNAME_EDIT,
-                                    szDBNameString,
-                                    LINEOTEXT-1);
+                                   DBNAME_EDIT,
+                                   szDBNameString,
+                                   LINEOTEXT-1);
 
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -718,14 +718,14 @@ BOOL FAR PASCAL ManageDBOptions (HWND hDlg, WORD message,
                            
                     /* Get Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
                     /* Get Database Name */
                     GetDlgItemText(hDlg,
-                                    DBNAME_EDIT,
-                                    szDBNameString,
-                                    LINEOTEXT-1);
+                                   DBNAME_EDIT,
+                                   szDBNameString,
+                                   LINEOTEXT-1);
                     
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -759,14 +759,14 @@ BOOL FAR PASCAL ManageDBOptions (HWND hDlg, WORD message,
                            
                     /* Get Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
                     /* Get Database Name */
                     GetDlgItemText(hDlg,
-                                    DBNAME_EDIT,
-                                    szDBNameString,
-                                    LINEOTEXT-1);
+                                   DBNAME_EDIT,
+                                   szDBNameString,
+                                   LINEOTEXT-1);
 
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -868,9 +868,9 @@ BOOL FAR PASCAL RestrictServer (HWND hDlg, WORD message,
                 
                     /* Get Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
     
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -895,9 +895,9 @@ BOOL FAR PASCAL RestrictServer (HWND hDlg, WORD message,
                 
                     /* Get Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
     
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -1009,9 +1009,9 @@ BOOL FAR PASCAL SetThreshold (HWND hDlg, WORD message,
 
                     /* Get Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
     
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -1034,9 +1034,9 @@ BOOL FAR PASCAL SetThreshold (HWND hDlg, WORD message,
 
                     /* Get Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
     
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -1053,7 +1053,7 @@ BOOL FAR PASCAL SetThreshold (HWND hDlg, WORD message,
                     SetCursor (LoadCursor (NULL, IDC_ARROW));
                     return TRUE;
 
-               case IDCANCEL:      /* "Done" button */
+                case IDCANCEL:      /* "Done" button */
                     EndDialog(hDlg, FALSE); 
                     return TRUE;
             }
@@ -1093,7 +1093,7 @@ BOOL FAR PASCAL SetThreshold (HWND hDlg, WORD message,
 ***********************************************************************/
 
 BOOL FAR PASCAL CreateCopyDB (HWND hDlg, WORD message,
-              WPARAM wParam, LPARAM lParam)
+                              WPARAM wParam, LPARAM lParam)
 {
     STATUS  nError = NOERROR;
     char    szDBCopyServer[LINEOTEXT];  /* Copy database server name */
@@ -1125,8 +1125,8 @@ BOOL FAR PASCAL CreateCopyDB (HWND hDlg, WORD message,
             return TRUE;
 
         case WM_COMMAND:            /* Message: received a command */
-             switch (wParam)
-             {
+            switch (wParam)
+            {
 
                 /* Ensure that the two copy flag Checkboxes are exclusive */
                 case DBCOPY_REPL:   
@@ -1150,26 +1150,26 @@ BOOL FAR PASCAL CreateCopyDB (HWND hDlg, WORD message,
                            
                    /* Get the source Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERNAME_EDIT,
-                                    szDBServerNameString,
-                                    LINEOTEXT-1);
+                                   SERVERNAME_EDIT,
+                                   szDBServerNameString,
+                                   LINEOTEXT-1);
                     /* Get the source Database Name */
                     GetDlgItemText(hDlg,
-                                    DBNAME_EDIT,
-                                    szDBNameString,
-                                    LINEOTEXT-1);
+                                   DBNAME_EDIT,
+                                   szDBNameString,
+                                   LINEOTEXT-1);
 
                    /* Get the copy Server Name */
                     GetDlgItemText(hDlg,
-                                    SERVERDEST_EDIT,
-                                    szDBCopyServer,
-                                    LINEOTEXT-1);
+                                   SERVERDEST_EDIT,
+                                   szDBCopyServer,
+                                   LINEOTEXT-1);
 
                     /* Get the copy Database Name */
                     GetDlgItemText(hDlg,
-                                    DBDEST_EDIT,
-                                    szDBCopyFile,
-                                    LINEOTEXT-1);
+                                   DBDEST_EDIT,
+                                   szDBCopyFile,
+                                   LINEOTEXT-1);
 
                     /* If no Server name was entered, restore previous string
                        and display an appropriate error message. */
@@ -1204,7 +1204,7 @@ BOOL FAR PASCAL CreateCopyDB (HWND hDlg, WORD message,
                     {
                         strcpy (szDBNameString, szDBNamePrev);                 
                         MessageBox (GetFocus(),"No Copy Database Name entered",
-                                "Error!", MB_OK);
+                                    "Error!", MB_OK);
                         return TRUE;
                     }
 
@@ -1290,7 +1290,7 @@ void dspClusterInfo(HWND hDlg, char *szServerName, DWORD dwClusterFlags)
         {
             /* No errors ->  Change Window Title Context */
             wsprintf ((LPSTR)szWindowTitle, "%s - <%s>", 
-                        CLUMON_TITLE, (LPSTR)szServerName);
+                       CLUMON_TITLE, (LPSTR)szServerName);
             SetWindowText (hWnd, (LPSTR)szWindowTitle);
     
             /* and Update Cluster Name dialog item */
@@ -1357,7 +1357,7 @@ void dspClusterInfo(HWND hDlg, char *szServerName, DWORD dwClusterFlags)
                 memcpy(szClusterInfo, pBuffer, wBufferLen);
                 szClusterInfo[wBufferLen] = '\0';
                 SendDlgItemMessage (hDlg, CLUSTERMATES_LIST, LB_ADDSTRING, 
-                0, (LPARAM) ((LPSTR)szClusterInfo));
+                                    0, (LPARAM) ((LPSTR)szClusterInfo));
             }
             else
             {
@@ -1368,7 +1368,7 @@ void dspClusterInfo(HWND hDlg, char *szServerName, DWORD dwClusterFlags)
         
         /* No longer need this memory - Freeing done in "Cleanup:" below */
         OSUnlock( hClusterList);
-   }  
+    }  
 
 Cleanup:
    if (hClusterList != NULLHANDLE)        
@@ -1378,21 +1378,21 @@ Cleanup:
    switch (nError)
    {
         case NPNERR_NOT_CLUSTER_MEMBER:
-           wsprintf ((LPSTR)szErrorString, 
-                        "Server %s is not a member of any cluster!\n",
-                        (LPSTR)szDBServerNameString);
-           MessageBox (GetFocus(), (LPSTR)szErrorString, "Error!", MB_OK);
-           break;
+            wsprintf ((LPSTR)szErrorString, 
+                      "Server %s is not a member of any cluster!\n",
+                      (LPSTR)szDBServerNameString);
+            MessageBox (GetFocus(), (LPSTR)szErrorString, "Error!", MB_OK);
+            break;
    
         case NOERROR:
-           break;
+            break;
    
         default:  /* HCL C API for Notes/Domino Error */
-           OSLoadString(hModule, ERR(nError),
-                        (LPSTR)szErrorString, LINEOTEXT-1);
-           MessageBox (GetFocus(), (LPSTR)szErrorString, "Notes Error!", MB_OK);
-           break;
-   }                 
+            OSLoadString(hModule, ERR(nError),
+                         (LPSTR)szErrorString, LINEOTEXT-1);
+            MessageBox (GetFocus(), (LPSTR)szErrorString, "Notes Error!", MB_OK);
+            break;
+    }                 
    return;
 }   
 
@@ -1445,8 +1445,8 @@ void dspDBOptions (HWND hDlg, char *szServerName, char *szDBName )
     if (bFailover)
     {
         wsprintf ((szErrorString), 
-            "Clustered Database Server Failover Occurred\nOpened DB: %s!!%s",
-            (LPSTR)szServerName, (LPSTR)szDBName);
+                  "Clustered Database Server Failover Occurred\nOpened DB: %s!!%s",
+                  (LPSTR)szServerName, (LPSTR)szDBName);
         MessageBox (GetFocus(), szErrorString, "Information!", MB_OK);
         SetDlgItemText(hDlg, SERVERNAME_EDIT, szServerName);
         SetDlgItemText(hDlg, DBNAME_EDIT, szDBName);
@@ -1475,7 +1475,7 @@ Cleanup:
     if ( nError != NOERROR)
     {
         OSLoadString(hModule, ERR(nError),
-            	    (LPSTR)szErrorString, LINEOTEXT-1);
+                     (LPSTR)szErrorString, LINEOTEXT-1);
         MessageBox (GetFocus(), szErrorString, "Notes Error!", MB_OK);
     }
 
@@ -1483,7 +1483,7 @@ Cleanup:
     else 
     {
         wsprintf ((LPSTR)szWindowTitle, "%s - <%s!!%s>", 
-                    CLUMON_TITLE, (LPSTR)szServerName, (LPSTR)szDBName);
+                   CLUMON_TITLE, (LPSTR)szServerName, (LPSTR)szDBName);
         SetWindowText (hWnd, (LPSTR)szWindowTitle);
     }
     return;
@@ -1529,7 +1529,7 @@ void updateDBOptions (HWND hDlg, char *szServerName, char *szDBName )
     if ( IsDlgButtonChecked (hDlg, DBOPTION_DELETE) > 0 )
     {
         strcpy (szErrorString,
-            "Marking a database for deletion can not be undone.\nDo you wish to continue?");
+                "Marking a database for deletion can not be undone.\nDo you wish to continue?");
      
         if ( MessageBox (GetFocus(), (LPSTR)szErrorString, 
                             "Warning!", MB_YESNO) == IDYES)
@@ -1572,7 +1572,7 @@ Cleanup:
 
         default:
             OSLoadString(hModule, ERR(nError),
-                    	    (LPSTR)szErrorString, LINEOTEXT-1);
+                         (LPSTR)szErrorString, LINEOTEXT-1);
             MessageBox (GetFocus(), (LPSTR)szErrorString, "Notes Error!", MB_OK);
             dspDBOptions (hDlg, szServerName, szDBName);
             break;
@@ -1636,7 +1636,7 @@ Cleanup:
     if ( nError != NOERROR)
     {
         OSLoadString(hModule, ERR(nError),
-                        (LPSTR)szErrorString, LINEOTEXT-1);
+                     (LPSTR)szErrorString, LINEOTEXT-1);
         MessageBox (GetFocus(), (LPSTR)szErrorString, "Notes Error!", MB_OK);
     }
 
@@ -1644,7 +1644,7 @@ Cleanup:
     else
     {
         wsprintf ((LPSTR)szWindowTitle, "%s - <%s>", 
-                    CLUMON_TITLE, (LPSTR)szServerName);
+                  CLUMON_TITLE, (LPSTR)szServerName);
         SetWindowText (hWnd, (LPSTR)szWindowTitle);
     }
     return;
@@ -1714,7 +1714,7 @@ Cleanup:
     if ( nError != NOERROR)
     {
         OSLoadString(hModule, ERR(nError),
-                        (LPSTR)szErrorString, LINEOTEXT-1);
+                     (LPSTR)szErrorString, LINEOTEXT-1);
         MessageBox (GetFocus(), (LPSTR)szErrorString, "Notes Error!", MB_OK);
         dspServerRestrict (hDlg, szServerName);
     }
@@ -1811,7 +1811,7 @@ Cleanup:
 
         default:
             OSLoadString(hModule, ERR(nError),
-                    	    (LPSTR)szErrorString, LINEOTEXT-1);
+                         (LPSTR)szErrorString, LINEOTEXT-1);
             MessageBox (GetFocus(), (LPSTR)szErrorString, "Notes Error!", MB_OK);
             dspServerRestrict (hDlg, szServerName);
             break;
@@ -1906,7 +1906,7 @@ Cleanup:
     if ( nError != NOERROR)
     {
         OSLoadString(hModule, ERR(nError),
-                        (LPSTR)szErrorString, LINEOTEXT-1);
+                    (LPSTR)szErrorString, LINEOTEXT-1);
         MessageBox (GetFocus(), (LPSTR)szErrorString, "Notes Error!", MB_OK);
     }
 
@@ -1914,7 +1914,7 @@ Cleanup:
     else
     {
         wsprintf ((LPSTR)szWindowTitle, "%s - <%s>", 
-                    CLUMON_TITLE, (LPSTR)szServerName);
+                  CLUMON_TITLE, (LPSTR)szServerName);
         SetWindowText (hWnd, (LPSTR)szWindowTitle);
     }
     return;
@@ -2040,16 +2040,16 @@ void createcopyDB (HWND hDlg, char *szServerName, char *szDBName,
           
     /* Pass the input parameters to the CreateCopy routine */
     nError = CreateAndCopyDB ((LPSTR)szServerName, 
-                                (LPSTR)szDBName,
-                                (LPSTR)szCopyServer, 
-                                (LPSTR)szCopyDB,
-                                dwCopyFlag);
+                              (LPSTR)szDBName,
+                              (LPSTR)szCopyServer, 
+                              (LPSTR)szCopyDB,
+                              dwCopyFlag);
 
     /* Result Processing */
     if ( nError != NOERROR)
     {
         OSLoadString(hModule, ERR(nError),
-                        (LPSTR)szErrorString, LINEOTEXT-1);
+                     (LPSTR)szErrorString, LINEOTEXT-1);
         MessageBox (GetFocus(), (LPSTR)szErrorString, "Notes Error!", MB_OK);
     }
 
@@ -2059,7 +2059,7 @@ void createcopyDB (HWND hDlg, char *szServerName, char *szDBName,
         MessageBox (GetFocus(), "Database Copy Successful", 
                     "Information!", MB_OK);
         wsprintf ((LPSTR)szWindowTitle, "%s - <%s!!%s>", 
-                    CLUMON_TITLE, (LPSTR)szCopyServer, (LPSTR)szCopyDB);
+                  CLUMON_TITLE, (LPSTR)szCopyServer, (LPSTR)szCopyDB);
         SetWindowText (hWnd, (LPSTR)szWindowTitle);
     }
     return;

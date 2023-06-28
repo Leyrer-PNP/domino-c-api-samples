@@ -265,31 +265,31 @@ int main(int argc, char *argv[])
     /* example from rfc5545 */
     /* start at 20121122T100000Z and end at 20121122T120000Z */
     char pszICalendar[] = "BEGIN:VCALENDAR" CRLF
-                "VERSION:2.0" CRLF
-                "PRODID:-//hacksw/handcal//NONSGML v1.0//EN" CRLF
-                "BEGIN:VEVENT" CRLF
-                "UID:" ICAL_UID CRLF
-                "DTSTAMP:20121122T172345Z" CRLF
-                "DTSTART:20121122T100000Z" CRLF
-                "DTEND:20121122T120000Z" CRLF
-                /*"RRULE:FREQ=DAILY;COUNT=10" CRLF*/
-                "SUMMARY:Bastille Day Party" CRLF
-                "END:VEVENT" CRLF
-                "END:VCALENDAR" CRLF;
+                          "VERSION:2.0" CRLF
+                          "PRODID:-//hacksw/handcal//NONSGML v1.0//EN" CRLF
+                          "BEGIN:VEVENT" CRLF
+                          "UID:" ICAL_UID CRLF
+                          "DTSTAMP:20121122T172345Z" CRLF
+                          "DTSTART:20121122T100000Z" CRLF
+                          "DTEND:20121122T120000Z" CRLF
+                          /*"RRULE:FREQ=DAILY;COUNT=10" CRLF*/
+                          "SUMMARY:Bastille Day Party" CRLF
+                          "END:VEVENT" CRLF
+                          "END:VCALENDAR" CRLF;
 
     /* delayed */
     /* start at 20121122T180000Z and end at 20121122T210000Z */
     char pszICalendarDelayedTemp[] = "BEGIN:VCALENDAR" CRLF
-                "VERSION:2.0" CRLF
-                "PRODID:-//hacksw/handcal//NONSGML v1.0//EN" CRLF
-                "BEGIN:VEVENT" CRLF
-                "UID: %s" CRLF
-                "DTSTAMP:20121122T172345Z" CRLF
-                "DTSTART:20121122T180000Z" CRLF
-                "DTEND:20121122T210000Z" CRLF
-                "SUMMARY:(Delayed)Bastille Day Party" CRLF
-                "END:VEVENT" CRLF
-                "END:VCALENDAR" CRLF;
+                                     "VERSION:2.0" CRLF
+                                     "PRODID:-//hacksw/handcal//NONSGML v1.0//EN" CRLF
+                                     "BEGIN:VEVENT" CRLF
+                                     "UID: %s" CRLF
+                                     "DTSTAMP:20121122T172345Z" CRLF
+                                     "DTSTART:20121122T180000Z" CRLF
+                                     "DTEND:20121122T210000Z" CRLF
+                                     "SUMMARY:(Delayed)Bastille Day Party" CRLF
+                                     "END:VEVENT" CRLF
+                                     "END:VCALENDAR" CRLF;
 
     char pszICalendarDelayed[1024] = {0};
     STATUS error = NOERROR;

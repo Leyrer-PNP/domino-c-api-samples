@@ -183,9 +183,9 @@ int main(int argc, char * argv[])
 
     memset( szRecipient, '\0', MAXUSERNAME+1 );
     if ( argc == 2 )
-       memcpy( szRecipient, argv[1], strlen(argv[1]) );
+        memcpy( szRecipient, argv[1], strlen(argv[1]) );
     else
-       memcpy( szRecipient, szMsgRecipient, strlen(szMsgRecipient) ); 
+        memcpy( szRecipient, szMsgRecipient, strlen(szMsgRecipient) ); 
         
     /* Initiate  the environment */
     if (error = NotesInitExtended (argc, argv))
@@ -207,8 +207,8 @@ int main(int argc, char * argv[])
 
         if (!OSGetEnvironmentInt("MAIL_ENABLE_MAILBOX_COMPATIBILITY"))
         {
-           PRINTLOG ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
-           strcpy(szMailFileName, "mail2.box");
+            PRINTLOG ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
+            strcpy(szMailFileName, "mail2.box");
         }
     }
 
@@ -230,13 +230,13 @@ int main(int argc, char * argv[])
             in standard "mail.box" file. */
             if ((error == ERR_NOEXIST) && (!strcmp (szMailFileName, "mail2.box")))
             {
-               strcpy(szMailFileName, "mail.box");
+                strcpy(szMailFileName, "mail.box");
             }
             else
             {
-               PRINTLOG ("Error: unable to open '%s'.\n", szMailBoxPath);
-               PRINTERROR(error,"NSFDbOpen");
-               goto Done;
+                PRINTLOG ("Error: unable to open '%s'.\n", szMailBoxPath);
+                PRINTERROR(error,"NSFDbOpen");
+                goto Done;
             }
         }
     }
@@ -291,7 +291,7 @@ Done1:
     NSFDbClose(hMailBox);
 
     if(error == NOERROR)
-      PrintMail();
+        PrintMail();
 
 Done:
     NotesTerm();
@@ -319,21 +319,21 @@ STATUS  CreateRFC822Header(char **pszMsgWriteLines, NOTEHANDLE hNote)
                            &hMIMEStream );
     if ( error != NOERROR)
     {
-          PRINTERROR (error,"MIMEStreamOpen");
-          return (1);
+        PRINTERROR (error,"MIMEStreamOpen");
+        return (1);
     }
 
     /* write the test message to the open stream, line by line */
     for ( i=0; pszMsgWriteLines[i]; ++i)
     {
-          error = MIMEStreamPutLine((char *)pszMsgWriteLines[i],
-                                    hMIMEStream);
-          if ( error == MIME_STREAM_IO )
-          {
+        error = MIMEStreamPutLine((char *)pszMsgWriteLines[i],
+                                   hMIMEStream);
+        if ( error == MIME_STREAM_IO )
+        {
             PRINTLOG("MIMEStreamPutLine error.\n");
             MIMEStreamClose(hMIMEStream);
             return (1);
-          }
+        }
     }
 
     /* itemize the mime stream to the note */
@@ -344,9 +344,9 @@ STATUS  CreateRFC822Header(char **pszMsgWriteLines, NOTEHANDLE hNote)
                                hMIMEStream);
     if ( error != NOERROR)
     {
-          PRINTERROR (error,"MIMEStreamItemize");
-          MIMEStreamClose(hMIMEStream);
-          return (1);
+        PRINTERROR (error,"MIMEStreamItemize");
+        MIMEStreamClose(hMIMEStream);
+        return (1);
     }
 
     MIMEStreamClose(hMIMEStream);
@@ -374,245 +374,245 @@ STATUS  AppendMIMEPart(NOTEHANDLE hNote)
                                      MIME_PART_BODY,         /*type of MIME part item */
                                      MIME_PART_HAS_HEADERS,  /*flags for MIME part */
                                      &hCtx);
-     if (error)
-     {
+    if (error)
+    {
         PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
-     }
+    }
 
-     PRINTLOG( " Append Body 1.\n" );
-     if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody1, strlen(pszMsgBody1)) ) 
-     {
+    PRINTLOG( " Append Body 1.\n" );
+    if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody1, strlen(pszMsgBody1)) ) 
+    {
         PRINTLOG ("Error: Fail to append MIME mail.\n");
         return (1);
-     }
+    }
 
-     error = NSFMimePartCloseStream(hCtx, TRUE);
-     if ( error )
-     {
-         PRINTERROR(error,"NSFMimePartCloseStream");
-         return (1);
-     }
+    error = NSFMimePartCloseStream(hCtx, TRUE);
+    if ( error )
+    {
+        PRINTERROR(error,"NSFMimePartCloseStream");
+        return (1);
+    }
       
-     PRINTLOG( " Append Body 2.\n" );
-     error = NSFMimePartCreateStream(hNote,                            /* note handle */
+    PRINTLOG( " Append Body 2.\n" );
+    error = NSFMimePartCreateStream(hNote,                            /* note handle */
                                      "Body",                               /* item name to append */
                                      (WORD)sizeof("Body"),                 /* length of item name */
                                      MIME_PART_BODY,                       /* type of MIME part item */
                                      MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS,        /* flags for MIME part */
                                      &hCtx);
-     if (error)
-     {
+    if (error)
+    {
         PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
-     }
+    }
 
    
-     if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody2, strlen(pszMsgBody2)) ) 
-     {
+    if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody2, strlen(pszMsgBody2)) ) 
+    {
         PRINTLOG ("Error: Fail to append MIME mail.\n");
         return (1);
-     }
+    }
 
-     error = NSFMimePartCloseStream(hCtx, TRUE);
-     if ( error )
-     {
-         PRINTERROR(error,"NSFMimePartCloseStream");
-         return (1);
-     }
+    error = NSFMimePartCloseStream(hCtx, TRUE);
+    if ( error )
+    {
+       PRINTERROR(error,"NSFMimePartCloseStream");
+        return (1);
+    }
       
-     PRINTLOG( " Append Body 3.\n" );
-     error = NSFMimePartCreateStream(hNote,                            /* note handle */
-                                     "Body",                               /* item name to append */
+    PRINTLOG( " Append Body 3.\n" );
+    error = NSFMimePartCreateStream(hNote,                            /* note handle */
+                                    "Body",                               /* item name to append */
                                     (WORD)sizeof("Body"),                 /* length of item name */
                                     MIME_PART_BODY,                       /* type of MIME part item */
                                     MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS,        /* flags for MIME part */
                                     &hCtx);
-     if (error)
-     {
+    if (error)
+    {
         PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
-     }
+    }
 
-     if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody3, strlen(pszMsgBody3)) ) 
-     {
+    if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody3, strlen(pszMsgBody3)) ) 
+    {
         PRINTLOG ("Error: Fail to append MIME mail.\n");
         return (1);
-     }
+    }
 
-     error = NSFMimePartCloseStream(hCtx, TRUE);
-     if ( error )
-     {
-          PRINTERROR(error,"NSFMimePartCloseStream");
-          return (1);
-     }
+    error = NSFMimePartCloseStream(hCtx, TRUE);
+    if ( error )
+    {
+        PRINTERROR(error,"NSFMimePartCloseStream");
+        return (1);
+    }
       
     
-     PRINTLOG( " Append Body 4.\n" );
-     error = NSFMimePartCreateStream(hNote,                            /* note handle */
-                                     "Body",                               /* item name to append */
-                                     (WORD)sizeof("Body"),                 /* length of item name */
-                                     MIME_PART_BODY,                       /* type of MIME part item */
-                                     MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS,        /* flags for MIME part */
-                                     &hCtx);
-     if (error)
-     {
+    PRINTLOG( " Append Body 4.\n" );
+    error = NSFMimePartCreateStream(hNote,                            /* note handle */
+                                    "Body",                               /* item name to append */
+                                    (WORD)sizeof("Body"),                 /* length of item name */
+                                    MIME_PART_BODY,                       /* type of MIME part item */
+                                    MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS,        /* flags for MIME part */
+                                    &hCtx);
+    if (error)
+    {
         PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
-     }
+    }
 
-     if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody4, strlen(pszMsgBody4)) ) 
-     {
+    if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody4, strlen(pszMsgBody4)) ) 
+    {
         PRINTLOG ("Error: Fail to append MIME mail.\n");
         return (1);
-     }
+    }
 
-     error = NSFMimePartCloseStream(hCtx, TRUE);
-     if ( error )
-     {
-         PRINTERROR(error,"NSFMimePartCloseStream");
-         return (1);
-     }
+    error = NSFMimePartCloseStream(hCtx, TRUE);
+    if ( error )
+    {
+        PRINTERROR(error,"NSFMimePartCloseStream");
+        return (1);
+    }
       
 
-     PRINTLOG( " Append Body 5.\n" );
-     error = NSFMimePartCreateStream(hNote,              /* note handle */
-                                     "Body",                 /* item name to append */
-                                     (WORD)sizeof("Body"),   /* length of item name */
-                                     MIME_PART_BODY,         /* type of MIME part item */
-                                     MIME_PART_HAS_BOUNDARY, /* flags for MIME part */
-                                     &hCtx);
-     if (error)
-     {
+    PRINTLOG( " Append Body 5.\n" );
+    error = NSFMimePartCreateStream(hNote,              /* note handle */
+                                    "Body",                 /* item name to append */
+                                    (WORD)sizeof("Body"),   /* length of item name */
+                                    MIME_PART_BODY,         /* type of MIME part item */
+                                    MIME_PART_HAS_BOUNDARY, /* flags for MIME part */
+                                    &hCtx);
+    if (error)
+    {
         PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
-     }
+    }
  
-     if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody5, strlen(pszMsgBody5)) ) 
-     {
+    if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody5, strlen(pszMsgBody5)) ) 
+    {
         PRINTLOG ("Error: Fail to append MIME mail.\n");
         return (1);
-     }
+    }
 
 
-     error = NSFMimePartCloseStream(hCtx, TRUE);
-     if ( error )
-     {
-          PRINTERROR(error,"NSFMimePartCloseStream");
-          return (1);
-     }
+    error = NSFMimePartCloseStream(hCtx, TRUE);
+    if ( error )
+    {
+        PRINTERROR(error,"NSFMimePartCloseStream");
+        return (1);
+    }
       
-     PRINTLOG( " Append Body 6.\n" );
-     error = NSFMimePartCreateStream(hNote,               /* note handle */
-                                     "Body",                 /* item name to append */
-                                     (WORD)sizeof("Body"),   /* length of item name */
-                                     MIME_PART_BODY,         /* type of MIME part item */
-                                     MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS,     /* flags for MIME part */
-                                     &hCtx);
-     if (error)
-     {
+    PRINTLOG( " Append Body 6.\n" );
+    error = NSFMimePartCreateStream(hNote,               /* note handle */
+                                    "Body",                 /* item name to append */
+                                    (WORD)sizeof("Body"),   /* length of item name */
+                                    MIME_PART_BODY,         /* type of MIME part item */
+                                    MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS,     /* flags for MIME part */
+                                    &hCtx);
+    if (error)
+    {
         PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
-     }
+    }
 
-     if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody6, strlen(pszMsgBody6)) ) 
-     {
+    if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody6, strlen(pszMsgBody6)) ) 
+    {
         PRINTLOG ("Error: Fail to append MIME mail.\n");
         return (1);
-     }
+    }
 
-     if (error = NSFMimePartAppendFileToStream(hCtx, ATTACHMENT_NAME)) 
-     {
+    if (error = NSFMimePartAppendFileToStream(hCtx, ATTACHMENT_NAME)) 
+    {
         PRINTERROR(error,"NSFMimePartAppendFileToStream");
         error = NSFMimePartCloseStream(hCtx, TRUE);
         if ( error )
         {
-             PRINTERROR(error,"NSFMimePartCloseStream");
-             return (1);
+            PRINTERROR(error,"NSFMimePartCloseStream");
+            return (1);
         }
         return (1);
-     } 
+    } 
 
-     error = NSFMimePartCloseStream(hCtx, TRUE);
-     if ( error )
-     {
-         PRINTERROR(error,"NSFMimePartCloseStream");
-         return (1);
-     }      
+    error = NSFMimePartCloseStream(hCtx, TRUE);
+    if ( error )
+    {
+        PRINTERROR(error,"NSFMimePartCloseStream");
+        return (1);
+    }      
 
-     PRINTLOG( " Append Body 7.\n" );
-     error = NSFMimePartCreateStream(hNote,               /* note handle */
-                                     "Body",                 /* item name to append */
-                                     (WORD)sizeof("Body"),   /* length of item name */
-                                     MIME_PART_BODY,         /* type of MIME part item */
-                                     MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS,     /* flags for MIME part */
-                                     &hCtx);
-     if (error)
+    PRINTLOG( " Append Body 7.\n" );
+    error = NSFMimePartCreateStream(hNote,               /* note handle */
+                                    "Body",                 /* item name to append */
+                                    (WORD)sizeof("Body"),   /* length of item name */
+                                    MIME_PART_BODY,         /* type of MIME part item */
+                                    MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS,     /* flags for MIME part */
+                                    &hCtx);
+    if (error)
      {
         PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
-     }
+    }
 
-     if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody7, strlen(pszMsgBody7)) ) 
-     {
+    if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody7, strlen(pszMsgBody7)) ) 
+    {
         PRINTLOG ("Error: Fail to append MIME mail.\n");
         return (1);
-     }
+    }
 
-     if (error = NSFMimePartAppendFileToStream(hCtx, ATTACHMENT_NAME)) 
-     {
+    if (error = NSFMimePartAppendFileToStream(hCtx, ATTACHMENT_NAME)) 
+    {
         PRINTERROR(error,"NSFMimePartAppendFileToStream");
         error = NSFMimePartCloseStream(hCtx, TRUE);
         if ( error )
         {
-             PRINTERROR(error,"NSFMimePartCloseStream");
-             return (1);
+            PRINTERROR(error,"NSFMimePartCloseStream");
+            return (1);
         }
         return (1);
-     } 
+    } 
 
-     error = NSFMimePartCloseStream(hCtx, TRUE);
-     if ( error )
-     {
-         PRINTERROR(error,"NSFMimePartCloseStream");
-         return (1);
-     }      
+    error = NSFMimePartCloseStream(hCtx, TRUE);
+    if ( error )
+    {
+        PRINTERROR(error,"NSFMimePartCloseStream");
+        return (1);
+    }      
 
-     PRINTLOG( " Append Body 9.\n" );
-     error = NSFMimePartCreateStream(hNote,                  /* note handle */
-                                     "Body",                     /* item name to append */
-                                     (WORD)sizeof("Body"),       /* length of item name */
-                                     MIME_PART_BODY,             /* type of MIME part item */
-                                     MIME_PART_HAS_BOUNDARY,     /* flags for MIME part */
-                                     &hCtx);
-     if (error)
-     {
+    PRINTLOG( " Append Body 9.\n" );
+    error = NSFMimePartCreateStream(hNote,                  /* note handle */
+                                    "Body",                     /* item name to append */
+                                    (WORD)sizeof("Body"),       /* length of item name */
+                                    MIME_PART_BODY,             /* type of MIME part item */
+                                    MIME_PART_HAS_BOUNDARY,     /* flags for MIME part */
+                                    &hCtx);
+    if (error)
+    {
         PRINTERROR(error,"NSFMimePartCreateStream");
         return (1);
-     }
+    }
 
-     if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody9, strlen(pszMsgBody9)) ) 
-     {
+    if ( error = NSFMimePartAppendStream(hCtx, pszMsgBody9, strlen(pszMsgBody9)) ) 
+    {
         PRINTLOG ("Error: Fail to append MIME mail.\n");
         PRINTERROR(error,"NSFMimePartAppendStream");
         error = NSFMimePartCloseStream(hCtx, TRUE);
         if ( error )
         {
-             PRINTERROR(error,"NSFMimePartCloseStream");
-             return (1);
+            PRINTERROR(error,"NSFMimePartCloseStream");
+            return (1);
         }
         return (1);
-     }
+    }
 
 
-     error = NSFMimePartCloseStream(hCtx, TRUE);
-     if ( error )
-     {
-         PRINTERROR(error,"NSFMimePartCloseStream");
-         return (1);
-     }
+    error = NSFMimePartCloseStream(hCtx, TRUE);
+    if ( error )
+    {
+        PRINTERROR(error,"NSFMimePartCloseStream");
+        return (1);
+    }
       
-     return (NOERROR);
+    return (NOERROR);
 }
  
 /************************************************************************
@@ -679,7 +679,7 @@ STATUS PrintMail()
         /* Get the originator's name/address. */
 
         if (error = MailGetMessageOriginator(MessageList, Msg,
-                Originator, sizeof(Originator)-1, &OriginatorLength))
+                                             Originator, sizeof(Originator)-1, &OriginatorLength))
         {
             PRINTLOG ("Error: unable to get message originator.\n");
             goto Exit2;
@@ -689,7 +689,7 @@ STATUS PrintMail()
 
         PRINTLOG ("\tOriginator = '%s'\n", Originator);
         if (error = MailGetMessageInfo(MessageList, Msg,
-                            &RecipientCount, NULL, NULL))
+                                       &RecipientCount, NULL, NULL))
         {
             PRINTLOG ("Error: unable to get number of recipients in message.\n");
             MailCloseMessage (hMessage);
@@ -701,10 +701,10 @@ STATUS PrintMail()
         for (Rec = 0; Rec < RecipientCount; Rec++)
         {
             MailGetMessageRecipient(MessageList, Msg, Rec, RecipientName,
-                    sizeof(RecipientName)-1, &RecipientNameLength);
+                                    sizeof(RecipientName)-1, &RecipientNameLength);
             MailParseMailAddress(RecipientName, RecipientNameLength,
-                    UserName, sizeof(UserName)-1, &UserNameLength,
-                    DomainName, sizeof(DomainName)-1, &DomainNameLength);
+                                 UserName, sizeof(UserName)-1, &UserNameLength,
+                                 DomainName, sizeof(DomainName)-1, &DomainNameLength);
 
             UserName[UserNameLength] = '\0';
             DomainName[DomainNameLength] = '\0';
@@ -715,34 +715,34 @@ STATUS PrintMail()
 
         /* SendTo */
         MailGetMessageItem (hMessage, MAIL_SENDTO_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
 
         String[StringLength] = '\0';
         PRINTLOG ("\tTo: %s\n", String);
 
         /* CopyTo */
         MailGetMessageItem (hMessage, MAIL_COPYTO_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         PRINTLOG ("\tCc: %s\n", String);
 
         /* From */
         MailGetMessageItem (hMessage, MAIL_FROM_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         PRINTLOG ("\tFrom: %s\n", String);
 
                 /* PostedDate */
         MailGetMessageItemTimeDate(hMessage, MAIL_POSTEDDATE_ITEM_NUM, &Time);
         ConvertTIMEDATEToText(NULL, NULL, &Time, String,
-                                    sizeof(String) - 1, &StringLength);
+                              sizeof(String) - 1, &StringLength);
         String[StringLength] = '\0';
         PRINTLOG("\tDate: %s\n", String);
 
         /* Subject. If non-delivery report, prefix with "NonDelivery of:" */
 
         MailGetMessageItem (hMessage, MAIL_SUBJECT_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
         {
@@ -756,12 +756,12 @@ STATUS PrintMail()
         if (NonDeliveryReport)
         {
             MailGetMessageItem(hMessage, MAIL_INTENDEDRECIPIENT_ITEM_NUM,
-                            String, sizeof(String), &StringLength);
+                               String, sizeof(String), &StringLength);
             String[StringLength] = '\0';
             PRINTLOG("\tIntended Recipients: %s\n", String);
 
             MailGetMessageItem(hMessage, MAIL_FAILUREREASON_ITEM_NUM,
-                            String, sizeof(String), &StringLength);
+                               String, sizeof(String), &StringLength);
             String[StringLength] = '\0';
             PRINTLOG("\tFailure Reason: %s\n", String);
         }
@@ -777,10 +777,10 @@ Exit1:
     if (hMessageFile != NULLHANDLE)
         MailCloseMessageFile(hMessageFile);
 Exit0:
-	if (ERR(error))
-	{
-		PRINTERROR(error, "MailOpenMessageFile");
-	}
+    if (ERR(error))
+    {
+        PRINTERROR(error, "MailOpenMessageFile");
+    }
     else 
     {
        PRINTLOG("\nProgram completed successfully.\n");

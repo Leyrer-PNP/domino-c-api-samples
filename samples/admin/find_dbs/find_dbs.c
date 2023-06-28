@@ -111,14 +111,14 @@ int main(int argc, char *argv[])
     ProcessArgs(argc, argv, server, directory);
 	
     if (strcmp(directory, "\"\""))
-      strcpy(full_netpath, directory);
+        strcpy(full_netpath, directory);
 
     error = NotesInitExtended (argc, argv);
 
     if (error)
     {
-       fprintf (stderr, "\nError initializing Notes.\n");
-       return (1);
+        fprintf (stderr, "\nError initializing Notes.\n");
+        return (1);
     }
 
     if (strcmp (server, "\"\""))
@@ -131,9 +131,9 @@ int main(int argc, char *argv[])
                                        directory,
                                        full_netpath))
         {
-           PRINTERROR (error,"OSPathNetConstruct");
-           NotesTerm();
-           return (1);
+            PRINTERROR (error,"OSPathNetConstruct");
+            NotesTerm();
+            return (1);
         }
 
     }
@@ -151,18 +151,18 @@ int main(int argc, char *argv[])
 call an action routine. */
 
     if (error = NSFSearch (
-        dir_handle,        /* directory handle */
-        NULLHANDLE,        /* selection formula */
-        NULL,              /* title of view in formula */
-        SEARCH_FILETYPE +  /* search for files */
-        SEARCH_SUMMARY,    /* return a summary buffer */
-        FILE_DBANY +       /* find any .NS? file */
-        FILE_DIRS +        /* find subdirectories */
-        FILE_NOUPDIRS,     /* don't find the ".." dir */
-        NULL,              /* starting date */
-        file_action,       /* call for each file found */
-        NULL,              /* argument to action routine */
-        NULL))             /* returned ending date (unused) */
+                           dir_handle,        /* directory handle */
+                           NULLHANDLE,        /* selection formula */
+                           NULL,              /* title of view in formula */
+                           SEARCH_FILETYPE +  /* search for files */
+                           SEARCH_SUMMARY,    /* return a summary buffer */
+                           FILE_DBANY +       /* find any .NS? file */
+                           FILE_DIRS +        /* find subdirectories */
+                           FILE_NOUPDIRS,     /* don't find the ".." dir */
+                           NULL,              /* starting date */
+                           file_action,       /* call for each file found */
+                           NULL,              /* argument to action routine */
+                           NULL))             /* returned ending date (unused) */
 
     {
         PRINTERROR (error,"NSFSearch");
@@ -211,9 +211,9 @@ call an action routine. */
 *************************************************************************/
 
 STATUS LNPUBLIC file_action
-            (void *unused,
-            SEARCH_MATCH far *pSearchMatch,
-            ITEM_TABLE *summary_info)
+                            (void *unused,
+                             SEARCH_MATCH far *pSearchMatch,
+                             ITEM_TABLE *summary_info)
 {
     STATUS        error;
     SEARCH_MATCH SearchMatch;

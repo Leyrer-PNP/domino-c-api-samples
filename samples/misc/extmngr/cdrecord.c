@@ -188,8 +188,8 @@ BOOL LNPUBLIC PutPara( char far * far *ppBuf,
  **********************************************************************/
 
 BOOL LNPUBLIC PutPabRef(char far * far *ppBuf,
-                          WORD wPabDefNumber,
-                          WORD wLength)
+                        WORD wPabDefNumber,
+                        WORD wLength)
 {
     CDPABREFERENCE  CDPabRef;      /* style reference for this para */
     BYTE        bLength =  (BYTE) ODSLength(_CDPABREFERENCE);

@@ -281,9 +281,9 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen(szDbName, &hDB))
     {
-      PRINTERROR (sError,"NSFDbOpen");  
-      NotesTerm();
-      return (1);
+        PRINTERROR (sError,"NSFDbOpen");  
+        NotesTerm();
+        return (1);
     }
 
     /*
@@ -379,10 +379,10 @@ int main(int argc, char *argv[])
 
     if(sError=PrintAttachmentDetails(hDB))
     {
-       NSFDbClose(hDB);
-       PRINTERROR (sError,"PrintAttachmentDetails");
-       NotesTerm();
-       return (1);
+        NSFDbClose(hDB);
+        PRINTERROR (sError,"PrintAttachmentDetails");
+        NotesTerm();
+        return (1);
     }
 
     /*
@@ -416,15 +416,15 @@ STATUS PrintAttachmentDetails(DBHANDLE hDB)
                           DumpOneNote,
                           &hDB, NULL ))
     {
-       fprintf( stderr,"Error encountered searching for data notes.\n" );
-       PRINTERROR (error,"NSFSearch");
-       return (1);
+        fprintf( stderr,"Error encountered searching for data notes.\n" );
+        PRINTERROR (error,"NSFSearch");
+        return (1);
     }
 }
 
 STATUS LNPUBLIC DumpOneNote( void far *Param,
-                 SEARCH_MATCH far *pSearchMatch,
-                 ITEM_TABLE far *SummaryBuffer)
+                             SEARCH_MATCH far *pSearchMatch,
+                             ITEM_TABLE far *SummaryBuffer)
  
 {
         STATUS error=NOERROR;
@@ -435,8 +435,8 @@ STATUS LNPUBLIC DumpOneNote( void far *Param,
 
     if (error = NSFNoteOpenExt( hDB, SearchMatch.ID.NoteID, 0, &hNote ))
     {
-      fprintf( stderr, "Error: unable to open %0x note.\n", SearchMatch.ID.NoteID );
-      return (error);
+        fprintf( stderr, "Error: unable to open %0x note.\n", SearchMatch.ID.NoteID );
+        return (error);
     }
 
     PRINTLOG("\n Note id: [%0x]\n", SearchMatch.ID.NoteID);
@@ -481,15 +481,15 @@ STATUS   LNPUBLIC   DumpOneItem( WORD       Spare,
 
     switch (wDataType)
     {
-      case TYPE_ERROR:
-        break;
+        case TYPE_ERROR:
+            break;
 
-      case TYPE_UNAVAILABLE:
-        break;
+        case TYPE_UNAVAILABLE:
+            break;
 
-      case TYPE_OBJECT:
-        DumpObjectItem( Name, NameLength, pData );
-        break;
+        case TYPE_OBJECT:
+            DumpObjectItem( Name, NameLength, pData );
+            break;
 
     }
     return NOERROR;
@@ -497,9 +497,9 @@ STATUS   LNPUBLIC   DumpOneItem( WORD       Spare,
 
 
 void  LNPUBLIC   DumpObjectItem( char * Name,
-                                    WORD NameLength,
-                                    char * pData
-                                    )
+                                 WORD NameLength,
+                                 char * pData
+                                )
 {
     OBJECT_DESCRIPTOR   ObjectDesc;
     WORD                wObjectType;
@@ -541,80 +541,80 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
 
     if (wObjectType != OBJECT_UNKNOWN)
     {
-                /*  OBJECT_NO_COPY and OBJECT_PRESERVE are flags that may be bitwise
-                    OR-ed into the object type word. If they are, store them in a
-                    separate word, then mask them out of the object type word.
-                 */
-                wObjectFlags = ( wObjectType & (OBJECT_NO_COPY | OBJECT_PRESERVE) );
-                if (wObjectFlags)
-                {
-                    wObjectType &= ~(OBJECT_NO_COPY | OBJECT_PRESERVE);
-                }
+        /*  OBJECT_NO_COPY and OBJECT_PRESERVE are flags that may be bitwise
+             OR-ed into the object type word. If they are, store them in a
+             separate word, then mask them out of the object type word.
+        */
+        wObjectFlags = ( wObjectType & (OBJECT_NO_COPY | OBJECT_PRESERVE) );
+        if (wObjectFlags)
+        {
+            wObjectType &= ~(OBJECT_NO_COPY | OBJECT_PRESERVE);
+        }
 
-                if ( wObjectType == OBJECT_FILE )
-                {
-                    PRINTLOG( "  Object Type = OBJECT_FILE.\n" );
-                }
-                else if (wObjectType == OBJECT_FILTER_LEFTTODO)
-                {
-                    PRINTLOG(  "  Object Type = OBJECT_FILTER_LEFTTODO.\n");
-                }
-                else
-                {
-                    PRINTLOG(  "  Object Type %#x not recognized.\n",
-                            wObjectType);
-                }
+        if ( wObjectType == OBJECT_FILE )
+        {
+            PRINTLOG( "  Object Type = OBJECT_FILE.\n" );
+        }
+        else if (wObjectType == OBJECT_FILTER_LEFTTODO)
+        {
+            PRINTLOG(  "  Object Type = OBJECT_FILTER_LEFTTODO.\n");
+        }
+        else
+        {
+            PRINTLOG(  "  Object Type %#x not recognized.\n",
+                        wObjectType);
+        }
 
-                if ( wObjectFlags & OBJECT_NO_COPY )
-                {
-                    PRINTLOG(  "  ObjectFlag OBJECT_NO_COPY is set.\n");
-                }
+        if ( wObjectFlags & OBJECT_NO_COPY )
+        {
+            PRINTLOG(  "  ObjectFlag OBJECT_NO_COPY is set.\n");
+        }
 
-                if ( wObjectFlags & OBJECT_PRESERVE )
-                {
-                    PRINTLOG(  "  ObjectFlag OBJECT_PRESERVE is set.\n");
-                }
+        if ( wObjectFlags & OBJECT_PRESERVE )
+        {
+            PRINTLOG(  "  ObjectFlag OBJECT_PRESERVE is set.\n");
+        }
     }
     else
     {
-                PRINTLOG(  "  Object Type = OBJECT_UNKNOWN.\n");
+        PRINTLOG(  "  Object Type = OBJECT_UNKNOWN.\n");
     }
 
     NSFNoteGetInfo( hNote, _NOTE_DB, &hDB );
     if (error = NSFDbGetObjectSize(
-        hDB,
-            ObjectDesc.RRV,
-            ObjectDesc.ObjectType,
-            &dwObjectSize,
-            &wClass,
-            &wPrivs ))
+                                   hDB,
+                                   ObjectDesc.RRV,
+                                   ObjectDesc.ObjectType,
+                                   &dwObjectSize,
+                                   &wClass,
+                                   &wPrivs ))
     {
-                PRINTLOG(  "   Error: unable to get object size.\n" );
-                PRINTLOG(  "   Error code = %#x.\n", error );
+        PRINTLOG(  "   Error: unable to get object size.\n" );
+        PRINTLOG(  "   Error code = %#x.\n", error );
     }
     else
     {
 
-                for (i=0; i<NUM_NOTE_CLASSES; i++)
-                {
-                if (wClass & ObjectClassTable[i].fNoteClass)
-                {
-                        PRINTLOG(  "  Object Class = %s\n",
-                                        ObjectClassTable[i].szNoteClass );
-                        break;
-                }
-                }
+        for (i=0; i<NUM_NOTE_CLASSES; i++)
+        {
+            if (wClass & ObjectClassTable[i].fNoteClass)
+            {
+                PRINTLOG(  "  Object Class = %s\n",
+                            ObjectClassTable[i].szNoteClass );
+                break;
+            }
+        }
 
-                if (i==NUM_NOTE_CLASSES)
-                {
-                    PRINTLOG(  "  Object Class Unrecognized.\n" );
-                }
+        if (i==NUM_NOTE_CLASSES)
+        {
+            PRINTLOG(  "  Object Class Unrecognized.\n" );
+        }
 
     }
 
     if ( wObjectType != OBJECT_FILE )
     {
-                return;
+        return;
     }
     /* FROM HERE ON WE ARE DUMPING FILE OBJECTS ONLY */
 
@@ -629,10 +629,10 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
     wFileNameLen = FileObject.FileNameLength;
     if (szFileName = (char *) malloc(wFileNameLen+1))
     {
-                memcpy( szFileName, pData, wFileNameLen );
-                szFileName[wFileNameLen] = '\0';
-                PRINTLOG(  "  File Name = '%s'.\n", szFileName );
-                free(szFileName);
+        memcpy( szFileName, pData, wFileNameLen );
+        szFileName[wFileNameLen] = '\0';
+        PRINTLOG(  "  File Name = '%s'.\n", szFileName );
+        free(szFileName);
     }
     pData += wFileNameLen;
 
@@ -640,11 +640,11 @@ void  LNPUBLIC   DumpObjectItem( char * Name,
     wCompress = (WORD)(FileObject.CompressionType & COMPRESS_MASK);
     if (wCompress == COMPRESS_NONE)
     {
-                PRINTLOG(  "  Compression Type = NONE.\n" );
+        PRINTLOG(  "  Compression Type = NONE.\n" );
     }
     else if (wCompress == COMPRESS_HUFF)
     {
-                PRINTLOG(  "  Compression Type = Huffman Encoding.\n" );
+        PRINTLOG(  "  Compression Type = Huffman Encoding.\n" );
     }
 
 }
@@ -744,8 +744,8 @@ STATUS LNPUBLIC AttachFile2(  /* using low-level FILEOBJECT routines */
 
     if (sError = OSMemAlloc(0, dwItemSize, &bidFile.pool))
     {
-      NSFDbFreeObject(hDB, dwObjectID);
-      return (ERR(sError));
+        NSFDbFreeObject(hDB, dwObjectID);
+        return (ERR(sError));
     }
 
     bidFile.block = NULLBLOCK;
@@ -769,8 +769,8 @@ STATUS LNPUBLIC AttachFile2(  /* using low-level FILEOBJECT routines */
                                      dwItemSize,
                                      TRUE))
     {
-      OSMemFree(bidFile.pool);
-      return (ERR(sError));
+        OSMemFree(bidFile.pool);
+        return (ERR(sError));
     }
 
     OSMemAlloc(0, objFile.FileSize, &hObjectItemBuffer);

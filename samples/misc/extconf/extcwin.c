@@ -54,7 +54,7 @@ DLL_EXPORT_PREFIX BOOL WINAPI DllMain (HANDLE    hInst,
             /* Deregister extension manager callbacks */
             ExtClear ();
             break;
-      }
+    }
 
       return (TRUE);
 }

@@ -74,16 +74,16 @@ extern "C" {
 #include <osmisc.h>
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                         char *db_filename);
+                             char *db_filename);
 
 #define  STRING_LENGTH  256
 
 /* Function prototypes */
 
 STATUS LNPUBLIC ReadSummaryData (     /* called for every document */
-            VOID far *,
-            SEARCH_MATCH far *,
-            ITEM_TABLE far *);
+                                  VOID far *,
+                                  SEARCH_MATCH far *,
+                                  ITEM_TABLE far *);
 STATUS PrintSummary (char *);
 STATUS ExtractTextList (char *, char *);
 
@@ -145,15 +145,15 @@ int main(int argc, char *argv[])
     */
 
     if (error = NSFSearch (
-        db_handle,          /* database handle */
-        NULLHANDLE,         /* selection formula */
-        NULL,               /* title of view in selection formula */
-        SEARCH_SUMMARY,     /* search flags: get summary data! */
-        NOTE_CLASS_DATA,    /* note class to find */
-        NULL,               /* starting date (unused) */
-        ReadSummaryData,    /* action routine for notes found */
-        NULL,               /* argument to action routine */
-        NULL))              /* returned ending date (unused) */
+                           db_handle,          /* database handle */
+                           NULLHANDLE,         /* selection formula */
+                           NULL,               /* title of view in selection formula */
+                           SEARCH_SUMMARY,     /* search flags: get summary data! */
+                           NOTE_CLASS_DATA,    /* note class to find */
+                           NULL,               /* starting date (unused) */
+                           ReadSummaryData,    /* action routine for notes found */
+                           NULL,               /* argument to action routine */
+                           NULL))              /* returned ending date (unused) */
 
     {
         PRINTLOG ("Error: unable to search database.\n");
@@ -203,9 +203,9 @@ int main(int argc, char *argv[])
 *************************************************************************/
 
 STATUS LNPUBLIC ReadSummaryData
-            (VOID far *optional_param,
-            SEARCH_MATCH far *search_info,
-            ITEM_TABLE far *summary_info)
+                               (VOID far *optional_param,
+                                SEARCH_MATCH far *search_info,
+                                ITEM_TABLE far *summary_info)
 {
     SEARCH_MATCH  SearchMatch;
     STATUS        error;
@@ -453,10 +453,10 @@ STATUS PrintSummary (char *pSummary)
                             sizeof(TIMEDATE));
                     pSummaryPos += sizeof(TIMEDATE);
                     if (error = ConvertTIMEDATEToText (
-                                NULL, NULL,
-                                &TimeItem,
-                                ItemText+TextLen,
-                                MAXALPHATIMEDATE, &TimeStringLen))
+                                                       NULL, NULL,
+                                                       &TimeItem,
+                                                       ItemText+TextLen,
+                                                       MAXALPHATIMEDATE, &TimeStringLen))
                     {
                         PRINTLOG("Error: unable to convert TIMEDATE to text.\n");
                         TimeStringLen = 0;
@@ -489,9 +489,9 @@ STATUS PrintSummary (char *pSummary)
                             sizeof(TIMEDATE_PAIR));
                     pSummaryPos += sizeof(TIMEDATE_PAIR);
                     if (error = ConvertTIMEDATEToText (
-                                NULL, NULL,
-                                &TimePairItem.Lower, ItemText+TextLen,
-                                MAXALPHATIMEDATE, &TimeStringLen))
+                                                       NULL, NULL,
+                                                       &TimePairItem.Lower, ItemText+TextLen,
+                                                       MAXALPHATIMEDATE, &TimeStringLen))
                     {
                         PRINTLOG("Error: unable to convert TIMEDATE to text.\n");
                         TimeStringLen = 0;
@@ -500,9 +500,9 @@ STATUS PrintSummary (char *pSummary)
                     memcpy (ItemText+TextLen, "-", 1);
                     TextLen++;
                     if (error = ConvertTIMEDATEToText (
-                                NULL, NULL,
-                                &TimePairItem.Upper, ItemText+TextLen,
-                                MAXALPHATIMEDATE, &TimeStringLen))
+                                                       NULL, NULL,
+                                                       &TimePairItem.Upper, ItemText+TextLen,
+                                                       MAXALPHATIMEDATE, &TimeStringLen))
                     {
                         PRINTLOG("Error: unable to convert TIMEDATE to text.\n");
                         TimeStringLen = 0;
@@ -531,13 +531,13 @@ PrintItem:
         PRINTLOG ("\tItem Value = \"%s\"\n\n", ItemText);
 #else
         if (strcmp(ItemName,"$UpdatedBy")==0)
-	{
-          PRINTLOG ("\tItem Value =\n\n", ItemText);
-	}
+        {
+            PRINTLOG ("\tItem Value =\n\n", ItemText);
+        }
         else
-	{
-          PRINTLOG ("\tItem Value = \"%s\"\n\n", ItemText);
-	}
+        {
+            PRINTLOG ("\tItem Value = \"%s\"\n\n", ItemText);
+        }
 #endif
 
     }/* End of loop over items in the summary. */
@@ -590,11 +590,11 @@ STATUS ExtractTextList (char *pBuffer, char *TextList)
         /* Get one entry from the list. */
 
         if (error = ListGetText (
-                    pBuffer,
-                    FALSE, /* DataType not prepended to list */
-                    i,
-                    &ListEntry,
-                    &EntryLen))
+                                 pBuffer,
+                                 FALSE, /* DataType not prepended to list */
+                                 i,
+                                 &ListEntry,
+                                 &EntryLen))
         {
             return (ERR(error));
         }

@@ -58,11 +58,11 @@ int unknown = 1;
 
 
 #ifdef SOLARIS || LINUX
-	struct spwd result;
+    struct spwd result;
 #endif
 
 #ifdef AIX
-	struct passwd *result;
+    struct passwd *result;
 #endif
 
 

@@ -340,16 +340,16 @@ int main(int argc, char *argv[])
      /* Get a collection using this view. */
 
    if (error = NIFOpenCollection(
-         hDB,            /* handle of db with view */
-         hDB,            /* handle of db with data */
-         ViewID,         /* note id of the view */
-         0,              /* collection open flags */
-         NULLHANDLE,     /* handle to unread ID list (input and return) */
-         &hCollection,   /* collection handle (return) */
-         NULLHANDLE,     /* handle to open view note (return) */
-         NULL,           /* universal note id of view (return) */
-         NULLHANDLE,     /* handle to collapsed list (return) */
-         NULLHANDLE))    /* handle to selected list (return) */
+                                 hDB,            /* handle of db with view */
+                                 hDB,            /* handle of db with data */
+                                 ViewID,         /* note id of the view */
+                                 0,              /* collection open flags */
+                                 NULLHANDLE,     /* handle to unread ID list (input and return) */
+                                 &hCollection,   /* collection handle (return) */
+                                 NULLHANDLE,     /* handle to open view note (return) */
+                                 NULL,           /* universal note id of view (return) */
+                                 NULLHANDLE,     /* handle to collapsed list (return) */
+                                 NULLHANDLE))    /* handle to selected list (return) */
       goto exitCloseDB;
 
    /* obtain a handle to a search */
@@ -406,20 +406,20 @@ int main(int argc, char *argv[])
    do
    {
       if ( error = NIFReadEntries(
-             hCollection,        /* handle to this collection */
-             &CollPosition,      /* where to start in collection */
-             NAVIGATE_NEXT_HIT,  /* order to use when skipping */
-             1L,                 /* number to skip */
-             NAVIGATE_NEXT_HIT,  /* order to use when reading
+                                  hCollection,        /* handle to this collection */
+                                  &CollPosition,      /* where to start in collection */
+                                  NAVIGATE_NEXT_HIT,  /* order to use when skipping */
+                                  1L,                 /* number to skip */
+                                  NAVIGATE_NEXT_HIT,  /* order to use when reading
                                     same order as hit's relevancy score */
-             0xFFFFFFFF,         /* max number to read */
-             READ_MASK_NOTEID |  /* info we want - note ids and */
-             READ_MASK_SCORE,    /* relevancy scores */
-             &hBuffer,           /* handle to info buffer (return)  */
-             NULL,               /* length of info buffer (return) */
-             NULL,               /* entries skipped (return) */
-             &EntriesFound,      /* entries read (return) */
-             &SignalFlag))       /* share warning and more signal flag
+                                  0xFFFFFFFF,         /* max number to read */
+                                  READ_MASK_NOTEID |  /* info we want - note ids and */
+                                  READ_MASK_SCORE,    /* relevancy scores */
+                                  &hBuffer,           /* handle to info buffer (return)  */
+                                  NULL,               /* length of info buffer (return) */
+                                  NULL,               /* entries skipped (return) */
+                                  &EntriesFound,      /* entries read (return) */
+                                  &SignalFlag))       /* share warning and more signal flag
                                     (return) */
           goto exitCloseCollection;
 
@@ -514,20 +514,20 @@ exit0:
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[], 
                                char *db_name, char *query)
 { 
-    if (argc != 3)  
-    {
-        printf("Enter database name: ");      
-        fflush (stdout);
-        gets(db_name);
-        printf("\n");
-        printf ("Enter the query string for the search:  ");
-        fflush (stdout);
-        gets(query);
+   if (argc != 3)  
+   {
+      printf("Enter database name: ");      
+      fflush (stdout);
+      gets(db_name);
+      printf("\n");
+      printf ("Enter the query string for the search:  ");
+      fflush (stdout);
+      gets(query);
 
-    }    
-    else
-    {
-        strcpy(db_name, argv[1]);    
-        strcpy(query, argv[2]);    
-    } /* end if */
+   }    
+   else
+   {
+       strcpy(db_name, argv[1]);    
+       strcpy(query, argv[2]);    
+   } /* end if */
 } /* ProcessArgs */

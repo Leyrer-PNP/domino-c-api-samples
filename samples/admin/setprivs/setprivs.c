@@ -78,9 +78,9 @@ typedef struct
 
 STATUS UpdatePrivMask (NOTEHANDLE, WORD, DWORD *, DWORD *);
 STATUS UpdateReaderList (NOTEHANDLE, READER_LIST,
-                     DWORD *, DWORD *);
+                         DWORD *, DWORD *);
 void LNPUBLIC  ProcessArgs (int argc, char *argv[], 
-                               char *FileName, char *ViewName, short *SetReaderList, WORD *NewPrivileges, char **TheRList, WORD *numEntries, short *FreeList);
+                            char *FileName, char *ViewName, short *SetReaderList, WORD *NewPrivileges, char **TheRList, WORD *numEntries, short *FreeList);
 
 
 /************************************************************************
@@ -144,8 +144,8 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-       PRINTLOG("\n Unable to initialize Notes.\n");
-       return(1);
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return(1);
     }
 
     /********************************************************************/
@@ -159,8 +159,8 @@ int main(int argc, char *argv[])
 
     if (SetReaderList && ReaderList.NumEntries == 0)
     {
-      PRINTLOG("\nError: No read access name list specified.\n");
-      goto Done2;
+        PRINTLOG("\nError: No read access name list specified.\n");
+        goto Done2;
     }
 
     ReaderList.pReaderEntries = RList;
@@ -192,10 +192,10 @@ int main(int argc, char *argv[])
        Return a handle to the collection to the variable hCollection. */
 
     if (error = NIFOpenCollection(hDB, hDB, ViewNoteID,
-                            0,
-                            NULLHANDLE,
-                            &hCollection,
-                            NULL, NULL, NULL, NULL))
+                                  0,
+                                  NULLHANDLE,
+                                  &hCollection,
+                                  NULL, NULL, NULL, NULL))
         goto Done1;
 
     {
@@ -212,12 +212,12 @@ int main(int argc, char *argv[])
     do
     {
         if (error = NIFReadEntries(hCollection,
-                               &IndexPos,
-                               NAVIGATE_NEXT, 1L,
-                               NAVIGATE_NEXT, MAXDWORD,
-                               READ_MASK_NOTEID,
-                               &hBuffer, NULL,
-                               NULL, &EntriesReturned, &SignalFlag))
+                                   &IndexPos,
+                                   NAVIGATE_NEXT, 1L,
+                                   NAVIGATE_NEXT, MAXDWORD,
+                                   READ_MASK_NOTEID,
+                                   &hBuffer, NULL,
+                                   NULL, &EntriesReturned, &SignalFlag))
         goto Done;
 
     
@@ -301,11 +301,10 @@ int main(int argc, char *argv[])
 
     }  while (SignalFlag & SIGNAL_MORE_TO_DO);
 
-       NIFCloseCollection(hCollection);
+    NIFCloseCollection(hCollection);
 
-       goto Done1;
-    }
-
+    goto Done1;
+}
 
 Done:
     NIFCloseCollection(hCollection);
@@ -330,21 +329,21 @@ Done2:
     {
         if (NumUpdated)
             PRINTLOG("%lu documents had their privileges updated\n",
-                   NumUpdated);
+                      NumUpdated);
         if (NumNotUpdated)
             PRINTLOG("%lu documents already had the desired privileges\n",
-                   NumNotUpdated);
+                     NumNotUpdated);
     }
     else
        PRINTERROR(error,"NSFDbOpen");
 
 
     /* Free the reader list */
-   if (SetReaderList && FreeList)
-   {
-      for (i = 0; i < (short) ReaderList.NumEntries; i++)
-         free(RList[i]);
-   }
+    if (SetReaderList && FreeList)
+    {
+        for (i = 0; i < (short) ReaderList.NumEntries; i++)
+            free(RList[i]);
+    }
 
     NotesTerm();
     return(error);
@@ -352,7 +351,7 @@ Done2:
 
 
 STATUS UpdatePrivMask (NOTEHANDLE hNote, WORD NewPrivMask, 
-                     DWORD *pdwNumNotUpdated, DWORD *pdwNumUpdated)
+                       DWORD *pdwNumNotUpdated, DWORD *pdwNumUpdated)
 
 /*    UpdatePrivMask - Updates the privilege mask of a note if
  *                     different than the note's current privilege
@@ -379,7 +378,7 @@ STATUS UpdatePrivMask (NOTEHANDLE hNote, WORD NewPrivMask,
     /* get original privileges, check to see if different */
     NSFNoteGetInfo(hNote, _NOTE_PRIVILEGES, &OldPrivMask);
     if (OldPrivMask == NewPrivMask)
-       (*pdwNumNotUpdated)++;
+        (*pdwNumNotUpdated)++;
     else
     {
         NSFNoteSetInfo (hNote, _NOTE_PRIVILEGES, &NewPrivMask);
@@ -391,7 +390,7 @@ STATUS UpdatePrivMask (NOTEHANDLE hNote, WORD NewPrivMask,
 
 
 STATUS UpdateReaderList (NOTEHANDLE hNote, READER_LIST ReaderList,
-                     DWORD *pdwNumNotUpdated, DWORD *pdwNumUpdated)
+                         DWORD *pdwNumNotUpdated, DWORD *pdwNumUpdated)
 
 /*    UpdateReaderList - Updates the reader access name list of a note 
  *    by creating the $Readers text list field in the note and adding 
@@ -426,7 +425,7 @@ STATUS UpdateReaderList (NOTEHANDLE hNote, READER_LIST ReaderList,
 
     if (NSFItemIsPresent(hNote, DESIGN_READERS , (WORD) strlen(DESIGN_READERS)))
         if (error = NSFItemDelete (hNote, DESIGN_READERS, 
-                               (WORD) strlen(DESIGN_READERS)))
+                                  (WORD) strlen(DESIGN_READERS)))
             return (error);
 
     pTextEntry = *(ReaderList.pReaderEntries);
@@ -436,7 +435,7 @@ STATUS UpdateReaderList (NOTEHANDLE hNote, READER_LIST ReaderList,
 
         if (!(error = NSFNoteUpdate(hNote, UPDATE_NOCOMMIT)))
              (*pdwNumUpdated)++;
-         return (error);
+        return (error);
     }
 
     /* Create an empty text list structure */
@@ -466,14 +465,14 @@ STATUS UpdateReaderList (NOTEHANDLE hNote, READER_LIST ReaderList,
     pList = OSLockObject (hList);
 
     error = NSFItemAppend (hNote, ITEM_SUMMARY | ITEM_READERS,
-                               DESIGN_READERS, (WORD) strlen (DESIGN_READERS),
-                               TYPE_TEXT_LIST, pList, wListSize);
+                           DESIGN_READERS, (WORD) strlen (DESIGN_READERS),
+                           TYPE_TEXT_LIST, pList, wListSize);
 
     /* Unlock and free the buffer that was holding the text list field. */
 
-     OSUnlock(hList);
-     OSMemFree(hList);
-     if (error)
+    OSUnlock(hList);
+    OSMemFree(hList);
+    if (error)
         return (error);
 
     /* Update the note */
@@ -523,22 +522,22 @@ WORD  *numEntries,
 short *FreeList)
 { 
 
-  char  inputString[LINEOFTEXT];
-  char *newString;
-  int   i;
+    char  inputString[LINEOFTEXT];
+    char *newString;
+    int   i;
 
-  *numEntries = 0;
+    *numEntries = 0;
 
-  if (argc < 5)  
-  {
-    printf("Enter file name: ");      
-    fflush (stdout);
-    gets(FileName);
-    printf("\n");
-    printf ("Enter the view name:  ");
-    fflush (stdout);
-    gets(ViewName);
-    printf("\n");
+    if (argc < 5)  
+    {
+        printf("Enter file name: ");      
+        fflush (stdout);
+        gets(FileName);
+        printf("\n");
+        printf ("Enter the view name:  ");
+        fflush (stdout);
+        gets(ViewName);
+        printf("\n");
 tryagain:
     printf("Choose whether to set read access list (L) or privilege mask (M): ");      
     fflush (stdout);
@@ -546,55 +545,55 @@ tryagain:
     printf("\n");
     if (inputString[0] == 'L' || inputString[0] == 'l')
     {
-      *SetReaderList = TRUE;
-      *FreeList = TRUE;
-      for (;;)
-      {
-        printf("Enter read access names or a / to indicate you are finished: ");     
-        fflush (stdout);
-        gets(inputString);
-        printf("\n");
-        if (inputString[0] == '/')
-          break;
-        else 
+        *SetReaderList = TRUE;
+        *FreeList = TRUE;
+        for (;;)
         {
-          (*numEntries)++;
-          newString =(char *) malloc(LINEOFTEXT);
-          strcpy(newString, inputString);
-          TheRList[*numEntries - 1] = newString;
+            printf("Enter read access names or a / to indicate you are finished: ");     
+            fflush (stdout);
+            gets(inputString);
+            printf("\n");
+            if (inputString[0] == '/')
+                break;
+            else 
+            {
+                (*numEntries)++;
+                newString =(char *) malloc(LINEOFTEXT);
+                strcpy(newString, inputString);
+                TheRList[*numEntries - 1] = newString;
+            }
         }
-      }
     }
     else if (inputString[0] == 'M' || inputString[0] == 'm')
     {
-      printf("Enter privilege level: ");     
-      *SetReaderList = FALSE;
-      fflush (stdout);
-      gets(inputString);
-      printf("\n");
-      *NewPrivileges = atoi(inputString) & 0x001F;
+        printf("Enter privilege level: ");     
+        *SetReaderList = FALSE;
+        fflush (stdout);
+        gets(inputString);
+        printf("\n");
+        *NewPrivileges = atoi(inputString) & 0x001F;
     }
     else
-      goto tryagain;
-  }    
-  else
-  {
-    strcpy(FileName, argv[1]);    
-    strcpy(ViewName, argv[2]);    
-
-    if ( !strcmp(argv[3], "-L") || !strcmp(argv[3], "-l") )
+        goto tryagain;
+    }    
+    else
     {
-      *numEntries = argc - 4;
-      for (i=0; i<*numEntries; i++)
-        TheRList[i] = *(argv + 4 + i);
-      *SetReaderList = TRUE; 
-      *FreeList = FALSE;
-    }
-    else if ( !strcmp(argv[3], "-M") || !strcmp(argv[3], "-m") )
-    {
-      *SetReaderList = FALSE;
-      *NewPrivileges = atoi(argv[4]) & 0x001F;
-    }
+        strcpy(FileName, argv[1]);    
+        strcpy(ViewName, argv[2]);    
 
-  } /* end if */
+        if ( !strcmp(argv[3], "-L") || !strcmp(argv[3], "-l") )
+        {
+            *numEntries = argc - 4;
+            for (i=0; i<*numEntries; i++)
+            TheRList[i] = *(argv + 4 + i);
+            *SetReaderList = TRUE; 
+            *FreeList = FALSE;
+        }
+        else if ( !strcmp(argv[3], "-M") || !strcmp(argv[3], "-m") )
+        {
+            *SetReaderList = FALSE;
+            *NewPrivileges = atoi(argv[4]) & 0x001F;
+        }
+
+    } /* end if */
 } /* ProcessArgs */

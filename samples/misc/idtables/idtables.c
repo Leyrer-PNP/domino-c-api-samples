@@ -169,12 +169,12 @@ int main(int argc, char *argv[])
  * Assign the parameters of the commandline to the variables of this program.
  */
 
-    error = NotesInitExtended (argc, argv);
-    if (error)
-    {
+   error = NotesInitExtended (argc, argv);
+   if (error)
+   {
        PRINTLOG("Error: Unable to initialize Notes.\n");
-        return (1);
-    }
+       return (1);
+   }
 
    /* Check arg list for database name, action, start, end and catetory   */
    if (argc < 3 || argc > 7)
@@ -306,17 +306,17 @@ int main(int argc, char *argv[])
          if (ERR(error) == ERR_NO_MODIFIED_NOTES)
          {
             if (error = ConvertTIMEDATEToText(
-               &intl_format,
-               &td_format,
-               &begin_td,
-               begin_str,
-               MAXALPHATIMEDATE,
-               &string_len))
-                   goto Exit;
+                                              &intl_format,
+                                              &td_format,
+                                              &begin_td,
+                                              begin_str,
+                                              MAXALPHATIMEDATE,
+                                              &string_len))
+                goto Exit;
             begin_str[string_len] = '\0';
             PRINTLOG("\n%s hasn\'t been modified since ", src_name);
             PRINTLOG(" Begin date: %s\n", begin_str);
-               goto Exit;
+            goto Exit;
          }
             else
                goto Exit;
@@ -326,14 +326,14 @@ int main(int argc, char *argv[])
    else
    {
       if (error = NSFDbOpenExtended(
-                     src_name,
-                     DBOPEN_WITH_SCAN_LOCK,
-                     NULLHANDLE,
-                     NULL,
-                     &db_handle_src,
-                     &data_td_src,
-                     &nondata_td_src))
-                        goto Exit;
+                                    src_name,
+                                    DBOPEN_WITH_SCAN_LOCK,
+                                    NULLHANDLE,
+                                    NULL,
+                                    &db_handle_src,
+                                    &data_td_src,
+                                    &nondata_td_src))
+                                    goto Exit;
       else
          cleanup_state += CLOSE_SRC_DB;
    }
@@ -343,13 +343,13 @@ int main(int argc, char *argv[])
 
 
    if (error = ConvertTIMEDATEToText(
-                  &intl_format,
-                  &td_format,
-                  &end_td,
-                  end_str,
-                  MAXALPHATIMEDATE,
-                  &string_len))
-                     goto Exit;
+                                     &intl_format,
+                                     &td_format,
+                                     &end_td,
+                                     end_str,
+                                     MAXALPHATIMEDATE,
+                                     &string_len))
+      goto Exit;
    end_str[string_len] = '\0';
 
 
@@ -365,13 +365,13 @@ int main(int argc, char *argv[])
    else
    {
       if (error = ConvertTIMEDATEToText(
-                     &intl_format,
-                     &td_format,
-                     &begin_td,
-                     begin_str,
-                     MAXALPHATIMEDATE,
-                     &string_len))
-                        goto Exit;
+                                        &intl_format,
+                                        &td_format,
+                                        &begin_td,
+                                        begin_str,
+                                        MAXALPHATIMEDATE,
+                                        &string_len))
+      goto Exit;
       begin_str[string_len] = '\0';
    }
 
@@ -399,20 +399,20 @@ int main(int argc, char *argv[])
    {
       if (ERR(error) == ERR_NO_MODIFIED_NOTES)
       {
-         PRINTLOG("\n%s contains no data documents from:\n", src_name);
-         if (strlen(begin_str))
-	 {
-            PRINTLOG("\tBegin date: %s\n", begin_str);
-	 }
-         else
-	 {
-            PRINTLOG("\tBegin date: Beginning of Cosmos\n");
-	 }
-         PRINTLOG("\tthrough End date: %s\n", end_str);
-         goto Exit;
+          PRINTLOG("\n%s contains no data documents from:\n", src_name);
+          if (strlen(begin_str))
+          {
+             PRINTLOG("\tBegin date: %s\n", begin_str);
+          }
+          else
+          {
+             PRINTLOG("\tBegin date: Beginning of Cosmos\n");
+          }
+          PRINTLOG("\tthrough End date: %s\n", end_str);
+          goto Exit;
       }
       else
-         goto Exit;
+          goto Exit;
    }
    else
    {
@@ -474,12 +474,12 @@ int main(int argc, char *argv[])
 
 
          if ( error = NSFDbStampNotes(
-                        db_handle_src,
-                        idtable_handle,
-                        CATEGORY_ITEM_NAME,
-                        (WORD)strlen(CATEGORY_ITEM_NAME),
-                        text_item_value,
-                        (WORD) text_item_size))
+                                      db_handle_src,
+                                      idtable_handle,
+                                      CATEGORY_ITEM_NAME,
+                                      (WORD)strlen(CATEGORY_ITEM_NAME),
+                                      text_item_value,
+                                      (WORD) text_item_size))
                goto Exit;
 
          /* Some demographics */
@@ -614,43 +614,43 @@ int main(int argc, char *argv[])
          {
             /* Open the Archival Database */
             if (error = NSFDbOpenExtended(
-                  arc_name,
-                  DBOPEN_WITH_SCAN_LOCK,
-                  NULLHANDLE,
-                  NULL,
-                  &db_handle_arc,
-                  NULL,
-                  NULL))
-                     goto Exit;
+                                          arc_name,
+                                          DBOPEN_WITH_SCAN_LOCK,
+                                          NULLHANDLE,
+                                          NULL,
+                                          &db_handle_arc,
+                                          NULL,
+                                          NULL))
+                goto Exit;
             else
                cleanup_state += CLOSE_ARC_DB;
 
             /* Get the Database IDs */
             if (error = NSFDbIDGet(
-                           db_handle_src,
-                           &database_id_src))
-                              goto Exit;
+                                   db_handle_src,
+                                   &database_id_src))
+                goto Exit;
             if (error = NSFDbIDGet(
-                           db_handle_arc,
-                           &database_id_arc))
-                              goto Exit;
+                                   db_handle_arc,
+                                   &database_id_arc))
+                goto Exit;
 
             /* Get the Database replica information */
             if (error = NSFDbReplicaInfoGet(
-                           db_handle_src,
-                           &replica_info_src))
-                              goto Exit;
+                                            db_handle_src,
+                                            &replica_info_src))
+                                            goto Exit;
             if (error = NSFDbReplicaInfoGet(
-                           db_handle_arc,
-                           &replica_info_arc))
-                              goto Exit;
+                                            db_handle_arc,
+                                            &replica_info_arc))
+                goto Exit;
 
             /* Populate the newly created archive table */
             num_invalid = num_deletions = notes_scanned = 0L;
             while(IDScan(
-               idtable_handle,
-               (FLAG)(notes_scanned++==0L),
-               &note_id))
+                         idtable_handle,
+                         (FLAG)(notes_scanned++==0L),
+                         &note_id))
             {
                /* Check returned class for deletion stubs */
                if (note_id & RRV_DELETED)
@@ -658,9 +658,9 @@ int main(int argc, char *argv[])
                else
                {
                   error = IDInsert(
-                              arctable_handle,
-                              note_id,
-                              &ok_flag);
+                                    arctable_handle,
+                                    note_id,
+                                    &ok_flag);
                   if (!ok_flag || error)
                   {
                      PRINTLOG("\nIDInsert in arctable failed.\n");
@@ -689,15 +689,15 @@ int main(int argc, char *argv[])
             {
                /* Copy real live data notes to the archive Db */
                if ( error = NSFDbCopyNote(
-                             db_handle_src,
-                             NULL,
-                             &replica_info_src.ID,
-                             note_id,
-                             db_handle_arc,
-                             &database_id_arc,
-                             &replica_info_arc.ID,
-                             &arc_note_id,
-                             &arc_note_class ))
+                                          db_handle_src,
+                                          NULL,
+                                          &replica_info_src.ID,
+                                          note_id,
+                                          db_handle_arc,
+                                          &database_id_arc,
+                                          &replica_info_arc.ID,
+                                          &arc_note_id,
+                                          &arc_note_class ))
                {
                   if (ERR(error) == ERR_INVALID_NOTE)
                   {
@@ -765,9 +765,9 @@ int main(int argc, char *argv[])
             {   /* Using NULL in 3rd arg avoids ERR_REMOTE_UNID */
 
                if (error = NSFDbDeleteNotes(
-                              db_handle_src,
-                              deltable_handle,
-                              NULL))
+                                            db_handle_src,
+                                            deltable_handle,
+                                            NULL))
                   goto Exit;
 
                /* adjust del_count exit of while(IDScan) */

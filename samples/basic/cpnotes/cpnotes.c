@@ -52,9 +52,9 @@
 #include <printLog.h>
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                         char *input_path, 
-                         char *output_path, 
-                         char *output_title); 
+                             char *input_path, 
+                             char *output_path, 
+                             char *output_title); 
                          
 #define  STRING_LENGTH  256
 
@@ -127,9 +127,9 @@ database to the output database. */
     PRINTLOG("\nDatabase copying..."); 
 
     if (error = NSFDbCopy (input_handle,
-                   output_handle,
-                   start_time,
-                   NOTE_CLASS_ALL & ~NOTE_CLASS_DOCUMENT & ~NOTE_CLASS_HELP))
+                           output_handle,
+                           start_time,
+                           NOTE_CLASS_ALL & ~NOTE_CLASS_DOCUMENT & ~NOTE_CLASS_HELP))
     {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
@@ -165,9 +165,9 @@ an error, so we don't want to return on this condition.*/
     PRINTLOG("\nDatabase copying..."); 
 
     error = NSFDbCopy (input_handle,
-               output_handle,
-               start_time,
-               NOTE_CLASS_DOCUMENT);
+                       output_handle,
+                       start_time,
+                       NOTE_CLASS_DOCUMENT);
 
     if (!(ERR(error) == ERR_NO_MODIFIED_NOTES || error == NOERROR))
     {
@@ -196,10 +196,10 @@ call. */
 /* Put the time/date text into Domino and Notes binary form. */
 
     if (error = ConvertTextToTIMEDATE(NULL,
-                      NULL,
-                      &text_pointer,
-                      (WORD) strlen(timetext),
-                      &start_time))
+                                      NULL,
+                                      &text_pointer,
+                                      (WORD) strlen(timetext),
+                                      &start_time))
     {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
@@ -213,9 +213,9 @@ call. */
     PRINTLOG("\nDatabase copying..."); 
 
     error = NSFDbCopy (input_handle,
-               output_handle,
-               start_time,
-               NOTE_CLASS_HELP);
+                       output_handle,
+                       start_time,
+                       NOTE_CLASS_HELP);
 
     if (!(ERR(error) == ERR_NO_MODIFIED_NOTES || error == NOERROR))
     {
@@ -251,7 +251,7 @@ call. */
 
 /* Add the database title to the database information buffer */
 
-     NSFDbInfoModify (output_db_info, INFOPARSE_TITLE, output_title);
+    NSFDbInfoModify (output_db_info, INFOPARSE_TITLE, output_title);
 
 /* Set the database information buffer. */
 
@@ -264,7 +264,7 @@ call. */
         return (1);
     }
 
-   PRINTLOG("\nSet the title of \"%s\" to \"%s\"", output_path, output_title);
+    PRINTLOG("\nSet the title of \"%s\" to \"%s\"", output_path, output_title);
 
 /* Close the databases. */
 
@@ -305,12 +305,12 @@ call. */
 *************************************************************************/
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                         char *input_path, 
-                         char *output_path, 
-                         char *output_title)
+                             char *input_path, 
+                             char *output_path, 
+                             char *output_title)
 { 
     if (argv[1] == NULL)
-    {       
+    {
 
         printf("Enter name of input database: ");      
         fflush (stdout);

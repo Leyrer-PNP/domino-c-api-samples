@@ -109,18 +109,18 @@ int main(int argc, char *argv[])
 /* Get the pathname of the database (Compute.nsf). */
     path_name = (char *) malloc(IO_LENGTH);
     if (path_name == NULL)
-       {
+    {
         PRINTLOG("Error: Out of memory.\n");
         NotesTerm();
         return (0);
-       }
+    }
 
     if (argc != 2 && argc != 4)
-        {
+    {
         PRINTLOG("\nEnter the database filename: ");
         fflush(stdout);
         gets(path_name);
-        }
+    }
     else
         strcpy(path_name, argv[1]);
 
@@ -290,12 +290,12 @@ void DisplayValues(NUMBER length, NUMBER width, NUMBER perimeter, NUMBER area)
 *************************************************************************/
 
 STATUS LNPUBLIC CWFCallback(
-   const void *pCDField,
-   WORD phase,
-   STATUS error,
-   DHANDLE ErrorText,
-   WORD wErrorTextSize,
-   void *Ctx)
+                            const void *pCDField,
+                            WORD phase,
+                            STATUS error,
+                            DHANDLE ErrorText,
+                            WORD wErrorTextSize,
+                            void *Ctx)
 {
    char    *ptr = (char *) pCDField;
    CDFIELD  field;

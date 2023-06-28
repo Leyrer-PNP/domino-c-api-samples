@@ -24,10 +24,10 @@
    SYNTAX:     archexp  <source DB>	<hex note ID> <output file> [options]
   
    DESCRIPTION:
-		This program shows how to archive a document from one database to an
-		output file. Otherwise the related attachments of the document will
-		be archived too. And all the output file will store in the current 
-		directory.
+        This program shows how to archive a document from one database to an
+        output file. Otherwise the related attachments of the document will
+        be archived too. And all the output file will store in the current 
+        directory.
 
 *************************************************************************/
 #if defined(OS400)
@@ -66,12 +66,12 @@ BOOL  LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteI
 
 STATUS far PASCAL NoteInitCallback(NOTEHANDLE hNote, STATUS retError, void *pUserCtx );
 STATUS far PASCAL AttachInitCallback(const char *szFileName, 
-				 DWORD dwFlags,
-				 DWORD dwDupIdx, 
-				 STATUS retError,
-				 void *pUserCtx, 
-				 DWORD dwUnused, 
-				 const BYTE* pUnused);
+                                     DWORD dwFlags,
+                                     DWORD dwDupIdx, 
+                                     STATUS retError,
+                                     void *pUserCtx, 
+                                     DWORD dwUnused, 
+                                     const BYTE* pUnused);
 STATUS far PASCAL AttachOutputCallback(const BYTE *Buffer, DWORD BufferSize, BOOL bLastBuffer,  STATUS retError,void *pUserCtx );
 STATUS far PASCAL ArchiveDocumentCallback(HARCHIVEDOCUMENT hDoc, void *pUserCtx);
 
@@ -79,9 +79,9 @@ STATUS far PASCAL ArchiveDocumentCallback(HARCHIVEDOCUMENT hDoc, void *pUserCtx)
 STATUS far PASCAL NoteExportCallback(const BYTE *Buffer, DWORD dwBufferSize, BOOL bLastBuffer,STATUS retError, void *pUserCtx);
 
 typedef struct {
-	FILE *pOutFile;
-	FILE *pAttachFile;
-	
+    FILE *pOutFile;
+    FILE *pAttachFile;
+    
 } EXPORTCONTEXT;
 
 /************************************************************************
@@ -105,14 +105,14 @@ int main(int argc, char *argv[])
     char        achOutFileName[MAXPATH+1];
 
 
-	memset(&Ctx, 0, sizeof(EXPORTCONTEXT));
+    memset(&Ctx, 0, sizeof(EXPORTCONTEXT));
 
-	
-	error = NotesInitExtended (argc, argv);
-	if (error)
+    
+    error = NotesInitExtended (argc, argv);
+    if (error)
     {
-      fprintf (stderr, "\nError initializing Notes.\n");
-      return (1);
+        fprintf (stderr, "\nError initializing Notes.\n");
+        return (1);
     }
 
 
@@ -124,67 +124,67 @@ int main(int argc, char *argv[])
 
     }
 
-	/* Open source database. */	
-	
-	PRINTLOG("Opening %s\n", pname);
+    /* Open source database. */	
+    
+    PRINTLOG("Opening %s\n", pname);
     if (error = NSFDbOpen (pname, &db_handle))
     {
         PRINTERROR (error,"NSFDbOpen");
         goto cleanup;
     }
 
-	/* Create an IDTable, and insert note ID into this IDTable. */
+    /* Create an IDTable, and insert note ID into this IDTable. */
 
-	PRINTLOG("Creating ID table for note %x\n", NoteID);	
-	if(error = IDCreateTable(sizeof(NOTEID), &hIDTable))
-		{
-		PRINTERROR(error,"IDCreateTable");
-		goto cleanup;
-		}
-	if(error = IDInsert(hIDTable, NoteID, NULL))
-		{
-		PRINTERROR(error,"IDInsert");
-		goto cleanup;
-		}
+    PRINTLOG("Creating ID table for note %x\n", NoteID);	
+    if(error = IDCreateTable(sizeof(NOTEID), &hIDTable))
+    {
+        PRINTERROR(error,"IDCreateTable");
+        goto cleanup;
+    }
+    if(error = IDInsert(hIDTable, NoteID, NULL))
+    {
+        PRINTERROR(error,"IDInsert");
+        goto cleanup;
+    }
 
-	/* Open the output file. */
+    /* Open the output file. */
 
-	Ctx.pOutFile = fopen(achOutFileName, "wb");
-	if(Ctx.pOutFile == NULL)
-		{
-		PRINTLOG("Error creating noteexp.dat\n");
-		goto cleanup;
-		}
+    Ctx.pOutFile = fopen(achOutFileName, "wb");
+    if(Ctx.pOutFile == NULL)
+    {
+        PRINTLOG("Error creating noteexp.dat\n");
+        goto cleanup;
+    }
 
-	
-	/*  The ArchiveExportDatabase function takes a db handle an IDTable and streams the identified documents to the user-supplied
-	*   callback functions described below */
-		
-	if(error = ArchiveExportDatabase(	db_handle, 
-				hIDTable, 
-				0, 
-				NoteInitCallback,
-				AttachInitCallback,
-				AttachOutputCallback,
-				ArchiveDocumentCallback,
-				NULL, &Ctx))
-		{
-		PRINTERROR(error,"ArchiveExportDatabase");
-	   	goto cleanup;	   
-   		}
+    
+    /*  The ArchiveExportDatabase function takes a db handle an IDTable and streams the identified documents to the user-supplied
+    *   callback functions described below */
+    
+    if(error = ArchiveExportDatabase(db_handle, 
+                                     hIDTable, 
+                                     0, 
+                                     NoteInitCallback,
+                                     AttachInitCallback,
+                                     AttachOutputCallback,
+                                     ArchiveDocumentCallback,
+                                     NULL, &Ctx))
+    {
+        PRINTERROR(error,"ArchiveExportDatabase");
+        goto cleanup;	   
+    }
   
 cleanup:
 
-	if(hIDTable)
-		IDDestroyTable(hIDTable);
+    if(hIDTable)
+        IDDestroyTable(hIDTable);
 
-	/* close the output file. */
-	if(Ctx.pOutFile)
-		fclose(Ctx.pOutFile);
+    /* close the output file. */
+    if(Ctx.pOutFile)
+        fclose(Ctx.pOutFile);
 
-	/* Close the database. */
-	if(db_handle)
-		NSFDbClose (db_handle);    
+    /* Close the database. */
+    if(db_handle)
+        NSFDbClose (db_handle);    
 
 
     /* Terminate Domino and Notes. */
@@ -208,67 +208,67 @@ cleanup:
 
 BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID, char *pOutFileName)
 {
-	int curarg = 1;
-	char* pDBName;
-	char* pServerName = NULL;
-	STATUS Error = NOERROR;
+    int curarg = 1;
+    char* pDBName;
+    char* pServerName = NULL;
+    STATUS Error = NOERROR;
 
-	if(argc < 4)
-  		return FALSE;
+    if(argc < 4)
+        return FALSE;
 
-   	if(argv[curarg][0] == '=')
-		curarg++;
+    if(argv[curarg][0] == '=')
+        curarg++;
 
-	pDBName = argv[curarg];
+    pDBName = argv[curarg];
 
-	curarg++;
+    curarg++;
 
-	if(curarg == argc)
-		{
-		PRINTLOG("Missing required note ID argument\n");
-		return FALSE;
-		}
-	
-	if(sscanf(argv[curarg], "%x", pNoteID) != 1)
-  	  {
-	   PRINTLOG("Unable to convert %s to a NoteID\n",argv[curarg]); 
-	   return 0;
-	   }
+    if(curarg == argc)
+    {
+        PRINTLOG("Missing required note ID argument\n");
+        return FALSE;
+    }
+    
+    if(sscanf(argv[curarg], "%x", pNoteID) != 1)
+    {
+        PRINTLOG("Unable to convert %s to a NoteID\n",argv[curarg]); 
+        return 0;
+    }
 
-	curarg++;
+    curarg++;
 
-	if(curarg == argc)
-		{
-		PRINTLOG("Missing required output file argument\n");
-		return FALSE;
-		}
+    if(curarg == argc)
+    {
+        PRINTLOG("Missing required output file argument\n");
+        return FALSE;
+    }
 
-	strncpy(pOutFileName, argv[curarg], MAXPATH);
+    strncpy(pOutFileName, argv[curarg], MAXPATH);
 
-	curarg++;
+    curarg++;
 
-   while(curarg < argc)
-		{
-		if(argv[curarg][0] == '-' &&  argv[curarg][1] == 's')
-			{
-			curarg++;
-			if(curarg == argc)
-				{
-				PRINTLOG("ERROR: Missing server argument after -s\n");
-				return FALSE;
-				}
-			pServerName = argv[curarg];					
-			}
-		curarg++;
-		}
-
-	if (Error = OSPathNetConstruct( NULL, pServerName, pDBName, dbPath))
+    while(curarg < argc)
+    {
+        if(argv[curarg][0] == '-' &&  argv[curarg][1] == 's')
         {
-		PRINTERROR (Error,"OSPathNetConstruct");
-		return FALSE;
+            curarg++;
+            if(curarg == argc)
+            {
+                PRINTLOG("ERROR: Missing server argument after -s\n");
+                return FALSE;
+            }
+            pServerName = argv[curarg];					
         }
+        curarg++;
+    }
 
-  return TRUE;  
+    if (Error = OSPathNetConstruct( NULL, pServerName, pDBName, dbPath))
+    {
+        PRINTERROR (Error,"OSPathNetConstruct");
+        return FALSE;
+    }
+
+    return TRUE;  
 } /* ProcessArgs */
 
 
@@ -284,20 +284,20 @@ BOOL LNPUBLIC  ProcessArgs(int argc, char* argv[], char *dbPath, NOTEID* pNoteID
 
 STATUS far PASCAL NoteInitCallback(NOTEHANDLE hNote,STATUS retError, void *pUserCtx )
 {
-	STATUS Error = NOERROR;
-	
-	if(retError)
-	{
-		if(hNote)
-		NSFNoteClose(hNote);
-		Error= retError;
-		goto cleanup;
-	}
-	
-	
+    STATUS Error = NOERROR;
+    
+    if(retError)
+    {
+        if(hNote)
+            NSFNoteClose(hNote);
+        Error= retError;
+        goto cleanup;
+    }
+    
+    
 cleanup:					
 
-	return Error;
+    return Error;
 }
 
 /************************************************************************
@@ -305,44 +305,44 @@ cleanup:
     CALLBACK:   AttachInitCallback
 
     PURPOSE:    Make initialization of attachment data export, such as open 
-	            the attachment output file.
+                the attachment output file.
 
     DESCRIPTION:
-		Called by ArchiveExportDatabase when attachment data begin 
-		to be exported.
+        Called by ArchiveExportDatabase when attachment data begin 
+        to be exported.
 *************************************************************************/
 
 STATUS far PASCAL AttachInitCallback(const char *szFileName, 
-				 DWORD dwFlags, 
-				 DWORD dwDupIdx, 
-				 STATUS retError,
-				 void *pUserCtx,
-				 DWORD dwUnused, 
-				 const BYTE* pUnused)
+                                     DWORD dwFlags, 
+                                     DWORD dwDupIdx, 
+                                     STATUS retError,
+                                     void *pUserCtx,
+                                     DWORD dwUnused, 
+                                     const BYTE* pUnused)
 {
-	STATUS Error = NOERROR;
-	EXPORTCONTEXT *pCtx = (EXPORTCONTEXT *)pUserCtx;	
-	PRINTLOG("AttachInitCallback called\n");
+    STATUS Error = NOERROR;
+    EXPORTCONTEXT *pCtx = (EXPORTCONTEXT *)pUserCtx;	
+    PRINTLOG("AttachInitCallback called\n");
 
-	if(retError)
-	{
-		Error= retError;
-		goto cleanup;
-	}
+    if(retError)
+    {
+        Error= retError;
+        goto cleanup;
+    }
 
 /* open the file, later the attachment will be exported there. */
 
-	pCtx->pAttachFile = fopen(szFileName, "wb");
-	
-	if (pCtx->pAttachFile == NULL)
-		{
-			Error = ERR_CREATE;
-			goto cleanup;
-		}
-			
+    pCtx->pAttachFile = fopen(szFileName, "wb");
+    
+    if (pCtx->pAttachFile == NULL)
+    {
+        Error = ERR_CREATE;
+        goto cleanup;
+    }
+        
 cleanup:
 
-	return Error;
+    return Error;
 }
 
 /************************************************************************
@@ -352,33 +352,33 @@ cleanup:
     PURPOSE:    Export the attachment data.
 
     DESCRIPTION:
-		Called by ArchiveExportDatabase when attachment data is 
-		being exported.
+        Called by ArchiveExportDatabase when attachment data is 
+        being exported.
 *************************************************************************/
 
 STATUS far PASCAL AttachOutputCallback(const BYTE *Buffer, DWORD BufferSize, BOOL bLastBuffer,  STATUS retError,void *pUserCtx)
 {
-	STATUS Error = NOERROR;	
-	EXPORTCONTEXT *pCtx = (EXPORTCONTEXT *)pUserCtx;
-	PRINTLOG("AttachOutputCallback called\n");
+    STATUS Error = NOERROR;	
+    EXPORTCONTEXT *pCtx = (EXPORTCONTEXT *)pUserCtx;
+    PRINTLOG("AttachOutputCallback called\n");
 
-	if(retError)
-	{
-		Error=retError;
-		goto cleanup; 
-	}
+    if(retError)
+    {
+        Error=retError;
+        goto cleanup; 
+    }
 
 /* export attachment data into attachment output file. */
-	if(pCtx->pAttachFile)
-		fwrite(Buffer, BufferSize, 1, pCtx->pAttachFile);		
+    if(pCtx->pAttachFile)
+        fwrite(Buffer, BufferSize, 1, pCtx->pAttachFile);		
 
 cleanup:
-	if (Error ||bLastBuffer && pCtx->pAttachFile)
-	{
-		fclose(pCtx->pAttachFile);
-		pCtx->pAttachFile = NULL;
-	}
-	return Error;
+    if (Error ||bLastBuffer && pCtx->pAttachFile)
+    {
+        fclose(pCtx->pAttachFile);
+        pCtx->pAttachFile = NULL;
+    }
+    return Error;
 }
 
 
@@ -395,69 +395,69 @@ cleanup:
 
 STATUS far PASCAL ArchiveDocumentCallback(HARCHIVEDOCUMENT hDoc, void *pUserCtx)
 {
-	STATUS Error = NOERROR;
-	EXPORTCONTEXT *pExp = (EXPORTCONTEXT *)pUserCtx;
+    STATUS Error = NOERROR;
+    EXPORTCONTEXT *pExp = (EXPORTCONTEXT *)pUserCtx;
 
-	if(Error = ArchiveDocumentExport(hDoc, NoteExportCallback, pExp))
-	{
-		goto cleanup;
-	}
+    if(Error = ArchiveDocumentExport(hDoc, NoteExportCallback, pExp))
+    {
+        goto cleanup;
+    }
 
 cleanup:
 
-	if(hDoc)
-		ArchiveDocumentDestroy(hDoc);
-	
-	return Error;
+    if(hDoc)
+        ArchiveDocumentDestroy(hDoc);
+    
+    return Error;
 }
 
 /************************************************************************
 
-	CALLBACK:   NoteExportCallback
+    CALLBACK:   NoteExportCallback
 
     PURPOSE:    Export the document data.
 
     DESCRIPTION:
-		ArchiveExportDatabase passes a serialized notes document via this function. 
-		The contents of Buffer are opaque and intended to be used as input to the 
-		ArchiveImportDocument function. This function can be called multiple times 
-		for a note. bLastBuffer will be TRUE on the last call for a note.
+        ArchiveExportDatabase passes a serialized notes document via this function. 
+        The contents of Buffer are opaque and intended to be used as input to the 
+        ArchiveImportDocument function. This function can be called multiple times 
+        for a note. bLastBuffer will be TRUE on the last call for a note.
 *************************************************************************/
 
 STATUS far PASCAL NoteExportCallback(
-		const BYTE *Buffer,
-		DWORD dwBufferSize,
-		BOOL bLastBuffer, 
-		STATUS retError,
-		void *pUserCtx
-		)
-{
-	STATUS Error = NOERROR;
-	EXPORTCONTEXT *pExp = (EXPORTCONTEXT *)pUserCtx;
+                                     const BYTE *Buffer,
+                                     DWORD dwBufferSize,
+                                     BOOL bLastBuffer, 
+                                     STATUS retError,
+                                     void *pUserCtx
+                                     )
+    {
+        STATUS Error = NOERROR;
+        EXPORTCONTEXT *pExp = (EXPORTCONTEXT *)pUserCtx;
 
-	if(retError)
-	{
-		Error= retError;
-		goto cleanup;
-	}
+    if(retError)
+    {
+        Error= retError;
+        goto cleanup;
+    }
 
-	if(pExp->pOutFile == NULL)
-		{
-	  		PRINTLOG("ERROR: ArchSvcCrlExporter::NoteExportCallback: Cannot open output file\n");
-			goto cleanup;
-		} 
+    if(pExp->pOutFile == NULL)
+    {
+        PRINTLOG("ERROR: ArchSvcCrlExporter::NoteExportCallback: Cannot open output file\n");
+        goto cleanup;
+    } 
 
-	fwrite(Buffer,dwBufferSize,1,pExp->pOutFile);
-	
+    fwrite(Buffer,dwBufferSize,1,pExp->pOutFile);
+    
 
 cleanup:
 
-		
-	if(bLastBuffer && pExp->pOutFile != NULL)
-		{
-			fclose(pExp->pOutFile);
-			pExp->pOutFile=NULL;
-		}
+    
+    if(bLastBuffer && pExp->pOutFile != NULL)
+    {
+        fclose(pExp->pOutFile);
+        pExp->pOutFile=NULL;
+    }
 
-	return Error;
+    return Error;
 }

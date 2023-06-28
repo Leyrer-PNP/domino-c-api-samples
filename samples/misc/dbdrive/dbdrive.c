@@ -108,7 +108,7 @@ DWORD          dwResultLength;  /* Length of data to be returned to Domino and N
 STATUS LNPUBLIC MainEntryPoint(DBVEC *drv)
 
 {
-SESSIONQUEUE *pSessQHead;
+    SESSIONQUEUE *pSessQHead;
 
 /*
  *  Fill in the subroutine vectors
@@ -190,7 +190,7 @@ STATUS LNPUBLIC DBDTerm(DBVEC *drv)
 STATUS LNPUBLIC DBDOpen(DBVEC *vec, HDBDSESSION *rethSession)
 {
 
-SESSIONQUEUE  *pNewSessQ;
+    SESSIONQUEUE  *pNewSessQ;
 
 /*
  *  If pSessQ->NodeNum is zero, no sessions have yet been defined, so
@@ -199,9 +199,9 @@ SESSIONQUEUE  *pNewSessQ;
  
     if (pSessQ->NodeNum == 0)
     {
-      pSessQ->NodeNum = 1;   /* Assign a Node number.  */
-      pSessQ->Next = (SESSIONQUEUE *) NULL; /* No next session in queue. */
-      pSessQ->Prev = (SESSIONQUEUE *) NULL; /* No prev. session in queue.*/
+        pSessQ->NodeNum = 1;   /* Assign a Node number.  */
+        pSessQ->Next = (SESSIONQUEUE *) NULL; /* No next session in queue. */
+        pSessQ->Prev = (SESSIONQUEUE *) NULL; /* No prev. session in queue.*/
     }
 
 /*
@@ -211,15 +211,15 @@ SESSIONQUEUE  *pNewSessQ;
  
     else
     {
-    	pNewSessQ = (SESSIONQUEUE *) __AllocateMemory((size_t)sizeof(SESSIONQUEUE));
-    	memset(pNewSessQ, 0, sizeof(SESSIONQUEUE));
-	
-    	pNewSessQ->NodeNum = pSessQ->NodeNum + 1; /* Assign Node Number.*/
-	
-    	pNewSessQ->Prev = pSessQ;
-    	pNewSessQ->Next = (SESSIONQUEUE *) NULL;  /* No next session in queue.*/
-    	pSessQ->Next = pNewSessQ;
-    	pSessQ = pNewSessQ;
+        pNewSessQ = (SESSIONQUEUE *) __AllocateMemory((size_t)sizeof(SESSIONQUEUE));
+        memset(pNewSessQ, 0, sizeof(SESSIONQUEUE));
+    
+        pNewSessQ->NodeNum = pSessQ->NodeNum + 1; /* Assign Node Number.*/
+    
+        pNewSessQ->Prev = pSessQ;
+        pNewSessQ->Next = (SESSIONQUEUE *) NULL;  /* No next session in queue.*/
+        pSessQ->Next = pNewSessQ;
+        pSessQ = pNewSessQ;
     }
     *rethSession = (HDBDSESSION) pSessQ;
 
@@ -264,8 +264,8 @@ BOOL          HeaderNode = FALSE;
  */
 
     if (sError = CloseDatabases(pTempSessQ->pDatabaseQ))
-    	return(ERR(sError));
-	
+        return(ERR(sError));
+    
 /*
  *  Now remove the specified session from the session queue.
  */
@@ -274,12 +274,12 @@ BOOL          HeaderNode = FALSE;
     pTempNextSessQ = pTempSessQ->Next;
 
     if (pTempPrevSessQ != (SESSIONQUEUE *)NULL)
-	    pTempPrevSessQ->Next = pTempNextSessQ;
+        pTempPrevSessQ->Next = pTempNextSessQ;
     else
         HeaderNode = TRUE;
-	
+     
     if (pTempNextSessQ != (SESSIONQUEUE *)NULL)
-    	pTempNextSessQ->Prev = pTempPrevSessQ;
+        pTempNextSessQ->Prev = pTempPrevSessQ;
 
 /*
  *  If not the first session, free it and reassign current pointer
@@ -290,7 +290,7 @@ BOOL          HeaderNode = FALSE;
         __FreeMemory(pTempSessQ);
         pSessQ = pTempPrevSessQ;
     }
-	
+    
     return(NOERROR);
 }
 
@@ -324,41 +324,41 @@ BOOL          HeaderNode = FALSE;
  ***************************************************************************/
 
 STATUS LNPUBLIC DBDPerformFunction(DBVEC *vec, HDBDSESSION hSession,
-			    WORD Function,
-			    WORD argc, DWORD *argl, void **argv,
-			    DHANDLE *rethResult, DWORD *retResultLength)
+                                   WORD Function,
+                                   WORD argc, DWORD *argl, void **argv,
+                                   DHANDLE *rethResult, DWORD *retResultLength)
 
 
 {
 
-SESSIONQUEUE   *pTempSessQ;  /* Pointer to session information             */
-STATUS     sError = NOERROR;
-DBQUEUE    *pDBQ;            /* Pointer to database context information    */
-char       *pBuffer1;        /* Pointers used to construct function output.*/
-char       *pBuffer2;
-char       *pTempList;
-char       *pListHead;
-char       *pData;
-char       *pText;
-char       *pOldString;
-	   
-WORD       wStringCount = 0;   /* Variables for building function output. */
-WORD       wLenString = 0;
-WORD       wDirNameLen = 0;
-DWORD      dwBufLen = 0;                       
+    SESSIONQUEUE   *pTempSessQ;  /* Pointer to session information             */
+    STATUS     sError = NOERROR;
+    DBQUEUE    *pDBQ;            /* Pointer to database context information    */
+    char       *pBuffer1;        /* Pointers used to construct function output.*/
+    char       *pBuffer2;
+    char       *pTempList;
+    char       *pListHead;
+    char       *pData;
+    char       *pText;
+    char       *pOldString;
+       
+    WORD       wStringCount = 0;   /* Variables for building function output. */
+    WORD       wLenString = 0;
+    WORD       wDirNameLen = 0;
+    DWORD      dwBufLen = 0;                       
 
-DHANDLE      hTemp;
-char       *pFileName;             /* Pointer to database filename          */
-DWORD      FileNameLen;            /* Length of packed filename string.     */
-char       *pKey;                  /* Pointer to key string (for DB_LOOKUP) */
+    DHANDLE      hTemp;
+    char       *pFileName;             /* Pointer to database filename          */
+    DWORD      FileNameLen;            /* Length of packed filename string.     */
+    char       *pKey;                  /* Pointer to key string (for DB_LOOKUP) */
 #if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-char       tempKey[MAX_STRING_LEN];/* Translation buffer for key data.      */
+    char       tempKey[MAX_STRING_LEN];/* Translation buffer for key data.      */
 #endif /* OS390, ebcdic compile */
 
-DWORD      KeyLen;                 /* Length of packed key string           */
-char       *pFullPathName;         /* Full pathname for database file       */
-char       String[MAX_STRING_LEN]; /* String var. for reading from file.    */
-char       *pString;               /* Pointer to help parse input from file.*/
+    DWORD      KeyLen;                 /* Length of packed key string           */
+    char       *pFullPathName;         /* Full pathname for database file       */
+    char       String[MAX_STRING_LEN]; /* String var. for reading from file.    */
+    char       *pString;               /* Pointer to help parse input from file.*/
 		    
 /*
  *  Find the session with the specified session handle.
@@ -372,9 +372,9 @@ char       *pString;               /* Pointer to help parse input from file.*/
  *  is not of TYPE_TEXT_LIST, an error has occurred, so exit.
  */
  
-	pData  = (char *)argv[0];             /* Get pointer to data    */
-	if (*(WORD *)pData != TYPE_TEXT_LIST) /* If not TYPE_TEXT_LIST  */
-		return (ERR_DBD_DATATYPE);        /*  return an error code. */
+    pData  = (char *)argv[0];             /* Get pointer to data    */
+    if (*(WORD *)pData != TYPE_TEXT_LIST) /* If not TYPE_TEXT_LIST  */
+        return (ERR_DBD_DATATYPE);        /*  return an error code. */
 
 /*
  *  Advance the pointer past the datatype word and past the LIST header,
@@ -392,18 +392,18 @@ char       *pString;               /* Pointer to help parse input from file.*/
 
     if (argc > 1)                  /* If there's more than 1 parameter,   */
     {
-		pData = (char *) argv[1];  /* Then the 2nd one should be the key  */
-					   /*   on which to search;               */
-		pData += sizeof(WORD);     /* Step past the datatype word         */
-		pData += sizeof(LIST);     /*   and step past the list header.    */
+        pData = (char *) argv[1];  /* Then the 2nd one should be the key  */
+                                   /*   on which to search;               */
+        pData += sizeof(WORD);     /* Step past the datatype word         */
+        pData += sizeof(LIST);     /*   and step past the list header.    */
 	
-		KeyLen = *(WORD *)pData;   /* Save length of key.                 */
-		pData += sizeof(WORD);     /* Step past key length                */
+        KeyLen = *(WORD *)pData;   /* Save length of key.                 */
+        pData += sizeof(WORD);     /* Step past key length                */
 #if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
         OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, pData, KeyLen, tempKey, MAX_STRING_LEN);                
         pKey = tempKey;
 #else
-		pKey = pData;              /* Save pointer to key.                */
+        pKey = pData;              /* Save pointer to key.                */
 #endif /* OS390, ebcdic compile */
     }
 
@@ -412,7 +412,7 @@ char       *pString;               /* Pointer to help parse input from file.*/
  *  the full path to the database file.
  */
  
-	pFullPathName = (char *) __AllocateMemory((size_t) MAXPATH); /* Allocate buffer */
+    pFullPathName = (char *) __AllocateMemory((size_t) MAXPATH); /* Allocate buffer */
     memset(pFullPathName, 0, MAXPATH);                 /* Init to zero    */
     
     wDirNameLen = OSGetDataDirectory(pFullPathName); 
@@ -429,7 +429,7 @@ char       *pString;               /* Pointer to help parse input from file.*/
     OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, pFileName, (size_t)FileNameLen, pFullPathName+wDirNameLen, (MAXPATH - (size_t)wDirNameLen));
 #else
     memmove(pFullPathName+wDirNameLen,
-	    pFileName, (size_t)FileNameLen);     /* Copy filename to buffer.*/
+        pFileName, (size_t)FileNameLen);     /* Copy filename to buffer.*/
 #endif /* OS390, ebcdic compile */
 
 /*
@@ -439,256 +439,256 @@ char       *pString;               /* Pointer to help parse input from file.*/
  */
 
      if (sError = OpenDatabase(pTempSessQ,
-			       (char *)pFullPathName,
-			       &pDBQ) != NOERROR)
-	 return (ERR(sError));
-	
+                               (char *)pFullPathName,
+                               &pDBQ) != NOERROR)
+                               return (ERR(sError));
+    
 /*
  * dispatch based on function
  */
 
     switch (Function)
     {
-	case DB_LOOKUP:
+        case DB_LOOKUP:
 
-	/*
-	 *  Allocate 2 buffers; The TYPE_TEXT_LIST header will be built in one
-	 *  of them, and the list of text strings will be placed in the
-	 *  other. They will be combined to create the TEXT_LIST that is
-	 *  returned by this function.
-	 *  Remember that an item of TYPE_TEXT_LIST consists of:
-	 *
-	 *      a WORD specifying the datatype as TYPE_TEXT_LIST;
-	 *      a LIST specifying how many strings are in the list
-	 *          (call it N);
-	 *      a sequence of N words, each specifying the length of
-	 *          the corresponding string in the list;
-	 *      the packed strings themselves;
-	 */
+            /*
+             *  Allocate 2 buffers; The TYPE_TEXT_LIST header will be built in one
+             *  of them, and the list of text strings will be placed in the
+             *  other. They will be combined to create the TEXT_LIST that is
+             *  returned by this function.
+             *  Remember that an item of TYPE_TEXT_LIST consists of:
+             *
+             *      a WORD specifying the datatype as TYPE_TEXT_LIST;
+             *      a LIST specifying how many strings are in the list
+             *          (call it N);
+             *      a sequence of N words, each specifying the length of
+             *           the corresponding string in the list;
+             *      the packed strings themselves;
+             */
   
-	    if (sError = OSMemAlloc(0, MAX_BUFF_LEN, rethResult))
-	    	return (ERR(sError));
+            if (sError = OSMemAlloc(0, MAX_BUFF_LEN, rethResult))
+                return (ERR(sError));
   
-	    pBuffer1 = (char *)OSLockObject(*rethResult);       
-	    memset (pBuffer1, 0, MAX_BUFF_LEN);
+            pBuffer1 = (char *)OSLockObject(*rethResult);       
+            memset (pBuffer1, 0, MAX_BUFF_LEN);
   
-	    if (sError = OSMemAlloc(0, MAX_BUFF_LEN, &hTemp))
-	    {
-		    OSUnlockObject(*rethResult);
-    		OSMemFree(*rethResult);
-	    	return (ERR(sError));
-	    }
+            if (sError = OSMemAlloc(0, MAX_BUFF_LEN, &hTemp))
+            {
+                OSUnlockObject(*rethResult);
+                OSMemFree(*rethResult);
+                return (ERR(sError));
+            }
   
-	    pBuffer2 = (char *)OSLockObject(hTemp);
-	    memset (pBuffer2, 0, MAX_BUFF_LEN);
-	    
-	/*
-	 *  pListHead points to the LIST member of the Text List.
-	 *  pText will always point to the location to write the next string.
-	 *  wBuffLen contains the cumulative lengths of the packed strings
-	 *  in the text list; pTempList points to the current position in the
-	 *  text list header.
-	 */
-	 
-	    *((WORD *) pBuffer1) = TYPE_TEXT_LIST; /* set the datatype word. */
-	    pListHead = pBuffer1 + sizeof(WORD);   /* Set ptr to start of textlist.*/
-	    pText = pBuffer2;
-	    dwBufLen = 0;
-	    pTempList = pListHead + sizeof(WORD); /* Point to location to     */
+            pBuffer2 = (char *)OSLockObject(hTemp);
+            memset (pBuffer2, 0, MAX_BUFF_LEN);
+        
+            /*
+             *  pListHead points to the LIST member of the Text List.
+             *  pText will always point to the location to write the next string.
+             *  wBuffLen contains the cumulative lengths of the packed strings
+             *  in the text list; pTempList points to the current position in the
+             *  text list header.
+             */
+     
+            *((WORD *) pBuffer1) = TYPE_TEXT_LIST; /* set the datatype word. */
+            pListHead = pBuffer1 + sizeof(WORD);   /* Set ptr to start of textlist.*/
+            pText = pBuffer2;
+            dwBufLen = 0;
+            pTempList = pListHead + sizeof(WORD); /* Point to location to     */
                                                   /*   store length of string */
   
-	/*
-	 *  Now perform the function on the specified database.
-	 *  Each line in the database consists of two strings, seperated by
-	 *  a comma.  For each line in the database, Read the first string.
-	 *  If it matches the "key" string (ignoring case), then add the
-	 *  second string from that line to the text list that will be
-	 *  returned.
-	 */
+            /*
+             *  Now perform the function on the specified database.
+             *  Each line in the database consists of two strings, seperated by
+             *  a comma.  For each line in the database, Read the first string.
+             *  If it matches the "key" string (ignoring case), then add the
+             *  second string from that line to the text list that will be
+             *  returned.
+             */
   
-		/* Reset file ptr to start of file.  */
-		__FileSeek(pDBQ->pFile, 0L, SEEK_SET);
-		
-		/* Read line from file   */
-		while ( __ReadLine( String, MAX_STRING_LEN-1, pDBQ->pFile) )
-		{
-			pString = strchr(String, ',');
-			wLenString = (WORD)(pString - String);
-			/*
-			 *  If the key value of this line does not match the
-			 *  key passed in (ignoring case), break out of this
-			 *  iteration of the loop and get the next line from the file.
-			 */
+            /* Reset file ptr to start of file.  */
+            __FileSeek(pDBQ->pFile, 0L, SEEK_SET);
+        
+            /* Read line from file   */
+            while ( __ReadLine( String, MAX_STRING_LEN-1, pDBQ->pFile) )
+            {
+                pString = strchr(String, ',');
+                wLenString = (WORD)(pString - String);
+                /*
+                 *  If the key value of this line does not match the
+                 *  key passed in (ignoring case), break out of this
+                 *  iteration of the loop and get the next line from the file.
+                 */
 	
-			if (memcmp(String, pKey, (size_t) wLenString) != 0)
-				continue; 
+                if (memcmp(String, pKey, (size_t) wLenString) != 0)
+                    continue; 
 	
-			while (!isalnum(*pString))        /* Skip chars between key */
-													  /*   and string.          */
-			{
-				pString += sizeof(char);
-			}
-			wLenString = strlen(pString)-1;
-			dwBufLen += wLenString;         /* Add to total textlist len.*/
+                while (!isalnum(*pString))        /* Skip chars between key */
+                                                  /*   and string.          */
+                {
+                    pString += sizeof(char);
+                }
+                wLenString = strlen(pString)-1;
+                dwBufLen += wLenString;         /* Add to total textlist len.*/
 #if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-            OSTranslate (OS_TRANSLATE_NATIVE_TO_LMBCS, pString, wLenString, pText, (MAX_BUFF_LEN - dwBufLen));
+                OSTranslate (OS_TRANSLATE_NATIVE_TO_LMBCS, pString, wLenString, pText, (MAX_BUFF_LEN - dwBufLen));
 #else
-	memmove(pText,
-	pString,
-	wLenString);            /* Copy to TEXT_LIST buffer. */
+                memmove(pText,
+                        pString,
+                        wLenString);            /* Copy to TEXT_LIST buffer. */
 #endif /* OS390, ebcdic compile */
 
-	wStringCount++;     /* Increment count of strings in text list.*/
-	*((WORD *) pTempList) = (wLenString); /* Set size of this string. */
-	pTempList += sizeof(WORD);  /* Increment ptr to string lengths. */
-	pText +=(wLenString);       /* Increment ptr to strings. */
-	    }
+                wStringCount++;     /* Increment count of strings in text list.*/
+                *((WORD *) pTempList) = (wLenString); /* Set size of this string. */
+                pTempList += sizeof(WORD);  /* Increment ptr to string lengths. */
+                pText +=(wLenString);       /* Increment ptr to strings. */
+            }
   
-	/*
-	 * All strings have been read into the string buffer. Set the
-	 * count of entries in the textlist, then append the string
-	 * buffer to the textlist header buffer.
-	 */
+            /*
+             * All strings have been read into the string buffer. Set the
+             * count of entries in the textlist, then append the string
+             * buffer to the textlist header buffer.
+             */
   
-	    *((WORD *) pListHead) = wStringCount;
-	    memmove(pTempList, pBuffer2, (pText - pBuffer2));
-	    dwBufLen += (pTempList - pBuffer1); /* Add lengths of both buffers */
-	    *retResultLength = dwBufLen;        /* Return combined length. */
-	       
-	/*
-	 *  Unlock the two buffers, and __FreeMemory the temp buffer.
-	 */
+            *((WORD *) pListHead) = wStringCount;
+            memmove(pTempList, pBuffer2, (pText - pBuffer2));
+            dwBufLen += (pTempList - pBuffer1); /* Add lengths of both buffers */
+            *retResultLength = dwBufLen;        /* Return combined length. */
+           
+            /*
+             *  Unlock the two buffers, and __FreeMemory the temp buffer.
+             */
   
-	    OSUnlockObject(*rethResult);
-	    OSUnlockObject(hTemp);
-	    OSMemFree(hTemp);
+            OSUnlockObject(*rethResult);
+            OSUnlockObject(hTemp);
+            OSMemFree(hTemp);
   
-	    return(NOERROR);
-	    break;
+            return(NOERROR);
+            break;
       
 
-	case DB_COLUMN:
+        case DB_COLUMN:
 
-	/*
-	 *  Allocate 2 buffers; The TYPE_TEXT_LIST header will be built in one
-	 *  of them, and the list of text strings will be placed in the
-	 *  other. They will be combined to create the TEXT_LIST that is
-	 *  returned by this function.
-	 *  Remember that an item of TYPE_TEXT_LIST consists of:
-	 *
-	 *      a WORD specifying the datatype as TYPE_TEXT_LIST;
-	 *      a LIST specifying how many strings are in the list
-	 *          (call it N);
-	 *      a sequence of N words, each specifying the length of
-	 *          the corresponding string in the list;
-	 *      the packed strings themselves;
-	 */
+            /*
+             *  Allocate 2 buffers; The TYPE_TEXT_LIST header will be built in one
+             *  of them, and the list of text strings will be placed in the
+             *  other. They will be combined to create the TEXT_LIST that is
+             *  returned by this function.
+             *  Remember that an item of TYPE_TEXT_LIST consists of:
+             *
+             *      a WORD specifying the datatype as TYPE_TEXT_LIST;
+             *      a LIST specifying how many strings are in the list
+             *          (call it N);
+             *      a sequence of N words, each specifying the length of
+             *          the corresponding string in the list;
+             *      the packed strings themselves;
+             */
   
-	    if (sError = OSMemAlloc(0, MAX_BUFF_LEN, rethResult))
-		    return (ERR(sError));
+            if (sError = OSMemAlloc(0, MAX_BUFF_LEN, rethResult))
+                return (ERR(sError));
   
-	    pBuffer1 = (char *)OSLockObject(*rethResult);       
-	    memset (pBuffer1, 0, MAX_BUFF_LEN);
+            pBuffer1 = (char *)OSLockObject(*rethResult);       
+            memset (pBuffer1, 0, MAX_BUFF_LEN);
   
-	    if (sError = OSMemAlloc(0, MAX_BUFF_LEN, &hTemp))
-	    {
-    		OSUnlockObject(*rethResult);
-	    	OSMemFree(*rethResult);
-		    return (ERR(sError));
-	    }
+            if (sError = OSMemAlloc(0, MAX_BUFF_LEN, &hTemp))
+            {
+                OSUnlockObject(*rethResult);
+                OSMemFree(*rethResult);
+                return (ERR(sError));
+            }
   
-	    pBuffer2 =(char *) OSLockObject(hTemp);
-	    memset (pBuffer2, 0, MAX_BUFF_LEN);
-	    
-	/*
-	 *  pListHead points to the LIST member of the Text List.
-	 *  pText will always point to the location to write the next string.
-	 *  wBuffLen contains the cumulative lengths of the packed strings
-	 *  in the text list; pTempList points to the current position in the
-	 *  text list header.
-	 */
-	    *((WORD *) pBuffer1) = TYPE_TEXT_LIST; /* Set the datatype word. */
-	    pListHead = pBuffer1 + sizeof(WORD);   /* Point to start of textlist. */
-	    pText = pBuffer2;
-	    dwBufLen = 0;
-	    pTempList = pListHead + sizeof(WORD); /* Point to place to store */
+            pBuffer2 =(char *) OSLockObject(hTemp);
+            memset (pBuffer2, 0, MAX_BUFF_LEN);
+         
+            /*
+             *  pListHead points to the LIST member of the Text List.
+             *  pText will always point to the location to write the next string.
+             *  wBuffLen contains the cumulative lengths of the packed strings
+             *  in the text list; pTempList points to the current position in the
+             *  text list header.
+             */
+            *((WORD *) pBuffer1) = TYPE_TEXT_LIST; /* Set the datatype word. */
+            pListHead = pBuffer1 + sizeof(WORD);   /* Point to start of textlist. */
+            pText = pBuffer2;
+            dwBufLen = 0;
+            pTempList = pListHead + sizeof(WORD); /* Point to place to store */
                                                   /*   length of 1st string. */
   
-	/*
-	 *  Now perform the function on the specified database.
-	 *  Each line in the database consists of two strings, seperated by
-	 *  a comma.  For each line in the database, get the first string in
-	 *  the line and add the string to the text list that will be
-	 *  returned if that string is not already in the text list.
-	 *
-	 *  Note:  the lines in the database are sorted alphabetically
-	 *  by the first string on the line.
-	 */
+            /*
+             *  Now perform the function on the specified database.
+             *  Each line in the database consists of two strings, seperated by
+             *  a comma.  For each line in the database, get the first string in
+             *  the line and add the string to the text list that will be
+             *  returned if that string is not already in the text list.
+             *
+             *  Note:  the lines in the database are sorted alphabetically
+             *  by the first string on the line.
+             */
 
-	    pOldString = "";
+            pOldString = "";
   
-		/* Reset file ptr to start of file.  */
-		__FileSeek(pDBQ->pFile, 0L, SEEK_SET);
-		
-		/* Read line from file   */
-	    while ( __ReadLine( String, MAX_STRING_LEN-1, pDBQ->pFile) )
-	    {
-			pString = strchr(String, ',');
-			wLenString = (WORD)(pString - String);
-			dwBufLen += wLenString;     /* Add to total size of list. */
+            /* Reset file ptr to start of file.  */
+            __FileSeek(pDBQ->pFile, 0L, SEEK_SET);
+           
+            /* Read line from file   */
+            while ( __ReadLine( String, MAX_STRING_LEN-1, pDBQ->pFile) )
+            {
+                pString = strchr(String, ',');
+                wLenString = (WORD)(pString - String);
+                dwBufLen += wLenString;     /* Add to total size of list. */
 	
-			/*
-			 *  If the string just read from the file matches the last one
-			 *  written to the buffer, then dond't write it again.
-			 */
-			 
-			if (memcmp(String, pOldString, (size_t) wLenString) == 0)
-				continue;
+                /*
+                 *  If the string just read from the file matches the last one
+                 *  written to the buffer, then dond't write it again.
+                 */
+             
+                if (memcmp(String, pOldString, (size_t) wLenString) == 0)
+                    continue;
 	
-			memmove(pText,
-				String,
-				wLenString);        /* Copy to TEXT_LIST buffer.  */
-				
-			wStringCount++;     /* Increment count of strings in list. */
-			*((WORD *) pTempList) = (wLenString);  /* Set size of this string. */
-			pTempList += sizeof(WORD);  /* Increment ptr to string lengths. */
-			pOldString = pText;         /* Save ptr to most recent string. */
-			pText +=(wLenString);       /* Increment ptr to strings.    */
-	    }
+                memmove(pText,
+                        String,
+                        wLenString);        /* Copy to TEXT_LIST buffer.  */
+                        
+                        wStringCount++;     /* Increment count of strings in list. */
+                        *((WORD *) pTempList) = (wLenString);  /* Set size of this string. */
+                        pTempList += sizeof(WORD);  /* Increment ptr to string lengths. */
+                        pOldString = pText;         /* Save ptr to most recent string. */
+                        pText +=(wLenString);       /* Increment ptr to strings.    */
+            }
   
-	/*
-	 * All strings have been read into the string buffer. Set the
-	 * count of entries in the textlist, then append the string
-	 * buffer to the textlist header buffer.
-	 */
+            /*
+             * All strings have been read into the string buffer. Set the
+             * count of entries in the textlist, then append the string
+             * buffer to the textlist header buffer.
+             */
   
-	    *((WORD *) pListHead) = wStringCount;
-	    memmove(pTempList, pBuffer2, (pText - pBuffer2));
-	    dwBufLen += (pTempList - pBuffer1); /* Add lengths of both buffers */
-	    *retResultLength = dwBufLen;        /* Return combined length.     */
-	       
-	/*
-	 *  Unlock the two buffers, and __FreeMemory the temp buffer.
-	 */
+            *((WORD *) pListHead) = wStringCount;
+            memmove(pTempList, pBuffer2, (pText - pBuffer2));
+            dwBufLen += (pTempList - pBuffer1); /* Add lengths of both buffers */
+            *retResultLength = dwBufLen;        /* Return combined length.     */
+           
+            /*
+             *  Unlock the two buffers, and __FreeMemory the temp buffer.
+             */
   
-	    OSUnlockObject(*rethResult);
-	    OSUnlockObject(hTemp);
-	    OSMemFree(hTemp);
+            OSUnlockObject(*rethResult);
+            OSUnlockObject(hTemp);
+            OSMemFree(hTemp);
   
-	    return(NOERROR);
-	    break;
+            return(NOERROR);
+            break;
       
-	default:
-	/*
-	 *  The function request was neither DB_LOOKUP nor DB_COLUMN, so
-	 *  return an error code.
-	 */
+        default:
+            /*
+             *  The function request was neither DB_LOOKUP nor DB_COLUMN, so
+             *  return an error code.
+             */
 
-	     return (ERR_DBD_FUNCTION);
-	break;
+            return (ERR_DBD_FUNCTION);
+            break;
     }
 
-	return (NOERROR);
+    return (NOERROR);
 }
  
  
@@ -706,8 +706,8 @@ char       *pString;               /* Pointer to help parse input from file.*/
 
    
 STATUS LNPUBLIC OpenDatabase(SESSIONQUEUE *pSessionQ,
-			       char *pFileName,
-			       DBQUEUE **pDatabaseQ)
+                             char *pFileName,
+                             DBQUEUE **pDatabaseQ)
 {
 	
 DBQUEUE    *pDBQ;     /* pointers used to traverse and build database queue. */
@@ -723,13 +723,13 @@ BOOL       DbFound = FALSE;
     pDBQ = pDBQ2 = pSessionQ->pDatabaseQ;  /* ptr to 1st db queue entry */
     while ((pDBQ != (DBQUEUE *) NULL) && DbFound == FALSE)
     {
-    	if (strcmp (pDBQ->DbName, pFileName)== 0)
-	        DbFound = TRUE;
-    	else
-    	{
-    	    pDBQ2 = pDBQ;
-	        pDBQ = pDBQ->Next;
-	    }
+        if (strcmp (pDBQ->DbName, pFileName)== 0)
+            DbFound = TRUE;
+        else
+        {
+            pDBQ2 = pDBQ;
+            pDBQ = pDBQ->Next;
+        }
     }
   
   
@@ -741,47 +741,47 @@ BOOL       DbFound = FALSE;
   
     if (!DbFound)
     {
-    	pTempDBQ = (DBQUEUE *) __AllocateMemory((size_t) sizeof(DBQUEUE));
-	    memset (pTempDBQ, 0, sizeof(DBQUEUE));
+        pTempDBQ = (DBQUEUE *) __AllocateMemory((size_t) sizeof(DBQUEUE));
+        memset (pTempDBQ, 0, sizeof(DBQUEUE));
 
-    /*
-     *  Open the database file in read mode.
-     */
+        /*
+         *  Open the database file in read mode.
+         */
      
-    	pTempDBQ->pFile = __OpenFile( pFileName, READ_PERMISSION );
-    	if ( pTempDBQ->pFile == NULL )
-    	{
+        pTempDBQ->pFile = __OpenFile( pFileName, READ_PERMISSION );
+        if ( pTempDBQ->pFile == NULL )
+        {
             __FreeMemory(pTempDBQ);
-    	    return (ERR_OPENING_FILE); /* Couldn't open the file. */
-    	}
+            return (ERR_OPENING_FILE); /* Couldn't open the file. */
+        }
 
-    /*
-     *  Set the name of the database file in the database queue entry.
-     */
+        /*
+         *  Set the name of the database file in the database queue entry.
+         */
      
-	    pTempDBQ->DbName = pFileName;
+        pTempDBQ->DbName = pFileName;
 
-	    pDBQ = pTempDBQ;
+        pDBQ = pTempDBQ;
 
-    /*
-     *  If this is the first database in this session's queue,
-     *  place the new entry in the head of the queue. 
-     *  Otherwise, this new database queue entry is added to the end
-     *  of the database queue. 
-     */
+        /*
+         *  If this is the first database in this session's queue,
+         *  place the new entry in the head of the queue. 
+         *  Otherwise, this new database queue entry is added to the end
+         *  of the database queue. 
+         */
      
-	    if (pSessionQ->pDatabaseQ == (DBQUEUE *) NULL)
-	    {
-	        pSessionQ->pDatabaseQ = pDBQ;
-	    }
-	    else
-	    {
-	        pDBQ2->Next = pDBQ;
-	        pDBQ->Prev = pDBQ2;
-	    }
-	}
-	*pDatabaseQ = (DBQUEUE *)pDBQ;
-	return (NOERROR);
+        if (pSessionQ->pDatabaseQ == (DBQUEUE *) NULL)
+        {
+            pSessionQ->pDatabaseQ = pDBQ;
+        }
+        else
+        {
+            pDBQ2->Next = pDBQ;
+            pDBQ->Prev = pDBQ2;
+        }
+    }
+    *pDatabaseQ = (DBQUEUE *)pDBQ;
+    return (NOERROR);
 }
 
 /****************************************************************************
@@ -802,8 +802,8 @@ STATUS LNPUBLIC CloseDatabases(DBQUEUE *pDatabaseQ)
  *  there are no databases to close.
  */
 
-   if (pDatabaseQ == NULL)
-      return (NOERROR);
+    if (pDatabaseQ == NULL)
+        return (NOERROR);
 
 /*
  * For each entry in the queue, close the database, clear the database's
@@ -813,25 +813,25 @@ STATUS LNPUBLIC CloseDatabases(DBQUEUE *pDatabaseQ)
 	
     while ( pDatabaseQ->DbName )
     {
-		pTempDBQ = pDatabaseQ;						/* Save ptr to this queue entry  */
+        pTempDBQ = pDatabaseQ;						/* Save ptr to this queue entry  */
 	
-		__CloseFile(pDatabaseQ->pFile);				/* Close the database associated */
-		pDatabaseQ->pFile = (TDBQueueFile) NULL;	/* Clear the file pointer.       */
-						    						/*   with this queue entry.      */
-		__FreeMemory(pDatabaseQ->DbName);           /* __FreeMemory filename buffer.         */
-		pDatabaseQ->DbName = (char *) NULL; 		/* clear the database filename.  */ 
+        __CloseFile(pDatabaseQ->pFile);				/* Close the database associated */
+        pDatabaseQ->pFile = (TDBQueueFile) NULL;	/* Clear the file pointer.       */
+                                                	/*   with this queue entry.      */
+        __FreeMemory(pDatabaseQ->DbName);           /* __FreeMemory filename buffer.         */
+        pDatabaseQ->DbName = (char *) NULL; 		/* clear the database filename.  */ 
 
-    /*
-     *  If there is a next entry in the database queue, get a pointer to it.
-     *  Otherwise we're done.
-     */
+        /*
+         *  If there is a next entry in the database queue, get a pointer to it.
+         *  Otherwise we're done.
+         */
      
-		if (pDatabaseQ->Next)
-		{
+        if (pDatabaseQ->Next)
+        {
             pDatabaseQ = pDatabaseQ->Next;
             __FreeMemory(pTempDBQ);      /* free up old queue entry. */
-		}
-	}
+        }
+    }
     __FreeMemory(pTempDBQ);              /* free up last queue entry. */
 
    return (NOERROR);
@@ -859,7 +859,7 @@ WORD    wHeapSize;
 LPSTR   lpszCmdLine;
 {
     if (wHeapSize > 0)
-	UnlockData(0);
+        UnlockData(0);
     return 1;
 }
 

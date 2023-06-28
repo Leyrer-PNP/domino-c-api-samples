@@ -151,8 +151,8 @@ int main(int argc, char * argv[])
 
         if (!OSGetEnvironmentInt("MAIL_ENABLE_MAILBOX_COMPATIBILITY"))
         {
-           printf ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
-           strcpy(szMailFileName, "mail2.box");
+            printf ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
+            strcpy(szMailFileName, "mail2.box");
         }
     }
 
@@ -174,12 +174,12 @@ int main(int argc, char * argv[])
 
             if ((error == ERR_NOEXIST) && (!strcmp (szMailFileName, "mail2.box")))
             {
-               strcpy(szMailFileName, "mail.box");
+                strcpy(szMailFileName, "mail.box");
             }
             else
             {
-               printf ("Error: unable to open '%s'.\n", szMailBoxPath);
-               goto Done;
+                printf ("Error: unable to open '%s'.\n", szMailBoxPath);
+                goto Done;
             }
         }
     }
@@ -218,7 +218,7 @@ int main(int argc, char * argv[])
                                 MAXWORD))
     {
         printf ("Error: unable to set item '%s' into memo.\n",
-                                MAIL_RECIPIENTS_ITEM);
+                 MAIL_RECIPIENTS_ITEM);
         goto Done2;
     }
 
@@ -257,7 +257,7 @@ int main(int argc, char * argv[])
                                 MAXWORD))
     {
         printf ("Error: unable to set item '%s' into memo.\n",
-                                MAIL_DELIVERYREPORT_ITEM);
+                 MAIL_DELIVERYREPORT_ITEM);
         goto Done2;
     }
 
@@ -310,9 +310,9 @@ int main(int argc, char * argv[])
     }
 
     if (error = ConvertItemToCompositeExt(bidValue, dwValueLen,
-                DEFAULT_FONT_ID, "", PARADELIM_BLANKLINE,
-                &hRichTextBody, &dwRichTextLen,
-                NULL, 0, FALSE))
+                                          DEFAULT_FONT_ID, "", PARADELIM_BLANKLINE,
+                                          &hRichTextBody, &dwRichTextLen,
+                                          NULL, 0, FALSE))
     {
         printf ("Error: unable to convert text item to composite.\n");
         goto Done2;
@@ -323,8 +323,8 @@ int main(int argc, char * argv[])
     dwRichTextLen -= sizeof(WORD);
 
     if (error = NSFItemAppend(hMemo, 0, MAIL_BODY_ITEM,
-                    (WORD) strlen(MAIL_BODY_ITEM), TYPE_COMPOSITE, pRichTextBody,
-                    dwRichTextLen))
+                              (WORD) strlen(MAIL_BODY_ITEM), TYPE_COMPOSITE, pRichTextBody,
+                              dwRichTextLen))
     {
         printf ("Error: unable to append item '%s' to note.\n",
                             MAIL_BODY_ITEM);
@@ -337,7 +337,7 @@ int main(int argc, char * argv[])
     OSMemFree(hRichTextBody);
 
     if (error = NSFItemDelete(hMemo, TEMP_MAIL_BODY_ITEM,
-                            (WORD) strlen(TEMP_MAIL_BODY_ITEM)))
+                              (WORD) strlen(TEMP_MAIL_BODY_ITEM)))
     {
         printf ("Error: unable to delete item '%s' to note.\n",
                             TEMP_MAIL_BODY_ITEM);

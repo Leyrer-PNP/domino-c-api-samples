@@ -20,9 +20,9 @@
     FILE:       SECDOM.C (main program)
 
     PURPOSE:    C API Sample program that illustrates how to create a
-	             library that will, from the web, authenticate a Domino
-					 user through his Operating System user account via DSAPI.
-					
+                library that will, from the web, authenticate a Domino
+                 user through his Operating System user account via DSAPI.
+
 *************************************************************************/
 
 #ifdef __cplusplus
@@ -71,10 +71,10 @@ int getUserNames (FilterContext* context,
                   int  *pUserShortNameLen);
 
 int getLookupInfo (FilterContext* context,
-                  char *pMatch,
-                  unsigned short itemNumber,
-                  char **pInfo,
-                  int  *pInfoLen);
+                   char *pMatch,
+                   unsigned short itemNumber,
+                   char **pInfo,
+                   int  *pInfoLen);
 
 int doAuthenticate(char *userName, char *domain, char *password);
 
@@ -103,7 +103,7 @@ STATUS FAR PASCAL MainEntryPoint (void)
  * Output: nothing
  * Return: NOERROR
  */
-   return TRUE;
+    return TRUE;
 }
 
 /*---
@@ -122,24 +122,24 @@ unsigned int FilterInit(FilterInitData* filterInitData)
  * Return: kFilterHandledEvent
  */
 
-   PRINTLOG("\nFilterInitData() is getting called.\n");
-   /*Required*/
-   filterInitData->appFilterVersion = kInterfaceVersion;
+    PRINTLOG("\nFilterInitData() is getting called.\n");
+    /*Required*/
+    filterInitData->appFilterVersion = kInterfaceVersion;
 
-   /* Modify the following code to set the flags you want */
-   filterInitData->eventFlags = kFilterAuthenticate;
+    /* Modify the following code to set the flags you want */
+    filterInitData->eventFlags = kFilterAuthenticate;
 
    /* Set a short description for your filter */
-   strcpy(filterInitData->filterDesc,
-               "Operating System Authentication Filter");
+    strcpy(filterInitData->filterDesc,
+           "Operating System Authentication Filter");
 
         /* insert any global initialization code here...       */
 
-   /* Output sent to stdout and stderr is displayed on the
-    * server console, but is not written to the server log file.
-    */
-   PRINTLOG("\nDSAPI Authentication filter initialized\n");
-   return kFilterHandledEvent;
+    /* Output sent to stdout and stderr is displayed on the
+     * server console, but is not written to the server log file.
+     */
+    PRINTLOG("\nDSAPI Authentication filter initialized\n");
+    return kFilterHandledEvent;
 }
 
 /*---
@@ -158,9 +158,9 @@ unsigned int TerminateFilter(unsigned int reserved)
  * Return: kFilterHandledEvent
  */
 
-   /* insert any global cleanup code here... */
+    /* insert any global cleanup code here... */
 
-   return kFilterHandledEvent;
+    return kFilterHandledEvent;
 }
 
 
@@ -168,7 +168,7 @@ unsigned int TerminateFilter(unsigned int reserved)
 *      filter notification handling
 */
 unsigned int HttpFilterProc(FilterContext* context,
-         unsigned int eventType, void* eventData)
+                            unsigned int eventType, void* eventData)
 {
 /*
  * Description:  This routine is called for all dsapi filter events.
@@ -183,14 +183,14 @@ unsigned int HttpFilterProc(FilterContext* context,
  */
 
    /* Include only those events we want to handle */
-   switch (eventType) {
-       case kFilterAuthenticate:
-           return Authenticate(context, (FilterAuthenticate *)eventData);
-       default:
-           break;
-   }
+    switch (eventType) {
+        case kFilterAuthenticate:
+            return Authenticate(context, (FilterAuthenticate *)eventData);
+        default:
+            break;
+    }
 
-   return kFilterNotHandled;
+    return kFilterNotHandled;
 }
 
 
@@ -235,60 +235,60 @@ unsigned int Authenticate(FilterContext* context,
     */
 
    if (!authData || authData->foundInCache) {
-	AddInLogMessageText (string1, NOERROR);
-	return kFilterNotHandled;
+        AddInLogMessageText (string1, NOERROR);
+        return kFilterNotHandled;
    }
 
    /* Attempt to verify the user's password.
     */
    if (authData->userName && authData->password) {
-      char *fullName = NULL;
-      int fullNameLen = 0;
-      char *shortName = NULL;
-      int shortNameLen = 0;
-      char *user = NULL;
-      char *domain = NULL;
+        char *fullName = NULL;
+        int fullNameLen = 0;
+        char *shortName = NULL;
+        int shortNameLen = 0;
+        char *user = NULL;
+        char *domain = NULL;
 
 #if defined SOLARIS || AIX || LINUX
-      user=(char*)authData->userName;
+        user=(char*)authData->userName;
 #else
-      separateUsernameAndDomainname(authData->userName,USER_DOMAIN_SEPARATOR,&user,&domain);
+        separateUsernameAndDomainname(authData->userName,USER_DOMAIN_SEPARATOR,&user,&domain);
 #endif
 
-      /* Lookup the user in the Name and Address book.  Get
-       * the user's short name (which we expect is the OS
-       * user name), and get the user's fullname (which we
-       * expect will be in the format to pass back to
-       * dsapi).
-       */
-      if (NOERROR == getUserNames (context,
-                             user,
-                             &fullName,
-                             &fullNameLen,
-                             &shortName,
-                             &shortNameLen) )
-      {
+        /* Lookup the user in the Name and Address book.  Get
+         * the user's short name (which we expect is the OS
+         * user name), and get the user's fullname (which we
+         * expect will be in the format to pass back to
+         * dsapi).
+         */
+        if (NOERROR == getUserNames (context,
+                                     user,
+                                     &fullName,
+                                     &fullNameLen,
+                                     &shortName,
+                                     &shortNameLen) )
+        {
 
          /* Authenticate the username/pswd with OS */
 
-         if (NOERROR != doAuthenticate(shortName, domain,
+            if (NOERROR != doAuthenticate(shortName, domain,
                                            (char *)authData->password))
-         {
-            return kFilterNotHandled;
-         }
-         else
-         {
-            /* Copy the canonical name for this user that
-             * dsapi requires.  */
-            strncpy ((char *)authData->authName, fullName,
-                                 authData->authNameSize);
-            authData->authType = kAuthenticBasic;
-            authData->foundInCache = TRUE;
-         }
-         return kFilterHandledEvent;
-      }
-   }
-   return kFilterNotHandled;
+            {
+                return kFilterNotHandled;
+            }
+            else
+            {
+                /* Copy the canonical name for this user that
+                 * dsapi requires.  */
+                strncpy ((char *)authData->authName, fullName,
+                         authData->authNameSize);
+                authData->authType = kAuthenticBasic;
+                authData->foundInCache = TRUE;
+            }
+            return kFilterHandledEvent;
+        }
+    }
+    return kFilterNotHandled;
 }
 
 
@@ -312,26 +312,26 @@ int getUserNames (FilterContext* context,
  *
  * Return: -1 on error, 0 on success
  */
-   STATUS   error = NOERROR;
-   DHANDLE    hLookup = NULLHANDLE;
-   DWORD   Matches = 0;
-   char   *pLookup;
-   char   *pName = NULL;
-   char   *pMatch = NULL;
-   int     rc = -1;
+    STATUS   error = NOERROR;
+    DHANDLE    hLookup = NULLHANDLE;
+    DWORD   Matches = 0;
+    char   *pLookup;
+    char   *pName = NULL;
+    char   *pMatch = NULL;
+    int     rc = -1;
 
-   char    string2[] = "full name=%s,length=%d\n";
-   char    string3[] = "short name=%s,length=%d\n";
+    char    string2[] = "full name=%s,length=%d\n";
+    char    string3[] = "short name=%s,length=%d\n";
 
-   /* Initialize output */
-   *pUserFullName = NULL;
-   *pUserFullNameLen = 0;
-   *pUserShortName = NULL;
-   *pUserShortNameLen = 0;
+    /* Initialize output */
+    *pUserFullName = NULL;
+    *pUserFullNameLen = 0;
+    *pUserShortName = NULL;
+    *pUserShortNameLen = 0;
 
-   /* do the name lookup
+    /* do the name lookup
     */
-   error = NAMELookup2(NULL, /* NULL means look locally */
+    error = NAMELookup2(NULL, /* NULL means look locally */
                            0,   /* flags */
                            1,   /* number of namespaces */
                            "$Users", /* namespace list */
@@ -339,18 +339,18 @@ int getUserNames (FilterContext* context,
                            userName, /* list of names to lookup */
                            2, /* number of items to return */
                            "FullName\0ShortName", /* list of items to
-                                                   * return */
+                                                  * return */
                            &hLookup); /* place to receive handle of
-                                       * return buffer */
+                                    * return buffer */
 
-   if (error || (NULLHANDLE == hLookup))
-      goto NoUnlockExit;
+    if (error || (NULLHANDLE == hLookup))
+        goto NoUnlockExit;
 
-   pLookup = (char *) OSLockObject(hLookup);
+    pLookup = (char *) OSLockObject(hLookup);
 
-   /*   Get a pointer to our entry.
+    /*   Get a pointer to our entry.
     */
-   pName = (char *)NAMELocateNextName2(pLookup, /* name lookup
+    pName = (char *)NAMELocateNextName2(pLookup, /* name lookup
                                                  * buffer */
                                         NULL, /* start at beginning of
                                                * lookup buffer */
@@ -360,47 +360,47 @@ int getUserNames (FilterContext* context,
                                                * (should be 1) */
 
    /* If we didn't find the entry, then quit */
-   if ((pName == NULL) || (Matches <= 0)) {
-      goto Exit;
-   }
+    if ((pName == NULL) || (Matches <= 0)) {
+        goto Exit;
+    }
 
-   pMatch = (char *)NAMELocateNextMatch2(pLookup,  /* name lookup
-                                                    * buffer */
-                                         pName, /* entry that we found */
-                                         NULL); /* no previous match */
-   if (NULL == pMatch) {
-      goto Exit;
-   }
+    pMatch = (char *)NAMELocateNextMatch2(pLookup,  /* name lookup
+                                                     * buffer */
+                                          pName, /* entry that we found */
+                                          NULL); /* no previous match */
+    if (NULL == pMatch) {
+        goto Exit;
+    }
 
    /* Get the full name from the info we got back */
 
-   if ( getLookupInfo (context,
-                       pMatch,
-                       0,
-                       pUserFullName,
-                       pUserFullNameLen) )
-      goto Exit;
+    if ( getLookupInfo (context,
+                        pMatch,
+                        0,
+                        pUserFullName,
+                        pUserFullNameLen) )
+        goto Exit;
 
-     AddInLogMessageText (string2, 0,*pUserFullName,*pUserFullNameLen);
+    AddInLogMessageText (string2, 0,*pUserFullName,*pUserFullNameLen);
 
    /* Get the short name from the info we got back */
-   if ( getLookupInfo (context,
-                       pMatch,
-                       1,
-                       pUserShortName,
-                       pUserShortNameLen) )
-      goto Exit;
-   else
-      rc = 0;
+    if ( getLookupInfo (context,
+                        pMatch,
+                        1,
+                        pUserShortName,
+                        pUserShortNameLen) )
+        goto Exit;
+    else
+        rc = 0;
 
-   AddInLogMessageText (string3, 0,*pUserShortName,*pUserShortNameLen);
+    AddInLogMessageText (string3, 0,*pUserShortName,*pUserShortNameLen);
 Exit:
-   if ( pLookup && hLookup )
-      OSUnlock(hLookup);
+    if ( pLookup && hLookup )
+        OSUnlock(hLookup);
 NoUnlockExit:
-   if (NULLHANDLE != hLookup)
-      OSMemFree(hLookup);
-   return rc;
+    if (NULLHANDLE != hLookup)
+        OSMemFree(hLookup);
+    return rc;
 }
 
 
@@ -422,69 +422,69 @@ int getLookupInfo (FilterContext* context,
  * Return: -1 on error, 0 on success
  */
 
-   unsigned int reserved = 0;
-   unsigned int errID;
-   char     *ValuePtr = NULL;
-   WORD     ValueLength, DataType;
-   STATUS   error;
-   void     *newSpace = NULL;
+    unsigned int reserved = 0;
+    unsigned int errID;
+    char     *ValuePtr = NULL;
+    WORD     ValueLength, DataType;
+    STATUS   error;
+    void     *newSpace = NULL;
 
-   /* Initialize output */
-   *pInfo = NULL;
-   *pInfoLen = 0;
+    /* Initialize output */
+    *pInfo = NULL;
+    *pInfoLen = 0;
 
-   /* Check the type and length of the info */
+    /* Check the type and length of the info */
 
-   ValuePtr = (char *)NAMELocateItem2(pMatch,
-                                    itemNumber,
-                                    &DataType,
-                                    &ValueLength);
+    ValuePtr = (char *)NAMELocateItem2(pMatch,
+                                       itemNumber,
+                                       &DataType,
+                                       &ValueLength);
 
-   if (NULL == ValuePtr || ValueLength == 0) {
+    if (NULL == ValuePtr || ValueLength == 0) {
 
-      return -1;
-   }
-   ValueLength -= sizeof(WORD);
+        return -1;
+    }
+    ValueLength -= sizeof(WORD);
 
     /* check the value DataType */
-   switch (DataType) {
-      case TYPE_TEXT_LIST:
-         break;
+    switch (DataType) {
+        case TYPE_TEXT_LIST:
+            break;
 
-      case TYPE_TEXT:
-         break;
+        case TYPE_TEXT:
+            break;
 
-      default:
-         return -1;
-   }
+        default:
+            return -1;
+    }
 
    /* Allocate space for the info.  This memory will be freed
     * automatically when the thread terminates.
     */
 
-   newSpace = (context->AllocMem)(context, ValueLength+1,
-                                       reserved, &errID);
-   *pInfo = (char *) newSpace;
-   if (NULL == *pInfo) {
-      PRINTLOG ("Out of memory\n");
-      return -1;
-   }
+    newSpace = (context->AllocMem)(context, ValueLength+1,
+                                   reserved, &errID);
+    *pInfo = (char *) newSpace;
+    if (NULL == *pInfo) {
+        PRINTLOG ("Out of memory\n");
+        return -1;
+    }
 
    /* Get the info */
    error = NAMEGetTextItem2(pMatch, /* match that we found */
-                                itemNumber, /* item # in order of item
+                            itemNumber, /* item # in order of item
                                              * on lookup */
-                                0,      /* Member # of item in text
+                            0,      /* Member # of item in text
                                          * lists */
-                                *pInfo, /* buffer to copy result
+                            *pInfo, /* buffer to copy result
                                          * into */
-                                MAX_BUF_LEN);   /* Length of buffer */
-   if (!error) {
-      *pInfoLen = strlen(*pInfo)+1;
-      return 0;
-   }
+                            MAX_BUF_LEN);   /* Length of buffer */
+    if (!error) {
+        *pInfoLen = strlen(*pInfo)+1;
+        return 0;
+    }
 
-   return -1;
+    return -1;
 }
 
 
@@ -500,24 +500,24 @@ int doAuthenticate(char *userName, char *domain, char *password) {
  * Return: -1 on error, 0 on success
  */
 
-   char   string4[] = "\nERROR: User must be specified\n";
+    char   string4[] = "\nERROR: User must be specified\n";
 
 
-   if (!userName) {
+    if (!userName) {
 
-      AddInLogMessageText (string4, NOERROR);
-      return -1;
-   }
+        AddInLogMessageText (string4, NOERROR);
+        return -1;
+    }
 
 #if defined SOLARIS || AIX || LINUX
-   PRINTLOG("\nin doAuthenticate()\n");
-   return(unixAuthenticate(userName, password));
+    PRINTLOG("\nin doAuthenticate()\n");
+    return(unixAuthenticate(userName, password));
 #else
-   if (!domain) {
-      AddInLogMessageText ("\nERROR: Domain must be specified. Use username@domainname format\n", NOERROR);
-      return -1;
-   }
-   return(winAuthenticate(userName, domain, password));
+    if (!domain) {
+        AddInLogMessageText ("\nERROR: Domain must be specified. Use username@domainname format\n", NOERROR);
+        return -1;
+    }
+    return(winAuthenticate(userName, domain, password));
 #endif
 
 

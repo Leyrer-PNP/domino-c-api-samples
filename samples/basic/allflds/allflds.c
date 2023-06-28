@@ -59,9 +59,9 @@ extern "C" {
 /* Function prototypes */
 
 STATUS LNPUBLIC note_action (     /* called for every document */
-                             VOID far *,
-                             SEARCH_MATCH far *,
-                             ITEM_TABLE far *);
+                              VOID far *,
+                              SEARCH_MATCH far *,
+                              ITEM_TABLE far *);
 
 STATUS LNPUBLIC field_action (    /* called for every field */
                                WORD,
@@ -85,62 +85,62 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char        db_filename[]="test.nsf";   /* pathname of source database */
-   DBHANDLE    db_handle;                  /* handle of source database */ 
-   STATUS      error = NOERROR;            /* return status from API calls */
+    char        db_filename[]="test.nsf";   /* pathname of source database */
+    DBHANDLE    db_handle;                  /* handle of source database */ 
+    STATUS      error = NOERROR;            /* return status from API calls */
 
    
-   if (error = NotesInitExtended (argc, argv))
-   {
-       PRINTLOG("\n Unable to initialize Notes.\n");
-       return (1);
-   }
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
 
       
 /* Open the database. */
    
-   if (error = NSFDbOpen (db_filename, &db_handle))
-   {
-       PRINTERROR (error,"NSFDbOpen");  
-       NotesTerm();
-       return (1); 
-   }
+    if (error = NSFDbOpen (db_filename, &db_handle))
+    {
+        PRINTERROR (error,"NSFDbOpen");  
+        NotesTerm();
+        return (1); 
+    }
 
   
 /* Call NSFSearch to find all data notes in the database. */
 
-   if (error = NSFSearch (
-               db_handle,        /* database handle */
-               NULLHANDLE,       /* selection formula */
-               NULL,             /* title of view in selection formula */
-               0,                /* search flags */
-               NOTE_CLASS_DOCUMENT,  /* note class to find */
-               NULL,             /* starting date (unused) */
-               note_action,      /* action routine for notes found */
-               &db_handle,       /* argument to action routine */
-               NULL))            /* returned ending date (unused) */
+    if (error = NSFSearch (
+                           db_handle,        /* database handle */
+                           NULLHANDLE,       /* selection formula */
+                           NULL,             /* title of view in selection formula */
+                           0,                /* search flags */
+                           NOTE_CLASS_DOCUMENT,  /* note class to find */
+                           NULL,             /* starting date (unused) */
+                           note_action,      /* action routine for notes found */
+                           &db_handle,       /* argument to action routine */
+                           NULL))            /* returned ending date (unused) */
 
-   {
-       NSFDbClose (db_handle);
-       PRINTERROR (error,"NSFSearch");  
-       NotesTerm();
-       return (1); 
-   }
+    {
+        NSFDbClose (db_handle);
+        PRINTERROR (error,"NSFSearch");  
+        NotesTerm();
+        return (1); 
+    }
 
 /* Close the database. */
 
-   if (error = NSFDbClose (db_handle))
-   {
-       PRINTERROR (error,"NSFDbClose");  
-       NotesTerm();
-       return (1); 
-   }
+    if (error = NSFDbClose (db_handle))
+    {
+        PRINTERROR (error,"NSFDbClose");  
+        NotesTerm();
+        return (1); 
+    }
 
 
 /* End of main routine. */
-   PRINTLOG("\nProgram completed successfully.\n");
-   NotesTerm();
-   return (0); 
+    PRINTLOG("\nProgram completed successfully.\n");
+    NotesTerm();
+    return (0); 
 
 }
 
@@ -166,9 +166,9 @@ int main(int argc, char *argv[])
 *************************************************************************/
 
 STATUS LNPUBLIC note_action
-            (VOID far *db_handle,
-            SEARCH_MATCH far *pSearchMatch,
-            ITEM_TABLE far *summary_info)
+                           (VOID far *db_handle,
+                            SEARCH_MATCH far *pSearchMatch,
+                            ITEM_TABLE far *summary_info)
 {
     SEARCH_MATCH  SearchMatch;
     NOTEHANDLE    note_handle;
@@ -205,8 +205,8 @@ but is shown here in case a starting date was used in the search. */
                              field_action,    /* action routine for fields */
                              &note_handle))    /* argument to action routine */
     {
-            NSFNoteClose (note_handle);
-            return (ERR(error));
+        NSFNoteClose (note_handle);
+        return (ERR(error));
     }
 
 /* Close the note. */
@@ -235,13 +235,13 @@ but is shown here in case a starting date was used in the search. */
 *************************************************************************/
 
 STATUS LNPUBLIC field_action
-            (WORD unused,
-            WORD item_flags,
-            char far *name_ptr,
-            WORD name_len,
-            VOID far *item_value,
-            DWORD item_value_len,
-            VOID far *note_handle)
+                            (WORD unused,
+                             WORD item_flags,
+                             char far *name_ptr,
+                             WORD name_len,
+                             VOID far *item_value,
+                             DWORD item_value_len,
+                             VOID far *note_handle)
 {
     char    item_name[50];        /* name of the field */
     WORD    binary_datatype;    /* datatype of field in binary */

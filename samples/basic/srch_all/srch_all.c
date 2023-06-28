@@ -147,7 +147,7 @@ int main (int argc, char *argv[])
     if (error = NSFDbOpen (szDBName, &hDB))
     {
         PRINTLOG ("Error: unable to open database '%s'.\n", szDBName);
-           return (ERR(error));
+        return (ERR(error));
     }
 
     /*  Create ID table then call to NSFSearch.  NSFSearch will find 
@@ -165,15 +165,15 @@ int main (int argc, char *argv[])
     }
 
     if (error = NSFSearch (
-        hDB,            /* database handle */
-        NULLHANDLE,     /* selection formula (select all notes) */
-        NULL,           /* title of view in selection formula */
-        0,              /* search flags */
-        NOTE_CLASS_DOCUMENT,/* note class to find */
-        NULL,           /* starting date (unused) */
-        AddIDUnique,    /* call for each note found */
-        &hNoteIDTable,  /* argument to AddIDUnique */
-        NULL))          /* returned ending date (unused) */
+                           hDB,            /* database handle */
+                           NULLHANDLE,     /* selection formula (select all notes) */
+                           NULL,           /* title of view in selection formula */
+                           0,              /* search flags */
+                           NOTE_CLASS_DOCUMENT,/* note class to find */
+                           NULL,           /* starting date (unused) */
+                           AddIDUnique,    /* call for each note found */
+                           &hNoteIDTable,  /* argument to AddIDUnique */
+                           NULL))          /* returned ending date (unused) */
 
     {
         PRINTLOG ("Error: unable to search database.\n");
@@ -195,7 +195,7 @@ int main (int argc, char *argv[])
     NSFDbClose (hDB);
 
     if (error == NOERROR)
-       PRINTLOG("\nProgram completed successfully.\n");
+        PRINTLOG("\nProgram completed successfully.\n");
 
     NotesTerm();
     return (0); 
@@ -212,9 +212,9 @@ int main (int argc, char *argv[])
 *************************************************************************/
 
 STATUS LNPUBLIC AddIDUnique    
-            (void far * phNoteIDTable,
-            SEARCH_MATCH far *pSearchMatch,
-            ITEM_TABLE far *summary_info)
+                           (void far * phNoteIDTable,
+                            SEARCH_MATCH far *pSearchMatch,
+                            ITEM_TABLE far *summary_info)
 {
     SEARCH_MATCH SearchMatch;
     DHANDLE    hNoteIDTable;
@@ -267,10 +267,10 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
     hDB = *( (DBHANDLE far *)phDB );
 
     if (error = NSFNoteOpen (
-            hDB,
-            NoteID,
-            0,
-            &hNote))
+                             hDB,
+                             NoteID,
+                             0,
+                             &hNote))
     {
         PRINTLOG ("Error: unable to open note.\n");
         return (ERR(error));
@@ -279,9 +279,9 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
     /*  Look for the "Categories" field within this note. */
 
     field_found = NSFItemIsPresent ( 
-                hNote,
-                ITEM_NAME_CATEGORIES,       /* "Categories" */
-                (WORD) strlen (ITEM_NAME_CATEGORIES));
+                                     hNote,
+                                     ITEM_NAME_CATEGORIES,       /* "Categories" */
+                                     (WORD) strlen (ITEM_NAME_CATEGORIES));
 
     /* If the Categories field is there, get the contents of the field and 
         check to see if it equals "p".  */
@@ -294,15 +294,15 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
     }
 
     field_len = NSFItemGetText ( 
-                hNote, 
-                ITEM_NAME_CATEGORIES,
-                field_text,
-                sizeof (field_text));
+                                 hNote, 
+                                 ITEM_NAME_CATEGORIES,
+                                 field_text,
+                                 sizeof (field_text));
 
     /* Category names are case insensitive.  Do a case insensitive 
-           comparison. Since we are just interested in categories that 
-           have names of one letter, just ensure that field names
-           of only one letter is in lower case. */
+       comparison. Since we are just interested in categories that 
+       have names of one letter, just ensure that field names
+       of only one letter is in lower case. */
    
     if (field_len == 1)
         field_text[1] = tolower (field_text[1]);
@@ -313,20 +313,20 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
         /* Change "p" to "q" */
 
         if (error = NSFItemDelete(hNote, 
-                        ITEM_NAME_CATEGORIES, 
-                        (WORD) strlen(ITEM_NAME_CATEGORIES)))
+                                  ITEM_NAME_CATEGORIES, 
+                                  (WORD) strlen(ITEM_NAME_CATEGORIES)))
         {
             PRINTLOG ("Error: unable to delete item '%s' from note.\n",ITEM_NAME_CATEGORIES);
             NSFNoteClose (hNote);
             return (ERR(error));
         }
         if (error = NSFItemSetText(hNote,
-                        ITEM_NAME_CATEGORIES,
-                        CATEGORIES_VALUE_Q, 
-                        (WORD) strlen(CATEGORIES_VALUE_Q)))
+                                   ITEM_NAME_CATEGORIES,
+                                   CATEGORIES_VALUE_Q, 
+                                   (WORD) strlen(CATEGORIES_VALUE_Q)))
         {
             PRINTLOG ("Error: unable to set item '%s' to value '%s' in note.\n",
-                    ITEM_NAME_CATEGORIES, CATEGORIES_VALUE_Q);
+                      ITEM_NAME_CATEGORIES, CATEGORIES_VALUE_Q);
             NSFNoteClose (hNote);
             return (ERR(error));
         }
@@ -336,20 +336,20 @@ STATUS LNPUBLIC ChangeCategory (void far * phDB, DWORD NoteID)
         /* Change "q" to "r" */
 
         if (error = NSFItemDelete(hNote, 
-                        ITEM_NAME_CATEGORIES, 
-                        (WORD) strlen(ITEM_NAME_CATEGORIES)))
+                                  ITEM_NAME_CATEGORIES, 
+                                  (WORD) strlen(ITEM_NAME_CATEGORIES)))
         {
             PRINTLOG ("Error: unable to delete item '%s' from note.\n",ITEM_NAME_CATEGORIES);
             NSFNoteClose (hNote);
             return (ERR(error));
         }
         if (error = NSFItemSetText(hNote,
-                        ITEM_NAME_CATEGORIES,
-                        CATEGORIES_VALUE_R, 
-                        (WORD) strlen(CATEGORIES_VALUE_R)))
+                                   ITEM_NAME_CATEGORIES,
+                                   CATEGORIES_VALUE_R, 
+                                   (WORD) strlen(CATEGORIES_VALUE_R)))
         {
             PRINTLOG ("Error: unable to set item '%s' to value '%s' in note.\n",
-                    ITEM_NAME_CATEGORIES, CATEGORIES_VALUE_R);
+                      ITEM_NAME_CATEGORIES, CATEGORIES_VALUE_R);
             NSFNoteClose (hNote);
             return (ERR(error));
         }

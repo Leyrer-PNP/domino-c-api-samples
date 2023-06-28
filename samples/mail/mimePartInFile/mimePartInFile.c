@@ -61,7 +61,7 @@ char *pszMsgHeader[] =
 };
 
 char *pszMsgBody1 =
-     "Content-type: multipart/mixed; boundary=" "\"__MixedBoundaryString__\"" STR_CRLF
+        "Content-type: multipart/mixed; boundary=" "\"__MixedBoundaryString__\"" STR_CRLF
         "Content-Type: image/bmp; name=\"New.bmp\"" STR_CRLF
         "Content-Transfer-Encoding: base64" STR_CRLF
         "Content-Disposition: attachment; filename=\"New.bmp\"" STR_CRLF       
@@ -85,9 +85,9 @@ STATUS 	CheckMIMEPartInFile( NOTEHANDLE );
     DESCRIPTION:  Main entry point.
     ARGS:
          argc - Number of arguments
-	 argv - array of character pointer
+     argv - array of character pointer
          return -  1 Error
-	           0 NoError
+               0 NoError
     
     USAGE:    mimePartInFile <Domino user name>
 *************************************************************************/
@@ -110,7 +110,7 @@ int main( int argc, char * argv[] )
 
     if ( argc == 2 )
     {
-       strncpy( szRecipient, argv[1], sizeof( szRecipient )-1 );
+        strncpy( szRecipient, argv[1], sizeof( szRecipient )-1 );
     }
     else
     {
@@ -139,8 +139,8 @@ int main( int argc, char * argv[] )
 
         if ( !OSGetEnvironmentInt( "MAIL_ENABLE_MAILBOX_COMPATIBILITY" ) )
         {
-           PRINTLOG( "\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n" );
-           strncpy( szMailFileName, MAIL2BOX, sizeof( szMailFileName )-1 );
+            PRINTLOG( "\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n" );
+            strncpy( szMailFileName, MAIL2BOX, sizeof( szMailFileName )-1 );
         }
     }
 
@@ -151,13 +151,13 @@ int main( int argc, char * argv[] )
     do
     {
         if ( error = OSPathNetConstruct( NULL,               /* port name  */
-                            szMailServerName,
-                            szMailFileName,
-                            szMailBoxPath) )
-	{
-           PRINTLOG( "Error: Server Name path error\n" );
-	   PRINTERROR( error,"OSPathNetConstruct" );
-	   goto Done;
+                                         szMailServerName,
+                                         szMailFileName,
+                                          szMailBoxPath) )
+        {
+            PRINTLOG( "Error: Server Name path error\n" );
+            PRINTERROR( error,"OSPathNetConstruct" );
+            goto Done;
         } 
 
         if ( error = NSFDbOpen( szMailBoxPath, &hMailBox ) )
@@ -167,13 +167,13 @@ int main( int argc, char * argv[] )
             in standard "mail.box" file. */
             if (( error == ERR_NOEXIST ) && ( !strcmp( szMailFileName, MAIL2BOX )) )
             {
-               strncpy( szMailFileName, MAILBOX, sizeof( szMailFileName )-1 );
+                strncpy( szMailFileName, MAILBOX, sizeof( szMailFileName )-1 );
             }
             else
             {
-               PRINTLOG( "Error: unable to open '%s'.\n", szMailBoxPath );
-               PRINTERROR( error,"NSFDbOpen" );
-               goto Done;
+                PRINTLOG( "Error: unable to open '%s'.\n", szMailBoxPath );
+                PRINTERROR( error,"NSFDbOpen" );
+                goto Done;
             }
         }
     } while( error );
@@ -208,7 +208,7 @@ int main( int argc, char * argv[] )
                                  MAXWORD) )
     {
         PRINTLOG( "Error: unable to set item '%s' into memo.\n",
-                                MAIL_RECIPIENTS_ITEM );
+                  MAIL_RECIPIENTS_ITEM );
         PRINTERROR( error,"NSFItemSetText" );
         goto Done2;
     }
@@ -229,7 +229,7 @@ int main( int argc, char * argv[] )
     }
     else if ( error == NOERROR )
     {
-       PRINTLOG( "\nSuccessfully completed!!\n" );
+        PRINTLOG( "\nSuccessfully completed!!\n" );
     }
 
 Done2:
@@ -315,7 +315,7 @@ STATUS CheckMIMEPartInFile( NOTEHANDLE hNote )
     error = MIMEEMLExport3( szMailFileName, noteID, MIME_FILE_NAME, FALSE );
     if ( error != NOERROR )
     {
-	PRINTLOG( "\nMIMEEMLExport3 Error:" );
+    PRINTLOG( "\nMIMEEMLExport3 Error:" );
         return error;
     }
     else
@@ -353,14 +353,14 @@ STATUS  CreateRFC822Header( char **pszMsgWriteLines, NOTEHANDLE hNote )
     /* write the test message to the open stream, line by line */
     for ( iter=0; pszMsgWriteLines[iter]; ++iter)
     {
-          error = (STATUS) MIMEStreamPutLine( (char *)pszMsgWriteLines[iter],
-                                    hMIMEStream );
-          if ( error == MIME_STREAM_IO )
-          {
+        error = (STATUS) MIMEStreamPutLine( (char *)pszMsgWriteLines[iter],
+                                            hMIMEStream );
+        if ( error == MIME_STREAM_IO )
+        {
             PRINTLOG( "MIMEStreamPutLine error.\n" );
             MIMEStreamClose( hMIMEStream );
             return error;
-          }
+        }
     }
 
     /* itemize the mime stream to the note */
@@ -395,75 +395,75 @@ STATUS  AppendMIMEPart( NOTEHANDLE hNote )
     STATUS error = NOERROR, sErr = NOERROR;
     DHANDLE hCtx = NULLHANDLE;
 
-     PRINTLOG( " Append Body 1.\n" );
-     error = NSFMimePartCreateStream( hNote,               /* note handle */
-                                      ITEM_BODY,                 /* item name to append */
-                                      (WORD)strlen(ITEM_BODY),   /* length of item name */
-                                      MIME_PART_BODY,         /* type of MIME part item */
-                                      MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS | MIME_PART_BODY_IN_DBOBJECT,     /* flags for MIME part */
-                                      &hCtx );
-     if ( error )
-     {
+    PRINTLOG( " Append Body 1.\n" );
+    error = NSFMimePartCreateStream( hNote,               /* note handle */
+                                     ITEM_BODY,                 /* item name to append */
+                                     (WORD)strlen(ITEM_BODY),   /* length of item name */
+                                     MIME_PART_BODY,         /* type of MIME part item */
+                                     MIME_PART_HAS_BOUNDARY | MIME_PART_HAS_HEADERS | MIME_PART_BODY_IN_DBOBJECT,     /* flags for MIME part */
+                                     &hCtx );
+    if ( error )
+    {
         return error;
-     }
+    }
 
-     if ( (error = NSFMimePartAppendStream( hCtx, pszMsgBody1, strlen( pszMsgBody1 ) )) ) 
-     {
+    if ( (error = NSFMimePartAppendStream( hCtx, pszMsgBody1, strlen( pszMsgBody1 ) )) ) 
+    {
         PRINTLOG( "Error: Fail to append MIME mail.\n" );
         goto ERRORAPPEND;
-     }
+    }
 
-     if ( error = NSFMimePartAppendFileToStream( hCtx, ATTACHMENT_NAME ) ) 
-     {
+    if ( error = NSFMimePartAppendFileToStream( hCtx, ATTACHMENT_NAME ) ) 
+    {
         PRINTLOG( "Error: fail to append file to stream.\n" );
         goto ERRORAPPEND;
-     } 
+    } 
 
 ERRORAPPEND: 
-     sErr = NSFMimePartCloseStream( hCtx, TRUE );
-     if ( sErr )
-     {
-         if ( error )
-         {
-             PRINTERROR( error,"NSFMimePartAppendStream" );
-         }
-	 return sErr;
-     }
-     if ( error )
-     {
-         return error;
-     }
-
-     PRINTLOG( " Append Body 2.\n" );
-     error = NSFMimePartCreateStream( hNote,                  /* note handle */
-                                      ITEM_BODY,                     /* item name to append */
-                                      (WORD)strlen(ITEM_BODY),       /* length of item name */
-                                      MIME_PART_BODY,             /* type of MIME part item */
-                                      MIME_PART_HAS_BOUNDARY,     /* flags for MIME part */
-                                      &hCtx );
-     if ( error )
-     {
+    sErr = NSFMimePartCloseStream( hCtx, TRUE );
+    if ( sErr )
+    {
+        if ( error )
+        {
+            PRINTERROR( error,"NSFMimePartAppendStream" );
+        }
+        return sErr;
+    }
+    if ( error )
+    {
         return error;
-     }
+    }
 
-     if ( error = NSFMimePartAppendStream( hCtx, pszMsgBody2, strlen( pszMsgBody2 )) ) 
-     {
+    PRINTLOG( " Append Body 2.\n" );
+    error = NSFMimePartCreateStream( hNote,                  /* note handle */
+                                     ITEM_BODY,                     /* item name to append */
+                                     (WORD)strlen(ITEM_BODY),       /* length of item name */
+                                     MIME_PART_BODY,             /* type of MIME part item */
+                                     MIME_PART_HAS_BOUNDARY,     /* flags for MIME part */
+                                     &hCtx );
+    if ( error )
+    {
+        return error;
+    }
+
+    if ( error = NSFMimePartAppendStream( hCtx, pszMsgBody2, strlen( pszMsgBody2 )) ) 
+    {
         PRINTLOG( "Error: Fail to append MIME mail.\n" );
-     }
+    }
 
-     sErr = NSFMimePartCloseStream( hCtx, TRUE );
-     if ( sErr )
-     {
-         if ( error )
-         {
-             PRINTERROR( error,"NSFMimePartCloseStream" );
-         }
-         return sErr;
-     }
-     if ( error )
-     {
-         return error;
-     }
+    sErr = NSFMimePartCloseStream( hCtx, TRUE );
+    if ( sErr )
+    {
+        if ( error )
+        {
+            PRINTERROR( error,"NSFMimePartCloseStream" );
+        }
+        return sErr;
+    }
+    if ( error )
+    {
+        return error;
+    }
 
-     return NOERROR;
+    return NOERROR;
 }

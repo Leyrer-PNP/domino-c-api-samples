@@ -120,8 +120,8 @@ int main(int argc, char *argv[])
 #endif
 	if((ArgNum < 2) || (ArgNum >3))
 	{
-		PRINTLOG( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
-		return (0);
+	    PRINTLOG( "\nUsage:  %s  [server name - optional] <database filename>\n", argv[0] );
+	    return (0);
 	}
 
 	db_name = argv[ArgNum - 1];
@@ -137,64 +137,64 @@ int main(int argc, char *argv[])
 
 	if (error)
 	{
-		fprintf (stderr, "\nError initializing Notes.\n");
-		return (1);
+	    fprintf (stderr, "\nError initializing Notes.\n");
+	    return (1);
 	}
 
 	if (strcmp (server_name, ""))
 	{
-		if (error = OSPathNetConstruct( NULL, server_name, db_name, pname))
-		{
-			PRINTERROR (error,"OSPathNetConstruct");
-			NotesTerm();
-			return (1);
-		}
-		path_name = pname;
+	    if (error = OSPathNetConstruct( NULL, server_name, db_name, pname))
+	    {
+	        PRINTERROR (error,"OSPathNetConstruct");
+	        NotesTerm();
+	        return (1);
+	    }
+	    path_name = pname;
 	}
 
 	/* Open the database. */
 
 	if (error = NSFDbOpen (path_name, &hDB))
 	{
-		PRINTERROR (error,"NSFDbOpen");
-		NotesTerm();
-		return (1);
+	    PRINTERROR (error,"NSFDbOpen");
+	    NotesTerm();
+	    return (1);
 	}
 
 	if (error = IDCreateTable(sizeof(NOTEID), &hIDTable))
 	{
-		PRINTERROR (error,"IDCreateTable");
-		NSFDbClose (hDB);
-		NotesTerm();
-		return (1);
+	    PRINTERROR (error,"IDCreateTable");
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return (1);
 	}
 
 	if (error = NSFSearch (
-		hDB,            /* database handle */
-		NULLHANDLE,     /* selection formula (select all notes) */
-		NULL,           /* title of view in selection formula */
-		0,              /* search flags */
-		NOTE_CLASS_DOCUMENT,/* note class to find */
-		NULL,           /* starting date (unused) */
-		AddIDUnique,    /* call for each note found */
-		&hIDTable,  /* argument to AddIDUnique */
-		NULL))          /* returned ending date (unused) */
+	                       hDB,            /* database handle */
+	                       NULLHANDLE,     /* selection formula (select all notes) */
+	                       NULL,           /* title of view in selection formula */
+	                       0,              /* search flags */
+	                       NOTE_CLASS_DOCUMENT,/* note class to find */
+	                       NULL,           /* starting date (unused) */
+	                       AddIDUnique,    /* call for each note found */
+	                       &hIDTable,  /* argument to AddIDUnique */
+	                       NULL))          /* returned ending date (unused) */
 	{
-		PRINTERROR (error,"NSFSearch");
-		IDDestroyTable(hIDTable);
-		NSFDbClose (hDB);
-		NotesTerm();
-		return (1);
+	    PRINTERROR (error,"NSFSearch");
+	    IDDestroyTable(hIDTable);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return (1);
 	}
 
 
 	if (error = OSMemAlloc(0, NumIDs * ODSLength(_NOTEID), &hNoteIDTable))
 	{
-		PRINTERROR (error,"OSMemAlloc");
-		IDDestroyTable(hIDTable);
-		NSFDbClose (hDB);
-		NotesTerm();
-		return(1);
+	    PRINTERROR (error,"OSMemAlloc");
+	    IDDestroyTable(hIDTable);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return(1);
 	}
 
 	NoteIDTable = OSLock(char, hNoteIDTable);
@@ -203,9 +203,9 @@ int main(int argc, char *argv[])
 	i = 0;
 	while ( i < NumIDs && IDScan(hIDTable, First, &ID))
 	{
-		ODSWriteMemory(&NoteIDTable, _NOTEID, &ID, 1);
-		i++;
-		First = FALSE;
+	    ODSWriteMemory(&NoteIDTable, _NOTEID, &ID, 1);
+	    i++;
+	    First = FALSE;
 	}
 
 	OSUnlock(hNoteIDTable);
@@ -215,13 +215,13 @@ int main(int argc, char *argv[])
 	**	Call NSFGetMultNoteInfo routine.
 	*************************************************************************/
 	if (error = NSFDbGetMultNoteInfo(hDB, NumIDs, fINFO_OID, hNoteIDTable, &InfoTableLength, &hInfoTable))
-		PRINTERROR (error,"NSFDbGetMultNoteInfo");
+	    PRINTERROR (error,"NSFDbGetMultNoteInfo");
 	OSMemFree(hNoteIDTable);
 	if (error)
 	{
-		NSFDbClose (hDB);
-		NotesTerm();
-		return(1);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return(1);
 	}
 
 	/*************************************************************************
@@ -229,18 +229,18 @@ int main(int argc, char *argv[])
 	*************************************************************************/
 	if ( NumIDs * (sizeof(NOTEID) + sizeof(OID)) != InfoTableLength)
 	{
-		PRINTLOG("Error in NSFDbGetMultNoteInfo: Number of note infos returned does not match.\n");
-		OSMemFree(hInfoTable);
-		NSFDbClose (hDB);
-		NotesTerm();
-		return(1);
+	    PRINTLOG("Error in NSFDbGetMultNoteInfo: Number of note infos returned does not match.\n");
+	    OSMemFree(hInfoTable);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return(1);
 	}
 
 	InfoTable =(char *) OSLockObject(hInfoTable);
 	for (i=0; i<NumIDs; i++)
 	{
-		ODSReadMemory(&InfoTable, _NOTE_ID, id+i, 1);
-		ODSReadMemory(&InfoTable, _OID, oid+i, 1);
+	    ODSReadMemory(&InfoTable, _NOTE_ID, id+i, 1);
+	    ODSReadMemory(&InfoTable, _OID, oid+i, 1);
 	}
 
 
@@ -249,12 +249,12 @@ int main(int argc, char *argv[])
 	*************************************************************************/
 	if (error = OSMemAlloc(0, NumIDs * ODSLength(_UNID), &hUNIDTable))
 	{
-		PRINTERROR (error,"OSMemAlloc");
-		OSUnlockObject(hInfoTable);
-		OSMemFree(hInfoTable);
-		NSFDbClose (hDB);
-		NotesTerm();
-		return(1);
+	    PRINTERROR (error,"OSMemAlloc");
+	    OSUnlockObject(hInfoTable);
+	    OSMemFree(hInfoTable);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return(1);
 	}
 
 	UNIDTable = OSLock(char, hUNIDTable);
@@ -273,11 +273,11 @@ int main(int argc, char *argv[])
 	OSMemFree(hUNIDTable);
 	if (error)
 	{
-		OSUnlockObject(hInfoTable);
-		OSMemFree(hInfoTable);
-		NSFDbClose (hDB);
-		NotesTerm();
-		return(1);
+	    OSUnlockObject(hInfoTable);
+	    OSMemFree(hInfoTable);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return(1);
 	}
 
 	/*************************************************************************
@@ -286,51 +286,51 @@ int main(int argc, char *argv[])
 	pUnid = unid;
 	if (error = NSFNoteOpenByUNIDExtended(hDB, pUnid, 0, &noteHandle))
 	{
-		PRINTERROR (error,"NSFNoteOpenByUNIDExtended");
-		OSUnlockObject(hInfoTable);
-		OSMemFree(hInfoTable);
-		NSFDbClose (hDB);
-		NotesTerm();
-		return(1);
+	    PRINTERROR (error,"NSFNoteOpenByUNIDExtended");
+	    OSUnlockObject(hInfoTable);
+	    OSMemFree(hInfoTable);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return(1);
 	}
 
 	/* Look for the TIME_DATE field within this note. */
 
 	bFieldFound = NSFItemIsPresent (
-		noteHandle,
-                "TIME_DATE",
-                (WORD) strlen ("TIME_DATE"));
+	                                noteHandle,
+	                                "TIME_DATE",
+	                                (WORD) strlen ("TIME_DATE"));
 
-    	/* If the TIME_DATE field is there, get the contents of the field as an
-     	ASCII string and print it out. */
+	/* If the TIME_DATE field is there, get the contents of the field as an
+	ASCII string and print it out. */
 
 	if (bFieldFound)
 	{
-		wFieldLen = NSFItemConvertToText (
-			noteHandle,
-                	"TIME_DATE",
-			szFieldText,
-			(WORD) sizeof (szFieldText),
-                	';'); /* multi-value separator */
+	    wFieldLen = NSFItemConvertToText (
+	                                      noteHandle,
+	                                      "TIME_DATE",
+	                                      szFieldText,
+	                                      (WORD) sizeof (szFieldText),
+	                                      ';'); /* multi-value separator */
 
-		PRINTLOG ("TIME_DATE field is: %s\n", szFieldText);
-    	}
+	    PRINTLOG ("TIME_DATE field is: %s\n", szFieldText);
+	}
 
    	/* If the TIME_DATE field is not there, print a message. */
 
-    	else
-        	PRINTLOG ("TIME_DATE field not found.\n");
+	else
+	    PRINTLOG ("TIME_DATE field not found.\n");
 
 	/* Close the note. */
 
-    	if (error = NSFNoteClose(noteHandle))
+	if (error = NSFNoteClose(noteHandle))
 	{
-		PRINTERROR (error,"NSFNoteClose");
-		OSUnlockObject(hInfoTable);
-		OSMemFree(hInfoTable);
-		NSFDbClose (hDB);
-		NotesTerm();
-		return(1);
+	    PRINTERROR (error,"NSFNoteClose");
+	    OSUnlockObject(hInfoTable);
+	    OSMemFree(hInfoTable);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return(1);
 	}
 
 	/*************************************************************************
@@ -338,30 +338,30 @@ int main(int argc, char *argv[])
 	*************************************************************************/
 	if (( NumIDs * (sizeof(NOTEID) + sizeof(OID) )) != InfoTableLengthByUNID)
 	{
-		PRINTLOG("Error in NSFDbGetMultNoteInfoByUNID: Number of UNIDs returned does not match.\n");
-		OSMemFree(hInfoTableByUNID);
-		OSUnlockObject(hInfoTable);
-		OSMemFree(hInfoTable);
-		NSFDbClose (hDB);
-		NotesTerm();
-		return(1);
+	    PRINTLOG("Error in NSFDbGetMultNoteInfoByUNID: Number of UNIDs returned does not match.\n");
+	    OSMemFree(hInfoTableByUNID);
+	    OSUnlockObject(hInfoTable);
+	    OSMemFree(hInfoTable);
+	    NSFDbClose (hDB);
+	    NotesTerm();
+	    return(1);
 	}
 
 	InfoTableByUNID =(char *) OSLockObject(hInfoTableByUNID);
 	for (i=0; i<NumIDs; i++)
 	{
-		ODSReadMemory(&InfoTableByUNID, _NOTE_ID, idByUNID + i, 1);
-		ODSReadMemory(&InfoTableByUNID, _OID, oidByUNID + i, 1);
+	    ODSReadMemory(&InfoTableByUNID, _NOTE_ID, idByUNID + i, 1);
+	    ODSReadMemory(&InfoTableByUNID, _OID, oidByUNID + i, 1);
 	}
 
 
 	for (i=0; i<NumIDs; i++)
 	{
-		PRINTLOG("id[%d] got by NoteID is %X\n", i ,id[i]);
-		PRINTLOG("idByUNID[%d] got by UNID is %X\n", i ,idByUNID[i]);
+	    PRINTLOG("id[%d] got by NoteID is %X\n", i ,id[i]);
+	    PRINTLOG("idByUNID[%d] got by UNID is %X\n", i ,idByUNID[i]);
 
-		PRINTLOG("oid[%d] got by NoteID has a UNID %08X:%08X-%08X:%08X\n", i ,oid[i].File.Innards[1], oid[i].File.Innards[0], oid[i].Note.Innards[1], oid[i].Note.Innards[0]);
-		PRINTLOG("oidByUNID[%d] got by UNID has a UNID %08X:%08X-%08X:%08X\n", i, oidByUNID[i].File.Innards[1], oidByUNID[i].File.Innards[0], oidByUNID[i].Note.Innards[1], oidByUNID[i].Note.Innards[0]);
+	    PRINTLOG("oid[%d] got by NoteID has a UNID %08X:%08X-%08X:%08X\n", i ,oid[i].File.Innards[1], oid[i].File.Innards[0], oid[i].Note.Innards[1], oid[i].Note.Innards[0]);
+	    PRINTLOG("oidByUNID[%d] got by UNID has a UNID %08X:%08X-%08X:%08X\n", i, oidByUNID[i].File.Innards[1], oidByUNID[i].File.Innards[0], oidByUNID[i].Note.Innards[1], oidByUNID[i].Note.Innards[0]);
 	}
 
 	OSUnlockObject(hInfoTable);
@@ -371,13 +371,13 @@ int main(int argc, char *argv[])
 
 	if (error = NSFDbClose (hDB))
 	{
-		PRINTERROR (error,"NSFDbClose");
-		NotesTerm();
-		return (1);
+	    PRINTERROR (error,"NSFDbClose");
+	    NotesTerm();
+	    return (1);
 	}
 
 	if (error == NOERROR)
-		PRINTLOG("\nProgram completed successfully.\n");
+	    PRINTLOG("\nProgram completed successfully.\n");
 
 	NotesTerm();
 	return (0);
@@ -403,33 +403,33 @@ STATUS LNPUBLIC AddIDUnique
 
 	if( NumIDs >= MaxNoteNum )
 	{
-		return (ERR(error));
+	    return (ERR(error));
 	}
 
 	memcpy( (char*)&SearchMatch, (char*)pSearchMatch, sizeof(SEARCH_MATCH) );
 
 	if (!(SearchMatch.SERetFlags & SE_FMATCH))
-		return (NOERROR);
+	    return (NOERROR);
 
 	hNoteIDTable = *((DHANDLE far *)phNoteIDTable);
 
 	if (error = IDInsert(hNoteIDTable, SearchMatch.ID.NoteID, &flagOK))
 	{
-		PRINTLOG ("Error: unable to insert note ID into table.\n");
-		return (ERR(error));
+	    PRINTLOG ("Error: unable to insert note ID into table.\n");
+	    return (ERR(error));
 	}
 
 	if (flagOK == TRUE)
 	{
-		PRINTLOG ("\tInserted note %1X into table.\n", SearchMatch.ID.NoteID);
-		unid[NumIDs].File = SearchMatch.OriginatorID.File;
-		unid[NumIDs].Note = SearchMatch.OriginatorID.Note;
-		PRINTLOG("\tSearchMatch has a UNID %08X:%08X-%08X:%08X\n", unid[NumIDs].File.Innards[1], unid[NumIDs].File.Innards[0], unid[NumIDs].Note.Innards[1], unid[NumIDs].Note.Innards[0] );
-		++ NumIDs;
+	    PRINTLOG ("\tInserted note %1X into table.\n", SearchMatch.ID.NoteID);
+	    unid[NumIDs].File = SearchMatch.OriginatorID.File;
+	    unid[NumIDs].Note = SearchMatch.OriginatorID.Note;
+	    PRINTLOG("\tSearchMatch has a UNID %08X:%08X-%08X:%08X\n", unid[NumIDs].File.Innards[1], unid[NumIDs].File.Innards[0], unid[NumIDs].Note.Innards[1], unid[NumIDs].Note.Innards[0] );
+	    ++ NumIDs;
 	}
 	else
 	{
-		PRINTLOG ("\tNote %lX is already in table.\n", SearchMatch.ID.NoteID);
+	    PRINTLOG ("\tNote %lX is already in table.\n", SearchMatch.ID.NoteID);
 	}   
 
 	return (ERR(error));

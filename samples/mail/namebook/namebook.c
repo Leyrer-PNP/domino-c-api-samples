@@ -111,8 +111,8 @@ Syntax:
 
     if (error=NotesInitExtended (argc, argv))
     {
-       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
-       return (1);
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
+        return (1);
     }
     
     /* get the Mail Server from notes.ini */
@@ -131,11 +131,11 @@ Syntax:
     }
 
     error = NAMEGetAddressBooks( 
-                szServer,
-                wOption,
-               &wCount,
-               &wLength,
-               &hReturn);
+                                 szServer,
+                                 wOption,
+                                 &wCount,
+                                 &wLength,
+                                 &hReturn);
 
     if (error)
        goto Bye;
@@ -158,9 +158,9 @@ Syntax:
          /* Get path length. */
         wEntryLen = strlen(pszReturn);
         error = OSPathNetConstruct (szPortName, (char FAR *)szServer,
-                                 pszReturn, (char FAR *)szNetPathName);
+                                    pszReturn, (char FAR *)szNetPathName);
         if (error != NOERROR)
-           goto Bye;
+            goto Bye;
 
         /* Parse the path into components. */
         OSPathNetParse(szNetPathName, achPort, achServer, achFile);

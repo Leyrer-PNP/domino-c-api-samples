@@ -109,16 +109,16 @@ int main(int argc, char * argv[])
 
     if ( argc == 3 ) 
     {
-       strncpy( szServerName, argv[1], MAX_DB_NAME-1 );
-       strncpy( szDbName, argv[2], MAX_DB_NAME-1 );
+        strncpy( szServerName, argv[1], MAX_DB_NAME-1 );
+        strncpy( szDbName, argv[2], MAX_DB_NAME-1 );
     }
     else if (argc == 2) 
     {
-   	if (!OSGetEnvironmentString("MAILSERVER", szServerName, MAXUSERNAME))
- 	{
-               PRINTLOG ("\nUnable to get mail server name ...\n\n ");
-               strcpy(szServerName,"");
-   	}
+    if (!OSGetEnvironmentString("MAILSERVER", szServerName, MAXUSERNAME))
+    {
+        PRINTLOG ("\nUnable to get mail server name ...\n\n ");
+        strcpy(szServerName,"");
+    }
         strncpy( szDbName, argv[1], MAX_DB_NAME-1); 
     }
     else 
@@ -147,14 +147,14 @@ int main(int argc, char * argv[])
     }
 
     error = NSFFormulaCompile (
-                NULL,               
-                (WORD) 0,           
-                formula,            
-                (WORD) strlen(formula),   
-                &formula_handle,    
-                &wdc,               
-                &wdc,               
-                &wdc, &wdc, &wdc, &wdc); 
+                               NULL,               
+                               (WORD) 0,           
+                               formula,            
+                               (WORD) strlen(formula),   
+                               &formula_handle,    
+                               &wdc,               
+                               &wdc,               
+                               &wdc, &wdc, &wdc, &wdc); 
     if ( error != NOERROR )
     {
         PRINTERROR(error,"NSFFormulaCompile");
@@ -162,15 +162,15 @@ int main(int argc, char * argv[])
     }
 
     error = NSFSearch (
-                hDB,      
-                formula_handle, 
-                NULL,           
-                0,              
-                NOTE_CLASS_DOCUMENT,
-                NULL,         
-                EnumProc, 
-                &hDB, 
-                NULL);
+                       hDB,      
+                       formula_handle, 
+                       NULL,           
+                       0,              
+                       NOTE_CLASS_DOCUMENT,
+                       NULL,         
+                       EnumProc, 
+                       &hDB, 
+                       NULL);
     if ( error != NOERROR ) 
     {
         PRINTERROR(error,"NSFSearch");
@@ -187,13 +187,13 @@ exit:
 
     if ( error )
     {
-       PRINTLOG( " Fail to get doc from %s.\n", szDbName);
-       return (1);
+        PRINTLOG( " Fail to get doc from %s.\n", szDbName);
+        return (1);
     }
     else
     {    
-      PRINTLOG ( "succeed return docs deleted [%d].\n", docCount );
-      return (NOERROR);
+        PRINTLOG ( "succeed return docs deleted [%d].\n", docCount );
+        return (NOERROR);
     }
 }
 
@@ -230,7 +230,7 @@ STATUS  LNPUBLIC  EnumProc(void far *phDB, SEARCH_MATCH far *pSearchMatch, ITEM_
     error = NSFNoteDelete(*(DBHANDLE far *)phDB, SearchMatch.ID.NoteID, 0);
     
     if (error)
-      return(error);
+        return(error);
 
     docCount++;
 /* End of subroutine. */

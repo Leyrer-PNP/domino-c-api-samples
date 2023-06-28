@@ -58,7 +58,7 @@
 #include <osmisc.h>
               
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                         char *db_filename); 
+                             char *db_filename); 
 
 #define  STRING_LENGTH  256
               
@@ -143,10 +143,10 @@ int main(int argc, char *argv[])
         
     PRINTLOG("Appending number list.\n", szPathName); 
     if (error = AppendNumberListField (
-                     hNote, 
-                     "NUMBER", 
-                     aNumbers, 
-                     LIST_COUNT))
+                                       hNote, 
+                                       "NUMBER", 
+                                       aNumbers, 
+                                       LIST_COUNT))
     {
         NSFNoteClose (hNote);
         NSFDbClose (hDB);
@@ -199,10 +199,10 @@ int main(int argc, char *argv[])
 ************************************************************************/
 
 STATUS LNPUBLIC AppendNumberListField (
-                     NOTEHANDLE hNote,
-                     const char * szFieldName,
-                     NUMBER * aNumbers,
-                     WORD  usCount)
+                                       NOTEHANDLE hNote,
+                                       const char * szFieldName,
+                                       NUMBER * aNumbers,
+                                       WORD  usCount)
 {
     DWORD       dwValueLen;
     void       *pvoidItemValue;
@@ -239,12 +239,12 @@ STATUS LNPUBLIC AppendNumberListField (
     }
     
     error = NSFItemAppend (hNote,
-                ITEM_SUMMARY,
-                szFieldName,
-                (WORD) strlen(szFieldName),
-                TYPE_NUMBER_RANGE,
-                pvoidItemValue,
-                dwValueLen);
+                           ITEM_SUMMARY,
+                           szFieldName,
+                           (WORD) strlen(szFieldName),
+                           TYPE_NUMBER_RANGE,
+                           pvoidItemValue,
+                           dwValueLen);
 
     free (pvoidItemValue);
 

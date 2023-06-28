@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
     /* Create message list of messages in the file - just 64K */
 
     if (error = MailCreateMessageList(hMessageFile,
-                        &hMessageList, &MessageList, &MessageCount))
+                                      &hMessageList, &MessageList, &MessageCount))
     {
         PRINTLOG ("Error: unable to create message list.\n");
         goto Exit1;
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
         /* Get the originator's name/address. */
 
         if (error = MailGetMessageOriginator(MessageList, Msg,
-                Originator, sizeof(Originator), &OriginatorLength))
+                                             Originator, sizeof(Originator), &OriginatorLength))
         {
             PRINTLOG ("Error: unable to get message originator.\n");
             goto Exit2;
@@ -242,10 +242,10 @@ int main(int argc, char *argv[])
         for (Rec = 0; Rec < RecipientCount; Rec++)
         {
             MailGetMessageRecipient(MessageList, Msg, Rec, RecipientName,
-                    sizeof(RecipientName), &RecipientNameLength);
+                                    sizeof(RecipientName), &RecipientNameLength);
             MailParseMailAddress(RecipientName, RecipientNameLength,
-                    UserName, sizeof(UserName), &UserNameLength,
-                    DomainName, sizeof(DomainName), &DomainNameLength);
+                                 UserName, sizeof(UserName), &UserNameLength,
+                                 DomainName, sizeof(DomainName), &DomainNameLength);
 
             UserName[UserNameLength] = '\0';
             DomainName[DomainNameLength] = '\0';
@@ -256,34 +256,34 @@ int main(int argc, char *argv[])
 
         /* SendTo */
         MailGetMessageItem (hMessage, MAIL_SENDTO_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
 
         String[StringLength] = '\0';
         PRINTLOG ("\tTo: %s\n", String);
 
         /* CopyTo */
         MailGetMessageItem (hMessage, MAIL_COPYTO_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         PRINTLOG ("\tCc: %s\n", String);
 
         /* From */
         MailGetMessageItem (hMessage, MAIL_FROM_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         PRINTLOG ("\tFrom: %s\n", String);
 
         /* PostedDate */
         MailGetMessageItemTimeDate(hMessage, MAIL_POSTEDDATE_ITEM_NUM, &Time);
         ConvertTIMEDATEToText(NULL, NULL, &Time, String,
-                                    sizeof(String) - 1, &StringLength);
+                              sizeof(String) - 1, &StringLength);
         String[StringLength] = '\0';
         PRINTLOG("\tDate: %s\n", String);
 
         /* Subject. If non-delivery report, prefix with "NonDelivery of:" */
 
         MailGetMessageItem (hMessage, MAIL_SUBJECT_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
         {
@@ -297,12 +297,12 @@ int main(int argc, char *argv[])
         if (NonDeliveryReport)
         {
             MailGetMessageItem(hMessage, MAIL_INTENDEDRECIPIENT_ITEM_NUM,
-                            String, sizeof(String), &StringLength);
+                               String, sizeof(String), &StringLength);
             String[StringLength] = '\0';
             PRINTLOG("\tIntended Recipients: %s\n", String);
 
             MailGetMessageItem(hMessage, MAIL_FAILUREREASON_ITEM_NUM,
-                            String, sizeof(String), &StringLength);
+                               String, sizeof(String), &StringLength);
             String[StringLength] = '\0';
             PRINTLOG("\tFailure Reason: %s\n", String);
         }
@@ -317,12 +317,12 @@ int main(int argc, char *argv[])
             goto Exit2;
         }
         if (error = MailGetMessageBodyText(hMessage,
-                                    NULL,     /* Use standard Body item */
-                                    szNewline_Terminate,
-                                    80,        /* 80 chars per line */
-                                    TRUE,     /* Convert TABs */
-                                    BodyFileName,
-                                    &BodyFileSize))
+                                           NULL,     /* Use standard Body item */
+                                           szNewline_Terminate,
+                                           80,        /* 80 chars per line */
+                                           TRUE,     /* Convert TABs */
+                                           BodyFileName,
+                                           &BodyFileSize))
         {
             PRINTLOG ("Error: unable to get Message body into temporary file.\n");
 #ifdef LINUX
@@ -382,14 +382,14 @@ Exit1:
     if (hMessageFile != NULLHANDLE)
         MailCloseMessageFile(hMessageFile);
 Exit0:
-	if (ERR(error))
-	{
-		PRINTERROR(error, "MailOpenMessageFile");
-	}
-	else
-	{
-		PRINTLOG("\nProgram completed successfully.\n");
-	}
+    if (ERR(error))
+    {
+        PRINTERROR(error, "MailOpenMessageFile");
+    }
+    else
+    {
+        PRINTLOG("\nProgram completed successfully.\n");
+    }
     NotesTerm();
     return(ERR(error));
 }
@@ -423,9 +423,9 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     }
     else
     {
-	memset(server_name, '\0', SERVER_NAME_LEN);    
+        memset(server_name, '\0', SERVER_NAME_LEN);    
         strncpy(server_name, argv[1], SERVER_NAME_LEN-1);
-	memset(db_name, '\0', MAXPATH);    
+        memset(db_name, '\0', MAXPATH);    
         strncpy(db_name, argv[2], MAXPATH-1);
     } /* end if */
 } /* ProcessArgs */
@@ -448,7 +448,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 #if defined(UNIX) || defined(MAC)  /* UNIX platforms */
 
 STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
-                                        char *FileName)
+                                     char *FileName)
 
 {
     int     file;
@@ -473,7 +473,7 @@ STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
 #else  /* Wintel */
 
 STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
-                                        char *FileName)
+                                     char *FileName)
 
 {
     int     file;
