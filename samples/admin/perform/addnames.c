@@ -133,39 +133,39 @@ int main (int argc, char *argv[])
 /* Add all the fields. */
 
         if (error = NSFItemSetText ( note_handle, 
-                    "Form",
-                    "Person",
-                    MAXWORD))
+                                     "Form",
+                                     "Person",
+                                     MAXWORD))
             goto Done3;
 
         if (error = NSFItemSetText ( note_handle,
-                    "Type",
-                    "Person",
-                    MAXWORD))
+                                     "Type",
+                                     "Person",
+                                     MAXWORD))
             goto Done3;
 
         if (error = NSFItemSetText ( note_handle,
-                    "FirstName",
-                    "John",
-                    MAXWORD))
+                                     "FirstName",
+                                     "John",
+                                     MAXWORD))
             goto Done3;
 
         if (error = NSFItemSetText ( note_handle,
-                    "LastName",
-                    last_name,
-                    MAXWORD))
+                                     "LastName",
+                                     last_name,
+                                     MAXWORD))
             goto Done3;
 
         if (error = NSFItemSetText ( note_handle,
-                    "MailDomain",
-                    "NOTES",
-                    MAXWORD))
+                                     "MailDomain",
+                                     "NOTES",
+                                     MAXWORD))
             goto Done3;
 
         if (error = NSFItemSetText ( note_handle,
-                    "MailFile",
-                    "MAIL\\JSMITH",
-                    MAXWORD))
+                                     "MailFile",
+                                     "MAIL\\JSMITH",
+                                     MAXWORD))
             goto Done3;
 
 /* Write the new note to disk and close the note. */

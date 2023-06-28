@@ -238,12 +238,12 @@ int main(int argc, char *argv[])
      */
 
     sError = NSFItemInfo(hNote,
-                          VIEW_VIEW_FORMAT_ITEM,
-                          sizeof(VIEW_VIEW_FORMAT_ITEM) - 1,
-                          NULL,
-                          &wDataType,
-                          &ValueBlockID,
-                          &dwLength);
+                         VIEW_VIEW_FORMAT_ITEM,
+                         sizeof(VIEW_VIEW_FORMAT_ITEM) - 1,
+                         NULL,
+                         &wDataType,
+                         &ValueBlockID,
+                         &dwLength);
 
     if (sError || wDataType != TYPE_VIEW_FORMAT)
     {
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
              */
 
             PRINTLOG ("\t\tSort Key:                   %s\n", 
-               (pColumnFormat->Flags1 & VCF1_M_Sort) ? "YES" : "NO");
+                      (pColumnFormat->Flags1 & VCF1_M_Sort) ? "YES" : "NO");
 
             /*
              *  See if this column is a category  or not.
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
              */
 
             PRINTLOG ("\t\tSort Order:                 %s\n",
-               (pColumnFormat->Flags1 & VCF1_M_SortDescending) ? "Descending" : "Ascending");
+                      (pColumnFormat->Flags1 & VCF1_M_SortDescending) ? "Descending" : "Ascending");
             
 
             /*
@@ -471,7 +471,7 @@ int main(int argc, char *argv[])
                  */
 
                 PRINTLOG ("\t\tResortable Sort Order:      %s\n",
-                       (pColumnFormat->Flags1 & VCF1_S_ResortDescending) ? "Descending" : "Ascending");
+                          (pColumnFormat->Flags1 & VCF1_S_ResortDescending) ? "Descending" : "Ascending");
             }
 
         } /*  End of for loop.  */
@@ -488,8 +488,8 @@ int main(int argc, char *argv[])
         OSUnlockBlock(ValueBlockID);
       
         sError = NSFItemInfo (hNote, VIEW_FORMULA_ITEM,
-                     sizeof (VIEW_FORMULA_ITEM) - 1, NULL, &wDataType,
-                     &ValueBlockID, &dwLength);
+                              sizeof (VIEW_FORMULA_ITEM) - 1, NULL, &wDataType,
+                              &ValueBlockID, &dwLength);
 
         if (!sError && (wDataType == TYPE_FORMULA))
         {

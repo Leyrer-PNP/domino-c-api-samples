@@ -141,9 +141,9 @@ int main(int argc, char * argv[])
 
     memset( szRecipient, '\0', MAXUSERNAME+1 );
     if ( argc == 2 )
-       memcpy( szRecipient, argv[1], strlen(argv[1]) );
+        memcpy( szRecipient, argv[1], strlen(argv[1]) );
     else
-       memcpy( szRecipient, szMsgRecipient, strlen(szMsgRecipient) ); 
+        memcpy( szRecipient, szMsgRecipient, strlen(szMsgRecipient) ); 
         
     /* Initiate  the environment */
     if (error = NotesInitExtended (argc, argv))
@@ -165,8 +165,8 @@ int main(int argc, char * argv[])
 
         if (!OSGetEnvironmentInt("MAIL_ENABLE_MAILBOX_COMPATIBILITY"))
         {
-           PRINTLOG ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
-           strcpy(szMailFileName, "mail2.box");
+            PRINTLOG ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
+            strcpy(szMailFileName, "mail2.box");
         }
     }
 
@@ -188,12 +188,12 @@ int main(int argc, char * argv[])
             in standard "mail.box" file. */
             if ((error == ERR_NOEXIST) && (!strcmp (szMailFileName, "mail2.box")))
             {
-               strcpy(szMailFileName, "mail.box");
+                strcpy(szMailFileName, "mail.box");
             }
             else
             {
-               PRINTLOG ("Error: unable to open '%s'.\n", szMailBoxPath);
-               goto Done;
+                PRINTLOG ("Error: unable to open '%s'.\n", szMailBoxPath);
+                goto Done;
             }
         }
     }
@@ -222,7 +222,7 @@ int main(int argc, char * argv[])
                                 MAXWORD))
     {
         PRINTLOG ("Error: unable to set item '%s' into memo.\n",
-                                MAIL_RECIPIENTS_ITEM);
+                  MAIL_RECIPIENTS_ITEM);
         PRINTERROR (error,"NSFItemSetText");
         goto Done2;
     }
@@ -264,10 +264,10 @@ STATUS  CreateMIMEMsg(char **pszMsgWriteLines, NOTEHANDLE hNote)
  
     /* Test for writing messages to stream. */
     error = MIMEStreamOpen(hNote,       /* note handle */
-                        NULL,           /* item name */
-                        0,              /* item name length */
-                        MIME_STREAM_OPEN_WRITE, /* open flags */
-                        &hMIMEStream );
+                           NULL,           /* item name */
+                           0,              /* item name length */
+                           MIME_STREAM_OPEN_WRITE, /* open flags */
+                           &hMIMEStream );
     if ( error != NOERROR)
     {
           PRINTERROR (error,"MIMEStreamOpen");
@@ -277,14 +277,14 @@ STATUS  CreateMIMEMsg(char **pszMsgWriteLines, NOTEHANDLE hNote)
     /* write the test message to the open stream, line by line */
     for ( i=0; pszMsgWriteLines[i]; ++i)
     {
-          error = MIMEStreamPutLine((char *)pszMsgWriteLines[i],
-                                     hMIMEStream);
-          if ( error == MIME_STREAM_IO )
-          {
+        error = MIMEStreamPutLine((char *)pszMsgWriteLines[i],
+                                   hMIMEStream);
+        if ( error == MIME_STREAM_IO )
+        {
             PRINTLOG("MIMEStreamPutLine error.\n");
             MIMEStreamClose(hMIMEStream);
             return (1);
-          }
+        }
     }
 
     /* itemize the mime stream to the note */
@@ -295,9 +295,9 @@ STATUS  CreateMIMEMsg(char **pszMsgWriteLines, NOTEHANDLE hNote)
                                hMIMEStream);
     if ( error != NOERROR)
     {
-          PRINTERROR (error,"MIMEStreamItemize");
-          MIMEStreamClose(hMIMEStream);
-          return (1);
+        PRINTERROR (error,"MIMEStreamItemize");
+        MIMEStreamClose(hMIMEStream);
+        return (1);
     }
 
     MIMEStreamClose(hMIMEStream);
@@ -347,7 +347,7 @@ STATUS PrintMail()
     /* Create message list of messages in the file - just 64K */
 
     if (error = MailCreateMessageList(hMessageFile,
-                        &hMessageList, &MessageList, &MessageCount))
+                                      &hMessageList, &MessageList, &MessageCount))
     {
         PRINTLOG ("Error: unable to create message list.\n");
         goto Exit1;
@@ -370,7 +370,7 @@ STATUS PrintMail()
         /* Get the originator's name/address. */
 
         if (error = MailGetMessageOriginator(MessageList, Msg,
-                Originator, sizeof(Originator)-1, &OriginatorLength))
+                                             Originator, sizeof(Originator)-1, &OriginatorLength))
         {
             PRINTLOG ("Error: unable to get message originator.\n");
             goto Exit2;
@@ -380,7 +380,7 @@ STATUS PrintMail()
 
         PRINTLOG ("\tOriginator = '%s'\n", Originator);
         if (error = MailGetMessageInfo(MessageList, Msg,
-                            &RecipientCount, NULL, NULL))
+                                       &RecipientCount, NULL, NULL))
         {
             PRINTLOG ("Error: unable to get number of recipients in message.\n");
             MailCloseMessage (hMessage);
@@ -392,10 +392,10 @@ STATUS PrintMail()
         for (Rec = 0; Rec < RecipientCount; Rec++)
         {
             MailGetMessageRecipient(MessageList, Msg, Rec, RecipientName,
-                    sizeof(RecipientName)-1, &RecipientNameLength);
+                                    sizeof(RecipientName)-1, &RecipientNameLength);
             MailParseMailAddress(RecipientName, RecipientNameLength,
-                    UserName, sizeof(UserName)-1, &UserNameLength,
-                    DomainName, sizeof(DomainName)-1, &DomainNameLength);
+                                 UserName, sizeof(UserName)-1, &UserNameLength,
+                                 DomainName, sizeof(DomainName)-1, &DomainNameLength);
 
             UserName[UserNameLength] = '\0';
             DomainName[DomainNameLength] = '\0';
@@ -406,20 +406,20 @@ STATUS PrintMail()
 
         /* SendTo */
         MailGetMessageItem (hMessage, MAIL_SENDTO_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
 
         String[StringLength] = '\0';
         PRINTLOG ("\tTo: %s\n", String);
 
         /* CopyTo */
         MailGetMessageItem (hMessage, MAIL_COPYTO_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         PRINTLOG ("\tCc: %s\n", String);
 
         /* From */
         MailGetMessageItem (hMessage, MAIL_FROM_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         PRINTLOG ("\tFrom: %s\n", String);
 
@@ -433,7 +433,7 @@ STATUS PrintMail()
         /* Subject. If non-delivery report, prefix with "NonDelivery of:" */
 
         MailGetMessageItem (hMessage, MAIL_SUBJECT_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
         {
@@ -470,9 +470,9 @@ Exit1:
 Exit0:
     if (ERR(error))
     {
-       PRINTERROR(error,"MailOpenMessageFile"); 
+        PRINTERROR(error,"MailOpenMessageFile"); 
     } else {
-       PRINTLOG("\nProgram completed successfully.\n");
+        PRINTLOG("\nProgram completed successfully.\n");
     }
 
     return(NOERROR);

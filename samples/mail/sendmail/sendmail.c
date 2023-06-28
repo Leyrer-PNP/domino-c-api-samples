@@ -144,31 +144,31 @@ int           BodyLen;
 
 int main(int argc, char *argv[])
 {
-   status = NotesInitExtended (argc, argv);
-   if (status) 
-   {
-      PRINTLOG("\nUnable to initialize Notes. Error Code[0x%04x]\n", status);
-      return(1);
-   }
+    status = NotesInitExtended (argc, argv);
+    if (status) 
+    {
+        PRINTLOG("\nUnable to initialize Notes. Error Code[0x%04x]\n", status);
+        return(1);
+    }
 
-   /* get program arguments */
-   ProcessArgs(argc, argv, szMailFile, szSendTo, szCopyTo, szSubject, szBody); 
-   
-   status = SendMailMainProc();
+    /* get program arguments */
+    ProcessArgs(argc, argv, szMailFile, szSendTo, szCopyTo, szSubject, szBody); 
+    
+    status = SendMailMainProc();
 
-   if (status != NOERROR) 
-   {
-      PRINTERROR(status,"SendMailMainProc");
-      NotesTerm();
-      return(status);
-   }
+    if (status != NOERROR) 
+    {
+        PRINTERROR(status,"SendMailMainProc");
+        NotesTerm();
+        return(status);
+    }
 
-   status = PrintMail(szMailServerName);
-   if (status) 
-      PRINTERROR(status,"PrintMail");
+    status = PrintMail(szMailServerName);
+    if (status) 
+        PRINTERROR(status,"PrintMail");
 
-   NotesTerm();
-   return(status);
+    NotesTerm();
+    return(status);
 }
 
 /****************************************************************************
@@ -184,30 +184,30 @@ int main(int argc, char *argv[])
 
 int SendMailMainProc()
 {
-  WORD          wDateLen;
+    WORD          wDateLen;
 
-  /* Get user's name and initialize "From" field. */
-  if (status = SECKFMGetUserName(szFrom))
+    /* Get user's name and initialize "From" field. */
+    if (status = SECKFMGetUserName(szFrom))
     {  /* Unable to get user name. */
-      PRINTLOG ("\nError: unable to get user name.\n");
-      return(status);
+        PRINTLOG ("\nError: unable to get user name.\n");
+        return(status);
     }
 
-  /* Get current time and date. Initialize "Date" field */
-  OSCurrentTIMEDATE(&tdDate);
-  if (status = ConvertTIMEDATEToText (NULL, NULL,
-                  &tdDate, szDate, MAXALPHATIMEDATE,
-                  (WORD FAR*)&wDateLen))
+    /* Get current time and date. Initialize "Date" field */
+    OSCurrentTIMEDATE(&tdDate);
+    if (status = ConvertTIMEDATEToText (NULL, NULL,
+                                        &tdDate, szDate, MAXALPHATIMEDATE,
+                                        (WORD FAR*)&wDateLen))
     {   /* Unable to initialize date field */
-      PRINTLOG ("\nError: unable to initialize Date field.\n");
-      return(status);
+        PRINTLOG ("\nError: unable to initialize Date field.\n");
+        return(status);
     }
   
-  szDate[wDateLen] = '\0';
+    szDate[wDateLen] = '\0';
 
-  status = SendMail();
+    status = SendMail();
 
-  return(status);
+    return(status);
 
 }
 
@@ -297,8 +297,8 @@ int SendMail()
   if (!OSGetEnvironmentString(MAIL_MAILSERVER_ITEM, /*"MailServer"*/
                szMailServerName, MAXUSERNAME))
     {   /* Unable to get mail server name */
-      PRINTLOG ("\nError: unable to get mail server name.\n");
-      return(status);
+        PRINTLOG ("\nError: unable to get mail server name.\n");
+        return(status);
     }
   
     memset(szMailFileName, '\0', sizeof(szMailFileName));
@@ -308,132 +308,132 @@ int SendMail()
       If unable to open because LAN not available, then ask user if
       they would like to save locally.
   */
-  OSPathNetConstruct( NULL, szMailServerName, szMailFileName,
-           szMailFilePath);
-  status = MailOpenMessageFile(szMailFilePath, &hMailFile);
+    OSPathNetConstruct( NULL, szMailServerName, szMailFileName,
+                        szMailFilePath);
+    status = MailOpenMessageFile(szMailFilePath, &hMailFile);
   
 #if 0
-  if ( (ERR(status) == ERR_NO_NETBIOS) ||
-       (ERR(status) == ERR_SERVER_NOT_RESPONDING) )
+    if ( (ERR(status) == ERR_NO_NETBIOS) ||
+        (ERR(status) == ERR_SERVER_NOT_RESPONDING) )
 #endif
-  if ( (ERR(status) == ERR_SERVER_NOT_RESPONDING) )
+    if ( (ERR(status) == ERR_SERVER_NOT_RESPONDING) )
     /* laptop not connected to server */
     {
-      status = NOERROR;
+        status = NOERROR;
 
-      /* Ask user if they would like to deliver msg to local MAIL.BOX */
-      PRINTLOG("Would you like to deliver the mail message to your local Mail Box (YES/NO)?: ");      
-      gets(szLocalMailBox);
+        /* Ask user if they would like to deliver msg to local MAIL.BOX */
+        PRINTLOG("Would you like to deliver the mail message to your local Mail Box (YES/NO)?: ");      
+        gets(szLocalMailBox);
        
-      /* Unable to reach Mail Server. Save in local MAIL.BOX? */
-      if (strcmp(szLocalMailBox, "YES") == 0)
+        /* Unable to reach Mail Server. Save in local MAIL.BOX? */
+        if (strcmp(szLocalMailBox, "YES") == 0)
         {
-          /* yes - create and save message in local mail file */
-          fLocal = TRUE;
-          status = MailOpenMessageFile(szMailFileName, &hMailFile);
+            /* yes - create and save message in local mail file */
+            fLocal = TRUE;
+            status = MailOpenMessageFile(szMailFileName, &hMailFile);
         }
-      else
+        else
         { /* no - user wants to connect to server. Error condition.*/
-          status = ERR_SERVER_NOT_RESPONDING;
+            status = ERR_SERVER_NOT_RESPONDING;
         }
     }
   
-  if (status)
+    if (status)
     { /* Unable to open user's Domino and Notes mail file */
-      PRINTLOG ("\nError: unable to open user's mail file.\n");
-      return(status);
+        PRINTLOG ("\nError: unable to open user's mail file.\n");
+        return(status);
     }
 
-  if (status = MailCreateMessage(hMailFile, &hMsg))
+    if (status = MailCreateMessage(hMailFile, &hMsg))
     { /* Unable to create memo in mail file */
-      PRINTLOG ("\nError: unable to create memo in mail file.\n");
-      error=SENDMAILERROR;
-      goto CloseFile;
+        PRINTLOG ("\nError: unable to create memo in mail file.\n");
+        error=SENDMAILERROR;
+        goto CloseFile;
     }
 
-  if (status = ListAllocate(0, 0, TRUE, &hRecipientsList,
-             &plistRecipients, &wRecipientsSize))
+    if (status = ListAllocate(0, 0, TRUE, &hRecipientsList,
+                              &plistRecipients, &wRecipientsSize))
     {  /* Unable to allocate list */
-      PRINTLOG ("\nError: unable to allocate list.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to allocate list.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
-  OSUnlockObject(hRecipientsList);
+    OSUnlockObject(hRecipientsList);
   
-  if (status = ListAllocate(0, 0, TRUE, &hSendToList,
-             &plistSendTo, &wSendToSize))
+    if (status = ListAllocate(0, 0, TRUE, &hSendToList,
+                              &plistSendTo, &wSendToSize))
     {
-      PRINTLOG ("\nError: unable to allocate list.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to allocate list.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
-  OSUnlockObject(hSendToList);
+    OSUnlockObject(hSendToList);
   
-  if (status = ListAllocate(0, 0, TRUE, &hCopyToList,
-             &plistCopyTo, &wCopyToSize))
+    if (status = ListAllocate(0, 0, TRUE, &hCopyToList,
+                              &plistCopyTo, &wCopyToSize))
     {
-      PRINTLOG ("\nError: unable to allocate list.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to allocate list.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
   OSUnlockObject(hCopyToList);
 
-  /* Parse SendTo string. Add names to SendTo and Recipients lists. */
-  PRINTLOG("\nSend To mailIDs:%s", szSendTo);
-  for (szNextName = strtok(szSendTo, ",");
-       szNextName != (char*)NULL;
-       szNextName = strtok(NULL, ","))
-  {
-      unsigned char* uc = (unsigned char*)szNextName;
-      while (isspace(*uc))    /* Skip white space before name */
-      szNextName++;
-      
-      if (status = ListAddEntry(hSendToList, TRUE, &wSendToSize,
-                                wSendToCount++, szNextName,
-                                (WORD)strlen(szNextName)))
-        {   /* Unable to add name to SendTo list */
-           PRINTLOG ("\nError: unable to add name to SendTo list.\n");
-           error=SENDMAILERROR;
-           goto CloseMsg;
-        }
-
-      if (status = ListAddEntry(hRecipientsList, TRUE, &wRecipientsSize,
-                                wRecipientsCount++, szNextName,
-                                (WORD)strlen(szNextName)))
-        {   /* Unable to add name to Recipients list */
-           PRINTLOG ("\nError: unable to add name to Recipients list.\n");
-           error=SENDMAILERROR;
-           goto CloseMsg;
-        }
-  }
-  
-  /* Parse CopyTo string. Add names to CopyTo and Recipients list. */
-  
-  PRINTLOG("\nCopy To mailIDs:%s", szCopyTo);
-  for (szNextName = strtok(szCopyTo, ",");
-       szNextName != (char*)NULL;
-       szNextName = strtok(NULL, ","))
+    /* Parse SendTo string. Add names to SendTo and Recipients lists. */
+    PRINTLOG("\nSend To mailIDs:%s", szSendTo);
+    for (szNextName = strtok(szSendTo, ",");
+         szNextName != (char*)NULL;
+         szNextName = strtok(NULL, ","))
     {
-      while (isspace(*szNextName))
-      szNextName++;
+        unsigned char* uc = (unsigned char*)szNextName;
+        while (isspace(*uc))    /* Skip white space before name */
+        szNextName++;
       
-      if (status = ListAddEntry(hCopyToList, TRUE, &wCopyToSize,
-                                wCopyToCount++, szNextName,
-                                (WORD)strlen(szNextName)))
-        { /* Unable to add name to CopyTo list */
-          PRINTLOG ("\nError: unable to add name to CopyTo list.\n");
-          error=SENDMAILERROR;
-          goto CloseMsg;
+        if (status = ListAddEntry(hSendToList, TRUE, &wSendToSize,
+                                  wSendToCount++, szNextName,
+                                  (WORD)strlen(szNextName)))
+        {   /* Unable to add name to SendTo list */
+            PRINTLOG ("\nError: unable to add name to SendTo list.\n");
+            error=SENDMAILERROR;
+            goto CloseMsg;
         }
 
-      if (status = ListAddEntry(hRecipientsList, TRUE, &wRecipientsSize,
-                                wRecipientsCount++, szNextName,
-                                (WORD)strlen(szNextName)))
+        if (status = ListAddEntry(hRecipientsList, TRUE, &wRecipientsSize,
+                                  wRecipientsCount++, szNextName,
+                                 (WORD)strlen(szNextName)))
+        {   /* Unable to add name to Recipients list */
+            PRINTLOG ("\nError: unable to add name to Recipients list.\n");
+            error=SENDMAILERROR;
+            goto CloseMsg;
+        }
+    }
+  
+    /* Parse CopyTo string. Add names to CopyTo and Recipients list. */
+  
+    PRINTLOG("\nCopy To mailIDs:%s", szCopyTo);
+    for (szNextName = strtok(szCopyTo, ",");
+        szNextName != (char*)NULL;
+        szNextName = strtok(NULL, ","))
+    {
+        while (isspace(*szNextName))
+        szNextName++;
+        
+        if (status = ListAddEntry(hCopyToList, TRUE, &wCopyToSize,
+                                  wCopyToCount++, szNextName,
+                                  (WORD)strlen(szNextName)))
+        { /* Unable to add name to CopyTo list */
+            PRINTLOG ("\nError: unable to add name to CopyTo list.\n");
+            error=SENDMAILERROR;
+            goto CloseMsg;
+        }
+
+        if (status = ListAddEntry(hRecipientsList, TRUE, &wRecipientsSize,
+                                  wRecipientsCount++, szNextName,
+                                  (WORD)strlen(szNextName)))
         
         {
-          PRINTLOG ("\nError: unable to add name to Recipients list.\n");
-          error=SENDMAILERROR;
-          goto CloseMsg;
+            PRINTLOG ("\nError: unable to add name to Recipients list.\n");
+            error=SENDMAILERROR;
+            goto CloseMsg;
         }
     }
   
@@ -446,166 +446,166 @@ int SendMail()
   */
 
   /* Add the Recipients item to the message. */
-  if (wRecipientsCount == 0)  /* Mail memo has no recipients. */
+    if (wRecipientsCount == 0)  /* Mail memo has no recipients. */
     {
-      PRINTLOG ("\nError: mail message has no recipients.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: mail message has no recipients.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
   
-  if (status = MailAddRecipientsItem( hMsg, hRecipientsList,
-                 wRecipientsSize))
+    if (status = MailAddRecipientsItem( hMsg, hRecipientsList,
+                                        wRecipientsSize))
     {
-      /* Unable to set Recipient item in memo */
-      PRINTLOG ("\nError: unable to set Recipient item in memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        /* Unable to set Recipient item in memo */
+        PRINTLOG ("\nError: unable to set Recipient item in memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
   /*  MailAddRecipientsItem and MailAddHeaderItemByHandle both attach
       the memory used by the list to the message. Set handle to NULL
       after these functions succeed so the code at CloseMsg: below does
       not attempt to free it.
   */
-  hRecipientsList = NULLHANDLE;
+    hRecipientsList = NULLHANDLE;
   
   /* Add the SendTo and CopyTo items to the message. */
   
-  if (status = MailAddHeaderItemByHandle( hMsg, MAIL_SENDTO_ITEM_NUM,
-                hSendToList, wSendToSize, 0))
+    if (status = MailAddHeaderItemByHandle( hMsg, MAIL_SENDTO_ITEM_NUM,
+                                            hSendToList, wSendToSize, 0))
     {  /* Unable to set SendTo item in memo */
-      PRINTLOG ("\nError: unable to set SendTo item in memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to set SendTo item in memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
-  hSendToList = NULLHANDLE;
+    hSendToList = NULLHANDLE;
   
-  if (status = MailAddHeaderItemByHandle( hMsg, MAIL_COPYTO_ITEM_NUM,
-                hCopyToList, wCopyToSize, 0))
+    if (status = MailAddHeaderItemByHandle( hMsg, MAIL_COPYTO_ITEM_NUM,
+                                            hCopyToList, wCopyToSize, 0))
     { /* Unable to set CopyTo item in memo */
-      PRINTLOG ("\nError: unable to set CopyTo item in memo.\n");
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to set CopyTo item in memo.\n");
+        goto CloseMsg;
     }
-  hCopyToList = NULLHANDLE;
+    hCopyToList = NULLHANDLE;
   
   /* Add the Form item to the message */
-  if (status = MailAddHeaderItem( hMsg, MAIL_FORM_ITEM_NUM,
-             MAIL_MEMO_FORM,
-             (WORD)strlen(MAIL_MEMO_FORM)))
+    if (status = MailAddHeaderItem( hMsg, MAIL_FORM_ITEM_NUM,
+                                    MAIL_MEMO_FORM,
+                                    (WORD)strlen(MAIL_MEMO_FORM)))
     { /* Unable to set Form item in memo  */
-      PRINTLOG ("\nError: unable to set Form item in memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to set Form item in memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
 
   /* Add From, Subject, Delivery Priority, & etc. items to the message */
-  if (status = MailAddHeaderItem( hMsg, MAIL_FROM_ITEM_NUM,
+    if (status = MailAddHeaderItem( hMsg, MAIL_FROM_ITEM_NUM,
              szFrom, (WORD)strlen(szFrom)))
     { /* Unable to set From item in memo */
-      PRINTLOG ("\nError: unable to set From item in memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to set From item in memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
-  PRINTLOG("\nSubject:%s", szSubject);
-  if (status = MailAddHeaderItem( hMsg, MAIL_SUBJECT_ITEM_NUM,
-             szSubject, (WORD)strlen(szSubject)))
+    PRINTLOG("\nSubject:%s", szSubject);
+    if (status = MailAddHeaderItem( hMsg, MAIL_SUBJECT_ITEM_NUM,
+                                    szSubject, (WORD)strlen(szSubject)))
     { /* Unable to set Subject item in memo */
-      PRINTLOG ("\nError: unable to set Subject item in memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to set Subject item in memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
   
-  PRINTLOG("\nPriority:%s", szPriority);
-  if (status = MailAddHeaderItem( hMsg, MAIL_DELIVERYPRIORITY_ITEM_NUM,
-            szPriority, (WORD)strlen(szPriority)))
+    PRINTLOG("\nPriority:%s", szPriority);
+    if (status = MailAddHeaderItem( hMsg, MAIL_DELIVERYPRIORITY_ITEM_NUM,
+                                    szPriority, (WORD)strlen(szPriority)))
     { /* Unable to set Delivery Priority item in memo */
-      PRINTLOG ("\nError: unable to set Delivery Priority item in memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to set Delivery Priority item in memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
 
-  if (status = MailAddHeaderItem( hMsg, MAIL_DELIVERYREPORT_ITEM_NUM,
-            szReport, (WORD)strlen(szReport)))
+    if (status = MailAddHeaderItem( hMsg, MAIL_DELIVERYREPORT_ITEM_NUM,
+                                    szReport, (WORD)strlen(szReport)))
     { /* Unable to set Delivery Report into memo */
-      PRINTLOG ("\nError: unable to set Delivery Report item in memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to set Delivery Report item in memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
 
   /*  set "ComposedDate" to tdDate = when dialog box was initialized */
-  if (status = MailAddHeaderItem( hMsg, MAIL_COMPOSEDDATE_ITEM_NUM,
-             (char*)(&tdDate),
-             (WORD)sizeof(TIMEDATE)))
-    { /* Unable to set Composed Date in memo */
-      PRINTLOG ("\nError: unable to set Composed Date item in memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+    if (status = MailAddHeaderItem( hMsg, MAIL_COMPOSEDDATE_ITEM_NUM,
+                                    (char*)(&tdDate),
+                                    (WORD)sizeof(TIMEDATE)))
+    {   /* Unable to set Composed Date in memo */
+        PRINTLOG ("\nError: unable to set Composed Date item in memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
   
-  if (status = MailCreateBodyItem (&hBodyItem, &dwBodyItemLen))
+    if (status = MailCreateBodyItem (&hBodyItem, &dwBodyItemLen))
     { /* Unable to create body item in message */
-      PRINTLOG ("\nError: unable to create body item in memo.\n");
-      hBodyItem = NULLHANDLE;
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to create body item in memo.\n");
+        hBodyItem = NULLHANDLE;
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
-  PRINTLOG("\nBody:%s", szBody);
-  if (status = MailAppendBodyItemLine (hBodyItem, &dwBodyItemLen,
-                   szBody, (WORD)BodyLen))
+    PRINTLOG("\nBody:%s", szBody);
+    if (status = MailAppendBodyItemLine (hBodyItem, &dwBodyItemLen,
+                                         szBody, (WORD)BodyLen))
     { /* Unable to append text to body */
-      PRINTLOG ("\nError: unable to append text to body.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to append text to body.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
 
-  if (status = MailAddBodyItemExt(hMsg, hBodyItem, dwBodyItemLen, NULL))
+    if (status = MailAddBodyItemExt(hMsg, hBodyItem, dwBodyItemLen, NULL))
     { /* Unable to add Body item to memo */
-      PRINTLOG ("\nError: unable to add body item to memo.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to add body item to memo.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
 
-  /* Set "PostedDate" to the current time/date right now */
-  OSCurrentTIMEDATE(&tdDate);
-  if (status = MailAddHeaderItem( hMsg, MAIL_POSTEDDATE_ITEM_NUM,
-             (char*)(&tdDate),
-             (WORD)sizeof(TIMEDATE)))
+    /* Set "PostedDate" to the current time/date right now */
+    OSCurrentTIMEDATE(&tdDate);
+    if (status = MailAddHeaderItem( hMsg, MAIL_POSTEDDATE_ITEM_NUM,
+                                    (char*)(&tdDate),
+                                    (WORD)sizeof(TIMEDATE)))
     {
-      PRINTLOG ("\nError: unable to set date.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to set date.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
  
-  /*  Deliver the message. */
-  /*  If local, transfer message to the local mail.box */
-  if (fLocal)
+    /*  Deliver the message. */
+    /*  If local, transfer message to the local mail.box */
+    if (fLocal)
     {
-      if (status = MailTransferMessageLocal(hMsg))
+        if (status = MailTransferMessageLocal(hMsg))
         {
-           /* Unable to transfer message to local mail box */
-          PRINTLOG ("\nError: unable to transfer message to local mail box.\n");
-          error=SENDMAILERROR;
-          goto CloseMsg;
+            /* Unable to transfer message to local mail box */
+            PRINTLOG ("\nError: unable to transfer message to local mail box.\n");
+            error=SENDMAILERROR;
+            goto CloseMsg;
         }
-      /* else we successfully transferred msg to local mail box */
-      /* Save msg to user's mail file and clean up.*/
-      if (status = NSFNoteUpdate(hMsg, UPDATE_NOCOMMIT))
+        /* else we successfully transferred msg to local mail box */
+        /* Save msg to user's mail file and clean up.*/
+        if (status = NSFNoteUpdate(hMsg, UPDATE_NOCOMMIT))
         {   /* Unable to update message in local mail file */
-          PRINTLOG ("\nError: unable to update message in local mail box.\n");
-          error=SENDMAILERROR;
+            PRINTLOG ("\nError: unable to update message in local mail box.\n");
+            error=SENDMAILERROR;
         }
-      goto CloseMsg;
+        goto CloseMsg;
     }
   
-  /*  System is connected to the LAN (fLocal == FALSE). Open the
+    /*  System is connected to the LAN (fLocal == FALSE). Open the
       router's MAIL.BOX on the mail server, then copy msg there.
-   */
-  OSPathNetConstruct(NULL, szMailServerName, MAILBOX_NAME, szMailBoxPath);
-  
-  if (status = NSFDbOpen(szMailBoxPath, &hMailBox))
+    */
+    OSPathNetConstruct(NULL, szMailServerName, MAILBOX_NAME, szMailBoxPath);
+    
+    if (status = NSFDbOpen(szMailBoxPath, &hMailBox))
     {
-      PRINTLOG ("\nError: unable to open mail box.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        PRINTLOG ("\nError: unable to open mail box.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
   /*  Copy the message, which is a note in the user's mail file,
       to the mail box. Perform this copy by changing the origin to
@@ -615,85 +615,85 @@ int SendMail()
       Then update the message. This stores it in the MAIL.BOX file.
       Finally, restore the DBID, NOTEID, and OID.
    */
-  NSFNoteGetInfo(hMsg, _NOTE_ID,  &OrigNoteID);
-  NSFNoteGetInfo(hMsg, _NOTE_DB,  &hOrigDB);
-  NSFNoteGetInfo(hMsg, _NOTE_OID, &OrigNoteOID);
+    NSFNoteGetInfo(hMsg, _NOTE_ID,  &OrigNoteID);
+    NSFNoteGetInfo(hMsg, _NOTE_DB,  &hOrigDB);
+    NSFNoteGetInfo(hMsg, _NOTE_OID, &OrigNoteOID);
   
-  /* Set the message's OID database ID to match the mail box */
-  if (status = NSFDbGenerateOID (hMailBox, &NewNoteOID))
+    /* Set the message's OID database ID to match the mail box */
+    if (status = NSFDbGenerateOID (hMailBox, &NewNoteOID))
     {
-      /* Unable to generate originator ID for mail box */
-      PRINTLOG ("\nError: unable to generate id for mail box.\n");
-      error=SENDMAILERROR;
-      goto CloseMsg;
+        /* Unable to generate originator ID for mail box */
+        PRINTLOG ("\nError: unable to generate id for mail box.\n");
+        error=SENDMAILERROR;
+        goto CloseMsg;
     }
-  NSFNoteSetInfo(hMsg, _NOTE_DB,  &hMailBox);
-  NSFNoteSetInfo(hMsg, _NOTE_ID,  0);
-  NSFNoteSetInfo(hMsg, _NOTE_OID, &NewNoteOID);
+    NSFNoteSetInfo(hMsg, _NOTE_DB,  &hMailBox);
+    NSFNoteSetInfo(hMsg, _NOTE_ID,  0);
+    NSFNoteSetInfo(hMsg, _NOTE_OID, &NewNoteOID);
   
-  /* Update message into MAIL.BOX on mail server. */
-  if (status = NSFNoteUpdate(hMsg, UPDATE_NOCOMMIT))
+    /* Update message into MAIL.BOX on mail server. */
+    if (status = NSFNoteUpdate(hMsg, UPDATE_NOCOMMIT))
     {
-      /* Unable to update message to router mail box */
-      PRINTLOG ("\nError: unable to update message to router mail box.\n");
-      error=SENDMAILERROR;
+        /* Unable to update message to router mail box */
+        PRINTLOG ("\nError: unable to update message to router mail box.\n");
+        error=SENDMAILERROR;
     }
-  else/* message successfully copied into router's mail box */
+    else/* message successfully copied into router's mail box */
     {   /* restore msg to user's mail file and Update to save it there.*/
-      NSFNoteSetInfo(hMsg, _NOTE_DB,  &hOrigDB);
-      NSFNoteSetInfo(hMsg, _NOTE_ID,  &OrigNoteID);
-      NSFNoteSetInfo(hMsg, _NOTE_OID, &OrigNoteOID);
-      
-      status = NSFNoteUpdate(hMsg, UPDATE_NOCOMMIT);
+        NSFNoteSetInfo(hMsg, _NOTE_DB,  &hOrigDB);
+        NSFNoteSetInfo(hMsg, _NOTE_ID,  &OrigNoteID);
+        NSFNoteSetInfo(hMsg, _NOTE_OID, &OrigNoteOID);
+        
+        status = NSFNoteUpdate(hMsg, UPDATE_NOCOMMIT);
     }
   
 
 CloseMsg:
-  if (hRecipientsList != NULLHANDLE)  OSMemFree(hRecipientsList);
-  if (hSendToList != NULLHANDLE)      OSMemFree(hSendToList);
-  if (hCopyToList != NULLHANDLE)      OSMemFree(hCopyToList);
+    if (hRecipientsList != NULLHANDLE)  OSMemFree(hRecipientsList);
+    if (hSendToList != NULLHANDLE)      OSMemFree(hSendToList);
+    if (hCopyToList != NULLHANDLE)      OSMemFree(hCopyToList);
   
-  if (status) 
-      PRINTERROR(status,"NSFDbGenerateOID ");
+    if (status) 
+        PRINTERROR(status,"NSFDbGenerateOID ");
 
-  if (error == NOERROR)
+    if (error == NOERROR)
     {
-      if (status = MailCloseMessage(hMsg))
-      { /* Unable to close memo */
-          PRINTLOG ("\nError: unable to close memo.\n");
-          error=SENDMAILERROR;
-      }
-      else
-        if (hBodyItem != NULLHANDLE)  OSMemFree (hBodyItem);
+        if (status = MailCloseMessage(hMsg))
+        { /* Unable to close memo */
+            PRINTLOG ("\nError: unable to close memo.\n");
+            error=SENDMAILERROR;
+        }
+        else
+            if (hBodyItem != NULLHANDLE)  OSMemFree (hBodyItem);
     }
     else
-      {
+    {
         status = MailCloseMessage(hMsg);
         if ((status == NOERROR) && (hBodyItem != NULLHANDLE))
-          OSMemFree (hBodyItem);
-      }
+            OSMemFree (hBodyItem);
+    }
     if (hMailBox != NULLHANDLE)
         NSFDbClose (hMailBox);
 
 CloseFile:
-  if (error == NOERROR)
+    if (error == NOERROR)
     {
-      if (status = MailCloseMessageFile(hMailFile))
+        if (status = MailCloseMessageFile(hMailFile))
         { /* Unable to close mail file. */
-          PRINTLOG ("\nError: unable to close mail file.\n");
-          error=SENDMAILERROR;
+            PRINTLOG ("\nError: unable to close mail file.\n");
+            error=SENDMAILERROR;
         }
     }
-  else /* have already encountered an error condition */
+    else /* have already encountered an error condition */
     {    /* so don't check for further errors closing */
-      MailCloseMessageFile(hMailFile);
+        MailCloseMessageFile(hMailFile);
     }
 
-  if (error == NOERROR)
+    if (error == NOERROR)
     /* SendMail Success */
     PRINTLOG ("\nSendMail successful.\n");
 
-  return(status);
+    return(status);
 }
 
 
@@ -707,15 +707,15 @@ CloseFile:
  
 void  LNPUBLIC  ConvertNewlinesToNulls(char* szBody, int BodyLen)
 {
-  int    wByte;
+    int    wByte;
 
-  for (wByte=0; wByte<BodyLen; wByte++)
+    for (wByte=0; wByte<BodyLen; wByte++)
     {
-      if (szBody[wByte] == '\n' ) 
-           szBody[wByte] = '\0'; 
+        if (szBody[wByte] == '\n' ) 
+            szBody[wByte] = '\0'; 
     }
   
-  return;
+    return;
 }
 
 
@@ -836,7 +836,7 @@ STATUS PrintMail(char *szServerName)
     /* Create message list of messages in the file - just 64K */
 
     if (error = MailCreateMessageList(hMessageFile,
-                        &hMessageList, &MessageList, &MessageCount))
+                                      &hMessageList, &MessageList, &MessageCount))
     {
         PRINTLOG ("Error: unable to create message list.\n");
         goto Exit1;
@@ -848,157 +848,157 @@ STATUS PrintMail(char *szServerName)
   
     for (Msg = 0; Msg < MessageCount; Msg++)
     {
-      if (error = MailGetMessageInfo(MessageList, Msg,
-            &RecipientCount, NULL, NULL))
-      {
-        PRINTLOG("Error: unable to get number of recipients in message.\n");
-        MailCloseMessage(hMessage);
-        goto Exit2;
-      }
+        if (error = MailGetMessageInfo(MessageList, Msg,
+                                     &RecipientCount, NULL, NULL))
+        {
+            PRINTLOG("Error: unable to get number of recipients in message.\n");
+            MailCloseMessage(hMessage);
+            goto Exit2;
+        }
    
-      if (RecipientCount > 0)           /*To print mails which are sent*/
-      {
-         PRINTLOG("\nMessage #%d: \n", ++MsgNum);
+        if (RecipientCount > 0)           /*To print mails which are sent*/
+        {
+            PRINTLOG("\nMessage #%d: \n", ++MsgNum);
         
-         if (error = MailOpenMessage(MessageList, Msg, &hMessage))
-         {
-             PRINTLOG("Error: unable to open message number %d.\n", Msg + 1);
-             goto Exit2;
-         }
+            if (error = MailOpenMessage(MessageList, Msg, &hMessage))
+            {
+                PRINTLOG("Error: unable to open message number %d.\n", Msg + 1);
+                goto Exit2;
+            }
         
            /* Get the originator's name/address. */
-         if (error = MailGetMessageOriginator(MessageList, Msg,
+            if (error = MailGetMessageOriginator(MessageList, Msg,
                   Originator, sizeof(Originator) - 1, &OriginatorLength))
-         {
-              PRINTLOG("Error: unable to get message originator.\n");
-              goto Exit2;
-         }
+            {
+                PRINTLOG("Error: unable to get message originator.\n");
+                goto Exit2;
+            }
         
-         Originator[OriginatorLength] = '\0';
+            Originator[OriginatorLength] = '\0';
         
-         PRINTLOG("\tOriginator = '%s'\n", Originator);
+            PRINTLOG("\tOriginator = '%s'\n", Originator);
         
-         PRINTLOG("\tNumber of Recipients = %d.\n", RecipientCount);
+            PRINTLOG("\tNumber of Recipients = %d.\n", RecipientCount);
        
-         for (Rec = 0; Rec < RecipientCount; Rec++)
-         {
-             MailGetMessageRecipient(MessageList, Msg, Rec, RecipientName,
-                  sizeof(RecipientName) - 1, &RecipientNameLength);
-             MailParseMailAddress(RecipientName, RecipientNameLength,
-                  UserName, sizeof(UserName) - 1, &UserNameLength,
-                  DomainName, sizeof(DomainName) - 1, &DomainNameLength);
-             UserName[UserNameLength] = '\0';
-             DomainName[DomainNameLength] = '\0';
+            for (Rec = 0; Rec < RecipientCount; Rec++)
+            {
+                MailGetMessageRecipient(MessageList, Msg, Rec, RecipientName,
+                sizeof(RecipientName) - 1, &RecipientNameLength);
+                MailParseMailAddress(RecipientName, RecipientNameLength,
+                                     UserName, sizeof(UserName) - 1, &UserNameLength,
+                                     DomainName, sizeof(DomainName) - 1, &DomainNameLength);
+                UserName[UserNameLength] = '\0';
+                DomainName[DomainNameLength] = '\0';
 
-             PRINTLOG("\t\tRecipient %d = '%s'\t Domain = '%s'\n", Rec + 1,
-                 UserName, DomainName);
-         }   /* end of loop over recipients */
+                PRINTLOG("\t\tRecipient %d = '%s'\t Domain = '%s'\n", Rec + 1,
+                UserName, DomainName);
+            }  /* end of loop over recipients */
         
-         /* SendTo */
-         MailGetMessageItem(hMessage, MAIL_SENDTO_ITEM_NUM, String,
+            /* SendTo */
+            MailGetMessageItem(hMessage, MAIL_SENDTO_ITEM_NUM, String,
             MAXSPRINTF, &StringLength);
         
-         String[StringLength] = '\0';
-         PRINTLOG("\tTo: %s\n", String);
+            String[StringLength] = '\0';
+            PRINTLOG("\tTo: %s\n", String);
  
-         /* CopyTo */
-         MailGetMessageItem(hMessage, MAIL_COPYTO_ITEM_NUM, String,
+            /* CopyTo */
+            MailGetMessageItem(hMessage, MAIL_COPYTO_ITEM_NUM, String,
             MAXSPRINTF, &StringLength);
-         String[StringLength] = '\0';
-         PRINTLOG("\tCc: %s\n", String);
+            String[StringLength] = '\0';
+            PRINTLOG("\tCc: %s\n", String);
         
-         /* From */
-         MailGetMessageItem(hMessage, MAIL_FROM_ITEM_NUM, String,
-             MAXSPRINTF, &StringLength);
-         String[StringLength] = '\0';
-         PRINTLOG("\tFrom: %s\n", String);
+            /* From */
+            MailGetMessageItem(hMessage, MAIL_FROM_ITEM_NUM, String,
+            MAXSPRINTF, &StringLength);
+            String[StringLength] = '\0';
+            PRINTLOG("\tFrom: %s\n", String);
 
-         /* PostedDate */
-         MailGetMessageItemTimeDate(hMessage, MAIL_POSTEDDATE_ITEM_NUM, &Time);
-         ConvertTIMEDATEToText(NULL, NULL, &Time, String,
-             sizeof(String) - 1, &StringLength);
-         String[StringLength] = '\0';
-         PRINTLOG("\tDate: %s\n", String);
+            /* PostedDate */
+            MailGetMessageItemTimeDate(hMessage, MAIL_POSTEDDATE_ITEM_NUM, &Time);
+            ConvertTIMEDATEToText(NULL, NULL, &Time, String,
+                                  sizeof(String) - 1, &StringLength);
+            String[StringLength] = '\0';
+            PRINTLOG("\tDate: %s\n", String);
         
-         /* Subject. If non-delivery report, prefix with "NonDelivery of:" */
+            /* Subject. If non-delivery report, prefix with "NonDelivery of:" */
         
-         MailGetMessageItem(hMessage, MAIL_SUBJECT_ITEM_NUM, String,
-              MAXSPRINTF, &StringLength);
-         String[StringLength] = '\0';
-         if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
-         {
-             PRINTLOG("\tNonDelivery of: %s\n", String);
-         }
-         else
-         {
-             PRINTLOG("\tSubject: %s\n", String);
-         }
+            MailGetMessageItem(hMessage, MAIL_SUBJECT_ITEM_NUM, String,
+                               MAXSPRINTF, &StringLength);
+            String[StringLength] = '\0';
+            if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
+            {
+                PRINTLOG("\tNonDelivery of: %s\n", String);
+            }
+            else
+            {
+                PRINTLOG("\tSubject: %s\n", String);
+            }
          
-         if (NonDeliveryReport)
-         {
-             MailGetMessageItem(hMessage, MAIL_INTENDEDRECIPIENT_ITEM_NUM,
+            if (NonDeliveryReport)
+            {
+                MailGetMessageItem(hMessage, MAIL_INTENDEDRECIPIENT_ITEM_NUM,
                 String, sizeof(String), &StringLength);
-             String[StringLength] = '\0';
-             PRINTLOG("\tIntended Recipients: %s\n", String);
+                String[StringLength] = '\0';
+                PRINTLOG("\tIntended Recipients: %s\n", String);
              
-             MailGetMessageItem(hMessage, MAIL_FAILUREREASON_ITEM_NUM,
+                MailGetMessageItem(hMessage, MAIL_FAILUREREASON_ITEM_NUM,
                 String, sizeof(String), &StringLength);
-             String[StringLength] = '\0';
-             PRINTLOG("\tFailure Reason: %s\n", String);
-         }
+                String[StringLength] = '\0';
+                PRINTLOG("\tFailure Reason: %s\n", String);
+            }
          
-         /* Body */
+            /* Body */
           
-         if (error = GetUniqueFileName(szDriveLetter_blank, szExtensionName_TMP, BodyFileName))
-         {
-              PRINTLOG("Error: unable to create temporary file name.\n");
-              MailCloseMessage(hMessage);
-              goto Exit2;
-         }
-         if (error = MailGetMessageBodyText(hMessage,
-                 NULL,     /* Use standard Body item */
-                 szNewline_Terminate,
-                 80,        /* 80 chars per line */
-                 TRUE,     /* Convert TABs */
-                 BodyFileName,
-                 &BodyFileSize))
-         {
-              PRINTLOG("Error: unable to get Message body into temporary file.\n");
+            if (error = GetUniqueFileName(szDriveLetter_blank, szExtensionName_TMP, BodyFileName))
+            {
+                PRINTLOG("Error: unable to create temporary file name.\n");
+                MailCloseMessage(hMessage);
+                goto Exit2;
+            }
+            if (error = MailGetMessageBodyText(hMessage,
+                                               NULL,     /* Use standard Body item */
+                                               szNewline_Terminate,
+                                               80,        /* 80 chars per line */
+                                               TRUE,     /* Convert TABs */
+                                               BodyFileName,
+                                               &BodyFileSize))
+            {
+                PRINTLOG("Error: unable to get Message body into temporary file.\n");
 #ifdef LINUX
-              unlink(BodyFileName);
+                unlink(BodyFileName);
 #else
-              _unlink(BodyFileName);
+                _unlink(BodyFileName);
 #endif
-              MailCloseMessage(hMessage);
-              goto Exit2;
-         }
+                MailCloseMessage(hMessage);
+                goto Exit2;
+            }
         
              /* Print each line of body text to the screen. */
 
 #if defined(OS400)
-         if (!(BodyFile = fopen(BodyFileName, "rb")))
+            if (!(BodyFile = fopen(BodyFileName, "rb")))
 #else
-         if (!(BodyFile = fopen(BodyFileName, "r")))
+            if (!(BodyFile = fopen(BodyFileName, "r")))
 #endif
-         {
-               PRINTLOG("Error: unable to open temporary file.\n");
-               unlink(BodyFileName);
-               MailCloseMessage(hMessage);
-               goto Exit2;
-         }
+            {
+                PRINTLOG("Error: unable to open temporary file.\n");
+                unlink(BodyFileName);
+                MailCloseMessage(hMessage);
+                goto Exit2;
+            }
             
-         PRINTLOG("\tBody:\n");
-         while (fgets(String, READMAIL_BODY_LINELEN, BodyFile))
-         {
-             PRINTLOG("\t\t%s\n", String);
-         }
-         fclose(BodyFile);
-         unlink(BodyFileName);
-         MailCloseMessage(hMessage);
-      }
+            PRINTLOG("\tBody:\n");
+            while (fgets(String, READMAIL_BODY_LINELEN, BodyFile))
+            {
+                PRINTLOG("\t\t%s\n", String);
+            }
+            fclose(BodyFile); 
+            unlink(BodyFileName);
+            MailCloseMessage(hMessage);
+        }
     }     /* end of loop over messages */
     
-      /* Free the message list and close the message file */
+    /* Free the message list and close the message file */
      
 Exit2:
     if (hMessageList != NULLHANDLE)
@@ -1012,10 +1012,10 @@ Exit1:
     if (hMessageFile != NULLHANDLE)
         MailCloseMessageFile(hMessageFile);
 Exit0:
-	if (ERR(error))
-	{
-		PRINTERROR(error, "MailOpenMessageFile");
-	}
+    if (ERR(error))
+    {
+        PRINTERROR(error, "MailOpenMessageFile");
+    }
     else 
     {
        PRINTLOG("\nProgram completed successfully.\n");
@@ -1054,11 +1054,11 @@ STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
 
     for (Num = 0; Num <= 32767; Num++)
     {
-         sprintf(Name, "%i", Num); /*_itoa(Num, Name, 10);*/
-         sprintf(FileName, "%s%s.%s", Dir,Name,Ext); /* _makepath(FileName, Drive, Dir, Name, Ext);*/
-         if ((file = open(FileName, O_RDONLY, 0777)) == -1)
+        sprintf(Name, "%i", Num); /*_itoa(Num, Name, 10);*/
+        sprintf(FileName, "%s%s.%s", Dir,Name,Ext); /* _makepath(FileName, Drive, Dir, Name, Ext);*/
+        if ((file = open(FileName, O_RDONLY, 0777)) == -1)
             return(NOERROR);
-         close(file);
+        close(file);
     }
     FileName[0] = '\0';
     return(NOERROR);

@@ -127,8 +127,8 @@ BOOL CCapiErrD::OnInitDialog()
 	strAboutMenu.LoadString(IDS_ABOUTBOX);
 	if (!strAboutMenu.IsEmpty())
 	{
-		pSysMenu->AppendMenu(MF_SEPARATOR);
-		pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
+	    pSysMenu->AppendMenu(MF_SEPARATOR);
+	    pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 	}
 
 	// Set the icon for this dialog.  The framework does this automatically
@@ -142,7 +142,7 @@ BOOL CCapiErrD::OnInitDialog()
 	// and exit the program.
 	if (nError != NOERROR)
 	{
-		 AfxMessageBox ("Unable to Initialize Notes!", MB_OK);
+	    AfxMessageBox ("Unable to Initialize Notes!", MB_OK);
 	}
 
 	((CButton *)GetDlgItem(IDC_DEC))->SetCheck(1);
@@ -153,12 +153,12 @@ void CCapiErrD::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
 	{
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
+	    CAboutDlg dlgAbout;
+	    dlgAbout.DoModal();
 	}
 	else
 	{
-		CDialog::OnSysCommand(nID, lParam);
+	    CDialog::OnSysCommand(nID, lParam);
 	}
 }
 
@@ -166,24 +166,24 @@ void CCapiErrD::OnPaint()
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // device context for painting
+	    CPaintDC dc(this); // device context for painting
 
-		SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
+	    SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
 
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
+	    // Center icon in client rectangle
+	    int cxIcon = GetSystemMetrics(SM_CXICON);
+	    int cyIcon = GetSystemMetrics(SM_CYICON);
+	    CRect rect;
+	    GetClientRect(&rect);
+	    int x = (rect.Width() - cxIcon + 1) / 2;
+	    int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
+	    // Draw the icon
+	    dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
 	{
-		CDialog::OnPaint();
+	    CDialog::OnPaint();
 	}
 }
 
@@ -214,31 +214,31 @@ void CCapiErrD::OnGetErrorClick()
 
 	if(((CButton *)GetDlgItem(IDC_DEC))->GetCheck())
 	{
-		iStatus = sscanf(LPCTSTR(m_errCode), "%d", &nError);
-		strFormatText.Format("Status: %d(dec) %x(hex)\n", nError, nError);
+	    iStatus = sscanf(LPCTSTR(m_errCode), "%d", &nError);
+	    strFormatText.Format("Status: %d(dec) %x(hex)\n", nError, nError);
 	}
 	else
 	{		
-		iStatus = sscanf(LPCTSTR(m_errCode), "%x", &nError);
-		strFormatText.Format("Status: %x(hex) %d(dec)\n", nError, nError);
+	    iStatus = sscanf(LPCTSTR(m_errCode), "%x", &nError);
+	    strFormatText.Format("Status: %x(hex) %d(dec)\n", nError, nError);
 	}
 	
 	if(EOF == iStatus ||  0 == iStatus)
 	{
-		strFormatText = "Invalid entry.";
+	    strFormatText = "Invalid entry.";
 	}
 	else
 	{
-		strFormatText+= "\n";
-		OSLoadString(NULLHANDLE, ERR(nError), s, LINEOTEXT-1);
-		if(strlen(s)) 
-		{
-			strFormatText += s;
-		}
-		else
-		{
-			strFormatText += "No matching ASCII text";
-		}
+	    strFormatText+= "\n";
+	    OSLoadString(NULLHANDLE, ERR(nError), s, LINEOTEXT-1);
+	    if(strlen(s)) 
+	    {
+	        strFormatText += s;
+	    }
+	    else
+	    {
+	        strFormatText += "No matching ASCII text";
+	    }
 	}
 	SetDlgItemText(IDC_ERROR_MESSAGE, strFormatText);
 	m_errCode.ReleaseBuffer();

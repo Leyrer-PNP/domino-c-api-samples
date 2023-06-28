@@ -133,9 +133,9 @@ int main (int argc, char *argv[])
         goto Exit1;
 
     fprintf(pAgentsLog, "Successfully executed the triggered agent notes in '%s'.\n",
-                             szDbName);
+            szDbName);
     PRINTLOG ("Program execution completed.  See logfile '%s' for results.\n",
-                AGENTS_LOG);
+               AGENTS_LOG);
     fprintf (pAgentsLog, "Program execution completed.\n", AGENTS_LOG);
 
 
@@ -194,7 +194,7 @@ STATUS  LNPUBLIC  RunTriggeredAgents( DBHANDLE hDb )
     NSFNoteSetInfo(hParmNote, _NOTE_CLASS, &wNoteClass);
 
     if (error = NSFItemSetText(hParmNote, PARM_FIELD, PARM_VALUE,
-                                 (WORD)strlen(PARM_VALUE)) )
+                               (WORD)strlen(PARM_VALUE)) )
         goto Exit2;
 
     if (error = NSFNoteUpdate(hParmNote, 0))
@@ -204,7 +204,7 @@ STATUS  LNPUBLIC  RunTriggeredAgents( DBHANDLE hDb )
 
     /* Set up agent run context for the background agent */
     if (error = SetRunContext(hBackgroundAgent, LOTUSSCRIPT_ACTION, 
-                                &hAgentRunCtx))
+                              &hAgentRunCtx))
         goto Exit3;
 
     /* Run the background agent */
@@ -224,7 +224,7 @@ STATUS  LNPUBLIC  RunTriggeredAgents( DBHANDLE hDb )
 
     /* Reset the agent run context for the scheduled agent */
     if (error = SetRunContext(hScheduledAgent, FORMULA_ACTION, 
-                                &hAgentRunCtx))
+                              &hAgentRunCtx))
         goto Exit4;
 
     /* Run the scheduled agent */
@@ -290,7 +290,7 @@ STATUS  LNPUBLIC  OpenAgent( DBHANDLE hDb, char *szAgentName,
                                    NOTE_CLASS_FILTER, &AgentId))
     {
         error = NIFFindPrivateDesignNote (hDb, szAgentName,
-                                              NOTE_CLASS_FILTER, &AgentId);
+                                          NOTE_CLASS_FILTER, &AgentId);
         if (error)
             return (error);
     }
@@ -319,7 +319,7 @@ STATUS  LNPUBLIC  OpenAgent( DBHANDLE hDb, char *szAgentName,
 
 *************************************************************************/
 STATUS  LNPUBLIC  SetRunContext( HAGENT hOpenAgent, WORD wActionType,
-                                    HAGENTCTX *hOpenAgentCtx )
+                                 HAGENTCTX *hOpenAgentCtx )
 {
     STATUS          error = NOERROR;
 
@@ -553,7 +553,7 @@ data objects */
  * exists.  */
 
     if (error = NSFDbReadObject(hDb,objRunInfo.RRV, dwOffset, 
-                    ODSLength(_ODS_ASSISTRUNOBJECTENTRY)*RunHeader.wEntries, &hBuffer))
+                ODSLength(_ODS_ASSISTRUNOBJECTENTRY)*RunHeader.wEntries, &hBuffer))
         goto Exit1;
     pObject = OSLock (char, hBuffer);
 
@@ -592,7 +592,7 @@ data objects */
  * It is always the first run data object. 
  */
     if (error = NSFDbReadObject(hDb, objRunInfo.RRV, dwOffset, 
-                      ODSLength(_ODS_ASSISTRUNINFO), &hBuffer))
+                ODSLength(_ODS_ASSISTRUNINFO), &hBuffer))
         goto Exit1;
     pObject = OSLock (char, hBuffer);
     ODSReadMemory( &pObject, _ODS_ASSISTRUNINFO, &RunInfo, 1 );
@@ -612,7 +612,7 @@ data objects */
         if (RunEntry[wCounter].dwLength != 0)
         {
             if (error = NSFDbReadObject(hDb, objRunInfo.RRV, dwOffset, 
-                             RunEntry[wCounter].dwLength, &hBuffer))
+                        RunEntry[wCounter].dwLength, &hBuffer))
                 goto Exit1;
             pObject = OSLock (char, hBuffer);
             if (wCounter == 2)

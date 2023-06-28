@@ -90,15 +90,15 @@ to find all the documents in the database, you can set the 2nd argument
 to NULLHANDLE and eliminate the formula compilation.) */
 
     if (error = NSFSearch (
-                db_handle,      /* database handle */
-                NULL, /* selection formula */
-                NULL,           /* title of view in selection formula */
-                0,              /* search flags */
-                NOTE_CLASS_DOCUMENT,/* note class to find */
-                NULL,           /* starting date (unused) */
-                print_fields,   /* call for each note found */
-                &db_handle,     /* argument to print_fields */
-                NULL))          /* returned ending date (unused) */
+                           db_handle,      /* database handle */
+                           NULL, /* selection formula */
+                           NULL,           /* title of view in selection formula */
+                           0,              /* search flags */
+                           NOTE_CLASS_DOCUMENT,/* note class to find */
+                           NULL,           /* starting date (unused) */
+                           print_fields,   /* call for each note found */
+                           &db_handle,     /* argument to print_fields */
+                           NULL))          /* returned ending date (unused) */
     {
         NSFDbClose (db_handle);
         PRINTERROR (error,"NSFSearch");  
@@ -198,10 +198,10 @@ but is shown here in case a starting date was used in the search. */
 /* Open the note. */
 
     if (error = NSFNoteOpen (
-                *(DBHANDLE far *)db_handle,  /* database handle */
-                SearchMatch.ID.NoteID, /* note ID */
-                0,                      /* open flags */
-                &note_handle))          /* note handle (return) */
+                             *(DBHANDLE far *)db_handle,  /* database handle */
+                             SearchMatch.ID.NoteID, /* note ID */
+                             0,                      /* open flags */
+                             &note_handle))          /* note handle (return) */
         
     return (ERR(error));
 
@@ -209,18 +209,18 @@ but is shown here in case a starting date was used in the search. */
 /* Look for (and get if it's there) the NUMBER field within this note.*/
 
  field_found = NSFItemIsPresent ( 
-                note_handle,
-                "NUMBER",
-                (WORD) strlen ("NUMBER"));
+                                  note_handle,
+                                  "NUMBER",
+                                  (WORD) strlen ("NUMBER"));
                 
 /* If the NUMBER field was found, print it. */
                 
     if (field_found)
     {
         number_field = NSFItemGetLong ( 
-                note_handle, 
-                "number",
-                0);
+                                        note_handle, 
+                                        "number",
+                                        0);
 
         PRINTLOG ("Number field is: %ld\n", number_field);
      /* checking NUMBER field is 1 */   
@@ -252,9 +252,9 @@ but is shown here in case a starting date was used in the search. */
 /* Look for the TIME_DATE field within this note. */
 
     field_found = NSFItemIsPresent ( 
-                note_handle,
-                "TIME_DATE",
-                (WORD) strlen ("TIME_DATE"));
+                                     note_handle,
+                                     "TIME_DATE",
+                                     (WORD) strlen ("TIME_DATE"));
 
 /* If the TIME_DATE field is there, get the contents of the field and compare 
 it with current date to determine the item date is past date or future date */
@@ -267,12 +267,13 @@ it with current date to determine the item date is past date or future date */
         {
             /* Converts binary TIMEDATE into a character text string */
             if(error=ConvertTIMEDATEToText(
-                NULL,
-                NULL,
-                &tdNSFItemDateTime,
-                retTextBuffer,
-                MAXALPHATIMEDATE+1,
-                &retTextLength)){
+                                           NULL,
+                                           NULL,
+                                           &tdNSFItemDateTime,
+                                           retTextBuffer,
+                                           MAXALPHATIMEDATE+1,
+                                           &retTextLength))
+            {
                 OSLoadString(NULLHANDLE,ERR(error),errStr,100);
                 PRINTLOG("Error in ConvertTIMEDATEToText : %s\n",errStr);
                 return error;
@@ -350,13 +351,13 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
     if (argc != 2)  
     {
 
-      printf("Enter name of database: ");      
-      fflush(stdout);
-      gets(db_filename);
+        printf("Enter name of database: ");      
+        fflush(stdout);
+        gets(db_filename);
       
     }    
     else
     {
-         strncpy(db_filename, argv[1],strlen(argv[1]));            
+        strncpy(db_filename, argv[1],strlen(argv[1]));            
     } /* end if */
 } /* ProcessArgs */

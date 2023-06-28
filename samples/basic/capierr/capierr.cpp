@@ -31,11 +31,11 @@ static char THIS_FILE[] = __FILE__;
 // CCapiErrApp
 
 BEGIN_MESSAGE_MAP(CCapiErrApp, CWinApp)
-	//{{AFX_MSG_MAP(CCapiErrApp)
-		// NOTE - the ClassWizard will add and remove mapping macros here.
-		//    DO NOT EDIT what you see in these blocks of generated code!
-	//}}AFX_MSG
-	ON_COMMAND(ID_HELP, CWinApp::OnHelp)
+   //{{AFX_MSG_MAP(CCapiErrApp)
+        // NOTE - the ClassWizard will add and remove mapping macros here.
+        //    DO NOT EDIT what you see in these blocks of generated code!
+    //}}AFX_MSG
+    ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -55,12 +55,12 @@ CCapiErrApp theApp;
 
 BOOL CCapiErrApp::InitInstance()
 {
-	// Standard initialization
-	CCapiErrD dlg;
-	m_pMainWnd = &dlg;
+    // Standard initialization
+    CCapiErrD dlg;
+    m_pMainWnd = &dlg;
     dlg.DoModal();
-	
-	// Since the dialog has been closed, return FALSE so that we exit the
-	//  application, rather than start the application's message pump.
-	return FALSE;
+    
+    // Since the dialog has been closed, return FALSE so that we exit the
+    //  application, rather than start the application's message pump.
+    return FALSE;
 }

@@ -72,7 +72,7 @@ STATUS GetServerLoad ( char FAR *pServerName, /* server name */
     char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
     STATUS  nError;
 
-   	/* Canonicalize the servername if it isn't already done.  
+    /* Canonicalize the servername if it isn't already done.  
      * The NSPingServer should use a canonicalized servername as input
      */
     nError = DNCanonicalize( 0L, NULL, pServerName, (char FAR*)szCanonServerName, 
@@ -102,7 +102,7 @@ STATUS GetServerLoad ( char FAR *pServerName, /* server name */
 
 STATUS GetServerCluster ( char FAR *pServerName,  /* server name */
                           char FAR *pClusterName  /* returned cluster name */
-                        )
+                         )
 {
     WORD        wNumListEntries = 0;
     WORD        wBufferLen = 0;
@@ -188,7 +188,7 @@ Cleanup:
 STATUS GetServerClusterMates ( char FAR *pServerName, /* server name */ 
                                DWORD dwLookupFlags,   /* lookup flags */
                                DHANDLE *hRetList       /* returned clustermates */    
-                             )
+                              )
 {
     char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
     STATUS  nError;
@@ -238,12 +238,12 @@ STATUS GetDBMarks ( char FAR *pServerName,  /* database server name */
                     char FAR *pDBName,      /* database file name */ 
                     DWORD    *dwOptionMask, /* open option flags */
                     BOOL     *bFailover     /* TRUE if server failover */         
-                  )
+                   )
 {
-    STATUS      nError;
+    STATUS        nError;
     DHANDLE       hDb;            /* NSFDbOpenExtended parameters */
-    TIMEDATE    dataNoteMod;
-    TIMEDATE    nonDataNoteMod;
+    TIMEDATE      dataNoteMod;
+    TIMEDATE      nonDataNoteMod;
 
     char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Name of Server */
     char    szNetPathName[MAXPATH];         /* Network Path of Database */
@@ -267,8 +267,8 @@ STATUS GetDBMarks ( char FAR *pServerName,  /* database server name */
 
     /* 2) Open the Database via NSFDbOpenExtended (support server failover)*/
     nError = NSFDbOpenExtended ((char FAR *)szNetPathName, 
-                                    DBOPEN_CLUSTER_FAILOVER, NULLHANDLE, NULL,
-                                    &hDb, &dataNoteMod, &nonDataNoteMod );
+                                DBOPEN_CLUSTER_FAILOVER, NULLHANDLE, NULL,
+                                &hDb, &dataNoteMod, &nonDataNoteMod );
     if (nError != NOERROR )
         return nError;
 
@@ -301,7 +301,7 @@ STATUS GetDBMarks ( char FAR *pServerName,  /* database server name */
         /* Failover occured -> return new abbreviated server/db name */
         *bFailover = TRUE;
         nError = DNAbbreviate (0L, NULL, (char FAR *)szFailoverServerName,
-                                pServerName, MAXUSERNAME, NULL);
+                               pServerName, MAXUSERNAME, NULL);
 #ifndef UNIX
         lstrcpy (pDBName, (char FAR *)szFailoverDBName);
 #else
@@ -422,7 +422,7 @@ STATUS RemoteCommand(char FAR *pServerName,     /* server name */
 
     /* and execute the remote console command to the specified server */
     nError = NSFRemoteConsole( szCanonServerName, pConsoleCommand, 
-                                &hServerResponse);
+                               &hServerResponse);
     
     /* if no error, then package the returned response buffer */
     if (nError == NOERROR)
@@ -473,7 +473,7 @@ STATUS CreateAndCopyDB ( char FAR *pServerName, /* source server name */
                          char FAR *pServerDest, /* destination server name */
                          char FAR *pDBDest,     /* destination database name */
                          DWORD    dwCopyFlag    /* copy flag */
-                       )
+                        )
 {
     STATUS  nError;
     char    szCanonServerName[MAXUSERNAME]; /* Canonicalized Source Name */

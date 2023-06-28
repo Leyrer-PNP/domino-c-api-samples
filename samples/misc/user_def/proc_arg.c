@@ -62,7 +62,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
     }
     else
     {   
-         strcpy(db_filename, argv[1]);
+        strcpy(db_filename, argv[1]);
     } /* end if */
 } /* ProcessArgs */
 

@@ -81,157 +81,157 @@ void LNPUBLIC PrintTitle (DWORD dwItem, WORD wClass, BYTE *summary);
 
 int main (int argc, char *argv[])
 {
-  STATUS             error=0;
-  char               *szPathName;
-  DBHANDLE           hDB;
-  char               szDBInfo[NSF_INFO_SIZE];
-  char               szDBTitle[NSF_INFO_SIZE];
-  HCOLLECTION        hCollection;
-  COLLECTIONPOSITION CollPosition;
-  DHANDLE            hBuffer;
-  BYTE               *pBuffer;
-  BYTE               *pSummary;
-  DWORD              dwEntriesFound, i;
-  ITEM_TABLE         ItemTable;
-  WORD               wClass;
+   STATUS             error=0;
+   char               *szPathName;
+   DBHANDLE           hDB;
+   char               szDBInfo[NSF_INFO_SIZE];
+   char               szDBTitle[NSF_INFO_SIZE];
+   HCOLLECTION        hCollection;
+   COLLECTIONPOSITION CollPosition;
+   DHANDLE            hBuffer;
+   BYTE               *pBuffer;
+   BYTE               *pSummary;
+   DWORD              dwEntriesFound, i;
+   ITEM_TABLE         ItemTable;
+   WORD               wClass;
 
 
-  if (error = NotesInitExtended (argc, argv))
-  {
-     PRINTERROR (error,"NotesInitExtended");
-     NotesTerm();
-     return (1);
-  }
+   if (error = NotesInitExtended (argc, argv))
+   {
+       PRINTERROR (error,"NotesInitExtended");
+       NotesTerm();
+       return (1);
+   }
 
 
-  /* Allocate memory for an input database path */
-  szPathName = (char *) malloc(STRING_LENGTH);
-  if (szPathName == NULL)
-  {
-    PRINTLOG("Error: Out of memory.\n");
-    NotesTerm();
-    return (0);
-  }
+   /* Allocate memory for an input database path */
+   szPathName = (char *) malloc(STRING_LENGTH);
+   if (szPathName == NULL)
+   {
+       PRINTLOG("Error: Out of memory.\n");
+       NotesTerm();
+       return (0);
+   }
 
-  /* Get the pathname of the database. */
-  ProcessArgs(argc, argv, szPathName);
+   /* Get the pathname of the database. */
+   ProcessArgs(argc, argv, szPathName);
 
   /* Open the database */
-  if (error = NSFDbOpen (szPathName, &hDB))
-  {
-    PRINTLOG ("Error: unable to open database '%s'.\n", szPathName);
-    free(szPathName);
-    PRINTERROR (error,"NSFDbOpen");
-    return (1);
-  }
+   if (error = NSFDbOpen (szPathName, &hDB))
+   {
+       PRINTLOG ("Error: unable to open database '%s'.\n", szPathName);
+       free(szPathName);
+       PRINTERROR (error,"NSFDbOpen");
+       return (1);
+   }
 
-  if (error = NSFDbInfoGet (hDB, szDBInfo))
-  {
-    PRINTLOG("Error: unable to get title of database '%s'\n.", szPathName);
-    NSFDbClose (hDB);
-    free(szPathName);
-    PRINTERROR (error,"NSFDbInfoGet");
-    return (1);
-  }
+   if (error = NSFDbInfoGet (hDB, szDBInfo))
+   {
+       PRINTLOG("Error: unable to get title of database '%s'\n.", szPathName);
+       NSFDbClose (hDB);
+       free(szPathName);
+       PRINTERROR (error,"NSFDbInfoGet");
+       return (1);
+   }
 
-  NSFDbInfoParse (szDBInfo, INFOPARSE_TITLE, szDBTitle, NSF_INFO_SIZE-1);
+   NSFDbInfoParse (szDBInfo, INFOPARSE_TITLE, szDBTitle, NSF_INFO_SIZE-1);
  
-  PRINTLOG("Printing design collection for '%s'\n", szDBTitle);
+   PRINTLOG("Printing design collection for '%s'\n", szDBTitle);
 
-  /* Open the special "design" collection, which contains an index of
-     all nondata notes. */
+   /* Open the special "design" collection, which contains an index of
+      all nondata notes. */
 
-  if (error = NIFOpenCollection(hDB, 
-                            hDB, 
-                            NOTE_ID_SPECIAL+NOTE_CLASS_DESIGN,
-                            OPEN_DO_NOT_CREATE,
-                            NULLHANDLE,
-                            &hCollection,
-                            NULL, NULL, NULL, NULL))
-  {    /* Collection may not have been setup yet by the first user to 
+   if (error = NIFOpenCollection(hDB, 
+                                 hDB, 
+                                 NOTE_ID_SPECIAL+NOTE_CLASS_DESIGN,
+                                 OPEN_DO_NOT_CREATE,
+                                 NULLHANDLE,
+                                 &hCollection,
+                                 NULL, NULL, NULL, NULL))
+   {   /* Collection may not have been setup yet by the first user to 
           open the file.*/
-    PRINTLOG("Unable to open the design collection for '%s'.\n", szDBTitle);
-    NSFDbClose (hDB);
-    free(szPathName);
-    PRINTERROR (error,"NIFOpenCollection");
-    return (1);
-  }
+       PRINTLOG("Unable to open the design collection for '%s'.\n", szDBTitle);
+       NSFDbClose (hDB);
+       free(szPathName);
+       PRINTERROR (error,"NIFOpenCollection");
+       return (1);
+   }
 
-  CollPosition.Level = 0;
-  CollPosition.Tumbler[0] = 1;
+   CollPosition.Level = 0;
+   CollPosition.Tumbler[0] = 1;
 
-  if (error = NIFReadEntries(
-             hCollection,           /* handle to this collection */
-             &CollPosition,         /* where to start in collection */
-             NAVIGATE_CURRENT,      /* order to use when skipping */
-             0L,                    /* number to skip */
-             NAVIGATE_NEXT,         /* order to use when reading */
-             0xFFFFFFFF,            /* max number to read */
-             READ_MASK_NOTECLASS +  /* read the note class */
-             READ_MASK_SUMMARY,     /* and the summary buffer */
-             &hBuffer,              /* handle to info buffer (return)  */
-             NULL,                  /* length of info buffer (return) */
-             NULL,                  /* entries skipped (return) */
-             &dwEntriesFound,       /* entries read (return) */
-             NULL))
-  {
-    PRINTLOG("No entries found in design collection for '%s'.\n", szDBTitle);
-    NIFCloseCollection (hCollection);
-    NSFDbClose (hDB);
-    free(szPathName);
-    PRINTERROR (error,"NIFReadEntries");
-    return (1);
-  }
+   if (error = NIFReadEntries(
+                              hCollection,           /* handle to this collection */
+                              &CollPosition,         /* where to start in collection */
+                              NAVIGATE_CURRENT,      /* order to use when skipping */
+                              0L,                    /* number to skip */
+                              NAVIGATE_NEXT,         /* order to use when reading */
+                              0xFFFFFFFF,            /* max number to read */
+                              READ_MASK_NOTECLASS +  /* read the note class */
+                              READ_MASK_SUMMARY,     /* and the summary buffer */
+                              &hBuffer,              /* handle to info buffer (return)  */
+                              NULL,                  /* length of info buffer (return) */
+                              NULL,                  /* entries skipped (return) */
+                              &dwEntriesFound,       /* entries read (return) */
+                              NULL))
+   {
+       PRINTLOG("No entries found in design collection for '%s'.\n", szDBTitle);
+       NIFCloseCollection (hCollection);
+       NSFDbClose (hDB);
+       free(szPathName);
+       PRINTERROR (error,"NIFReadEntries");
+       return (1);
+   }
 
-  /* Check to make sure there was a buffer of information returned. */ 
+   /* Check to make sure there was a buffer of information returned. */ 
 
-  if (hBuffer == NULLHANDLE)
-  {
-    PRINTLOG ("Empty buffer returned reading entries in design collection.\n");
-    NIFCloseCollection (hCollection);
-    NSFDbClose (hDB);
-    free(szPathName);
-    PRINTERROR (error,"NIFReadEntries");
-    return (1);
-  }
+   if (hBuffer == NULLHANDLE)
+   {
+       PRINTLOG ("Empty buffer returned reading entries in design collection.\n");
+       NIFCloseCollection (hCollection);
+       NSFDbClose (hDB);
+       free(szPathName);
+       PRINTERROR (error,"NIFReadEntries");
+       return (1);
+   }
 
-  pBuffer = (BYTE *) OSLockObject (hBuffer);
+   pBuffer = (BYTE *) OSLockObject (hBuffer);
 
-  PRINTLOG ("Found %ld design notes in '%s'.\n",dwEntriesFound, szDBTitle);
-  for (i = 0; i < dwEntriesFound; i++)
-  {
-    wClass = *(WORD*) pBuffer;
-    pBuffer += sizeof (WORD);
+   PRINTLOG ("Found %ld design notes in '%s'.\n",dwEntriesFound, szDBTitle);
+   for (i = 0; i < dwEntriesFound; i++)
+   {
+       wClass = *(WORD*) pBuffer;
+       pBuffer += sizeof (WORD);
 
-    ItemTable = *(ITEM_TABLE*) pBuffer;
+   ItemTable = *(ITEM_TABLE*) pBuffer;
 
-    /* Remember where the start of this entry's summary is. Then advance
-    the main pointer over the summary. */
-    pSummary = pBuffer;
-    pBuffer += ItemTable.Length; 
+   /* Remember where the start of this entry's summary is. Then advance
+   the main pointer over the summary. */
+   pSummary = pBuffer;
+   pBuffer += ItemTable.Length; 
  
-    /* Call PrintTitle to print the type and title of the design note. */
-    PrintTitle (i, wClass, pSummary);
+   /* Call PrintTitle to print the type and title of the design note. */
+   PrintTitle (i, wClass, pSummary);
 
-  } /* End of loop that processes each entry. */
+   } /* End of loop that processes each entry. */
 
-  /* Unlock the buffer returned from NIFReadEntries. */
-  OSUnlockObject (hBuffer);
+   /* Unlock the buffer returned from NIFReadEntries. */
+   OSUnlockObject (hBuffer);
 
-  /* Free the memory allocated by NIFReadEntries. */
-  OSMemFree (hBuffer);
+   /* Free the memory allocated by NIFReadEntries. */
+   OSMemFree (hBuffer);
 
-  if (error = NIFCloseCollection(hCollection))
-  {
-     NSFDbClose(hDB);
-     free(szPathName);
-     PRINTERROR (error,"NIFCloseCollection");
-     return (1);
-  }
+   if (error = NIFCloseCollection(hCollection))
+   {
+       NSFDbClose(hDB);
+       free(szPathName);
+       PRINTERROR (error,"NIFCloseCollection");
+       return (1);
+   }
 
-  NSFDbClose(hDB);
-  free(szPathName);
-  return (0);
+   NSFDbClose(hDB);
+   free(szPathName);
+   return (0);
 
 }
 
@@ -250,84 +250,84 @@ int main (int argc, char *argv[])
 
 void LNPUBLIC PrintTitle (DWORD dwItem, WORD wClass, BYTE *summary)
 {
-  char       *szNoteType; /* e.g. "Form" */
-  char       *pItemValue; /* initialized by NSFLocateSummaryValue */
-  WORD        Length, Type;
-  char        szTitleString[DESIGN_NAME_MAX];
-  char        HelpAbout[] = "help-about";
-  char        Form[] = "Form";
-  char        View[] = "View";
-  char        Icon[] = "Icon";
-  char        DesColl[] = "design collection";
-  char        ACL[] = "A.C.L.";
-  char        NotesHelp[] = "Notes Help";
-  char        DBHelp[] = "Database Help";
-  char        Macro[] = "Macro";
-  char        Field[] = "Field";
-  char        RepFormula[] = "replication formula";
-  char        Unknown[] = "unknown";
+   char       *szNoteType; /* e.g. "Form" */
+   char       *pItemValue; /* initialized by NSFLocateSummaryValue */
+   WORD        Length, Type;
+   char        szTitleString[DESIGN_NAME_MAX];
+   char        HelpAbout[] = "help-about";
+   char        Form[] = "Form";
+   char        View[] = "View";
+   char        Icon[] = "Icon";
+   char        DesColl[] = "design collection";
+   char        ACL[] = "A.C.L.";
+   char        NotesHelp[] = "Notes Help";
+   char        DBHelp[] = "Database Help";
+   char        Macro[] = "Macro";
+   char        Field[] = "Field";
+   char        RepFormula[] = "replication formula";
+   char        Unknown[] = "unknown";
         
-  if (wClass & NOTE_CLASS_INFO)
-    szNoteType = HelpAbout;
-  else if (wClass & NOTE_CLASS_FORM)
-    szNoteType = Form;
-  else if (wClass & NOTE_CLASS_VIEW)
-    szNoteType = View;
-  else if (wClass & NOTE_CLASS_ICON)
-    szNoteType = Icon;
-  else if (wClass & NOTE_CLASS_DESIGN)
-    szNoteType = DesColl;
-  else if (wClass & NOTE_CLASS_ACL)
-    szNoteType = ACL;
-  else if (wClass & NOTE_CLASS_HELP_INDEX)
-    szNoteType = NotesHelp;
-  else if (wClass & NOTE_CLASS_HELP)
-    szNoteType = DBHelp;
-  else if (wClass & NOTE_CLASS_FILTER)
-    szNoteType  = Macro;
-  else if (wClass & NOTE_CLASS_FIELD)
-    szNoteType  = Field;          /* Notes 3.0 shared field */
-  else if (wClass & NOTE_CLASS_REPLFORMULA)
-    szNoteType  = RepFormula;
-  else 
-    szNoteType = Unknown;
+   if (wClass & NOTE_CLASS_INFO)
+       szNoteType = HelpAbout;
+   else if (wClass & NOTE_CLASS_FORM)
+       szNoteType = Form;
+   else if (wClass & NOTE_CLASS_VIEW)
+       szNoteType = View;
+   else if (wClass & NOTE_CLASS_ICON)
+       szNoteType = Icon;
+   else if (wClass & NOTE_CLASS_DESIGN)
+       szNoteType = DesColl;
+   else if (wClass & NOTE_CLASS_ACL)
+       szNoteType = ACL;
+   else if (wClass & NOTE_CLASS_HELP_INDEX)
+       szNoteType = NotesHelp;
+   else if (wClass & NOTE_CLASS_HELP)
+       szNoteType = DBHelp;
+   else if (wClass & NOTE_CLASS_FILTER)
+       szNoteType  = Macro;
+   else if (wClass & NOTE_CLASS_FIELD)
+       szNoteType  = Field;          /* Notes 3.0 shared field */
+   else if (wClass & NOTE_CLASS_REPLFORMULA)
+       szNoteType  = RepFormula;
+   else 
+       szNoteType = Unknown;
 
-  if (NSFLocateSummaryValue(summary, 
-                    ITEM_NAME_TEMPLATE_NAME, /* "$TITLE" */
-                    &pItemValue, 
-                    &Length, 
-                    &Type))
-  {
-        if (TYPE_TEXT_LIST == Type)
-        {
-                WORD    ListCount = 0;
-                char    *pText;
+   if (NSFLocateSummaryValue(summary, 
+                             ITEM_NAME_TEMPLATE_NAME, /* "$TITLE" */
+                             &pItemValue, 
+                             &Length, 
+                             &Type))
+   {
+       if (TYPE_TEXT_LIST == Type)
+       {
+           WORD    ListCount = 0;
+           char    *pText;
 
-                ListGetText((LIST *)pItemValue, FALSE, 0, &pText, &Length );
-                memset( szTitleString, '\0', DESIGN_NAME_MAX );
-                memcpy( szTitleString, pText, Length );
-        }
+           ListGetText((LIST *)pItemValue, FALSE, 0, &pText, &Length );
+           memset( szTitleString, '\0', DESIGN_NAME_MAX );
+           memcpy( szTitleString, pText, Length );
+       }
 
-        else if (TYPE_TEXT == Type) 
-        {
-                        /* Make sure string is smaller than buffer! */
-                if (Length >= DESIGN_NAME_MAX)
-                        Length = DESIGN_NAME_MAX - 1;
-                memcpy (szTitleString, pItemValue, Length);
-                szTitleString[Length] = '\0';
-        }
-        else
-                strcpy (szTitleString, "unknown data type");
-  }
-  else
-  {
-    strcpy (szTitleString, "not available");
-  }
+       else if (TYPE_TEXT == Type) 
+       {
+           /* Make sure string is smaller than buffer! */
+           if (Length >= DESIGN_NAME_MAX)
+               Length = DESIGN_NAME_MAX - 1;
+               memcpy (szTitleString, pItemValue, Length);
+               szTitleString[Length] = '\0';
+       }
+       else
+           strcpy (szTitleString, "unknown data type");
+   }
+   else
+   {
+       strcpy (szTitleString, "not available");
+   }
         
-  PRINTLOG ("\tDesign Note %ld : Class = %s", dwItem+1, szNoteType);
-  PRINTLOG ("\tTitle = '%s'\n", szTitleString);
+   PRINTLOG ("\tDesign Note %ld : Class = %s", dwItem+1, szNoteType);
+   PRINTLOG ("\tTitle = '%s'\n", szTitleString);
 
-  return;
+   return;
 }
 
 
@@ -344,14 +344,14 @@ void LNPUBLIC PrintTitle (DWORD dwItem, WORD wClass, BYTE *summary)
  
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
 {
-  if (argc != 2)
-  {
-    printf("Enter name of database: ");
-    fflush(stdout);
-    gets(db_filename);
-  }
-  else
-  {
-     strcpy(db_filename, argv[1]);
-  } /* end if */
+   if (argc != 2)
+   {
+       printf("Enter name of database: ");
+       fflush(stdout);
+       gets(db_filename);
+   }
+   else
+   {
+       strcpy(db_filename, argv[1]);
+   } /* end if */
 } /* ProcessArgs */

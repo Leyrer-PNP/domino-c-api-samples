@@ -81,8 +81,8 @@ int main(int argc, char *argv[])
     
 	if(argc != 3)
 	{
-		PRINTLOG( "\nUsage:  %s  <server name> <domain>\n", argv[0] );
-		return (0);
+	   PRINTLOG( "\nUsage:  %s  <server name> <domain>\n", argv[0] );
+	   return (0);
 	}
 
 	/* init ... */
@@ -100,220 +100,220 @@ int main(int argc, char *argv[])
       return (1);
     }
 
-	OSPathNetConstruct( NULL, ServerName,DBName,DBPath);
+    OSPathNetConstruct( NULL, ServerName,DBName,DBPath);
 
 
-	/*Must be call NSFDbOpen() for init before execute other id vault functions.*/	
-	NSFDbOpen (DBName, &hDB);
-	
+    /*Must be call NSFDbOpen() for init before execute other id vault functions.*/	
+    NSFDbOpen (DBName, &hDB);
+    
 
-	error = SECKFMOpen (&hKFC, UserS1ID, PASSWORD, SECKFM_open_All, 0, NULL);
-	if ( error ){
+    error = SECKFMOpen (&hKFC, UserS1ID, PASSWORD, SECKFM_open_All, 0, NULL);
+    if ( error ){
         PRINTERROR (error,"SECKFMOpen");
         NotesTerm();
         return (1);
 
-	}
-	/* Put ID file using the hKFC */
-	error = SECidfPut (UserNameS1, 
-			   PASSWORD,
-			   UserS1ID,
-			   &hKFC, 
-			   ServerName,
-			   0,
-			   0,
-			   NULL);
+    }
+    /* Put ID file using the hKFC */
+    error = SECidfPut (UserNameS1, 
+                       PASSWORD,
+                       UserS1ID,
+                       &hKFC, 
+                       ServerName,
+                       0,
+                       0,
+                       NULL);
 	
-	if ( error ){
+    if ( error ){
         PRINTERROR (error,"SECidfPut");
         NotesTerm();
         return (1);
 
-	}
-	PRINTLOG("Put ID file using the hKFC...OK\n");
+    }
+    PRINTLOG("Put ID file using the hKFC...OK\n");
 
-	SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
+    SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
 
     error = SECKFMOpen (&hKFC, UserS2ID, PASSWORD, SECKFM_open_All, 0, NULL);
-	if ( error ){
+    if ( error ){
         PRINTERROR (error,"SECKFMOpen");
         NotesTerm();
         return (1);
 
-	}
-	/* Put ID file using local file name and hKFC - only hKFC should be used */
- 	error = SECidfPut (UserNameS2, 
-			   PASSWORD,
-			   NULL, 
-			   &hKFC, 
-			   ServerName, 
-			   0, 
-			   0,
-			   NULL);
-	if ( error ){
+    }
+    /* Put ID file using local file name and hKFC - only hKFC should be used */
+    error = SECidfPut (UserNameS2, 
+                       PASSWORD,
+                       NULL, 
+                       &hKFC, 
+                       ServerName, 
+                       0, 
+                       0,
+                       NULL);
+    if ( error ){
         PRINTERROR (error,"SECidfPut");
         NotesTerm();
         return (1);
 
-	}
+    }
 
-	PRINTLOG("Put ID file using local file name and hKFC - only hKFC should be used...OK\n");
-	SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
+    PRINTLOG("Put ID file using local file name and hKFC - only hKFC should be used...OK\n");
+    SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
 
     error = SECKFMOpen (&hKFC, UserS3ID, PASSWORD, SECKFM_open_All, 0, NULL);
-	if ( error ){
+    if ( error ){
         PRINTERROR (error,"SECKFMOpen");
         NotesTerm();
         return (1);
 
-	}
+    }
 	
-	/* Put ID file using local file name */
-	error = SECidfPut (UserNameS3, 
-			   PASSWORD,
-			   UserS3ID, 
-			   NULL, 
-			   ServerName, 
-			   0, 
-			   0,
-			   NULL);
+    /* Put ID file using local file name */
+    error = SECidfPut (UserNameS3, 
+                       PASSWORD,
+                       UserS3ID, 
+                       NULL, 
+                       ServerName, 
+                       0, 
+                       0,
+                       NULL);
 
-	if ( error ){
+    if ( error ){
         PRINTERROR (error,"SECidfPut");
         NotesTerm();
         return (1);
 
-	}
+    }
 
-	PRINTLOG("Put ID file using local file name...OK\n");
-	SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
+    PRINTLOG("Put ID file using local file name...OK\n");
+    SECKFMClose (&hKFC, SECKFM_close_WriteIdFile, 0, NULL);
 
-	/* Get id file to local file name and hKFC */
-	error = SECidfGet (UserNameS1, 
-			PASSWORD,
-			UserS1ID, 
-			&hKFC2, 
-			ServerName, 
-			0,
-			0,
-			NULL);
-	if ( error ){
+    /* Get id file to local file name and hKFC */
+    error = SECidfGet (UserNameS1, 
+                       PASSWORD,
+                       UserS1ID, 
+                       &hKFC2, 
+                       ServerName, 
+                       0,
+                       0,
+                       NULL);
+    if ( error ){
         PRINTERROR (error,"SECidfGet");
         NotesTerm();
         return (1);
 
-	}
-	PRINTLOG("Get id file to local file name and hKFC...OK\n");
+    }
+    PRINTLOG("Get id file to local file name and hKFC...OK\n");
 
 
-	SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
+    SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
 
 
-	/* Get id file to just hKFC*/
-	error = SECidfGet (UserNameS2, 
-			PASSWORD,
-			NULL, 
-			&hKFC2, 
-			ServerName, 
-			0,
-			0,
-			NULL);
-	if ( error ){
+    /* Get id file to just hKFC*/
+    error = SECidfGet (UserNameS2, 
+                       PASSWORD,
+                       NULL, 
+                       &hKFC2, 
+                       ServerName, 
+                       0,
+                       0,
+                       NULL);
+    if ( error ){
         PRINTERROR (error,"SECidfGet");
         NotesTerm();
         return (1);
 
-	}
+    }
 
-	PRINTLOG("Get id file to just hKFC...OK\n");
-	SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
+    PRINTLOG("Get id file to just hKFC...OK\n");
+    SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
 
 
 
-	/* Get id file to just local file name */
-	error = SECidfGet (UserNameS3, 
-			PASSWORD,
-			UserS3ID,  
-			NULL, 
-			ServerName, 
-			0,
-			0,
-			NULL);
-	if ( error ){
+    /* Get id file to just local file name */
+    error = SECidfGet (UserNameS3, 
+                       PASSWORD,
+                       UserS3ID,  
+                       NULL, 
+                       ServerName, 
+                       0,
+                       0,
+                       NULL);
+    if ( error ){
         PRINTERROR (error,"SECidfGet");
         NotesTerm();
         return (1);
 
-	}
+    }
 
-	PRINTLOG("Get id file to just local file name...OK\n");
+    PRINTLOG("Get id file to just local file name...OK\n");
 
-	SECKFMOpen (&hKFC2, UserS1ID, PASSWORD, SECKFM_open_All, 0, NULL);
+    SECKFMOpen (&hKFC2, UserS1ID, PASSWORD, SECKFM_open_All, 0, NULL);
 
-	/* Sync the hKFC with the ID file in the Vault and write new hKFC */
-	error = SECidfSync (UserNameS1, PASSWORD,
-			NULL,
-			&hKFC2, 
-			ServerName, 
-			0, 
-			0,
-			NULL, 
-			&VaultFlags);
-	if ( error ){
+    /* Sync the hKFC with the ID file in the Vault and write new hKFC */
+    error = SECidfSync (UserNameS1, PASSWORD,
+                        NULL,
+                        &hKFC2, 
+                        ServerName, 
+                        0, 
+                        0,
+                        NULL, 
+                        &VaultFlags);
+    if ( error ){
         PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 
-	}
-	PRINTLOG("Sync the hKFC with the ID file in the Vault and write new hKFC...OK\n");
+    }
+    PRINTLOG("Sync the hKFC with the ID file in the Vault and write new hKFC...OK\n");
 
-	/* Sync the ID file with the ID file in the Vault */
-	error = SECidfSync (UserNameS1, PASSWORD,
-			UserS1ID, 
-			NULL,
-			ServerName, 
-			0,
-			0, 
-			NULL, 
-			&VaultFlags);
-	if ( error ){
+    /* Sync the ID file with the ID file in the Vault */
+    error = SECidfSync (UserNameS1, PASSWORD,
+                        UserS1ID, 
+                        NULL,
+                        ServerName, 
+                        0,
+                        0, 
+                        NULL, 
+                        &VaultFlags);
+    if ( error ){
         PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 
-	}
-	PRINTLOG("Sync the ID file with the ID file in the Vault ...OK\n");
+    }
+    PRINTLOG("Sync the ID file with the ID file in the Vault ...OK\n");
 
-	/* Sync the hKFC with the ID file in the Vault and hKFC */
-	error = SECidfSync (UserNameS1, PASSWORD,
-			UserS1ID, 
-			&hKFC2, 
-			ServerName, 
-			0,
-			0,
-			NULL, 
-			&VaultFlags);
-	if ( error ){
+    /* Sync the hKFC with the ID file in the Vault and hKFC */
+    error = SECidfSync (UserNameS1, PASSWORD,
+                        UserS1ID, 
+                        &hKFC2, 
+                        ServerName, 
+                        0,
+                        0,
+                        NULL, 
+                        &VaultFlags);
+    if ( error ){
         PRINTERROR (error,"SECidfSync");
         NotesTerm();
         return (1);
 
-	}
-	PRINTLOG("Sync the hKFC with the ID file in the Vault and hKFC...OK\n");
+    }
+    PRINTLOG("Sync the hKFC with the ID file in the Vault and hKFC...OK\n");
 
-	SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
+    SECKFMClose (&hKFC2, SECKFM_close_WriteIdFile, 0, NULL);
 
 
     /* Terminate Domino and Notes. */
 
 
 
-	NSFDbClose(hDB);
+    NSFDbClose(hDB);
 
     NotesTerm();
 
     /* End of intro program. */
-	PRINTLOG("\nProgram completed successfully.\n");
-    return (0);
+    PRINTLOG("\nProgram completed successfully.\n");
+        return (0);
 }
 

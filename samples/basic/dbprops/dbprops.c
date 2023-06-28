@@ -105,13 +105,13 @@ int main(int argc, char *argv[])
    NOTEHANDLE  hIconNote;                         /* handle to the icon note */
    STATUS      error = NOERROR;                   /* return status from API calls */
 
-    DBREPLICAINFO    dbrepInfo;                    /* replication info for DB */
-    WORD             wRepFlags;                    /* replication flags */
-    WORD             rset_wRepFlags;               /* replication flags to be set  */
-    WORD             wPriority;                    /* replication priority	*/
-    WORD             rset_wCutoffInterval;			/* rep cutoff interval to be set */
-    char             szTimedate[MAXALPHATIMEDATE+1];
-    WORD             wLen;
+   DBREPLICAINFO    dbrepInfo;                    /* replication info for DB */
+   WORD             wRepFlags;                    /* replication flags */
+   WORD             rset_wRepFlags;               /* replication flags to be set  */
+   WORD             wPriority;                    /* replication priority	*/
+   WORD             rset_wCutoffInterval;			/* rep cutoff interval to be set */
+   char             szTimedate[MAXALPHATIMEDATE+1];
+   WORD             wLen;
 
 
 /* Verify program inputs */
@@ -121,9 +121,9 @@ int main(int argc, char *argv[])
       strcpy(action, argv[1]);
       for (i=0; i<15; i++)
       {
-         if(action[i] == '\0')
-            break;
-         action[i] = toupper(action[i]);
+           if(action[i] == '\0')
+               break;
+           action[i] = toupper(action[i]);
       }
       if (!strcmp(action,"SET"))
       {
@@ -142,20 +142,20 @@ int main(int argc, char *argv[])
       }
       else if (!strcmp(action,"RESET"))
       {
-         usage = 1;
-         rset = 1;
-         strcpy (db_title, old_title);
-         db_flags[0] = '\0';
-         rset_wRepFlags = REPLFLG_IGNORE_DELETES | REPLFLG_PRIORITY_LOW;
-         rset_wCutoffInterval = 90;
+          usage = 1;
+          rset = 1;
+          strcpy (db_title, old_title);
+          db_flags[0] = '\0';
+          rset_wRepFlags = REPLFLG_IGNORE_DELETES | REPLFLG_PRIORITY_LOW;
+          rset_wCutoffInterval = 90;
       }
       else if (!strcmp(action,"GET"))
       {
-         usage = 1;
+          usage = 1;
       }
       else
       {
-         usage = 0;
+          usage = 0;
       }
    }
    else
@@ -219,10 +219,10 @@ int main(int argc, char *argv[])
 /* Get the output database information buffer */
    if (error = NSFDbInfoGet (db_handle, db_info))
    {
-       NSFDbClose (db_handle);
-       PRINTERROR (error,"NSFDbInfoGet");
-       NotesTerm();
-       return (1);
+      NSFDbClose (db_handle);
+      PRINTERROR (error,"NSFDbInfoGet");
+      NotesTerm();
+      return (1);
    }
 
 /* Add the database title to the database information buffer */
@@ -231,19 +231,19 @@ int main(int argc, char *argv[])
       NSFDbInfoModify (db_info, INFOPARSE_TITLE, db_title);
       if (error = NSFDbInfoSet (db_handle, db_info))
       {
-         NSFDbClose (db_handle);
-         PRINTERROR (error,"NSFDbInfoSet");
-         NotesTerm();
-         return (1);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFDbInfoSet");
+          NotesTerm();
+          return (1);
       }
       dbrepInfo.Flags = rset_wRepFlags;
       dbrepInfo.CutoffInterval = rset_wCutoffInterval;
       if ( error = NSFDbReplicaInfoSet(db_handle, &dbrepInfo))
       {
-         NSFDbClose (db_handle);
-         PRINTERROR (error,"NSFDbReplicaInfoSet");
-         NotesTerm();
-         return (1);
+          NSFDbClose (db_handle);
+          PRINTERROR (error,"NSFDbReplicaInfoSet");
+          NotesTerm();
+          return (1);
       }
    }
 
@@ -261,23 +261,23 @@ int main(int argc, char *argv[])
    PRINTLOG("   Database Flags         = " );
 
    if (wRepFlags & REPLFLG_DISABLE)
-      PRINTLOG("DISABLE ");
+       PRINTLOG("DISABLE ");
    if (wRepFlags & REPLFLG_IGNORE_DELETES)
-      PRINTLOG("IGNORE_DELETES ");
+       PRINTLOG("IGNORE_DELETES ");
    if (wRepFlags & REPLFLG_HIDDEN_DESIGN)
-      PRINTLOG("HIDDEN_DESIGN ");
+       PRINTLOG("HIDDEN_DESIGN ");
    if (wRepFlags & REPLFLG_DO_NOT_CATALOG)
-      PRINTLOG("DO_NOT_CATALOG ");
+       PRINTLOG("DO_NOT_CATALOG ");
    if (wRepFlags & REPLFLG_CUTOFF_DELETE)
-      PRINTLOG("CUTOFF_DELETE ");
+       PRINTLOG("CUTOFF_DELETE ");
    if (wRepFlags & REPLFLG_NEVER_REPLICATE)
-      PRINTLOG("NEVER_REPLICATE ");
+       PRINTLOG("NEVER_REPLICATE ");
    if (wRepFlags & REPLFLG_ABSTRACT)
-      PRINTLOG("ABSTRACT ");
+       PRINTLOG("ABSTRACT ");
    if (wRepFlags & REPLFLG_DO_NOT_BROWSE)
-      PRINTLOG("DO_NOT_BROWSE ");
+       PRINTLOG("DO_NOT_BROWSE ");
    if (wRepFlags & REPLFLG_NO_CHRONOS)
-      PRINTLOG("NO_CHRONOS ");
+       PRINTLOG("NO_CHRONOS ");
 
    PRINTLOG("\n   Database Rep Priority  = %s\n",
    wPriority == 0 ? "Low"     : (wPriority == 1 ? "Medium"  :
@@ -316,9 +316,9 @@ int main(int argc, char *argv[])
 
 /* Set the DESIGN_FLAGS ($Flags) field  */
          if (error = NSFItemSetText ( hIconNote,
-                     DESIGN_FLAGS,
-                     set_db_flags,
-                     MAXWORD))
+                                      DESIGN_FLAGS,
+                                      set_db_flags,
+                                      MAXWORD))
          {
              PRINTERROR (error,"NSFItemSetText");
              NSFNoteClose (hIconNote);

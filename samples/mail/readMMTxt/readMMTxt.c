@@ -133,17 +133,17 @@ int main( int argc, char * argv[] )
     {   
         PRINTLOG( "Error: incorrect syntax.\n" );
         PRINTLOG( "\nUsage:%s  <database>\n", argv[0] );
-	NotesTerm();
+        NotesTerm();
         return (NOERROR);
     }
 
     memset( szDbName, '\0', MAX_DB_NAME );	    
     if ( argc == 2 ) 
     {
-       strncpy( szDbName, argv[1], MAX_DB_NAME-1 );
+        strncpy( szDbName, argv[1], MAX_DB_NAME-1 );
     }
     else
-       strncpy( szDbName, DEDAULTTDB, sizeof( DEDAULTTDB ) ); 
+        strncpy( szDbName, DEDAULTTDB, sizeof( DEDAULTTDB ) ); 
 
 
     /* Open the DB */
@@ -155,14 +155,14 @@ int main( int argc, char * argv[] )
     }
 
     error = NSFFormulaCompile(
-                NULL,               
-                (WORD) 0,           
-                formula,            
-                (WORD) strlen( formula ), 
-                &formula_handle,    
-                &wdc,               
-                &wdc,               
-                &wdc, &wdc, &wdc, &wdc ); 
+                              NULL,               
+                              (WORD) 0,           
+                              formula,            
+                              (WORD) strlen( formula ), 
+                              &formula_handle,    
+                              &wdc,               
+                              &wdc,               
+                              &wdc, &wdc, &wdc, &wdc ); 
     if ( error != NOERROR )
     {
         PrintAPIError( error );
@@ -170,15 +170,15 @@ int main( int argc, char * argv[] )
     }
 
     error = NSFSearch(
-                hDB, 
-                formula_handle,
-                NULL, 
-                0,
-                NOTE_CLASS_DOCUMENT,
-                NULL,
-                EnumProc,
-                &hDB,
-                NULL );
+                      hDB, 
+                      formula_handle,
+                      NULL, 
+                      0,
+                      NOTE_CLASS_DOCUMENT,
+                      NULL,
+                      EnumProc,
+                      &hDB,
+                      NULL );
     if ( error != NOERROR ) 
     {
         PrintAPIError( error );
@@ -188,21 +188,21 @@ int main( int argc, char * argv[] )
     OSMemFree( formula_handle );
 exit:
     if ( hDB )
-       NSFDbClose( hDB );
+        NSFDbClose( hDB );
 
     NotesTerm();
 
     if ( error )
     {
-       PRINTLOG( "Fail to get text from %s.\n", szDbName );
-       fflush( stdout );
-       return ( 1 );
+        PRINTLOG( "Fail to get text from %s.\n", szDbName );
+        fflush( stdout );
+        return ( 1 );
     }
     else
     { 
-      PRINTLOG( "succeed return.\n" );
-      fflush( stdout );
-      return ( NOERROR );
+        PRINTLOG( "succeed return.\n" );
+        fflush( stdout );
+        return ( NOERROR );
     }
 }
 
@@ -274,32 +274,32 @@ STATUS LNPUBLIC EnumProc( void far *phDB, SEARCH_MATCH far *pSearchMatch, ITEM_T
 
     /* Open the note. */
     error = NSFNoteOpenExt(
-                *(DBHANDLE far *)phDB,
-                SearchMatch.ID.NoteID,
-                OPEN_RAW_MIME,        
-                &hNote );
+                           *(DBHANDLE far *)phDB,
+                           SearchMatch.ID.NoteID,
+                           OPEN_RAW_MIME,        
+                           &hNote );
     if ( error != NOERROR )           
         return (error);
 
     if ( NSFNoteHasMIMEPart( hNote ) )
     {
-       PRINTLOG(  "============================================================\n" );
-       fflush( stdout );
-       error = ExtractMIMEText( hNote );
-       if ( error != NOERROR )
-       {
-          PRINTLOG( "Error when output MIME part content to file, return 1 to caller.\n" );
-          return( error );        
-       }
+        PRINTLOG(  "============================================================\n" );
+        fflush( stdout );
+        error = ExtractMIMEText( hNote );
+        if ( error != NOERROR )
+        {
+            PRINTLOG( "Error when output MIME part content to file, return 1 to caller.\n" );
+            return( error );        
+        }
     
-       PRINTLOG(  "============================================================\n" );
-       fflush( stdout );
+        PRINTLOG(  "============================================================\n" );
+        fflush( stdout );
 
-       if ( (error = EnumItems( hNote )) != NOERROR )
-       {
-           PRINTLOG( "Error in iterating item for noteid[%x]", SearchMatch.ID.NoteID );
-           PrintAPIError( error );
-       }
+        if ( (error = EnumItems( hNote )) != NOERROR )
+        {
+            PRINTLOG( "Error in iterating item for noteid[%x]", SearchMatch.ID.NoteID );
+            PrintAPIError( error );
+        }
     }
     error = NSFNoteClose( hNote );
     if ( error != NOERROR )
@@ -337,51 +337,51 @@ STATUS EnumItems( NOTEHANDLE hNote )
     {
         do
         {
-         if ( wDataType != TYPE_OBJECT )
-	 {
-             bidPrev = bidItem;
-             continue;
-	 }
-         if ( dwValueLength < ODSLength( _FILEOBJECT ) + sizeof( WORD ) )
-	 {
-             bidPrev = bidItem;
-             continue;
-	 }
-         cpValue = OSLockBlock( char, bidValue ) + sizeof( WORD );
-         ODSReadMemory( &cpValue, _FILEOBJECT, &fo, 1 );
-         OSUnlockBlock( bidValue );
+            if ( wDataType != TYPE_OBJECT )
+            {
+                bidPrev = bidItem;
+                continue;
+            }
+            if ( dwValueLength < ODSLength( _FILEOBJECT ) + sizeof( WORD ) )
+            {
+                bidPrev = bidItem;
+                continue;
+        }
+        cpValue = OSLockBlock( char, bidValue ) + sizeof( WORD );
+        ODSReadMemory( &cpValue, _FILEOBJECT, &fo, 1 );
+        OSUnlockBlock( bidValue );
 
-         if ( fo.Header.ObjectType != OBJECT_FILE )
-	 {
+        if ( fo.Header.ObjectType != OBJECT_FILE )
+        {
              bidPrev = bidItem;
              continue;
-	 }
+        }
 
-         if ( fo.FileNameLength != ( sizeof( FILE_NAME )-1 ) ||
+        if ( fo.FileNameLength != ( sizeof( FILE_NAME )-1 ) ||
               IntlTextCompare( cpValue, fo.FileNameLength, FILE_NAME, 
               fo.FileNameLength, INTL_ACCENT_SENSITIVE) )
-	 {
-             bidPrev = bidItem;
-             continue;
-         } 
+        {
+            bidPrev = bidItem;
+            continue;
+        } 
 
-         if ( NSFIsFileItemMimePart( hNote, bidItem ) )
-         {
-             PRINTLOG( "Attached file item [%s] is a MIME part in [%s].\n", FILE_NAME, ITEM_NAME_ATTACHMENT );
-         }
+        if ( NSFIsFileItemMimePart( hNote, bidItem ) )
+        {
+            PRINTLOG( "Attached file item [%s] is a MIME part in [%s].\n", FILE_NAME, ITEM_NAME_ATTACHMENT );
+        }
 
-         bidPrev = bidItem;
+        bidPrev = bidItem;
         }
         while ( (sErr = NSFItemInfoNext( hNote, bidPrev, ITEM_NAME_ATTACHMENT, 
-				     sizeof( ITEM_NAME_ATTACHMENT )-1, &bidItem, 
-				     &wDataType, &bidValue, &dwValueLength )) == NOERROR );
+                 sizeof( ITEM_NAME_ATTACHMENT )-1, &bidItem, 
+                 &wDataType, &bidValue, &dwValueLength )) == NOERROR );
         if ( sErr == ERR_ITEM_NOT_FOUND )
         {
             sErr = NOERROR;
         }
         else if ( sErr != NOERROR )
         {
-                 return sErr;
+            return sErr;
         }
     }
     else
@@ -463,10 +463,10 @@ STATUS LNPUBLIC ExtractMIMEText( NOTEHANDLE hNote )
         {
             if ( pszHeaderName[i] != NULL ) 
             {
-               pczMimeHeader = MIMEEntityGetHeader( pMERoot, mszHeaderList[i] ); 
-               PRINTLOG( "\t[%s : %s]\n", pszHeaderName[i], ( pczMimeHeader != NULL ? pczMimeHeader : "" )
-                       );
-               fflush( stdout );
+                pczMimeHeader = MIMEEntityGetHeader( pMERoot, mszHeaderList[i] ); 
+                PRINTLOG( "\t[%s : %s]\n", pszHeaderName[i], ( pczMimeHeader != NULL ? pczMimeHeader : "" )
+                         );
+                fflush( stdout );
             }
         }
 
@@ -479,102 +479,102 @@ STATUS LNPUBLIC ExtractMIMEText( NOTEHANDLE hNote )
 
         while ( msContentType != MIME_SYMBOL_UNKNOWN )
         {
-           msSubType = MIMEEntityContentSubtype( pME );
+            msSubType = MIMEEntityContentSubtype( pME );
 
-           /* to see if the body includes attachment */
-           error = MIMEGetEntityPartFlags( hNote,
+            /* to see if the body includes attachment */
+            error = MIMEGetEntityPartFlags( hNote,
                                           pME,
                                           &dwPartFlags );
-           if ( error != NOERROR )
-           {
-               PrintAPIError( error );
-               goto done;
-           }
+            if ( error != NOERROR )
+            {
+                PrintAPIError( error );
+                goto done;
+            }
 
-           if ( dwPartFlags & MIME_PART_BODY_IN_DBOBJECT )
-           {
-               bAttFlag = TRUE;
-           }
-           else
-           {
-               bAttFlag = FALSE;
-           }
+            if ( dwPartFlags & MIME_PART_BODY_IN_DBOBJECT )
+            {
+                bAttFlag = TRUE;
+            }
+            else
+            {
+                bAttFlag = FALSE;
+            }
 
            /* output the text both plain & html */
-           if ( msContentType == MIME_SYMBOL_TEXT  && bAttFlag == FALSE )
-           {
-               /* check the subtype of content */
-               if ( msSubType == MIME_SYMBOL_PLAIN )
-                   PRINTLOG( "\nHere is the plain text:\n" );
-               if ( msSubType == MIME_SYMBOL_HTML )
-                   PRINTLOG( "\nHere is the HTML text:\n" );
+            if ( msContentType == MIME_SYMBOL_TEXT  && bAttFlag == FALSE )
+            {
+                /* check the subtype of content */
+                if ( msSubType == MIME_SYMBOL_PLAIN )
+                    PRINTLOG( "\nHere is the plain text:\n" );
+                if ( msSubType == MIME_SYMBOL_HTML )
+                    PRINTLOG( "\nHere is the HTML text:\n" );
                   
-               fflush( stdout );
-               /* get the character set */
-               error = MIMEEntityGetTypeParam( pME,
-                                        MIME_SYMBOL_CHARSET,
-                                        &hTypeParam,
-                                        &dwTypeParamLen );
-               if ( error != NOERROR )
-               {
-                  PrintAPIError( error );
-                  goto done;
-               }
+                fflush( stdout );
+                /* get the character set */
+                error = MIMEEntityGetTypeParam( pME,
+                                                MIME_SYMBOL_CHARSET,
+                                                &hTypeParam,
+                                                &dwTypeParamLen );
+                if ( error != NOERROR )
+                {
+                    PrintAPIError( error );
+                    goto done;
+                }
         
-               pczParaName = OSLock( char, hTypeParam );
-               OSUnlock( hTypeParam );           
+                pczParaName = OSLock( char, hTypeParam );
+                OSUnlock( hTypeParam );           
 
-               PRINTLOG( "charset = %s\n", pczParaName );
+                PRINTLOG( "charset = %s\n", pczParaName );
 
-               fflush( stdout );
-               {
-                   error = MIMEGetDecodedEntityData( hNote,
-                                             pME,
-                                             0,
-                                             MAXDWORD,
-                                             &hEntityData,
-                                             &dwEntityDataLen,
-                                             &dwEntityEncodeLen );
-               }
+                fflush( stdout );
+                {
+                    error = MIMEGetDecodedEntityData( hNote,
+                                                      pME,
+                                                      0,
+                                                      MAXDWORD,
+                                                      &hEntityData,
+                                                      &dwEntityDataLen,
+                                                      &dwEntityEncodeLen );
+                }
 
-               OSMemFree( hTypeParam );
-               if ( error != NOERROR )
-               {
-                   PrintAPIError( error );
-                   goto done;
-               }
+                OSMemFree( hTypeParam );
+                if ( error != NOERROR )
+                {
+                    PrintAPIError( error );
+                    goto done;
+                }
  
-               szEntityData = OSLock( char, hEntityData );
-               szEntityData[dwEntityDataLen] = '\0';
+                szEntityData = OSLock( char, hEntityData );
+                szEntityData[dwEntityDataLen] = '\0';
 
-               PRINTLOG( TEXT_BEGIN );
-               fflush( stdout );
+                PRINTLOG( TEXT_BEGIN );
+                fflush( stdout );
 
 #if defined (LINUX)
-               if ( !removeSpecialChar( szEntityData ) ) 
-                   PRINTLOG( "[%s]\n",szEntityData );
+                if ( !removeSpecialChar( szEntityData ) ) 
+                    PRINTLOG( "[%s]\n",szEntityData );
 #else
-               PRINTLOG( "[%s]\n", szEntityData );
+                PRINTLOG( "[%s]\n", szEntityData );
 #endif 
 
-               PRINTLOG( TEXT_END );
-               fflush( stdout );
+                PRINTLOG( TEXT_END );
+                fflush( stdout );
 
-               OSUnlock( hEntityData );
-               OSMemFree( hEntityData );
-           }
-           pME_new = LNULLPTR;
-           MIMEIterateNext( hMD, pMERoot, pME, &pME_new );
-           if ( pME_new != LNULLPTR )
-           {
-              pME = pME_new;   
-              msContentType = MIMEEntityContentType( pME );          
-           }
-           else 
-           {
-              pME = NULLPTR;
-              msContentType = MIME_SYMBOL_UNKNOWN;
-           }
+                OSUnlock( hEntityData );
+                OSMemFree( hEntityData );
+            }
+            pME_new = LNULLPTR;
+            MIMEIterateNext( hMD, pMERoot, pME, &pME_new );
+            if ( pME_new != LNULLPTR )
+            {
+                pME = pME_new;   
+                msContentType = MIMEEntityContentType( pME );          
+            }
+            else 
+            {
+                pME = NULLPTR;
+                msContentType = MIME_SYMBOL_UNKNOWN;
+            }
         } 
     } 
     
@@ -598,25 +598,25 @@ done:
 
 STATUS removeSpecialChar( char* inputStr )
 {
-       const int slen = strlen( inputStr );
-       char tmpStr[slen+1];
-       char *sztmpStr = tmpStr;
-       char *szbase = inputStr;
-       int len = 0;
-       memset( tmpStr, '\0', sizeof(tmpStr) );
+    const int slen = strlen( inputStr );
+    char tmpStr[slen+1];
+    char *sztmpStr = tmpStr;
+    char *szbase = inputStr;
+    int len = 0;
+    memset( tmpStr, '\0', sizeof(tmpStr) );
 
-       while ( inputStr != NULL && len < slen )
-       {
-             if ( *inputStr != '\r' ) 
-             {
-                 *sztmpStr = *inputStr;
-                 sztmpStr++;
-             }
-             inputStr++;
-             len++;
-       }
-       tmpStr[len]='\0';
-       strcpy( szbase, tmpStr );
-       return NOERROR;
+    while ( inputStr != NULL && len < slen )
+    {
+        if ( *inputStr != '\r' ) 
+        {
+            *sztmpStr = *inputStr;
+            sztmpStr++;
+        }
+        inputStr++;
+        len++;
+    }
+    tmpStr[len]='\0';
+    strcpy( szbase, tmpStr );
+    return NOERROR;
 }
 #endif

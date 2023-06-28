@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
     if (sError)
     {
         PRINTLOG("Error: unable to compile column 1 formula '%s'.\n", 
-                szFormula_1 );
+                  szFormula_1 );
         goto Exit5;
     }    
 
@@ -305,12 +305,12 @@ int main(int argc, char *argv[])
  */
 
     sError = NSFFormulaSummaryItem( hSelFormula,
-                    szItemName_1,
-                    wItemName_1_Len );
+                                    szItemName_1,
+                                    wItemName_1_Len );
     if (sError)
     {
         PRINTLOG("Error: unable to set summary item '%s'.\n", 
-                szItemName_1 );
+                  szItemName_1 );
         goto Exit5;
     }    
     
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
     if (sError)
     {
         PRINTLOG("Error: unable to compile column 2 formula '%s'.\n", 
-                szFormula_2 );
+                 szFormula_2 );
         goto Exit5;
     }    
 
@@ -349,8 +349,8 @@ int main(int argc, char *argv[])
  */
 
     sError = NSFFormulaSummaryItem( hSelFormula,
-                                     szItemName_2,
-                                     wItemName_2_Len );
+                                    szItemName_2,
+                                    wItemName_2_Len );
     if (sError)
     {
         PRINTLOG("Error: unable to merge column 2 item name into selection formula.\n");
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
     if (sError)
     {
         PRINTLOG("Error: unable to compile formula for column 3: '%s'.\n", 
-                szFormula_3 );
+                 szFormula_3 );
         goto Exit5;
     }
 
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
     if (sError) 
     {
         PRINTLOG("Error: unable to append item '%s' to view note.\n",
-                VIEW_FORMULA_ITEM );
+                 VIEW_FORMULA_ITEM );
         goto Exit4;
     }
 
@@ -512,7 +512,7 @@ int main(int argc, char *argv[])
     if (sError = OSMemAlloc( 0, wViewFormatBufLen, &hViewFormatBuffer ))
     {
         PRINTLOG("Error: unable to allocate %d bytes memory.\n", 
-                wViewFormatBufLen);
+                 wViewFormatBufLen);
         goto Exit5;
     }
 
@@ -742,7 +742,7 @@ int main(int argc, char *argv[])
     if (sError) 
     {
         PRINTLOG("Error: unable to append item '%s' to view note.\n", 
-                VIEW_VIEW_FORMAT_ITEM );
+                 VIEW_VIEW_FORMAT_ITEM );
         goto Exit5;
     }
 
@@ -775,7 +775,7 @@ int main(int argc, char *argv[])
     if (sError = OSMemAlloc( 0, wCollationBufLen, &hCollationBuffer ))
     {
         PRINTLOG( "Error: unable to allocate %d bytes memory.\n", 
-                wCollationBufLen);
+                  wCollationBufLen);
         goto Exit5;
     }
 

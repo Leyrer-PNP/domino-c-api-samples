@@ -102,14 +102,14 @@ int main(int argc, char *argv[])
 		return (1);
 	} 
 
-    PRINTLOG(  "DXLIMPORT Utility\n" );
+	PRINTLOG(  "DXLIMPORT Utility\n" );
 
-    memset(&impOptions, 0, sizeof(impOptions));
-    error = ProcessArgs( argc, argv, &impOptions );
-   
-    /* ProcessArgs checks the syntax, etc. */
-    if (error)
-    {
+	memset(&impOptions, 0, sizeof(impOptions));
+	error = ProcessArgs( argc, argv, &impOptions );
+	
+	/* ProcessArgs checks the syntax, etc. */
+	if (error)
+	{
 		PRINTLOG( "\nInvalid command line argument(s).  Please try again. \n");
 		PrintUsage();
 		NotesTerm(); /* ProcessArgs already printed an error message */ 
@@ -118,46 +118,46 @@ int main(int argc, char *argv[])
 
 	path_name = impOptions.fileDatabase;		/* Assign Database to Import */
 
-    if (impOptions.serverName != NULL)			/* Check to see if user supplied a servername */
-    {
-        if (error = OSPathNetConstruct( NULL, impOptions.serverName, impOptions.fileDatabase, pname))
-        {
-             PrintAPIError(error);
-             NotesTerm();
-             return(1);
-        }
-        path_name = pname;
-    }
+	if (impOptions.serverName != NULL)			/* Check to see if user supplied a servername */
+	{
+		if (error = OSPathNetConstruct( NULL, impOptions.serverName, impOptions.fileDatabase, pname))
+		{
+			PRINTERROR(error,"OSPathNetConstruct");
+			NotesTerm();
+			return(1);
+		}
+		path_name = pname;
+	}
 
 	
-    PRINTLOG(  "dxlimport: importing '%s'\n", path_name );
+	PRINTLOG(  "dxlimport: importing '%s'\n", path_name );
 
-    if (error = NSFDbOpen( path_name, &hDB ))	/* Open the Domino/Notes Database */
-    {
+	if (error = NSFDbOpen( path_name, &hDB ))	/* Open the Domino/Notes Database */
+{
 		PRINTLOG(  "Error: unable to open '%s.'\n", path_name );
-		PrintAPIError (error); 
+		PRINTERROR (error,"NSFDbOpen"); 
 		NotesTerm();
 		return (1);
-    }
+	}
 
 	error = ImportXMLData(hDB, &impOptions);
 	
 	if(error)
 	{
 		NSFDbClose(hDB);
-		PrintAPIError(error);
+		PRINTERROR(error,"ImportXMLData");
 		NotesTerm();
 		return(1);
 	}
 
-    NSFDbClose( hDB );
-    
-    PRINTLOG(  "\n\nDXLIMPORT: Done.\n" );
-    
-    if (error == NOERROR)
-    PRINTLOG("\nProgram completed successfully.\n");
-    NotesTerm();
-    return (0);
+	NSFDbClose( hDB );
+	
+	PRINTLOG(  "\n\nDXLIMPORT: Done.\n" );
+	
+	if (error == NOERROR)
+	PRINTLOG("\nProgram completed successfully.\n");
+	NotesTerm();
+	return (0);
 }
 
 /************************************************************************
@@ -643,33 +643,4 @@ void    LNPUBLIC  PrintUsage()
     return;
 }
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-				error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    PRINTLOG ( "\n%s\n", error_text);
-
-}
 

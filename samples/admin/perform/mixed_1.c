@@ -164,9 +164,9 @@ int main (int argc, char *argv[])
 /* Add all the fields. */
 
       if (error = NSFItemSetText ( note_handle, 
-                  "Form",
-                  "Person",
-                  MAXWORD))
+                                   "Form",
+                                   "Person",
+                                   MAXWORD))
       {
          NSFNoteClose (note_handle);
          NSFDbClose (db_handle);
@@ -176,9 +176,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "Type",
-                  "Person",
-                  MAXWORD))
+                                   "Type",
+                                   "Person",
+                                   MAXWORD))
       {
          NSFNoteClose (note_handle);
          NSFDbClose (db_handle);
@@ -188,9 +188,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "FirstName",
-                  "Charles",
-                  MAXWORD))
+                                   "FirstName",
+                                   "Charles",
+                                   MAXWORD))
       {
          NSFNoteClose (note_handle);
          NSFDbClose (db_handle);
@@ -200,9 +200,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "LastName",
-                  last_name,
-                  MAXWORD))
+                                   "LastName",
+                                   last_name,
+                                   MAXWORD))
       {
          NSFNoteClose (note_handle);
          NSFDbClose (db_handle);
@@ -212,9 +212,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "MailDomain",
-                  "NOTES",
-                  MAXWORD))
+                                   "MailDomain",
+                                   "NOTES",
+                                   MAXWORD))
       {
          NSFNoteClose (note_handle);
          NSFDbClose (db_handle);
@@ -224,9 +224,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "MailFile",
-                  "MAIL\\CCONNELL",
-                  MAXWORD))
+                                   "MailFile",
+                                   "MAIL\\CCONNELL",
+                                   MAXWORD))
       {
          NSFNoteClose (note_handle);
          NSFDbClose (db_handle);
@@ -340,11 +340,11 @@ int main (int argc, char *argv[])
 /* Look in the index for this name. */
 
    error = NIFFindByName (
-          coll_handle,       /* collection to look in */
-          last_name,         /* string to match on */
-          FIND_CASE_INSENSITIVE,   /* match rules */
-          &coll_pos,         /* where match begins (return) */
-          &match_size);      /* how many match (return) */
+                          coll_handle,       /* collection to look in */
+                          last_name,         /* string to match on */
+                          FIND_CASE_INSENSITIVE,   /* match rules */
+                          &coll_pos,         /* where match begins (return) */
+                          &match_size);      /* how many match (return) */
 
    if (ERR(error) == ERR_NOT_FOUND) 
    {
@@ -368,18 +368,18 @@ int main (int argc, char *argv[])
 /* Get the note IDs of all records with this key. */
 
    if (error = NIFReadEntries(
-      coll_handle,      /* handle to this collection */
-      &coll_pos,        /* where to start in collection */
-      NAVIGATE_CURRENT,       /* order to use when skipping */
-      0L,                  /* number to skip */
-      NAVIGATE_NEXT,       /* order to use when reading */
-      match_size,          /* max number to read */
-      READ_MASK_NOTEID,       /* info we want */
-      &buffer_handle,      /* handle to info (return)   */
-      NULL,          /* length of buffer (return) */
-      NULL,          /* entries skipped (return) */
-      &notes_found,     /* entries read (return) */
-      NULL))            /* signal and share warnings (return) */
+                              coll_handle,      /* handle to this collection */
+                              &coll_pos,        /* where to start in collection */
+                              NAVIGATE_CURRENT,       /* order to use when skipping */
+                              0L,                  /* number to skip */
+                              NAVIGATE_NEXT,       /* order to use when reading */
+                              match_size,          /* max number to read */
+                              READ_MASK_NOTEID,       /* info we want */
+                              &buffer_handle,      /* handle to info (return)   */
+                              NULL,          /* length of buffer (return) */
+                              NULL,          /* entries skipped (return) */
+                              &notes_found,     /* entries read (return) */
+                              NULL))            /* signal and share warnings (return) */
 
    {
       NIFCloseCollection (coll_handle);
@@ -522,11 +522,11 @@ int main (int argc, char *argv[])
 /* Look in the index for this name. */
 
       error = NIFFindByName (
-              coll_handle,       /* collection to look in */
-              last_name,         /* string to match on */
-              FIND_CASE_INSENSITIVE,   /* match rules */
-              &coll_pos,         /* where match begins (return) */
-              &match_size);      /* how many match (return) */
+                             coll_handle,       /* collection to look in */
+                             last_name,         /* string to match on */
+                             FIND_CASE_INSENSITIVE,   /* match rules */
+                             &coll_pos,         /* where match begins (return) */
+                             &match_size);      /* how many match (return) */
 
       if (ERR(error) == ERR_NOT_FOUND) 
       {
@@ -549,18 +549,18 @@ int main (int argc, char *argv[])
 /* Get the note IDs of all records with this key. */
 
       if (error = NIFReadEntries(
-                  coll_handle,      /* handle to this collection */
-                  &coll_pos,        /* where to start in collection */
-                  NAVIGATE_CURRENT,       /* order to use when skipping */
-                  0L,                  /* number to skip */
-                  NAVIGATE_NEXT,       /* order to use when reading */
-                  match_size,          /* max number to read */
-                  READ_MASK_NOTEID,       /* info we want */
-                  &buffer_handle,      /* handle to info (return)   */
-                  NULL,          /* length of buffer (return) */
-                  NULL,          /* entries skipped (return) */
-                  &notes_found,     /* entries read (return) */
-                  NULL))         /* signal and share warnings (return) */
+                                 coll_handle,      /* handle to this collection */
+                                 &coll_pos,        /* where to start in collection */
+                                 NAVIGATE_CURRENT,       /* order to use when skipping */
+                                 0L,                  /* number to skip */
+                                 NAVIGATE_NEXT,       /* order to use when reading */
+                                 match_size,          /* max number to read */
+                                 READ_MASK_NOTEID,       /* info we want */
+                                 &buffer_handle,      /* handle to info (return)   */
+                                 NULL,          /* length of buffer (return) */
+                                 NULL,          /* entries skipped (return) */
+                                 &notes_found,     /* entries read (return) */
+                                 NULL))         /* signal and share warnings (return) */
 
       {
           NIFCloseCollection (coll_handle);

@@ -127,52 +127,52 @@ STATUS         sError=0;                  /* return code */
 int main(int argc, char *argv[])
 {
 
-  char szFileName[] = "readform.nsf";
-  char FormName[] = "Test Form 1";
+    char szFileName[] = "readform.nsf";
+   char FormName[] = "Test Form 1";
 
-  /* Domino and Notes initialization */
-  if (sError = NotesInitExtended (argc, argv))
-  {
-     PRINTLOG("\n Unable to initialize Notes.\n");
-     return (1);
-  }
+    /* Domino and Notes initialization */
+    if (sError = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
       
-  PRINTLOG("");
-  fflush(stdout);
+    PRINTLOG("");
+    fflush(stdout);
 
-  /*
-   * Now open the database, get the NoteID of the Form note, and open the
-   * Form note.
-   */
+    /*
+     * Now open the database, get the NoteID of the Form note, and open the
+     * Form note.
+     */
 
-  if (sError = NSFDbOpen(szFileName, &hDB))
-  {
-   PRINTERROR (sError, "NSFDbOpen");  
-   NotesTerm();
-   return (1);
-  }
+    if (sError = NSFDbOpen(szFileName, &hDB))
+    {
+        PRINTERROR (sError, "NSFDbOpen");  
+        NotesTerm();
+        return (1);
+    }
 
-  /* read the initial form */
-  sError = ReadForm(FormName);
+    /* read the initial form */
+    sError = ReadForm(FormName);
   
-  /* if no error close the database */
-  if (!sError)
-  {
-    NSFDbClose(hDB);
-  }
-  else 
-  {
-   PRINTERROR (sError, "ReadForm");  
-   NotesTerm();
-   return (1);
-  }
+    /* if no error close the database */
+    if (!sError)
+    {
+        NSFDbClose(hDB);
+    }
+    else 
+    {
+        PRINTERROR (sError, "ReadForm");  
+        NotesTerm();
+        return (1);
+    }
   
-  /*
-   * leave with no error
-   */
-  PRINTLOG("\nProgram completed successfully.\n");   
-  NotesTerm();
-  return (0); 
+    /*
+     * leave with no error
+     */
+    PRINTLOG("\nProgram completed successfully.\n");   
+    NotesTerm();
+    return (0); 
 
 }
 
@@ -188,133 +188,133 @@ int main(int argc, char *argv[])
 
 STATUS LNPUBLIC ReadForm(char *pFormName)
 {
-  NOTEHANDLE  hNote; 
-  DHANDLE     hMem;
-  WORD        ClassForm = NOTE_CLASS_FORM;
-  WORD        wDataType;
-  DWORD       dwLength;
-  DWORD       dwTextBufferLength = TEXT_BUFFER_LENGTH;
-  NOTEID      FormNoteID;           /* Note id of the Form document. */
-  BLOCKID     ItemBlockID;
-  BLOCKID     prevItemBlockID;
-  BLOCKID     ValueBlockID;
-  char far    *pData=NULL;
-  char        szTitleString[128];   /* Form title will be constructed here.  */
+    NOTEHANDLE  hNote; 
+    DHANDLE     hMem;
+    WORD        ClassForm = NOTE_CLASS_FORM;
+    WORD        wDataType;
+    DWORD       dwLength;
+    DWORD       dwTextBufferLength = TEXT_BUFFER_LENGTH;
+    NOTEID      FormNoteID;           /* Note id of the Form document. */
+    BLOCKID     ItemBlockID;
+    BLOCKID     prevItemBlockID;
+    BLOCKID     ValueBlockID;
+    char far    *pData=NULL;
+    char        szTitleString[128];   /* Form title will be constructed here.  */
 
-  /*  
-   * find the design note form
-   */
+    /*  
+     * find the design note form
+     */
  
-  if (sError = NIFFindDesignNote(hDB, pFormName, NOTE_CLASS_FORM, 
-                                 &FormNoteID))
-  {
-    NSFDbClose(hDB);
-    return(ERR(sError));
-  }
+    if (sError = NIFFindDesignNote(hDB, pFormName, NOTE_CLASS_FORM, 
+                                   &FormNoteID))
+    {
+        NSFDbClose(hDB);
+        return(ERR(sError));
+    }
 
-  /*  
-   * open the design note
-   */
+    /*  
+     * open the design note
+     */
 
-  if (sError = NSFNoteOpen(hDB, FormNoteID, 0, &hNote))
-  {
-    NSFDbClose(hDB);
-    return(ERR(sError));
-  }
+    if (sError = NSFNoteOpen(hDB, FormNoteID, 0, &hNote))
+    {
+        NSFDbClose(hDB);
+        return(ERR(sError));
+    }
 
-  /*
-   * Allocate a buffer in which the field names and datatypes will
-   * be displayed.
-   */
+    /*
+     * Allocate a buffer in which the field names and datatypes will
+     * be displayed.
+     */
 
-  if (sError = OSMemAlloc (0, dwTextBufferLength, &hMem))
-    return(FALSE);
+    if (sError = OSMemAlloc (0, dwTextBufferLength, &hMem))
+        return(FALSE);
         
-  /*
-   *  Lock global buffer.
-   */
+    /*
+     *  Lock global buffer.
+     */
     
-  if ((pOutputBuffer = (char*) OSLockObject(hMem)) == NULL)
-    return(FALSE);
+    if ((pOutputBuffer = (char*) OSLockObject(hMem)) == NULL)
+        return(FALSE);
 
-  /*
-   * Read the title of the form from the Form note.
-   * Note: $TITLE item is TYPE_TEXT.
-   */
+    /*
+    * Read the title of the form from the Form note.
+    * Note: $TITLE item is TYPE_TEXT.
+    */
  
-  if (sError = NSFItemInfo(hNote,
-                           ITEM_NAME_TEMPLATE_NAME,
-                           sizeof(ITEM_NAME_TEMPLATE_NAME) - 1,
-                           NULL,
-                           &wDataType,
-                           &ValueBlockID,
-                           &dwLength))
-  {
-    OSUnlockObject(hMem);
-    OSMemFree (hMem);
-    NSFDbClose(hDB);
-    return(ERR(sError));
-  }
+    if (sError = NSFItemInfo(hNote,
+                             ITEM_NAME_TEMPLATE_NAME,
+                             sizeof(ITEM_NAME_TEMPLATE_NAME) - 1,
+                             NULL,
+                             &wDataType,
+                             &ValueBlockID,
+                             &dwLength))
+    {
+        OSUnlockObject(hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);
+        return(ERR(sError));
+    }
 
-  /*
-   *  Lock the block returned, write title of form to the output buffer.
-   */
+    /*
+     *  Lock the block returned, write title of form to the output buffer.
+     */
 
-  pData = OSLockBlock(char, ValueBlockID);
-  pData += sizeof(WORD);
+    pData = OSLockBlock(char, ValueBlockID);
+    pData += sizeof(WORD);
 
-  memcpy(szTitleString, pData, (int) (dwLength - sizeof(WORD)));
-  szTitleString[dwLength - sizeof(WORD)] = '\0';    
-  PRINTLOG (pOutputBuffer, "\nForm Name:  %s\n\n", szTitleString);
-  OSUnlockBlock(ValueBlockID);
+    memcpy(szTitleString, pData, (int) (dwLength - sizeof(WORD)));
+    szTitleString[dwLength - sizeof(WORD)] = '\0';    
+    PRINTLOG (pOutputBuffer, "\nForm Name:  %s\n\n", szTitleString);
+    OSUnlockBlock(ValueBlockID);
       
-  /*
-   *  Now read the Body of the form. Since there may be multiple body fields,
-   *  we'll call NSFItemInfo() to get the first one, then we'll call
-   *  NSFItemInfoNext() in a loop to get the remaining body fields.
-   */       
+    /*
+     *  Now read the Body of the form. Since there may be multiple body fields,
+     *  we'll call NSFItemInfo() to get the first one, then we'll call
+     *  NSFItemInfoNext() in a loop to get the remaining body fields.
+     */       
 
-  if (sError = NSFItemInfo(hNote,
-                           ITEM_NAME_TEMPLATE,
-                           sizeof(ITEM_NAME_TEMPLATE) - 1, 
-                           &ItemBlockID,
-                           &wDataType,
-                           &ValueBlockID,
-                           &dwLength))
-  {
-    OSUnlockObject(hMem);
-    OSMemFree (hMem);
-    NSFDbClose(hDB);
-    return(ERR(sError));
-  }
+    if (sError = NSFItemInfo(hNote,
+                             ITEM_NAME_TEMPLATE,
+                             sizeof(ITEM_NAME_TEMPLATE) - 1, 
+                             &ItemBlockID,
+                             &wDataType,
+                             &ValueBlockID,
+                             &dwLength))
+    {
+        OSUnlockObject(hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);
+        return(ERR(sError));
+    }
 
   /*
    *  Call function to read field names and datatypes from the body field.
    */
  
-  if (sError = ReadBody(ValueBlockID, dwLength, pOutputBuffer))
-  {
-    OSUnlockObject(hMem);
-    OSMemFree (hMem);
-    NSFDbClose(hDB);
-    return(ERR(sError));
-  }
+    if (sError = ReadBody(ValueBlockID, dwLength, pOutputBuffer))
+    {
+        OSUnlockObject(hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);
+        return(ERR(sError));
+    }
 
-  /*
-   *  Read the remaining Body fields in the form note.
-   */  
+    /*
+     *  Read the remaining Body fields in the form note.
+     */  
  
-  while (TRUE)
-  {
-    prevItemBlockID = ItemBlockID;
-    sError = NSFItemInfoNext(hNote,
-                             prevItemBlockID,
-                             ITEM_NAME_TEMPLATE,
-                             sizeof(ITEM_NAME_TEMPLATE) - 1,
-                             &ItemBlockID,
-                             &wDataType,
-                             &ValueBlockID,
-                             &dwLength);
+    while (TRUE)
+    {
+        prevItemBlockID = ItemBlockID;
+        sError = NSFItemInfoNext(hNote,
+                                 prevItemBlockID,
+                                 ITEM_NAME_TEMPLATE,
+                                 sizeof(ITEM_NAME_TEMPLATE) - 1,
+                                 &ItemBlockID,
+                                 &wDataType,
+                                 &ValueBlockID,
+                                 &dwLength);
 
     /*
      *  A return status of ERR_ITEM_NOT_FOUND is not an error, it just
@@ -324,8 +324,8 @@ STATUS LNPUBLIC ReadForm(char *pFormName)
                                  
     if (sError == ERR_ITEM_NOT_FOUND)
     {
-      sError = NOERROR;
-      break;
+        sError = NOERROR;
+        break;
     }
 
     /*
@@ -334,7 +334,7 @@ STATUS LNPUBLIC ReadForm(char *pFormName)
      */
 
     else if (sError)
-      break;    
+        break;    
 
     /*
      *  Call function to read the field names and datatypes from the
@@ -343,42 +343,42 @@ STATUS LNPUBLIC ReadForm(char *pFormName)
      
     if ((sError = ReadBody(ValueBlockID,
                            dwLength, pOutputBuffer)) != NOERROR)
-      break;
+        break;
 
-  }  /* End of "while (TRUE)" loop */
+    }  /* End of "while (TRUE)" loop */
 
   /*
    *  If an error occurred in the above loop, display an error message,
    *  clean up, and exit.
    */    
 
-  if (sError)
-  {
+    if (sError)
+    {
+        OSUnlockObject(hMem);
+        OSMemFree (hMem);
+        NSFDbClose(hDB);
+        return(ERR(sError));
+    }
+
+    /*
+     *  Display the form title, along with the names and data types of all the
+     *  fields in this form.
+     */
+
+    PRINTLOG("%s", pOutputBuffer);
+    
+    /*
+     *  Close the note and the database.
+     */
+ 
     OSUnlockObject(hMem);
     OSMemFree (hMem);
-    NSFDbClose(hDB);
-    return(ERR(sError));
-  }
-
-  /*
-   *  Display the form title, along with the names and data types of all the
-   *  fields in this form.
-   */
-
-  PRINTLOG("%s", pOutputBuffer);
-    
-  /*
-   *  Close the note and the database.
-   */
- 
-  OSUnlockObject(hMem);
-  OSMemFree (hMem);
-  NSFNoteClose(hNote);
+    NSFNoteClose(hNote);
   
-  /*
-   * leave with no error
-   */
-  return(NOERROR);
+    /*
+     * leave with no error
+     */
+    return(NOERROR);
 }
 
 /************************************************************************
@@ -432,189 +432,189 @@ DWORD                        dwRecordLength,
 void far        *pCtx)                                
 {
 
-  void FAR       *p = (void *)RecordPtr;
-  CDFIELD        CDField;
-  CDHOTSPOTBEGIN CDV4HotSpot;
-  CDHOTSPOTBEGIN *pCDV4HotSpot=NULL;
-  NOTEHANDLE     hNote;
-  DHANDLE        hMem;
-  NOTEID         SubFormNoteID;
-  BLOCKID        ValueBlockID, PrevBlockID, NewBlockID;
-  DWORD          dwLength;
-  WORD           wDataType;
-  WORD           binDataType;
+    void FAR       *p = (void *)RecordPtr;
+    CDFIELD        CDField;
+    CDHOTSPOTBEGIN CDV4HotSpot;
+    CDHOTSPOTBEGIN *pCDV4HotSpot=NULL;
+    NOTEHANDLE     hNote;
+    DHANDLE        hMem;
+    NOTEID         SubFormNoteID;
+    BLOCKID        ValueBlockID, PrevBlockID, NewBlockID;
+    DWORD          dwLength;
+    WORD           wDataType;
+    WORD           binDataType;
 
-  char           FieldString[256]={0};
-  char           szFieldName[128]={0};
-  char           szDataType[128]={0};
-  char far       *pFieldName=NULL;
-  char           *pBuf = (char *)pCtx;
+    char           FieldString[256]={0};
+    char           szFieldName[128]={0};
+    char           szDataType[128]={0};
+    char far       *pFieldName=NULL;
+    char           *pBuf = (char *)pCtx;
   
-  void           *pItemValue=NULL;
+    void           *pItemValue=NULL;
 
-  sError = 0;
+    sError = 0;
 
-  /*
-   * if the record type is a SIG_CD_V4HOTSPOTBEGIN check to see if the type 
-   * is a Subform.
-   */
+    /*
+     * if the record type is a SIG_CD_V4HOTSPOTBEGIN check to see if the type 
+     * is a Subform.
+     */
 
-  if (RecordType == SIG_CD_V4HOTSPOTBEGIN)
-  {
+    if (RecordType == SIG_CD_V4HOTSPOTBEGIN)
+    {
         ODSReadMemory( &p, _CDHOTSPOTBEGIN, &CDV4HotSpot, 1);
         pCDV4HotSpot = (CDHOTSPOTBEGIN *)&CDV4HotSpot;
 
-    /*
-     * if the type is a Subform, find the Subform design note, get it's info, 
-     * call EnumCompositeBuffer() to make this the new action routine so we can
-     * recursively come in here and detect any nested Subforms.
-     */
+        /*
+         * if the type is a Subform, find the Subform design note, get it's info, 
+         * call EnumCompositeBuffer() to make this the new action routine so we can
+         * recursively come in here and detect any nested Subforms.
+         */
 
         if (pCDV4HotSpot->Type == HOTSPOTREC_TYPE_SUBFORM &&
             !(pCDV4HotSpot->Flags & HOTSPOTREC_RUNFLAG_FORMULA))
         {
-          char * pszSubForm=NULL;
+            char * pszSubForm=NULL;
 
-          if (sError = OSMemAlloc(0,pCDV4HotSpot->DataLength+1,&hMem))
-            return sError;
+            if (sError = OSMemAlloc(0,pCDV4HotSpot->DataLength+1,&hMem))
+                return sError;
 
-          pszSubForm = (char *) OSLockObject(hMem);
-          strncpy(pszSubForm,(char *)p,pCDV4HotSpot->DataLength);
+            pszSubForm = (char *) OSLockObject(hMem);
+            strncpy(pszSubForm,(char *)p,pCDV4HotSpot->DataLength);
 
-          sError = NIFFindDesignNote(hDB, pszSubForm, NOTE_CLASS_FORM, &SubFormNoteID);
+            sError = NIFFindDesignNote(hDB, pszSubForm, NOTE_CLASS_FORM, &SubFormNoteID);
 
-          OSUnlockObject(hMem);
-          OSMemFree(hMem);
+            OSUnlockObject(hMem);
+            OSMemFree(hMem);
         
-          if (sError)
-            return sError;
+            if (sError)
+                return sError;
 
-          if (sError = NSFNoteOpen(hDB, SubFormNoteID, 0, &hNote))
-            return sError;
+            if (sError = NSFNoteOpen(hDB, SubFormNoteID, 0, &hNote))
+                return sError;
       
           /* Now read the Body of the SubForm form */        
-          if (sError = NSFItemInfo(hNote, ITEM_NAME_TEMPLATE,
-                                           (WORD)strlen(ITEM_NAME_TEMPLATE), &NewBlockID,
-                                            &wDataType, &ValueBlockID, &dwLength))
-          {
-             NSFNoteClose (hNote);
-             return sError;
-          }
+            if (sError = NSFItemInfo(hNote, ITEM_NAME_TEMPLATE,
+                                     (WORD)strlen(ITEM_NAME_TEMPLATE), &NewBlockID,
+                                     &wDataType, &ValueBlockID, &dwLength))
+            {
+                NSFNoteClose (hNote);
+                return sError;
+            }
 
-             /* keep calling this action routine until no more Subforms... */
-          while ( TRUE )
-          {  
+            /* keep calling this action routine until no more Subforms... */
+            while ( TRUE )
+            {  
                 PrevBlockID = NewBlockID;
                 if (sError = EnumCompositeBuffer(ValueBlockID, dwLength, 
-                                                             &FormFields, pOutputBuffer))
+                                                 &FormFields, pOutputBuffer))
                 {
-                  NSFNoteClose ( hNote );
-                  return NOERROR;
+                    NSFNoteClose ( hNote );
+                    return NOERROR;
                 }
 
                 sError = NSFItemInfoNext (hNote, PrevBlockID, ITEM_NAME_TEMPLATE,
-                                                      (WORD)strlen(ITEM_NAME_TEMPLATE), &NewBlockID,
-                                                      &wDataType, &ValueBlockID, &dwLength);
+                                          (WORD)strlen(ITEM_NAME_TEMPLATE), &NewBlockID,
+                                          &wDataType, &ValueBlockID, &dwLength);
 
                 if (sError && (ERR(sError) == ERR_ITEM_NOT_FOUND) )
                 {
-                  NSFNoteClose ( hNote );
-                  break;
+                    NSFNoteClose ( hNote );
+                    break;
                 }
 
                 if(sError && (sError != NOERROR ) )
                 {
-                  NSFNoteClose ( hNote );
-                  return NOERROR;
+                    NSFNoteClose ( hNote );
+                    return NOERROR;
                 }
 
-          } /* End of While */
+            } /* End of While */
         } /* if (pCDV4HotSpot->Type == HOTSPOTREC_TYPE_SUBFORM) */
 
-  } /* End of if (RecordType == SIG_CD_V4HOTSPOTBEGIN &&  Gbl_bV4HotSpot) */
+    } /* End of if (RecordType == SIG_CD_V4HOTSPOTBEGIN &&  Gbl_bV4HotSpot) */
 
-  /* Return if not a CDFIELD record */
-  if (RecordType != SIG_CD_FIELD && RecordType != SIG_CD_FIELD_PRE_36 )
-    return NOERROR;
+    /* Return if not a CDFIELD record */
+    if (RecordType != SIG_CD_FIELD && RecordType != SIG_CD_FIELD_PRE_36 )
+        return NOERROR;
 
-  /*
-   * if record type is SIG_CD_FIELD get field type.
-   */
-  
-  if (RecordType == SIG_CD_FIELD)
-  {
-            
-    pItemValue = RecordPtr;
-
-    /* 
-     * Convert data from Domino and Notes canonical format to the
-     * host specific format
-     */
-
-    ODSReadMemory (&pItemValue, _CDFIELD, &CDField, 1);
-            
     /*
-     * Get the data type of this field
+     * if record type is SIG_CD_FIELD get field type.
      */
-
-    binDataType = CDField.DataType;
-    
-    switch (binDataType)
+   
+    if (RecordType == SIG_CD_FIELD)
     {
-      case TYPE_TEXT:
-        strcpy (szDataType, "Text");
-        break;
+            
+        pItemValue = RecordPtr;
 
-      case TYPE_TEXT_LIST:
-        strcpy (szDataType, "Multi-Value Text");
-        break;
+        /* 
+         * Convert data from Domino and Notes canonical format to the
+         * host specific format
+         */
 
-      case TYPE_NUMBER:
-        strcpy (szDataType, "Number");
-        break;
+        ODSReadMemory (&pItemValue, _CDFIELD, &CDField, 1);
+            
+        /*
+         * Get the data type of this field
+         */
 
-      case TYPE_NUMBER_RANGE:
-        strcpy (szDataType, "Multi-Value Number");
-        break;
-
-      case TYPE_TIME:
-        strcpy (szDataType, "Time/Date");
-        break;
-
-      case TYPE_TIME_RANGE:
-        strcpy (szDataType, "Multi-Value Time/Date");
-        break;
-
-      case TYPE_COMPOSITE:
-        strcpy (szDataType, "Rich Text");
-        break;
-
-      default:
-        strcpy (szDataType, "Unknown Data Type");
-        break;
-    }
-
-    /*
-     * Now get the name of this field.
-     */
-
-    pFieldName = (RecordPtr + ODSLength(_CDFIELD) + CDField.DVLength
-                 + CDField.ITLength + CDField.IVLength);
-
-    memcpy(szFieldName, pFieldName, CDField.NameLength);
-    szFieldName[CDField.NameLength] = '\0';
-
-    /*
-     *  Construct a string containing the field name and datatype,
-     *  and append it to a global buffer.
-     */
-
-    sprintf(FieldString, "Field Name = %s, Data Type = %s\n",
-            szFieldName, szDataType);
-
-    strcat(pBuf, FieldString);
+        binDataType = CDField.DataType;
     
-  }
+        switch (binDataType)
+        {
+            case TYPE_TEXT:
+                strcpy (szDataType, "Text");
+                break;
+
+            case TYPE_TEXT_LIST:
+                strcpy (szDataType, "Multi-Value Text");
+                break;
+
+            case TYPE_NUMBER:
+                strcpy (szDataType, "Number");
+                break;
+
+            case TYPE_NUMBER_RANGE:
+                strcpy (szDataType, "Multi-Value Number");
+                break;
+
+            case TYPE_TIME:
+                strcpy (szDataType, "Time/Date");
+                break;
+
+            case TYPE_TIME_RANGE:
+                strcpy (szDataType, "Multi-Value Time/Date");
+                break;
+
+            case TYPE_COMPOSITE:
+                strcpy (szDataType, "Rich Text");
+                break;
+
+            default:
+                strcpy (szDataType, "Unknown Data Type");
+                break;
+        }
+
+        /*
+         * Now get the name of this field.
+        */
+
+        pFieldName = (RecordPtr + ODSLength(_CDFIELD) + CDField.DVLength
+                      + CDField.ITLength + CDField.IVLength);
+
+        memcpy(szFieldName, pFieldName, CDField.NameLength);
+        szFieldName[CDField.NameLength] = '\0';
+
+        /*
+         *  Construct a string containing the field name and datatype,
+         *  and append it to a global buffer.
+         */
+
+        sprintf(FieldString, "Field Name = %s, Data Type = %s\n",
+                szFieldName, szDataType);
+
+        strcat(pBuf, FieldString);
+    
+    }
 
   /* Return status */
   return (sError);

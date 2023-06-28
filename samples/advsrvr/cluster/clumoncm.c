@@ -139,7 +139,7 @@ void MainPrompt(void)
     /* clear server and database name context strings */
     szDBServerNameString[0] = szDBNameString[0] = '\0';
 
-	/* loop until user wishes to exit */ 
+    /* loop until user wishes to exit */ 
     while (iSelection != 3)
     { 
         printf("Main Menu\n");
@@ -160,7 +160,7 @@ void MainPrompt(void)
             case 3: printf("\n"); break;
             
             default: printf("Invalid selection.  Try again.\n"); 
-                     break;
+                break;
         }
     }                
 }        
@@ -177,7 +177,7 @@ void InfoPrompt(void)
 {
     int iSelection=0;
 
-	/* loop until user wishes to return to Main Menu */ 
+    /* loop until user wishes to return to Main Menu */ 
     while (iSelection != 5)
     { 
         printf("\nCluster Information Menu\n"); 
@@ -202,7 +202,7 @@ void InfoPrompt(void)
             case 5: printf("\n"); break;
 
             default: printf("Invalid selection.  Try again.\n"); 
-                     break;
+                break;
             
         }
     }                
@@ -220,7 +220,7 @@ void AdmPrompt(void)
 {
     int iSelection=0;
 
-	/* loop until user wishes to return to Main Menu */ 
+    /* loop until user wishes to return to Main Menu */ 
     while (iSelection != 5)
     { 
         printf("\nCluster Administration Menu\n"); 
@@ -244,7 +244,7 @@ void AdmPrompt(void)
             case 4: CreateCopyDB(); break;
             case 5: printf("\n"); break;
             default: printf("Invalid selection.  Try again.\n"); 
-                     break;
+                break;
         }
     }                
 }        
@@ -262,7 +262,7 @@ void GetClusterInfo (void)
     STATUS  nError = NOERROR;
 
     /* prompt for target server */
-	printf("Cluster Information\n");
+    printf("Cluster Information\n");
     fflush(stdin);
     ioctl(0, TCSETS, &cfg);
     printf("Enter the Server/Org name (or RETURN to exit)-> ");
@@ -353,7 +353,7 @@ void GetServerRestrict (void)
         return;
     }
 
-	/* display server restriction setting */
+    /* display server restriction setting */
     dspServerRestrict (szDBServerNameString);
 
     fflush(stdin);
@@ -512,14 +512,14 @@ void SetServerRestrict (void)
         /* modify server restriction setting */
         case 0:
         case 1: setServerRestrict (szDBServerNameString, iRestrict);
-                break;
+            break;
 
         /* shutdown server */
         case 2: shutdownServer (szDBServerNameString);
-                break;
+            break;
 
         default: printf("Invalid selection.  Cancelling operation.\n"); 
-                 return;
+            return;
     }
 
     fflush(stdin);
@@ -678,79 +678,79 @@ void CreateCopyDB (void)
               information for the specified server. The GetServerCluster, 
               GetServerLoad, and GetServerClusterMates routines (clfunc.c) 
               are called to perform the relevant HCL C API for Domino and 
-			  Notes functions.
+              Notes functions.
 
     COMMENTS:
 
-  		  Although designed to retrieve each piece separately,
-  		  this routine currently is called by the GetClusterInfo() 
-	      function passing a NPN_CLU_SHOW_ALL flag.  This enables 
-  		  displaying all the three server cluster information
-  		  elements. 
+              Although designed to retrieve each piece separately,
+              this routine currently is called by the GetClusterInfo() 
+              function passing a NPN_CLU_SHOW_ALL flag.  This enables 
+              displaying all the three server cluster information
+              elements. 
 
-          Any errors are processed and displayed to the user as 
-          appropriate.
+              Any errors are processed and displayed to the user as 
+              appropriate.
             
  ************************************************************************/
 
 void dspClusterInfo(char *szServerName, DWORD dwClusterFlags)
 {
-	STATUS nError;
-	char szErrorString[LINEOTEXT];      /* Error Message String */
-	char szClusterName[MAXUSERNAME];    /* Name of Cluster */
-	char szClusterInfo[LINEOTEXT];      /* Returned Cluster Info */
+    STATUS nError;
+    char szErrorString[LINEOTEXT];      /* Error Message String */
+    char szClusterName[MAXUSERNAME];    /* Name of Cluster */
+    char szClusterInfo[LINEOTEXT];      /* Returned Cluster Info */
 
-	DWORD dwLoadIndex = 0;
-   	DHANDLE hClusterList = NULLHANDLE;	 /* list of clustermates */
-   	void FAR *lpClusterList = NULL;		 /* locked-down cluster list pointer */
+    DWORD dwLoadIndex = 0;
+    DHANDLE hClusterList = NULLHANDLE;	 /* list of clustermates */
+    void FAR *lpClusterList = NULL;		 /* locked-down cluster list pointer */
       
-   	WORD wNumListEntries = 0;
-   	WORD wBufferLen = 0;
-   	char *pBuffer;
-   	int i;
+    WORD wNumListEntries = 0;
+    WORD wBufferLen = 0;
+    char *pBuffer;
+    int i;
 
     printf("\nCluster Information For %s\n", szServerName);
 
-	/* If the Show_Server's_Cluster menu item was selected */
-	if (dwClusterFlags & NPN_CLU_SHOW_CLUNAME )
-	{
-		nError = GetServerCluster(szServerName, szClusterName );
+    /* If the Show_Server's_Cluster menu item was selected */
+    if (dwClusterFlags & NPN_CLU_SHOW_CLUNAME )
+    {
+        nError = GetServerCluster(szServerName, szClusterName );
        
-		/* return if error */
-		if (nError != NOERROR)
-		    goto Cleanup;
-		else
-		{
-		    /* Print out cluster name */
-		    printf("\nCluster Name: %s", szClusterName);
-		}
-	}
+        /* return if error */
+        if (nError != NOERROR)
+            goto Cleanup;
+        else
+        {
+            /* Print out cluster name */
+            printf("\nCluster Name: %s", szClusterName);
+        }
+    }
 
-	/* If the Show_Server's_Load menu item was selected */
-	if ( dwClusterFlags & NPN_CLU_SHOW_LOAD )
-	{
+    /* If the Show_Server's_Load menu item was selected */
+    if ( dwClusterFlags & NPN_CLU_SHOW_LOAD )
+    {
         nError = GetServerLoad(szServerName, &dwLoadIndex);
       
-    	if (nError)
-		    goto Cleanup;
+        if (nError)
+            goto Cleanup;
 	
         else
         /* Print out Availability index */
             printf("\nAvailability: %ld\n", dwLoadIndex);
-	}
+    }
     
-	/* If the Show_Server's_ClusterMates menu item was selected, get the
-	 * Cluster mates.  To ensure the latest information, the Cluster mate
-	 * list will be looked up via server NameLookup using by specifiying
-	 * the CLUSTER_LOOKUP_NOCACHE flag.
-	 */
-	if ( dwClusterFlags & NPN_CLU_SHOW_CLUMATES )
-	{
+    /* If the Show_Server's_ClusterMates menu item was selected, get the
+     * Cluster mates.  To ensure the latest information, the Cluster mate
+     * list will be looked up via server NameLookup using by specifiying
+     * the CLUSTER_LOOKUP_NOCACHE flag.
+     */
+    if ( dwClusterFlags & NPN_CLU_SHOW_CLUMATES )
+    {
 
-		/* Call the routine to get the cluster list of the specified server.  
-		 * If hClusterList != NULLHANDLE. then it must be freed in this 
-		 * block of code.
-		 */
+        /* Call the routine to get the cluster list of the specified server.  
+         * If hClusterList != NULLHANDLE. then it must be freed in this 
+         * block of code.
+         */
         nError = GetServerClusterMates(szServerName, 
                                        (DWORD)CLUSTER_LOOKUP_NOCACHE,
                                        &hClusterList);
@@ -758,67 +758,67 @@ void dspClusterInfo(char *szServerName, DWORD dwClusterFlags)
         /* If the server is in a restricted or unavailable state then we can
          * still continue because it will still return the cluster info to us.
          * If it's another error then quit but make sure that the list is freed
-		 */
-	if (nError)
-	{
-	    if ( !(( ERR(nError) == ERR_SERVER_UNAVAILABLE) || 
-	         ( ERR(nError) == ERR_SERVER_RESTRICTED)) )
-	        goto Cleanup;
-	}
-	nError = NOERROR;
-	lpClusterList = OSLock( void, hClusterList);
-	wNumListEntries = ListGetNumEntries( lpClusterList, FALSE);
-	    
-		/* Display the member count */
-        printf("Cluster Mates: %d\n", wNumListEntries);
+         */
+    if (nError)
+    {
+        if ( !(( ERR(nError) == ERR_SERVER_UNAVAILABLE) || 
+             ( ERR(nError) == ERR_SERVER_RESTRICTED)) )
+            goto Cleanup;
+    }
+    nError = NOERROR;
+    lpClusterList = OSLock( void, hClusterList);
+    wNumListEntries = ListGetNumEntries( lpClusterList, FALSE);
+        
+    /* Display the member count */
+    printf("Cluster Mates: %d\n", wNumListEntries);
 
- 		/* Get the members from the list */
-	for (i = 0; i < (int) wNumListEntries; i++)
-	{
-	    nError = ListGetText( lpClusterList, FALSE, (WORD) i, 
-	                          FAR &pBuffer, &wBufferLen );
-	    if (!nError)
-	    {
-	        /* Update the Cluster Mates dialog list box */
-	        memcpy(szClusterInfo, pBuffer, wBufferLen);
-	        szClusterInfo[wBufferLen] = '\0';
-	        printf("\t%s\n", szClusterInfo);
-	    }
-	    else
-	    {
-	        OSUnlock( hClusterList);
-	        goto Cleanup;
-	    }
-	} /* end of FOR */
-	
-	/* No longer need this memory - Freeing done in "Cleanup:" below */
-	OSUnlock( hClusterList);
-	}  
+    /* Get the members from the list */
+    for (i = 0; i < (int) wNumListEntries; i++)
+    {
+        nError = ListGetText( lpClusterList, FALSE, (WORD) i, 
+                              FAR &pBuffer, &wBufferLen );
+        if (!nError)
+        {
+            /* Update the Cluster Mates dialog list box */
+            memcpy(szClusterInfo, pBuffer, wBufferLen);
+            szClusterInfo[wBufferLen] = '\0';
+            printf("\t%s\n", szClusterInfo);
+        }
+        else
+        {
+            OSUnlock( hClusterList);
+            goto Cleanup;
+        }
+    } /* end of FOR */
+    
+    /* No longer need this memory - Freeing done in "Cleanup:" below */
+    OSUnlock( hClusterList);
+    }  
 
 Cleanup:
    if (hClusterList != NULLHANDLE)        
        OSMemFree( hClusterList);
 
    /* Result Processing */
-   switch (nError)
-   {
+    switch (nError)
+    {
         case NPNERR_NOT_CLUSTER_MEMBER:
-           sprintf (szErrorString, 
-                    "Server %s is not a member of any cluster!\n",
+            sprintf (szErrorString, 
+                     "Server %s is not a member of any cluster!\n",
                     szDBServerNameString);
-           printf("\n%s", szErrorString);
-           break;
+            printf("\n%s", szErrorString);
+            break;
    
         case NOERROR:
-           break;
+            break;
    
         default:  /* HCL C API for Notes/Domino Error */
-           OSLoadString(hModule, ERR(nError),
-                        szErrorString, LINEOTEXT-1);
-           printf("\n%s", szErrorString);
-           break;
-   }                 
-   return;
+            OSLoadString(hModule, ERR(nError),
+                         szErrorString, LINEOTEXT-1);
+            printf("\n%s", szErrorString);
+            break;
+    }                 
+    return;
 }   
 
 /************************************************************************
@@ -856,9 +856,9 @@ void dspDBOptions (char *szServerName, char *szDBName )
     /* Call routine to get the Mark options */
     nError = GetDBMarks (szServerName, szDBName, &dwOptionMask, &bFailover);
     
-	/* Return if error getting options */
-	if (nError != NOERROR)
-	    goto Cleanup;
+    /* Return if error getting options */
+    if (nError != NOERROR)
+        goto Cleanup;
 
     /* Report clustered server failover and update server/DB name Edit boxes */
     if (bFailover)
@@ -869,7 +869,7 @@ void dspDBOptions (char *szServerName, char *szDBName )
         printf ("\n%s\n", szErrorString);
     }
 
-  	/* Report Mark Options */
+    /* Report Mark Options */
     if (dwOptionMask & DBOPTION_OUT_OF_SERVICE)        
         printf("\tMarked Out Of Service\n");
     else
@@ -883,10 +883,10 @@ Cleanup:
     if ( nError != NOERROR)
     {
         OSLoadString(hModule, ERR(nError),
-            	     szErrorString, LINEOTEXT-1);
+                     szErrorString, LINEOTEXT-1);
         printf("%s\n", szErrorString);
     }
-   return;
+    return;
 }
 
 /************************************************************************
@@ -897,9 +897,9 @@ Cleanup:
               information for the specified server name.   The GetServerLoad
               and RemoteCommand routines (clfunc.c) are called to perform
               the relevant HCL C API for Notes/Domino functions.  
-			  RemoteCommand programmatically uses Domino and Notes remote 
-			  console commands to get the server availability threshold 
-			  information. The referenced commands are defined in clumon.h.
+              RemoteCommand programmatically uses Domino and Notes remote 
+              console commands to get the server availability threshold 
+              information. The referenced commands are defined in clumon.h.
               
     COMMENTS:
 
@@ -931,7 +931,7 @@ void dspThresholdInfo (char *szServerName)
     /* First retrieve and display the server availability (if noerror) */
     nError = GetServerLoad (szServerName, &dwAvailability);
     if (nError != NOERROR)
-	    goto Cleanup;
+        goto Cleanup;
 
     sprintf (szInfo, "%lu", dwAvailability);
     printf("Availability: %s\n", szInfo);
@@ -940,9 +940,9 @@ void dspThresholdInfo (char *szServerName)
     nError = RemoteCommand (szServerName, GET_THRESHOLD, 
                             szServerResponse, &wResponseLen);
     
-	/* Return if error with remote command */
-	if (nError != NOERROR)
-	    goto Cleanup;
+    /* Return if error with remote command */
+    if (nError != NOERROR)
+        goto Cleanup;
 
     /* Parse out Threshold setting from response string */
     /* first strip out CR/LF termination of Notes.ini string */
@@ -1050,7 +1050,7 @@ Cleanup:
 
         default:
             OSLoadString(hModule, ERR(nError),
-                    	 szErrorString, LINEOTEXT-1);
+                         szErrorString, LINEOTEXT-1);
             printf("%s\n", szErrorString);
             break;
     }
@@ -1093,13 +1093,13 @@ void dspServerRestrict (char *szServerName)
     nError = RemoteCommand (szServerName, GET_RESTRICT, 
                             szServerResponse, &wResponseLen);
     
-	/* Return if error with remote command */
-	if (nError != NOERROR)
-	    goto Cleanup;
+    /* Return if error with remote command */
+    if (nError != NOERROR)
+        goto Cleanup;
 
-  	/* and check Server Restricted checkbox if SERVER_RESTRICT=1 
-  	 * response is returned
-  	 */
+    /* and check Server Restricted checkbox if SERVER_RESTRICT=1 
+     * response is returned
+     */
     if (!strcmp(szServerResponse, RESTRICTED))        
         printf("\tServer Restricted\n");
     else
@@ -1124,10 +1124,10 @@ Cleanup:
     PURPOSE:  Sets and displays the Server Restriction state for the
               specified server.  The RemoteCommand routine (clfunc.c) is 
               called to perform the relevant HCL C API for Domino and 
-			  Notes functions.  Specifically, this routine programmatically 
-			  uses Notes and Domino remote console commands to set/unset 
-			  the server restriction configuration. The referenced commands 
-			  are defined in clumon.h.
+              Notes functions.  Specifically, this routine programmatically 
+              uses Notes and Domino remote console commands to set/unset 
+              the server restriction configuration. The referenced commands 
+              are defined in clumon.h.
 
     COMMENTS:
 
@@ -1229,8 +1229,8 @@ void shutdownServer (char *szServerName)
     fflush(stdin);
     ioctl(0, TCSETS, &cfg);
     sprintf (szErrorString, "%s\n%s", 
-        "A server can not be restarted from a remote console.",
-        "Do you wish to continue with the shutdown (Y/N)?-> " );
+             "A server can not be restarted from a remote console.",
+             "Do you wish to continue with the shutdown (Y/N)?-> " );
     printf("%s", szErrorString);
 
     cYesNo = getchar();
@@ -1255,7 +1255,7 @@ void shutdownServer (char *szServerName)
 
         default:
             OSLoadString(hModule, ERR(nError),
-                    	 szErrorString, LINEOTEXT-1);
+                         szErrorString, LINEOTEXT-1);
             printf("%s\n", szErrorString);
             break;
     }
@@ -1306,9 +1306,9 @@ void setThresholdInfo (char *szServerName, int iThreshold)
     nError = RemoteCommand (szServerName, szCommand, 
                             szServerResponse, &wResponseLen);
     
-	/* Return if error with remote command */
-	if (nError != NOERROR)
-	    goto Cleanup;
+    * Return if error with remote command */
+    if (nError != NOERROR)
+        goto Cleanup;
 
 Cleanup:
     /* Result Processing */

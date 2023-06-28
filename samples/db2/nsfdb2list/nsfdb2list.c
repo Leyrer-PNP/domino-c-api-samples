@@ -52,131 +52,131 @@
 
 int main(int argc, char *argv[])
 {
-        char                *DB_NAME;
-        char                *server_name;
-        char                 fullpath[100];                      /*Relative to the Domino server's data directory.  */
-         STATUS              error = 0;                          /* return code from API calls */
-         DBHANDLE            hDB = NULL;                         /* handle to database */
-         FILE                *flog = NULL;                       /*name of log file*/
-         TIMEDATE            retDataMod;                         /* used in NSFDbOpenExtended*/
-         TIMEDATE            retNonDataMod;                      /*same as above*/
-         DHANDLE             hDbList;                            /*Handle of the test db*/
-         char                DbList[100][100];
-         char                **pDbList = (char **)(DbList); 
-         char                *pTlist;
-         char                buffer[100];
-         char                *pText;
-         char                tablespaceName[100];
-         DWORD               size;
-         WORD                wTextSize;
-         USHORT              nEntries, i; 
-         char                szTempStr[LINEOTEXT];
+    char                *DB_NAME;
+    char                *server_name;
+    char                 fullpath[100];                      /*Relative to the Domino server's data directory.  */
+    STATUS              error = 0;                          /* return code from API calls */
+    DBHANDLE            hDB = NULL;                         /* handle to database */
+    FILE                *flog = NULL;                       /*name of log file*/
+    TIMEDATE            retDataMod;                         /* used in NSFDbOpenExtended*/
+    TIMEDATE            retNonDataMod;                      /*same as above*/
+    DHANDLE             hDbList;                            /*Handle of the test db*/
+    char                DbList[100][100];
+    char                **pDbList = (char **)(DbList); 
+    char                *pTlist;
+    char                buffer[100];
+    char                *pText;
+    char                tablespaceName[100];
+    DWORD               size;
+    WORD                wTextSize;
+    USHORT              nEntries, i; 
+    char                szTempStr[LINEOTEXT];
     
-        /*  Command line parameters. */
-        if (argc != 3)
-        {
-            PRINTLOG ("\nUsage:  %s  <DB_NAME>  <server_name>  \n", argv[0]);
-            return (NOERROR);
-        }
+    /*  Command line parameters. */
+    if (argc != 3)
+    {
+        PRINTLOG ("\nUsage:  %s  <DB_NAME>  <server_name>  \n", argv[0]);
+        return (NOERROR);
+    }
+    
+    DB_NAME = argv[1];
+    server_name = argv[2];
+    
+    PRINTLOG("========begin the test\n");
+    error = NotesInitExtended (argc, argv);
+    if (error)
+    {
+        PRINTLOG("========Error: Unable to initialize Notes.\n");
+        return (1);
+    }
         
-        DB_NAME = argv[1];
-        server_name = argv[2];
-        
-        PRINTLOG("========begin the test\n");
-        error = NotesInitExtended (argc, argv);
-        if (error)
-        {
-            PRINTLOG("========Error: Unable to initialize Notes.\n");
-            return (1);
-        }
-        
-        PRINTLOG("========begin to Construct the OSPathNet\n");
+    PRINTLOG("========begin to Construct the OSPathNet\n");
 
-        if (strlen(server_name))
+    if (strlen(server_name))
+    {
+        if (error = OSPathNetConstruct(NULL, server_name,
+                                       DB_NAME, fullpath))
         {
-               if (error = OSPathNetConstruct(NULL, server_name,
-                                           DB_NAME, fullpath))
-               {
-                   PRINTERROR(error,"OSPathNetConstruct");
-                   goto EXIT;
-               }
+            PRINTERROR(error,"OSPathNetConstruct");
+            goto EXIT;
         }
+    }
         
-        else
-        {
-                strcpy(fullpath, DB_NAME);
-        }
+    else
+    {
+        strcpy(fullpath, DB_NAME);
+    }
 
-        if ( error = NSFDbOpenExtended (fullpath, 0, NULLHANDLE, NULL ,
-                                        &hDB, &retDataMod, &retNonDataMod))
-        {
-                PRINTERROR(error,"NSFDbOpenExtended");
-                goto EXIT;
-        }
+    if ( error = NSFDbOpenExtended (fullpath, 0, NULLHANDLE, NULL ,
+                                    &hDB, &retDataMod, &retNonDataMod))
+    {
+        PRINTERROR(error,"NSFDbOpenExtended");
+        goto EXIT;
+    }
                 
-        PRINTLOG("========open DB %s successfully\n", fullpath);
+    PRINTLOG("========open DB %s successfully\n", fullpath);
         
-        /*Test the api*/
-        size = sizeof(buffer);
-        if(error = NSFDB2GetInfo(hDB, DB2NSF_INFO_TABLESPACE_NAME,
-                              buffer,&size))
+    /*Test the api*/
+    size = sizeof(buffer);
+    if(error = NSFDB2GetInfo(hDB, DB2NSF_INFO_TABLESPACE_NAME,
+                             buffer,&size))
+    {
+        PRINTERROR(error,"NSFDB2GetInfo");
+        goto EXIT;                
+    }
+    else
+    {
+        PRINTLOG("========Get DB Info:%s successfully", "DB2NSF_INFO_TABLESPACE_NAME\n");
+    }
+    memcpy(tablespaceName, buffer, strlen(buffer));        
+        
+    /*use NULL for the last parameter*/
+    error = NSFDB2ListNSFDB2Databases( &hDbList,
+                                       (void **)pDbList,
+                                       NULL);
+    if( error )
+    {
+        PRINTERROR(error,"NSFDB2ListNSFDB2Databases");
+        goto EXIT;
+    }
+    else 
+    {
+        PRINTLOG("\n========execute NSFDB2ListNSFDB2Databases successfully!!\n");
+        PRINTLOG("\n========now List ALL NSFDB2 DataBases\n");                
+    }
+    pTlist = (char *)OSLockObject(hDbList);
+    nEntries = ListGetNumEntries(pTlist, FALSE);
+        
+    if(nEntries) 
+        
+    PRINTLOG("\n========We have %d NSFDB2 Databases\n", nEntries);
+    pText = buffer;
+    for( i=0; i<nEntries; i++)
+    {
+        error = ListGetText(pTlist,
+                            FALSE,
+                            i,
+                            &pText,
+                            &wTextSize);
+        if(error)
         {
-                PRINTERROR(error,"NSFDB2GetInfo");
-                goto EXIT;                
+            PRINTLOG("\n========error in ListGetText, i = %d\n", i);
+                        PRINTERROR(error,"ListGetText");
         }
         else
         {
-                PRINTLOG("========Get DB Info:%s successfully", "DB2NSF_INFO_TABLESPACE_NAME\n");
+            strncpy(szTempStr, pText, wTextSize);  
+            szTempStr[wTextSize] = '\0';
+            PRINTLOG("        %d: %s\n", i, szTempStr);                                                                        
         }
-        memcpy(tablespaceName, buffer, strlen(buffer));        
+    }
         
-        /*use NULL for the last parameter*/
-        error = NSFDB2ListNSFDB2Databases( &hDbList,
-                                        (void **)pDbList,
-                                        NULL);
-        if( error )
-        {
-                PRINTERROR(error,"NSFDB2ListNSFDB2Databases");
-                goto EXIT;
-        }
-        else 
-        {
-                PRINTLOG("\n========execute NSFDB2ListNSFDB2Databases successfully!!\n");
-                PRINTLOG("\n========now List ALL NSFDB2 DataBases\n");                
-        }
-        pTlist = (char *)OSLockObject(hDbList);
-        nEntries = ListGetNumEntries(pTlist, FALSE);
-        
-        if(nEntries) 
-        
-        PRINTLOG("\n========We have %d NSFDB2 Databases\n", nEntries);
-        pText = buffer;
-        for( i=0; i<nEntries; i++)
-        {
-                error = ListGetText(pTlist,
-                                                        FALSE,
-                                                        i,
-                                                        &pText,
-                                                        &wTextSize);
-                if(error)
-                {
-                        PRINTLOG("\n========error in ListGetText, i = %d\n", i);
-                        PRINTERROR(error,"ListGetText");
-                }
-                else
-                {
-                        strncpy(szTempStr, pText, wTextSize);  
-                        szTempStr[wTextSize] = '\0';
-                        PRINTLOG("        %d: %s\n", i, szTempStr);                                                                        
-                }
-        }
-        
-        OSUnlockObject(hDbList);
-        OSMemFree(hDbList);
+    OSUnlockObject(hDbList);
+    OSMemFree(hDbList);
         
         /* Close the database.*/
 
-        if(error = NSFDbClose (hDB))
+    if(error = NSFDbClose (hDB))
         {
            PRINTERROR(error,"NSFDbClose");
            goto EXIT;

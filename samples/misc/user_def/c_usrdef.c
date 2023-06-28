@@ -96,16 +96,16 @@ int main(int argc, char *argv[])
     /* Write a field named FORM to the note -- this field specifies the
     default form to use when displaying the note. */
     if (error = NSFItemSetText ( note_handle, 
-                    "Form",
-                    "Form #1",
-                    MAXWORD))
+                                 "Form",
+                                 "Form #1",
+                                 MAXWORD))
        goto exitCloseNote;
 
     /* Write a text field named PLAIN_TEXT to the note. */
     if (error = NSFItemSetText(note_handle,
-                    "PLAIN_TEXT",
-                    "This doc has a user-defined field.",
-                    MAXWORD))
+                               "PLAIN_TEXT",
+                               "This doc has a user-defined field.",
+                               MAXWORD))
        goto exitCloseNote;
 	
 
@@ -144,9 +144,9 @@ int main(int argc, char *argv[])
     formula. */
 
     if (error = NSFItemAppend (note_handle, ITEM_SUMMARY,
-                        MY_FIELD_NAME, (WORD)strlen(MY_FIELD_NAME),
-                        TYPE_USERDATA,
-                        &my_field, my_field_len))
+                               MY_FIELD_NAME, (WORD)strlen(MY_FIELD_NAME),
+                               TYPE_USERDATA,
+                               &my_field, my_field_len))
 		goto exitCloseNote;
 
     /* Add the entire new note (with all fields) to the database. */

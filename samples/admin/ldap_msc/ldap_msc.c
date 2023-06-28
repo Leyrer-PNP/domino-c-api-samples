@@ -231,8 +231,8 @@ int main(int argc, char *argv[])
     }
 
     PRINTLOG( "\tThe RDN modification operation was successful.\n \tEntry...\n"
-            "\t  \"%s\" \n\tHas been changed to...\n"
-            "\t  \"%s\" \n", dn, ndn );
+              "\t  \"%s\" \n\tHas been changed to...\n"
+              "\t  \"%s\" \n", dn, ndn );
 
 
     /* Perform search */
@@ -287,16 +287,16 @@ int main(int argc, char *argv[])
     rc = ldap_compare_ext_s( ld, DN, compAttribute, &bvalue, NULL, NULL );
     switch ( rc )
     {
-         case LDAP_COMPARE_TRUE:
-             PRINTLOG( "\tThe value \"person\" is contained in the objectclass "
+        case LDAP_COMPARE_TRUE:
+            PRINTLOG( "\tThe value \"person\" is contained in the objectclass "
                      "attribute.\n" );
-             break;
-         case LDAP_COMPARE_FALSE:
-             PRINTLOG( "\tThe value \"person\" is not contained in the objectclass "
+            break;
+        case LDAP_COMPARE_FALSE:
+            PRINTLOG( "\tThe value \"person\" is not contained in the objectclass "
                      "attribute.\n" );
-             break;
-         default:
-             ldap_perror( ld, "ldap_compare_s" );
+            break;
+        default:
+            ldap_perror( ld, "ldap_compare_s" );
     }
 
     /* compare the value "xyzzy" against the objectclass attribute */
@@ -307,16 +307,16 @@ int main(int argc, char *argv[])
     rc = ldap_compare_ext_s( ld, DN, compAttribute, &bvalue, NULL, NULL );
     switch ( rc )
     {
-         case LDAP_COMPARE_TRUE:				
-             PRINTLOG( "\tThe value \"xyzzy\" is contained in the objectclass "
-                     "attribute.\n" );
-             break;
-         case LDAP_COMPARE_FALSE:
-             PRINTLOG( "\tThe value \"xyzzy\" is not contained in the objectclass "
-                     "attribute.\n" );
-             break;
-         default:
-             ldap_perror( ld, "ldap_compare_s" );
+        case LDAP_COMPARE_TRUE:				
+            PRINTLOG( "\tThe value \"xyzzy\" is contained in the objectclass "
+                      "attribute.\n" );
+            break;
+        case LDAP_COMPARE_FALSE:
+            PRINTLOG( "\tThe value \"xyzzy\" is not contained in the objectclass "
+                      "attribute.\n" );
+            break;
+        default:
+            ldap_perror( ld, "ldap_compare_s" );
     }
 
     ldap_unbind_s( ld );
@@ -337,7 +337,7 @@ free_mods( LDAPMod **mods )
 
     for ( i = 0; i < NMODS; i++ )
     {
-         free( mods[ i ] );
+        free( mods[ i ] );
     }
     free( mods );
 }
@@ -352,35 +352,35 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     if (argc != 5)
     {       
       
-      printf("Enter Hostname: ");   
-      fflush(stdout);
-      fgets(HOST, STRING_LENGTH, stdin);
+        printf("Enter Hostname: ");   
+        fflush(stdout);
+        fgets(HOST, STRING_LENGTH, stdin);
 
-      printf("\n");
-      printf("Enter Organisation: ");
-      fflush(stdout);
-      fgets(SEARCHBASE, STRING_LENGTH, stdin);
+        printf("\n");
+        printf("Enter Organisation: ");
+        fflush(stdout);
+        fgets(SEARCHBASE, STRING_LENGTH, stdin);
 
-      printf("\n");
-      printf("Enter DN: ");      
-      fflush(stdout);
-      fgets(DN, STRING_LENGTH, stdin);
+        printf("\n");
+        printf("Enter DN: ");      
+        fflush(stdout);
+        fgets(DN, STRING_LENGTH, stdin);
 
-      printf("\n");
-      printf("Enter PASSWORD: ");      
-      fflush(stdout);
-      fgets(PASSWORD, STRING_LENGTH, stdin);
+        printf("\n");
+        printf("Enter PASSWORD: ");      
+        fflush(stdout);
+        fgets(PASSWORD, STRING_LENGTH, stdin);
 
     }  
     else
     {
-      memset(HOST,'\0',STRING_LENGTH);
-      strncpy(HOST, argv[1], STRING_LENGTH);
-      memset(SEARCHBASE,'\0',STRING_LENGTH);
-      strncpy(SEARCHBASE, argv[2], STRING_LENGTH);
-      memset(DN,'\0',STRING_LENGTH);
-      strncpy(DN, argv[3], STRING_LENGTH);
-      memset(PASSWORD,'\0',STRING_LENGTH);
-      strncpy(PASSWORD, argv[4], STRING_LENGTH);
+        memset(HOST,'\0',STRING_LENGTH);
+        strncpy(HOST, argv[1], STRING_LENGTH);
+        memset(SEARCHBASE,'\0',STRING_LENGTH);
+        strncpy(SEARCHBASE, argv[2], STRING_LENGTH);
+        memset(DN,'\0',STRING_LENGTH);
+        strncpy(DN, argv[3], STRING_LENGTH);
+        memset(PASSWORD,'\0',STRING_LENGTH);
+        strncpy(PASSWORD, argv[4], STRING_LENGTH);
     }
 }

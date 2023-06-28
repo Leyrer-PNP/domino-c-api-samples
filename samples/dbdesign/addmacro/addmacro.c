@@ -75,62 +75,62 @@
 
 int main (int argc, char *argv[])
 {
-  STATUS      error = NOERROR;
-  char        *szDbName;
-  DBHANDLE    hDb;
+    STATUS      error = NOERROR;
+    char        *szDbName;
+    DBHANDLE    hDb;
 
 
-  if (error = NotesInitExtended (argc, argv))
-  {
-    PRINTLOG("\n Unable to initialize Notes.\n");
-    return (1);
-  }
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
 
-  /* Process arguments */
-  if (argc != 2)
-  {
-    PRINTLOG ("Usage: addmacro  <database filename>\n");
-    goto Exit0;
-  }
-  szDbName = argv[1];
+    /* Process arguments */
+    if (argc != 2)
+    {
+        PRINTLOG ("Usage: addmacro  <database filename>\n");
+        goto Exit0;
+    }
+    szDbName = argv[1];
 
-  /* Open input database */
-  if (error = NSFDbOpen(szDbName, &hDb))
-  {
-    PRINTLOG ("Error: unable to open target database '%s'\n", szDbName);
-    goto Exit0;
-  }
+    /* Open input database */
+    if (error = NSFDbOpen(szDbName, &hDb))
+    {
+        PRINTLOG ("Error: unable to open target database '%s'\n", szDbName);
+        goto Exit0;
+    }
 
-  /* Create filter macro */
-  if (error = AddFilterMacro(hDb))
-  {
-    goto Exit1;
-  }
+    /* Create filter macro */
+    if (error = AddFilterMacro(hDb))
+    {
+        goto Exit1;
+    }
 
-  /* Create background macro */
-  if (error = AddBackgroundMacro(hDb))
-  {
-    goto Exit1;
-  }
+    /* Create background macro */
+    if (error = AddBackgroundMacro(hDb))
+    {
+        goto Exit1;
+    }
 
-  /* Create execute-once macro */
-  if (error = AddOnceMacro(hDb))
-  {
-    goto Exit1;
-  }
+    /* Create execute-once macro */
+    if (error = AddOnceMacro(hDb))
+    {
+        goto Exit1;
+    }
 
-  PRINTLOG("%s: successfully added 3 macros to '%s'.\n", argv[0], szDbName);
+    PRINTLOG("%s: successfully added 3 macros to '%s'.\n", argv[0], szDbName);
 
-  /* Close database and return */
+    /* Close database and return */
 Exit1:
-  NSFDbClose(hDb);
+    NSFDbClose(hDb);
 
 Exit0:
-  if (error)
-    PRINTERROR (error,"NSFDbOpen");
+    if (error)
+        PRINTERROR (error,"NSFDbOpen");
 
-  NotesTerm();
-  return(error);
+    NotesTerm();
+    return(error);
 }
 
 /************************************************************************
@@ -165,69 +165,69 @@ Exit0:
 
 STATUS  LNPUBLIC  AddFilterMacro( DBHANDLE hDb )
 {
-  STATUS          error = NOERROR;
-  NOTEHANDLE      hMacro;
-  char            szFlags[MAX_FLAGS];
+    STATUS          error = NOERROR;
+    NOTEHANDLE      hMacro;
+    char            szFlags[MAX_FLAGS];
 
-  char   szTitle[] = "Transfer Silton to Sherman";
-  char   szComment[] = "Re-assign all open problems assigned to Support Rep Isabel \
-Silton to Support Rep Alexander Sherman.";
-  char   szFormula[] = "SELECT (SRep = \"Isabel Silton\")\
- & (Status = \"Open\"); FIELD SRep := \"Alexander Sherman\";";
+    char   szTitle[] = "Transfer Silton to Sherman";
+    char   szComment[] = "Re-assign all open problems assigned to Support Rep Isabel \
+                          Silton to Support Rep Alexander Sherman.";
+    char   szFormula[] = "SELECT (SRep = \"Isabel Silton\")\
+                          & (Status = \"Open\"); FIELD SRep := \"Alexander Sherman\";";
 
-  /* Create macro note and set note class to NOTE_CLASS_FILTER */
-  if (error = CreateMacroNote(hDb, &hMacro))
-  {
-    goto Exit0;
-  }
+    /* Create macro note and set note class to NOTE_CLASS_FILTER */
+    if (error = CreateMacroNote(hDb, &hMacro))
+    {
+        goto Exit0;
+    }
 
-  if (error = SetMacroTitle(hMacro, szTitle))     /* $Title */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroTitle(hMacro, szTitle))     /* $Title */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroComment(hMacro, szComment)) /* $Comment */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroComment(hMacro, szComment)) /* $Comment */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroFormula(hMacro, szFormula)) /* $FORMULA */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroFormula(hMacro, szFormula)) /* $FORMULA */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroType(hMacro, FILTER_TYPE_MENU)) /* $Type */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroType(hMacro, FILTER_TYPE_MENU)) /* $Type */
+    {
+        goto Exit1;
+    }
     
-  if (error = SetMacroOperation(hMacro, FILTER_OP_UPDATE))/* $Operation */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroOperation(hMacro, FILTER_OP_UPDATE))/* $Operation */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroScan(hMacro, FILTER_SCAN_ALL))  /* $Scan */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroScan(hMacro, FILTER_SCAN_ALL))  /* $Scan */
+    {
+        goto Exit1;
+    }
 
-  szFlags[0] = DESIGN_FLAG_PRESERVE;
-  szFlags[1] = '\0';
-  if (error = SetMacroFlags(hMacro, szFlags))
-  {
-    goto Exit1;
-  }
+    szFlags[0] = DESIGN_FLAG_PRESERVE;
+    szFlags[1] = '\0';
+    if (error = SetMacroFlags(hMacro, szFlags))
+    {
+        goto Exit1;
+    }
 
-  if (error = NSFNoteUpdate(hMacro, 0))
-  {
-    PRINTLOG ("Error: unable to update macro note to database.\n");
-  }
+    if (error = NSFNoteUpdate(hMacro, 0))
+    {
+        PRINTLOG ("Error: unable to update macro note to database.\n");
+    }
 
 Exit1:
-  NSFNoteClose(hMacro);
+    NSFNoteClose(hMacro);
 
 Exit0:
-  return(error);
+    return(error);
 }
 
 /************************************************************************
@@ -276,86 +276,86 @@ Exit0:
 
 STATUS  LNPUBLIC  AddBackgroundMacro( DBHANDLE hDb )
 {
-  STATUS          error = NOERROR;
-  NOTEHANDLE      hMacro;
-  char            szFlags[MAX_FLAGS];
+    STATUS          error = NOERROR;
+    NOTEHANDLE      hMacro;
+    char            szFlags[MAX_FLAGS];
 
-  char            szTitle[]   = "Escalate Low Prio Calls to Med";
-  char            szComment[] = "Once per week, search for all open, low priority \
-problems opened more than one month ago and escalate to medium priority.";
-  char            szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
-SELECT ((DateOpened < OneMonthAgo) & (Status = \"Open\") \
-& (Priority = \"Low\"));\n FIELD Priority := \"Medium\";";
+    char            szTitle[]   = "Escalate Low Prio Calls to Med";
+    char            szComment[] = "Once per week, search for all open, low priority \
+                                   problems opened more than one month ago and escalate to medium priority.";
+    char            szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
+                                   SELECT ((DateOpened < OneMonthAgo) & (Status = \"Open\") \
+                                   & (Priority = \"Low\"));\n FIELD Priority := \"Medium\";";
 
-  /* Create macro note and set note class to NOTE_CLASS_FILTER */
-  if (error = CreateMacroNote(hDb, &hMacro))
-  {
-    goto Exit0;
-  }
+    /* Create macro note and set note class to NOTE_CLASS_FILTER */
+    if (error = CreateMacroNote(hDb, &hMacro))
+    {
+        goto Exit0;
+    }
 
-  if (error = SetMacroTitle(hMacro, szTitle))     /* $Title */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroTitle(hMacro, szTitle))     /* $Title */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroComment(hMacro, szComment)) /* $Comment */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroComment(hMacro, szComment)) /* $Comment */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroFormula(hMacro, szFormula)) /* $FORMULA */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroFormula(hMacro, szFormula)) /* $FORMULA */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroType(hMacro, FILTER_TYPE_BACKGROUND)) /* $Type */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroType(hMacro, FILTER_TYPE_BACKGROUND)) /* $Type */
+    {
+        goto Exit1;
+    }
  
-  if (error = SetMacroOperation(hMacro, FILTER_OP_UPDATE))/* $Operation */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroOperation(hMacro, FILTER_OP_UPDATE))/* $Operation */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroScan(hMacro, FILTER_SCAN_NEW))  /* $Scan */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroScan(hMacro, FILTER_SCAN_NEW))  /* $Scan */
+    {
+        goto Exit1;
+    }
 
-  szFlags[0] = DESIGN_FLAG_BACKGROUND_FILTER;
-  szFlags[1] = DESIGN_FLAG_PRESERVE;
-  szFlags[2] = '\0';
-  if (error = SetMacroFlags(hMacro, szFlags))
-  {
-    goto Exit1;
-  }
+    szFlags[0] = DESIGN_FLAG_BACKGROUND_FILTER;
+    szFlags[1] = DESIGN_FLAG_PRESERVE;
+    szFlags[2] = '\0';
+    if (error = SetMacroFlags(hMacro, szFlags))
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroMachineName(hMacro))
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroMachineName(hMacro))
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroPeriod(hMacro, PERIOD_WEEKLY))
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroPeriod(hMacro, PERIOD_WEEKLY))
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroLeftToDo(hDb, hMacro))
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroLeftToDo(hDb, hMacro))
+    {
+        goto Exit1;
+    }
 /**/
-  if (error = NSFNoteUpdate(hMacro, 0))
-  {
-    PRINTLOG ("Error: unable to update macro note to database.\n");
-  }
+    if (error = NSFNoteUpdate(hMacro, 0))
+    {
+        PRINTLOG ("Error: unable to update macro note to database.\n");
+    }
 
 Exit1:
-  NSFNoteClose(hMacro);
+    NSFNoteClose(hMacro);
 
 Exit0:
-  return(error);
+    return(error);
 }
 
 /************************************************************************
@@ -387,72 +387,72 @@ Exit0:
 
 STATUS  LNPUBLIC  AddOnceMacro( DBHANDLE hDb )
 {
-  STATUS          error = NOERROR;
-  NOTEHANDLE      hMacro;
-  char            szFlags[MAX_FLAGS];
+    STATUS          error = NOERROR;
+    NOTEHANDLE      hMacro;
+    char            szFlags[MAX_FLAGS];
 
-  char   szTitle[] = "Send reminder to Support Rep";
-  char   szComment[] = "Send a reminder email to the appropriate support rep for the document \
-highlighted in the view.";
-  char   szFormula[] = "@If(SRep!=\"\";\n\
-@MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
-\" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
-@Prompt([OK];\"\";\"You need to highlight a document\"));\n\
-SELECT @All";
+    char   szTitle[] = "Send reminder to Support Rep";
+    char   szComment[] = "Send a reminder email to the appropriate support rep for the document \
+                          highlighted in the view.";
+    char   szFormula[] = "@If(SRep!=\"\";\n\
+                         @MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
+                         \" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
+                         @Prompt([OK];\"\";\"You need to highlight a document\"));\n\
+                         SELECT @All";
 
-  /* Create macro note and set note class to NOTE_CLASS_FILTER */
-  if (error = CreateMacroNote(hDb, &hMacro))
-  {
-    goto Exit0;
-  }
+    /* Create macro note and set note class to NOTE_CLASS_FILTER */
+    if (error = CreateMacroNote(hDb, &hMacro))
+    {
+        goto Exit0;
+    }
 
-  if (error = SetMacroTitle(hMacro, szTitle))     /* $Title */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroTitle(hMacro, szTitle))     /* $Title */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroComment(hMacro, szComment)) /* $Comment */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroComment(hMacro, szComment)) /* $Comment */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroFormula(hMacro, szFormula)) /* $FORMULA */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroFormula(hMacro, szFormula)) /* $FORMULA */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroType(hMacro, FILTER_TYPE_ONCE)) /* $Type */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroType(hMacro, FILTER_TYPE_ONCE)) /* $Type */
+    {
+        goto Exit1;
+    }
  
-  if (error = SetMacroOperation(hMacro, FILTER_OP_UPDATE))/* $Operation */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroOperation(hMacro, FILTER_OP_UPDATE))/* $Operation */
+    {
+        goto Exit1;
+    }
 
-  if (error = SetMacroScan(hMacro, FILTER_SCAN_NEW))  /* $Scan */
-  {
-    goto Exit1;
-  }
+    if (error = SetMacroScan(hMacro, FILTER_SCAN_NEW))  /* $Scan */
+    {
+        goto Exit1;
+    }
 
-  szFlags[0] = DESIGN_FLAG_PRESERVE;
-  szFlags[1] = '\0';
-  if (error = SetMacroFlags(hMacro, szFlags))
-  {
-    goto Exit1;
-  }
+    szFlags[0] = DESIGN_FLAG_PRESERVE;
+    szFlags[1] = '\0';
+    if (error = SetMacroFlags(hMacro, szFlags))
+    {
+        goto Exit1;
+    }
 
-  if (error = NSFNoteUpdate(hMacro, 0))
-  {
-    PRINTLOG ("Error: unable to update macro note to database.\n");
-  }
+    if (error = NSFNoteUpdate(hMacro, 0))
+    {
+        PRINTLOG ("Error: unable to update macro note to database.\n");
+    }
 
 Exit1:
-  NSFNoteClose(hMacro);
+    NSFNoteClose(hMacro);
 
 Exit0:
-  return(error);
+    return(error);
 }
 
 /************************************************************************
@@ -469,19 +469,19 @@ Exit0:
 
 STATUS  LNPUBLIC  CreateMacroNote ( DBHANDLE hDb, NOTEHANDLE * phMacro )
 {
-  STATUS      error;
-  WORD        wNoteClass;
+    STATUS      error;
+    WORD        wNoteClass;
 
-  if (error = NSFNoteCreate(hDb, phMacro))
-  {
-    PRINTLOG ("Error: unable to create macro note.\n");
-    return(error);
-  }
+    if (error = NSFNoteCreate(hDb, phMacro))
+    {
+        PRINTLOG ("Error: unable to create macro note.\n");
+        return(error);
+    }
 
-  wNoteClass = NOTE_CLASS_FILTER;
-  NSFNoteSetInfo(*phMacro, _NOTE_CLASS, &wNoteClass);
+    wNoteClass = NOTE_CLASS_FILTER;
+    NSFNoteSetInfo(*phMacro, _NOTE_CLASS, &wNoteClass);
 
-  return(0);
+    return(0);
 } 
 
 /************************************************************************
@@ -492,16 +492,16 @@ STATUS  LNPUBLIC  CreateMacroNote ( DBHANDLE hDb, NOTEHANDLE * phMacro )
 
 STATUS  LNPUBLIC  SetMacroTitle(NOTEHANDLE hMacro, char *szTitle)
 {
-  STATUS      error=NOERROR;
+    STATUS      error=NOERROR;
 
-  if (error = NSFItemSetText(hMacro, 
-              VIEW_TITLE_ITEM,        /* "$Title" */
-              szTitle, MAXWORD))
-  {
-    PRINTLOG ("Error: unable to set title of macro note.\n");
-  }
+    if (error = NSFItemSetText(hMacro, 
+                VIEW_TITLE_ITEM,        /* "$Title" */
+                szTitle, MAXWORD))
+    {
+        PRINTLOG ("Error: unable to set title of macro note.\n");
+    }
 
-  return(error);
+    return(error);
 }
 /************************************************************************
 
@@ -511,15 +511,15 @@ STATUS  LNPUBLIC  SetMacroTitle(NOTEHANDLE hMacro, char *szTitle)
 
 STATUS  LNPUBLIC  SetMacroComment (NOTEHANDLE hMacro, char *szComment)
 {
-  STATUS      error=NOERROR;
+    STATUS      error=NOERROR;
 
-  if (error = NSFItemSetText(hMacro, 
-              FILTER_COMMENT_ITEM,    /* "$Comment" */
-              szComment, MAXWORD))
-  {
-    PRINTLOG ("Error: unable to set Comment field in macro note.\n");
-  }
-  return(error);
+    if (error = NSFItemSetText(hMacro, 
+                FILTER_COMMENT_ITEM,    /* "$Comment" */
+                szComment, MAXWORD))
+    {
+        PRINTLOG ("Error: unable to set Comment field in macro note.\n");
+    }
+    return(error);
 }
 /************************************************************************
 
@@ -529,36 +529,36 @@ STATUS  LNPUBLIC  SetMacroComment (NOTEHANDLE hMacro, char *szComment)
 
 STATUS LNPUBLIC  SetMacroFormula( NOTEHANDLE hMacro, char *szFormula )
 {
-  STATUS          error=NOERROR;
-  FORMULAHANDLE   hFormula;
-  WORD            wFormulaLen;
-  WORD            wdc;
+    STATUS          error=NOERROR;
+    FORMULAHANDLE   hFormula;
+    WORD            wFormulaLen;
+    WORD            wdc;
 
-  if (error = NSFFormulaCompile(  NULL, 0, szFormula, (WORD)strlen(szFormula),
-                                  &hFormula, &wFormulaLen, &wdc, &wdc, 
-                                  &wdc, &wdc, &wdc))
-  {
-    PRINTLOG ("Error compiling formula.\n");
+    if (error = NSFFormulaCompile(  NULL, 0, szFormula, (WORD)strlen(szFormula),
+                                    &hFormula, &wFormulaLen, &wdc, &wdc, 
+                                    &wdc, &wdc, &wdc))
+    {
+        PRINTLOG ("Error compiling formula.\n");
+        return(error);
+    }
+
+    error = NSFItemAppend(
+                          hMacro,                 /* handle to note to append to */
+                          ITEM_SUMMARY,           /* item flags */
+                          FILTER_FORMULA_ITEM,    /* item name: "$Formula" */
+                          (WORD)strlen(FILTER_FORMULA_ITEM),
+                          TYPE_FORMULA,           /* item type */
+                          OSLockObject(hFormula), /* item value */
+                          wFormulaLen);           /* value length */
+
+    OSUnlockObject(hFormula);
+    OSMemFree(hFormula);
+
+    if (error)
+    {
+        PRINTLOG ("Error: unable to append formula item to macro note.\n");
+    }
     return(error);
-  }
-
-  error = NSFItemAppend(
-              hMacro,                 /* handle to note to append to */
-              ITEM_SUMMARY,           /* item flags */
-              FILTER_FORMULA_ITEM,    /* item name: "$Formula" */
-              (WORD)strlen(FILTER_FORMULA_ITEM),
-              TYPE_FORMULA,           /* item type */
-              OSLockObject(hFormula), /* item value */
-              wFormulaLen);           /* value length */
-
-  OSUnlockObject(hFormula);
-  OSMemFree(hFormula);
-
-  if (error)
-  {
-    PRINTLOG ("Error: unable to append formula item to macro note.\n");
-  }
-  return(error);
 }
 
 /************************************************************************
@@ -579,18 +579,18 @@ STATUS LNPUBLIC  SetMacroFormula( NOTEHANDLE hMacro, char *szFormula )
 
 STATUS  LNPUBLIC  SetMacroType( NOTEHANDLE hMacro, WORD wType )
 {
-  STATUS      error=NOERROR;
-  char        cType;
+    STATUS      error=NOERROR;
+    char        cType;
 
-  cType = (char)('0' + wType);
-  if (error = NSFItemSetText(hMacro,
-              FILTER_TYPE_ITEM,   /* "$Type" */
-              &cType, 1))
-  {
-    PRINTLOG("Error: unable to set Type field in macro note.\n");
-  }
+    cType = (char)('0' + wType);
+    if (error = NSFItemSetText(hMacro,
+                FILTER_TYPE_ITEM,   /* "$Type" */
+                &cType, 1))
+    {
+        PRINTLOG("Error: unable to set Type field in macro note.\n");
+    }
 
-  return(error);    
+    return(error);    
 }
 
 /************************************************************************
@@ -609,18 +609,18 @@ STATUS  LNPUBLIC  SetMacroType( NOTEHANDLE hMacro, WORD wType )
 
 STATUS  LNPUBLIC  SetMacroOperation( NOTEHANDLE hMacro, WORD wOperation )
 {
-  STATUS      error=NOERROR;
-  char        cOperation;
+    STATUS      error=NOERROR;
+    char        cOperation;
                      
-  cOperation = (char)('0' + wOperation);
-  if (error = NSFItemSetText(hMacro,
-              FILTER_OPERATION_ITEM,  /* "$Operation" */
-              &cOperation, 1))
-  {
-    PRINTLOG ("Error: unable to set Operation field in macro note.\n");
-  }
+    cOperation = (char)('0' + wOperation);
+    if (error = NSFItemSetText(hMacro,
+                FILTER_OPERATION_ITEM,  /* "$Operation" */
+                &cOperation, 1))
+    {
+        PRINTLOG ("Error: unable to set Operation field in macro note.\n");
+    }
 
-  return(error);
+    return(error);
 }
 
 /************************************************************************
@@ -640,18 +640,18 @@ STATUS  LNPUBLIC  SetMacroOperation( NOTEHANDLE hMacro, WORD wOperation )
 
 STATUS  LNPUBLIC  SetMacroScan( NOTEHANDLE hMacro, WORD wScan )
 {
-  STATUS      error=NOERROR;
-  char        cScan;
+    STATUS      error=NOERROR;
+    char        cScan;
      
-  cScan = (char)('0' + wScan);
-  if (error = NSFItemSetText(hMacro,
-              FILTER_SCAN_ITEM,   /* "$Scan" */
-              &cScan, 1))
-  {
-      PRINTLOG ("Error: unable to set Scan field in macro note.\n");
-  }
+    cScan = (char)('0' + wScan);
+    if (error = NSFItemSetText(hMacro,
+                FILTER_SCAN_ITEM,   /* "$Scan" */
+                &cScan, 1))
+    {
+        PRINTLOG ("Error: unable to set Scan field in macro note.\n");
+    }
 
-  return(error);
+    return(error);
 }
 
 /************************************************************************
@@ -674,16 +674,16 @@ STATUS  LNPUBLIC  SetMacroScan( NOTEHANDLE hMacro, WORD wScan )
 
 STATUS  LNPUBLIC  SetMacroFlags( NOTEHANDLE hMacro, char *szFlags )
 {
-  STATUS      error=NOERROR;
+    STATUS      error=NOERROR;
 
-  if (error = NSFItemSetText(hMacro,
-              DESIGN_FLAGS,           /* "$Flags" */
-              szFlags, MAXWORD))
-  {
-    PRINTLOG ("Error: unable to set Flags field in macro note.\n");
-  }
+    if (error = NSFItemSetText(hMacro,
+                DESIGN_FLAGS,           /* "$Flags" */
+                szFlags, MAXWORD))
+    {
+        PRINTLOG ("Error: unable to set Flags field in macro note.\n");
+    }
 
-  return(error);
+    return(error);
 }
 
 /************************************************************************
@@ -694,22 +694,22 @@ STATUS  LNPUBLIC  SetMacroFlags( NOTEHANDLE hMacro, char *szFlags )
 
 STATUS  LNPUBLIC  SetMacroMachineName( NOTEHANDLE hMacro )
 {
-  STATUS      error=NOERROR;
-  char        szUserName[MAXUSERNAME+1];
+    STATUS      error=NOERROR;
+    char        szUserName[MAXUSERNAME+1];
       
-  if (error = SECKFMGetUserName(szUserName))
-  {
-    PRINTLOG ("Error: unable to get user name from ID file.\n");
-    return(error);
-  }
-  if (error = NSFItemSetText(hMacro,
-              FILTER_MACHINE_ITEM,    /* "$MachineName" */
-              szUserName, MAXWORD))
-  {
-    PRINTLOG ("Error: unable to set Machine Name field in macro note.\n");
-  }
+    if (error = SECKFMGetUserName(szUserName))
+    {
+        PRINTLOG ("Error: unable to get user name from ID file.\n");
+        return(error);
+    }
+    if (error = NSFItemSetText(hMacro,
+                FILTER_MACHINE_ITEM,    /* "$MachineName" */
+                szUserName, MAXWORD))
+    {
+        PRINTLOG ("Error: unable to set Machine Name field in macro note.\n");
+    }
 
-  return(error);
+    return(error);
 }
 
 
@@ -726,18 +726,18 @@ STATUS  LNPUBLIC  SetMacroMachineName( NOTEHANDLE hMacro )
 
 STATUS  LNPUBLIC  SetMacroPeriod( NOTEHANDLE hMacro, WORD wPeriod )
 {
-  STATUS      error=NOERROR;
-  char        cPeriod;
+    STATUS      error=NOERROR;
+    char        cPeriod;
      
-  cPeriod = (char)('0' + wPeriod);
-  if (error = NSFItemSetText(hMacro,
-              FILTER_PERIOD_ITEM,     /* "$Period" */
-              &cPeriod, 1))
-  {
-    PRINTLOG ("Error: unable to set Scan field in macro note.\n");
-  }
+    cPeriod = (char)('0' + wPeriod);
+    if (error = NSFItemSetText(hMacro,
+                FILTER_PERIOD_ITEM,     /* "$Period" */
+                &cPeriod, 1))
+    {
+        PRINTLOG ("Error: unable to set Scan field in macro note.\n");
+    }
 
-  return(error);
+    return(error);
 }
 
 /************************************************************************
@@ -759,108 +759,108 @@ STATUS  LNPUBLIC  SetMacroPeriod( NOTEHANDLE hMacro, WORD wPeriod )
 
 STATUS  LNPUBLIC  SetMacroLeftToDo( DBHANDLE hDb, NOTEHANDLE hMacro )
 {
-  STATUS            error=NOERROR;
-  DHANDLE           hLeftToDo;      /* LeftToDo Object */
-  DWORD             dwTableSize;
-  DWORD             dwObjectSize;
-  DWORD             dwObjectID;
-  BLOCKID           bidLeftToDo;    /* LeftToDo Item */     
-  DWORD             dwItemSize;
-  OBJECT_DESCRIPTOR objLeftToDo;   
-  BYTE              *pLTDObject;    /* ptr to LeftToDo Object data */
-  WORD              *pLTDItem;      /* ptr to LefToDo Item data */
-  DBID              temp_dbid;
+    STATUS            error=NOERROR;
+    DHANDLE           hLeftToDo;      /* LeftToDo Object */
+    DWORD             dwTableSize;
+    DWORD             dwObjectSize;
+    DWORD             dwObjectID;
+    BLOCKID           bidLeftToDo;    /* LeftToDo Item */     
+    DWORD             dwItemSize;
+    OBJECT_DESCRIPTOR objLeftToDo;   
+    BYTE              *pLTDObject;    /* ptr to LeftToDo Object data */
+    WORD              *pLTDItem;      /* ptr to LefToDo Item data */
+    DBID              temp_dbid;
 
-  if (error = IDCreateTable(ODSLength(_NOTEID), &hLeftToDo))
-  {
-    PRINTLOG ("Error: unable to create ID table.\n");
-    goto Exit0;
-  }
+    if (error = IDCreateTable(ODSLength(_NOTEID), &hLeftToDo))
+    {
+        PRINTLOG ("Error: unable to create ID table.\n");
+        goto Exit0;
+    }
 
-  dwTableSize = IDTableSize(hLeftToDo);
-  dwObjectSize = dwTableSize + ODSLength(_TIMEDATE) + ODSLength (_DBID);
+    dwTableSize = IDTableSize(hLeftToDo);
+    dwObjectSize = dwTableSize + ODSLength(_TIMEDATE) + ODSLength (_DBID);
 
-  if (error = OSMemRealloc(hLeftToDo, dwObjectSize))
-  {
-    PRINTLOG ("Error: unable to re-allocate ID table to %ld bytes.\n",
-                                            dwObjectSize);
-    goto Exit1;
-  }
+    if (error = OSMemRealloc(hLeftToDo, dwObjectSize))
+    {
+        PRINTLOG ("Error: unable to re-allocate ID table to %ld bytes.\n",
+                   dwObjectSize);
+        goto Exit1;
+    }
 
-  if (error = NSFDbAllocObject(hDb, dwObjectSize, NOTE_CLASS_DOCUMENT, 0, 
-                                &dwObjectID))
-  {
-    PRINTLOG ("Error: unable to allocate LeftToDo Object.\n");
-    goto Exit1;
-  }
+    if (error = NSFDbAllocObject(hDb, dwObjectSize, NOTE_CLASS_DOCUMENT, 0, 
+                &dwObjectID))
+    {
+        PRINTLOG ("Error: unable to allocate LeftToDo Object.\n");
+        goto Exit1;
+    }
     
-  /* Set OBJECT_DESCRIPTOR info */
-  objLeftToDo.ObjectType = OBJECT_FILTER_LEFTTODO ;
-  objLeftToDo.RRV = dwObjectID;
+    /* Set OBJECT_DESCRIPTOR info */
+    objLeftToDo.ObjectType = OBJECT_FILTER_LEFTTODO ;
+    objLeftToDo.RRV = dwObjectID;
 
-  /* Allocate LeftToDo item block */
-  dwItemSize = (DWORD) (ODSLength(_WORD) + ODSLength(_OBJECT_DESCRIPTOR));
-  if (error = OSMemAlloc(0, dwItemSize, &(bidLeftToDo.pool)))
-  {
-    PRINTLOG ("Error: unable to allocate %ld bytes for LeftToDo Item.\n",
-                                    dwItemSize);
-    NSFDbFreeObject(hDb, dwObjectID);
-    goto Exit1;
-  }
-  bidLeftToDo.block = NULLBLOCK;
+    /* Allocate LeftToDo item block */
+    dwItemSize = (DWORD) (ODSLength(_WORD) + ODSLength(_OBJECT_DESCRIPTOR));
+    if (error = OSMemAlloc(0, dwItemSize, &(bidLeftToDo.pool)))
+    {
+        PRINTLOG ("Error: unable to allocate %ld bytes for LeftToDo Item.\n",
+                   dwItemSize);
+        NSFDbFreeObject(hDb, dwObjectID);
+        goto Exit1;
+    }
+    bidLeftToDo.block = NULLBLOCK;
 
-  /* Assign OBJECT_TYPE and DESCRIPTOR values */
-  pLTDItem = OSLockBlock(WORD, bidLeftToDo);
-  *pLTDItem = TYPE_OBJECT;
-  pLTDItem++;
-  ODSWriteMemory (&pLTDItem, _OBJECT_DESCRIPTOR, &objLeftToDo, 1);
-  OSUnlockBlock(bidLeftToDo);
+    /* Assign OBJECT_TYPE and DESCRIPTOR values */
+    pLTDItem = OSLockBlock(WORD, bidLeftToDo);
+    *pLTDItem = TYPE_OBJECT;
+    pLTDItem++;
+    ODSWriteMemory (&pLTDItem, _OBJECT_DESCRIPTOR, &objLeftToDo, 1);
+    OSUnlockBlock(bidLeftToDo);
 
   /* Append LeftToDo item block */
-  if (error = NSFItemAppendObject(hMacro, ITEM_SUMMARY,
-                          FILTER_LEFTTODO_ITEM, 
-                          sizeof(FILTER_LEFTTODO_ITEM)-1,
-                          bidLeftToDo, 
-                          dwItemSize, 
-                          TRUE))      /* Domino and Notes will deallocate memory */
-  {
-    PRINTLOG ("Error: unable to append %s item.\n", FILTER_LEFTTODO_ITEM);
-    OSMemFree(bidLeftToDo.pool);
-    goto Exit1;
-  }
+    if (error = NSFItemAppendObject(hMacro, ITEM_SUMMARY,
+                FILTER_LEFTTODO_ITEM, 
+                sizeof(FILTER_LEFTTODO_ITEM)-1,
+                bidLeftToDo, 
+                dwItemSize, 
+                TRUE))      /* Domino and Notes will deallocate memory */
+    {
+        PRINTLOG ("Error: unable to append %s item.\n", FILTER_LEFTTODO_ITEM);
+        OSMemFree(bidLeftToDo.pool);
+        goto Exit1;
+    }
 
-  /* Update the macro note to get the latest modification timedate */
-  NSFNoteUpdate(hMacro, UPDATE_FORCE);
+    /* Update the macro note to get the latest modification timedate */
+    NSFNoteUpdate(hMacro, UPDATE_FORCE);
 
-  /* Write the Macro note modification timedate after the IDTABLE. */
-  pLTDObject = OSLock(BYTE, hLeftToDo);        /* pLTDObject points to start if IDTABLE */
-  pLTDObject += dwTableSize;                   /* pLTDObject points to the TIMEDATE */
-  NSFNoteGetInfo(hMacro, _NOTE_MODIFIED, (TIMEDATE*)pLTDObject);
+    /* Write the Macro note modification timedate after the IDTABLE. */
+    pLTDObject = OSLock(BYTE, hLeftToDo);        /* pLTDObject points to start if IDTABLE */
+    pLTDObject += dwTableSize;                   /* pLTDObject points to the TIMEDATE */
+    NSFNoteGetInfo(hMacro, _NOTE_MODIFIED, (TIMEDATE*)pLTDObject);
 
-  /* Write the DBID after the modification timedate */
-  pLTDObject += ODSLength(_TIMEDATE);         /* pLTDObject points to the DBID */
+    /* Write the DBID after the modification timedate */
+    pLTDObject += ODSLength(_TIMEDATE);         /* pLTDObject points to the DBID */
 
-  /*  Do NOT attempt to access or pass an integral data type at 
-      an address that is not a multiple of the data type size, or
-      is not a multiple of the size of the data structure's 
-      largest simple element.
-      Use memcpy to copy the data structure into a local variable */
+    /*  Do NOT attempt to access or pass an integral data type at 
+        an address that is not a multiple of the data type size, or
+        is not a multiple of the size of the data structure's 
+        largest simple element.
+        Use memcpy to copy the data structure into a local variable */
      
-  NSFDbIDGet(hDb, &temp_dbid);
-  memcpy (pLTDObject, &temp_dbid, sizeof(DBID));
-  OSUnlockObject(hLeftToDo);
+    NSFDbIDGet(hDb, &temp_dbid);
+    memcpy (pLTDObject, &temp_dbid, sizeof(DBID));
+    OSUnlockObject(hLeftToDo);
 
-  /* Write the hLeftToDo object to the database */
-  if (error = NSFDbWriteObject(hDb, dwObjectID, hLeftToDo, 0, 
+    /* Write the hLeftToDo object to the database */
+    if (error = NSFDbWriteObject(hDb, dwObjectID, hLeftToDo, 0, 
                 dwObjectSize))
-  {
-    PRINTLOG ("Error: unable to write %s object to database.\n",
-                                            FILTER_LEFTTODO_ITEM);
-  }
+    {
+        PRINTLOG ("Error: unable to write %s object to database.\n",
+                   FILTER_LEFTTODO_ITEM);
+    }
 
 Exit1:
-  IDDestroyTable(hLeftToDo);
+    IDDestroyTable(hLeftToDo);
 
 Exit0:
-  return(error);
+    return(error);
 }

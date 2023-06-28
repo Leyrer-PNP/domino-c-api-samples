@@ -134,8 +134,8 @@ int main(int argc, char *argv[])
 
     if (sError = NotesInitExtended (argc, argv))
     {
-       PRINTLOG("\n Unable to initialize Notes.\n");
-       return (1);
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
     }
 
 
@@ -324,10 +324,10 @@ int main(int argc, char *argv[])
         case TYPE_NUMBER:
 
             sError = ConvertFLOATToText( NULL, NULL,
-                            (NUMBER*)pResult,
-                            szTextNum,
-                            MAXALPHANUMBER,
-                            &wTextNumLen );
+                                         (NUMBER*)pResult,
+                                         szTextNum,
+                                         MAXALPHANUMBER,
+                                         &wTextNumLen );
             if (ERR(sError))
             {
                 PRINTLOG("Error: unable to convert number to text.\n");

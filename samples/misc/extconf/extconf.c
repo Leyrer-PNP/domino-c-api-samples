@@ -73,7 +73,7 @@ STATUS LNCALLBACK ExtCallback(EMRECORD FAR * pExRecord);
     FUNCTION: MainEntryPoint
 
     PURPOSE:  This function is called by Domino and Notes (NSF) at 
-	          initialization time; it is exported as ordinal @1.
+              initialization time; it is exported as ordinal @1.
 
 
 *****************************************************************************/

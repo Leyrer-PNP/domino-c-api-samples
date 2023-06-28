@@ -901,7 +901,7 @@ This truncates the field. */
                 if (c == get_field_separator())
                     break;	/* break from loop that is swallowing input */
                 }
-            break;	/* break from overall loop getting field */
+                break;	/* break from overall loop getting field */
             }
 
 /* Add this character to the field. */

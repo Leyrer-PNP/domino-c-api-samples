@@ -108,8 +108,8 @@ int main (int argc, char *argv[])
 /* Initialize Notes Session*/
     if (error = NotesInitExtended (argc, argv))
     {
-       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
-       return ERR(error);
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+        return ERR(error);
     }
 
 
@@ -167,7 +167,7 @@ int main (int argc, char *argv[])
     NSFDbClose (hDB);
 
     if (error == NOERROR)
-       PRINTLOG("\nProgram completed successfully.\n");
+        PRINTLOG("\nProgram completed successfully.\n");
 
     NotesTerm();
     return (0);
@@ -238,18 +238,18 @@ STATUS LNPUBLIC GetCertificate (void far * phDB, DWORD NoteID)
     hDB = *( (DBHANDLE far *)phDB );
 
     if (error = NSFNoteOpenExt (
-            hDB,
-            NoteID,
-            OPEN_RAW_MIME,
-            &hNote))
+                                hDB,
+                                NoteID,
+                                OPEN_RAW_MIME,
+                                &hNote))
     {
         PRINTLOG ("Error: unable to open note.\n");
         PRINTERROR(error,"NSFNoteOpenExt");
         return ERR(error);
     }
 
-   if (NSFNoteIsSignedOrSealed (hNote, (BOOL far *) NULL, (BOOL far *) NULL) )
-   {
+    if (NSFNoteIsSignedOrSealed (hNote, (BOOL far *) NULL, (BOOL far *) NULL) )
+    {
         PRINTLOG("this mail was signed\n"); 
         MailGetMessageItem (hNote, MAIL_SUBJECT_ITEM_NUM, String,
                                       MAXSPRINTF, &StringLength);
@@ -259,19 +259,19 @@ STATUS LNPUBLIC GetCertificate (void far * phDB, DWORD NoteID)
         if (error = SECGetSignerInfoFromMail(hNote, (SECGETSIGNERINFOPROC) &VerifyCertCallBack, 
                                   pCallCtx, 0, 0))
         {
-           PRINTLOG("  Unable to get signerInfoFrom Mail.\n");
-           PRINTERROR(error,"SECGetSignerInfoFromMail");
-           return ERR(error);
+            PRINTLOG("  Unable to get signerInfoFrom Mail.\n");
+            PRINTERROR(error,"SECGetSignerInfoFromMail");
+            return ERR(error);
         }
         else
         {
-           PRINTLOG("  SECGetSignerInfoFromMail had no errors.\n\n"); 
+            PRINTLOG("  SECGetSignerInfoFromMail had no errors.\n\n"); 
         }
-   }
+    }
 
-   NSFNoteClose(hNote);
+    NSFNoteClose(hNote);
    
-   return (NOERROR);
+    return (NOERROR);
   
 }
 
@@ -305,7 +305,7 @@ void  LNPUBLIC  ProcessArgs (char *DBFileName)
 
 SECGETSIGNERINFOPROC VerifyCertCallBack (void *pCallCtx, void *pCert, DWORD CertSize, WORD Res1, WORD Res2)
 {
-   PRINTLOG("  Inside VerifyCertCallBack...\n");
-   PRINTLOG("  Internet certificate found - CertSize = %ld\n\n", CertSize);
-   return (NOERROR);
+    PRINTLOG("  Inside VerifyCertCallBack...\n");
+    PRINTLOG("  Internet certificate found - CertSize = %ld\n\n", CertSize);
+    return (NOERROR);
 }

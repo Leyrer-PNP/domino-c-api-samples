@@ -46,8 +46,8 @@ char *view_name = "IDWaitProcess";
 
 STATUS doJob(char *);
 STATUS LNPUBLIC note_action(VOID *db_handle,
-			SEARCH_MATCH far *pSearchMatch,
-			ITEM_TABLE *summary_info);
+                            SEARCH_MATCH far *pSearchMatch,
+                            ITEM_TABLE *summary_info);
 							
 STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 {
@@ -65,8 +65,8 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 	
     while (!AddInIdle())
     {
-	/* For non-preemptive operating systems, give up control to other tasks. 
-		OSPreemptOccasionally will do nothing in preemptive operating systems. */
+    /* For non-preemptive operating systems, give up control to other tasks. 
+    OSPreemptOccasionally will do nothing in preemptive operating systems. */
         OSPreemptOccasionally(); 
 		
         if (AddInMinutesHaveElapsed(3))
@@ -80,8 +80,8 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 }
 
 STATUS LNPUBLIC note_action(VOID *db_handle,
-							SEARCH_MATCH far *pSearchMatch,
-							ITEM_TABLE *summary_info)
+                            SEARCH_MATCH far *pSearchMatch,
+                            ITEM_TABLE *summary_info)
 {
 	STATUS			err = NOERROR;
 	SEARCH_MATCH    SearchMatch;   // local copy of search match 
@@ -98,56 +98,57 @@ STATUS LNPUBLIC note_action(VOID *db_handle,
 
 	AddInLogMessageText("find a doc, process it", NOERROR);	
 	if (err = NSFNoteOpen (
-            *(DBHANDLE *)db_handle,         
-            SearchMatch.ID.NoteID,         
-            0,                          
-            &note_handle)){
-			PRINTERROR(err,"NSFNoteOpen");
-			return err;
-		}
-		
-		NSFItemGetText(note_handle, "status", status, sizeof(status));
-		if (strcmp(status, "1") == 0) {
-			AddInLogMessageText("this note is processed already", NOERROR);
-			NSFNoteClose(note_handle);
-			return NOERROR;
-		}
+	                       *(DBHANDLE *)db_handle,         
+	                       SearchMatch.ID.NoteID,         
+	                       0,                          
+	                       &note_handle))
+	{
+	    PRINTERROR(err,"NSFNoteOpen");
+	    return err;
+	}
+	
+	NSFItemGetText(note_handle, "status", status, sizeof(status));
+	if (strcmp(status, "1") == 0) {
+	    AddInLogMessageText("this note is processed already", NOERROR);
+	    NSFNoteClose(note_handle);
+	    return NOERROR;
+	}
 
-		AddInLogMessageText("note is opened", NOERROR);	
-		NSFItemGetText(note_handle, "idpass", idpass, sizeof(idpass));
-		AddInLogMessageText("get its password", NOERROR);
-		AddInLogMessageText(idpass, NOERROR);
-		
-		if (err = NSFItemSetText(note_handle, "status", "1", strlen("1"))) {
-			PRINTERROR(err,"NSFItemSetText");
-			return err;
+	AddInLogMessageText("note is opened", NOERROR);	
+	NSFItemGetText(note_handle, "idpass", idpass, sizeof(idpass));
+	AddInLogMessageText("get its password", NOERROR);
+	AddInLogMessageText(idpass, NOERROR);
+	
+	if (err = NSFItemSetText(note_handle, "status", "1", strlen("1"))) {
+	    PRINTERROR(err,"NSFItemSetText");
+	    return err;
+	}
+	if (err = NSFNoteUpdate(note_handle, UPDATE_FORCE)) {
+	    PRINTERROR(err,"NSFNoteUpdate");
+	    return err;
+	}
+	if (NSFNoteHasObjects(note_handle, &objectItem)) {
+	    AddInLogMessageText("note has object", NOERROR);
+	    AddInLogMessageText("extract id file from the note", NOERROR);
+	    if (err = NSFNoteExtractFile(note_handle, objectItem, "d:\\sample.id", NULL)) {
+	        PRINTERROR(err,"NSFNoteExtractFile");
+	        NSFNoteClose(note_handle);
+	        return err;
 		}
-		if (err = NSFNoteUpdate(note_handle, UPDATE_FORCE)) {
-			PRINTERROR(err,"NSFNoteUpdate");
-			return err;
-		}
-		if (NSFNoteHasObjects(note_handle, &objectItem)) {
-			AddInLogMessageText("note has object", NOERROR);
-			AddInLogMessageText("extract id file from the note", NOERROR);
-			if (err = NSFNoteExtractFile(note_handle, objectItem, "d:\\sample.id", NULL)) {
-				PRINTERROR(err,"NSFNoteExtractFile");
-				NSFNoteClose(note_handle);
-				return err;
-			}
 			
-			if (err = NSFNoteClose(note_handle)) {
-				PRINTERROR(err,"NSFNoteClose");
-				return err;
-			}
+	    if (err = NSFNoteClose(note_handle)) {
+	        PRINTERROR(err,"NSFNoteClose");
+	        return err;
+	    }
 			
-			SECKFMCreatePassword(idpass, &retHashedPassword);
-			if (err = SECBuildEncryptedBackupIDFile("d:\\sample.id", 
-				&retHashedPassword, pBackupIDFileName, pRepositoryBuf,
-				MAXPATH, &retRepositoryBufLen, NULL, 0)) {
-				PRINTERROR(err,"SECBuildEncryptedBackupIDFile");
-				return err;
-			}
-		}
+	    SECKFMCreatePassword(idpass, &retHashedPassword);
+	    if (err = SECBuildEncryptedBackupIDFile("d:\\sample.id", 
+	                                             &retHashedPassword, pBackupIDFileName, pRepositoryBuf,
+	                                             MAXPATH, &retRepositoryBufLen, NULL, 0)) {
+	                                             PRINTERROR(err,"SECBuildEncryptedBackupIDFile");
+	        return err;
+	    }
+	}
 	return NOERROR;
 }
 
@@ -157,24 +158,24 @@ STATUS doJob(char *db_name)
 	STATUS error = 0;
 	AddInLogMessageText("open the db", NOERROR);
 	if (error = NSFDbOpen(db_name, &db_handle)) {
-		PRINTERROR(error,"NSFDbOpen");
-		return ERR(error);
+	    PRINTERROR(error,"NSFDbOpen");
+	    return ERR(error);
 	}
 	AddInLogMessageText("search the db", NOERROR);
 	if (error = NSFSearch (
-		db_handle,				/* database handle */
-		NULL,					/* selection formula */
-		view_name,				/* title of view in selection formula */
-		0,						/* search flags */
-		NOTE_CLASS_DOCUMENT,	/* note class to find */
-		NULL,					/* starting date (unused) */
-		note_action,			/* action routine for notes found */
-		&db_handle,				/* parameter to action routine */
-		NULL))					/* returned ending date (unused) */
+	                       db_handle,				/* database handle */
+	                       NULL,					/* selection formula */
+	                       view_name,				/* title of view in selection formula */
+	                       0,						/* search flags */
+	                       NOTE_CLASS_DOCUMENT,	/* note class to find */
+	                       NULL,					/* starting date (unused) */
+	                       note_action,			/* action routine for notes found */
+	                       &db_handle,				/* parameter to action routine */
+	                       NULL))					/* returned ending date (unused) */
 	{
-		PRINTERROR(error,"NSFSearch");
-		NSFDbClose(db_handle);
-		return ERR(error);
+	    PRINTERROR(error,"NSFSearch");
+	    NSFDbClose(db_handle);
+	    return ERR(error);
 	}	
 	NSFDbClose(db_handle);
 	return NOERROR;

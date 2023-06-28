@@ -195,14 +195,14 @@ int main(int argc, char *argv[])
     }
 
     error = NSFFormulaCompile (
-                NULL,               
-                (WORD) 0,           
-                szFormula,
-                (WORD) strlen(szFormula),
-                &formula_handle,
-                &wIgnore,
-                &wIgnore,
-                &wIgnore, &wIgnore, &wIgnore, &wIgnore); 
+                               NULL,               
+                               (WORD) 0,           
+                               szFormula,
+                               (WORD) strlen(szFormula),
+                               &formula_handle,
+                               &wIgnore,
+                               &wIgnore,
+                               &wIgnore, &wIgnore, &wIgnore, &wIgnore); 
     if ( error != NOERROR )
     {
         PRINTERROR(error,"NSFFormulaCompile");
@@ -210,15 +210,15 @@ int main(int argc, char *argv[])
     }
     /* To Delete the Documents in nsf file. */
     error = NSFSearch (
-                db_handle,      
-                formula_handle, 
-                NULL,           
-                0,              
-                NOTE_CLASS_DOCUMENT,
-                NULL,         
-                EnumProc, 
-                &db_handle, 
-                NULL);
+                       db_handle,      
+                       formula_handle, 
+                       NULL,           
+                       0,              
+                       NOTE_CLASS_DOCUMENT,
+                       NULL,         
+                       EnumProc, 
+                       &db_handle, 
+                       NULL);
     if ( error != NOERROR ) 
     {
         PRINTERROR(error,"NSFSearch");
@@ -287,9 +287,9 @@ int main(int argc, char *argv[])
     /* Get the note id of the view we want. */
 
     if (error = NIFFindView (
-          db_handle, 
-          ViewName, 
-          &ViewID))
+                              db_handle, 
+                              ViewName, 
+                              &ViewID))
     {
         PRINTERROR (error,"NIFFindView");  
         goto exit;
@@ -298,11 +298,11 @@ int main(int argc, char *argv[])
     PRINTLOG("Testing NIFUpdateFilter:\n");
     PRINTLOG("------------------------\n");
     error = NSFDbGetUnreadNoteTable (
-        db_handle,                     /* handle of the database */
-        szUserName,                    /* Domino Administrator user name*/
-        strlen (szUserName),           /* length of user name */
-        FALSE,                         /* returns only unread documents else NULL */
-        &hUnreadList);                 /* id table handle */
+                                     db_handle,                     /* handle of the database */
+                                     szUserName,                    /* Domino Administrator user name*/
+                                     strlen (szUserName),           /* length of user name */
+                                     FALSE,                         /* returns only unread documents else NULL */
+                                     &hUnreadList);                 /* id table handle */
 
     if ( error != NOERROR ) 
     {
@@ -321,16 +321,16 @@ int main(int argc, char *argv[])
     /* Get the current collection using this view. */
 
     if (error = NIFOpenCollection(
-         db_handle,            /* handle of db with view */
-         db_handle,            /* handle of db with data */
-         ViewID,         /* note id of the view */
-         0,              /* collection open flags */
-         hUnreadList,    /* handle to unread ID list (input and return) */
-         &hCollection,   /* collection handle (return) */
-         NULLHANDLE,     /* handle to open view note (return) */
-         NULL,           /* universal note id of view (return) */
-         NULLHANDLE,     /* handle to collapsed list (return) */
-         NULLHANDLE))    /* handle to selected list (return) */
+                                  db_handle,            /* handle of db with view */
+                                  db_handle,            /* handle of db with data */
+                                  ViewID,         /* note id of the view */
+                                  0,              /* collection open flags */
+                                  hUnreadList,    /* handle to unread ID list (input and return) */
+                                  &hCollection,   /* collection handle (return) */
+                                  NULLHANDLE,     /* handle to open view note (return) */
+                                  NULL,           /* universal note id of view (return) */
+                                  NULLHANDLE,     /* handle to collapsed list (return) */
+                                  NULLHANDLE))    /* handle to selected list (return) */
     {
         PRINTERROR (error,"NIFOpenCollection");
         goto exit;
@@ -383,19 +383,19 @@ int main(int argc, char *argv[])
     do
     {
         if (error = NIFReadEntries(
-             hCollection,        /* handle to this collection */
-             &CollPosition,      /* where to start in collection */
-             NAVIGATE_NEXT,      /* order to use when skipping */
-             1L,                 /* number to skip */
-             NAVIGATE_NEXT,      /* order to use when reading */
-             0xFFFFFFFF,         /* max number to read */
-             READ_MASK_NOTEID +  /* info we want */
-             READ_MASK_SUMMARYVALUES,
-             &hBuffer,           /* handle to info buffer (return)  */
-             NULL,               /* length of info buffer (return) */
-             NULL,               /* entries skipped (return) */
-             &dwEntriesFound,    /* entries read (return) */
-             &wSignalFlag))      /* share warning and more signal flag
+                                    hCollection,        /* handle to this collection */
+                                    &CollPosition,      /* where to start in collection */
+                                    NAVIGATE_NEXT,      /* order to use when skipping */
+                                    1L,                 /* number to skip */
+                                    NAVIGATE_NEXT,      /* order to use when reading */
+                                    0xFFFFFFFF,         /* max number to read */
+                                    READ_MASK_NOTEID +  /* info we want */
+                                    READ_MASK_SUMMARYVALUES,
+                                    &hBuffer,           /* handle to info buffer (return)  */
+                                    NULL,               /* length of info buffer (return) */
+                                    NULL,               /* entries skipped (return) */
+                                    &dwEntriesFound,    /* entries read (return) */
+                                    &wSignalFlag))      /* share warning and more signal flag
                                     (return) */
         {
             NIFCloseCollection (hCollection);

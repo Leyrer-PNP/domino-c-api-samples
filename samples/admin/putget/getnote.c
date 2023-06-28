@@ -73,16 +73,16 @@ The parameters are as follows:
 /* Local function prototypes */
 
 STATUS LNPUBLIC note_action ( 	/* called for every document */
-			VOID *,
-			SEARCH_MATCH *,
-			ITEM_TABLE *);
+                              VOID *,
+                              SEARCH_MATCH *,
+                              ITEM_TABLE *);
 
 int far print_field (NOTEHANDLE, BLOCKID);  /* called for every field */
 
 STATUS LNPUBLIC EnumProc(
-			VOID *,
-			SEARCH_MATCH *,
-			ITEM_TABLE *);
+                         VOID *,
+                         SEARCH_MATCH *,
+                         ITEM_TABLE *);
 
 #if defined(LINUX)
 STATUS removeSpecialChar(char* inputStr);
@@ -151,14 +151,14 @@ Domino and Notes could not start.) */
 /* Compile the selection formula. */
 
     api_error = NSFFormulaCompile (
-                NULL,			/* name of formula (none) */
-                (WORD) 0,			/* length of name */
-                ascii_formula,		/* the ASCII formula */
-                (WORD) strlen(ascii_formula),	/* length of ASCII formula */
-                &compiled_formula,	/* handle of compiled formula */
-                &dc,			/* compiled formula length */
-                &formula_error,		/* error code from compile */
-                &dc, &dc, &dc, &dc);	/* compile error info (don't care) */
+                                   NULL,			/* name of formula (none) */
+                                   (WORD) 0,			/* length of name */
+                                   ascii_formula,		/* the ASCII formula */
+                                   (WORD) strlen(ascii_formula),	/* length of ASCII formula */
+                                   &compiled_formula,	/* handle of compiled formula */
+                                   &dc,			/* compiled formula length */
+                                   &formula_error,		/* error code from compile */
+                                   &dc, &dc, &dc, &dc);	/* compile error info (don't care) */
 
 /* If there was an error in the formula, get the text associated with
 the COMPILATION error code. If there was some other kind of error
@@ -210,15 +210,15 @@ that match the selection formula. For each document that matches, call
 an action routine that extracts each field. */
 
     if (api_error = NSFSearch (
-                    db_handle,		/* database handle */
-                    compiled_formula,	/* selection formula */
-                    NULL,			/* title of view in selection formula */
-                    0,			/* search flags */
-                    NOTE_CLASS_DOCUMENT,	/* note class to find */
-                    NULL,			/* starting date (unused) */
-                    note_action,            /* action routine for notes found */
-                    &db_handle,		/* parameter to action routine */
-                    NULL))			/* returned ending date (unused) */
+                               db_handle,		/* database handle */
+                               compiled_formula,	/* selection formula */
+                               NULL,			/* title of view in selection formula */
+                               0,			/* search flags */
+                               NOTE_CLASS_DOCUMENT,	/* note class to find */
+                               NULL,			/* starting date (unused) */
+                               note_action,            /* action routine for notes found */
+                               &db_handle,		/* parameter to action routine */
+                               NULL))			/* returned ending date (unused) */
     {
         log_message ("ERROR", "Problem during NSFSearch.");
         OSMemFree (compiled_formula);
@@ -230,15 +230,15 @@ an action routine that extracts each field. */
     }
 
     error = NSFSearch (
-            db_handle,      
-            compiled_formula, 
-            NULL,           
-            0,              
-            NOTE_CLASS_DOCUMENT,
-            NULL,         
-            EnumProc, 
-            &db_handle, 
-            NULL);
+                       db_handle,      
+                       compiled_formula, 
+                       NULL,           
+                       0,              
+                       NOTE_CLASS_DOCUMENT,
+                       NULL,         
+                       EnumProc, 
+                       &db_handle, 
+                       NULL);
     if (error != NOERROR)
     {
         log_api_message("ERROR", error);
@@ -321,10 +321,10 @@ but is shown here in case a starting date was used in the search. */
 /* Get the block ID of the first field in the note. */
 
     api_error = NSFItemInfo (
-                note_handle,
-                NULL, 0,
-                &item_block,
-                NULL, NULL, NULL);
+                             note_handle,
+                             NULL, 0,
+                             &item_block,
+                             NULL, NULL, NULL);
 
     if (ERR(api_error) == ERR_ITEM_NOT_FOUND) /* nothing to do */
         goto no_fields;
@@ -354,11 +354,11 @@ but is shown here in case a starting date was used in the search. */
         prev_block = item_block;
 
         api_error = NSFItemInfoNext (
-                    note_handle,
-                    prev_block,
-                    NULL, 0,
-                    &item_block,
-                    NULL, NULL, NULL);
+                                     note_handle,
+                                     prev_block,
+                                     NULL, 0,
+                                     &item_block,
+                                     NULL, NULL, NULL);
 
         if (ERR(api_error) == ERR_ITEM_NOT_FOUND) break; /* normal loop exit */
 
@@ -411,31 +411,31 @@ field in a Domino and Notes document. */
 
 /* Local data declarations. */
 
-	BLOCKID value_block;	/* block ID of field contents */
-	char	item_name[MAX_FIELD_NAME+1]; /* name of the field */
-	WORD	item_name_len;	/* length of field name */
-	WORD	item_type;	/* data type of field (in binary) */
-	char	ascii_dt[MAX_TYPE_STRING+1]; /* data type in ASCII */
-	DWORD	item_len;	/* length of field's value */
-	WORD	item_flags;	/* field flags */
-	char	*text_buffer;	/* buffer to receive ASCII text of field */
-	WORD	buffer_len;	/* length of above buffer */
-	WORD	text_len;	/* length of field in ASCII form */
-	char	message[MAX_LOG_MESSAGE]; /* message for log file */
+    BLOCKID value_block;	/* block ID of field contents */
+    char	item_name[MAX_FIELD_NAME+1]; /* name of the field */
+    WORD	item_name_len;	/* length of field name */
+    WORD	item_type;	/* data type of field (in binary) */
+    char	ascii_dt[MAX_TYPE_STRING+1]; /* data type in ASCII */
+    DWORD	item_len;	/* length of field's value */
+    WORD	item_flags;	/* field flags */
+    char	*text_buffer;	/* buffer to receive ASCII text of field */
+    WORD	buffer_len;	/* length of above buffer */
+    WORD	text_len;	/* length of field in ASCII form */
+    char	message[MAX_LOG_MESSAGE]; /* message for log file */
 
 
 /* Get all the info about this field. */
 
-	NSFItemQuery (
-		      note_handle,
-		      item_block,
-		      item_name,
-		      sizeof (item_name),
-		      &item_name_len,
-		      &item_flags,
-		      &item_type,
-		      &value_block,
-		      &item_len);
+    NSFItemQuery (
+                  note_handle,
+                  item_block,
+                  item_name,
+                  sizeof (item_name),
+                  &item_name_len,
+                  &item_flags,
+                  &item_type,
+                  &value_block,
+                  &item_len);
 
 /* Put a null at the end of the field name, so we can treat it like a
 regular C string. */
@@ -536,18 +536,18 @@ nulls in them. The nulls indicate newlines.*/
 
     if (item_type == TYPE_TEXT)
         text_len = get_text_field (
-                   value_block,
-                   (WORD) item_len,
-                   text_buffer,
-                   buffer_len);
+                                   value_block,
+                                   (WORD) item_len,
+                                   text_buffer,
+                                   buffer_len);
     else
         text_len = NSFItemConvertValueToText (
-                   item_type,
-                   value_block,
-                   item_len,
-                   text_buffer,
-                   buffer_len,
-                   get_list_separator());
+                                              item_type,
+                                              value_block,
+                                              item_len,
+                                              text_buffer,
+                                              buffer_len,
+                                              get_list_separator());
 
 /* If the field is at or over the maximum length accepted, issue a
 warning. */

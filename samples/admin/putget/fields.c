@@ -55,9 +55,9 @@ and PUTNOTE programs.
 that Domino and Notes uses embedded null characters to indicated new lines. */
 
 WORD get_text_field (BLOCKID value_block,
-		      WORD item_len,
-		      char * output_buffer,
-		      WORD max_output)
+                     WORD item_len,
+                     char * output_buffer,
+                     WORD max_output)
 {
 
 /* Local data */
@@ -130,8 +130,8 @@ characters into nulls as it does so, since Domino and Notes represents line feed
 with nulls. */
 
 int put_text_field (NOTEHANDLE note_handle,
-		  char * field_name,
-		  char * field_text)
+                    char * field_name,
+                    char * field_text)
 {
 
 /* Local data */
@@ -177,9 +177,9 @@ any line feed with a null. */
 /* Write this field to the note. */
 
     if (api_error = NSFItemAppend(note_handle, ITEM_SUMMARY,
-			field_name, field_name_len,
-			TYPE_TEXT,
-			output_buffer, field_len))
+                                  field_name, field_name_len,
+                                  TYPE_TEXT,
+                                  output_buffer, field_len))
 
     {
         log_api_message ("ERROR", api_error);
@@ -204,8 +204,8 @@ in any kind of list field, since the Domino and Notes form specifies the separat
 between list elements. */
 
 int put_textlist_field (NOTEHANDLE note_handle,
-			char * field_name,
-			char * field_text)
+                        char * field_name,
+                        char * field_text)
 
 {
 
@@ -227,7 +227,7 @@ int put_textlist_field (NOTEHANDLE note_handle,
 /* Create an empty text list data structure. */
 
     if (api_error = ListAllocate (0, 0, FALSE,
-			      &list_handle, &list_ptr, &list_size))
+                                  &list_handle, &list_ptr, &list_size))
     {
         log_api_message ("ERROR", api_error);
         return (ERR_API_ERROR);
@@ -275,11 +275,11 @@ for the next element). 3) Get the next character in the list. */
         if (c == get_list_separator())
         {
             if (api_error = ListAddEntry (list_handle,
-                           FALSE,
-                           &list_size,
-                           element_number,
-                           element_buffer,
-                           element_len))
+                                          FALSE,
+                                          &list_size,
+                                          element_number,
+                                          element_buffer,
+                                          element_len))
 
             {
                 log_api_message ("ERROR", api_error);
@@ -309,11 +309,11 @@ keep track of the length of this element. */
 /* Write the last element to the field. */
 
     if (api_error = ListAddEntry (list_handle,
-                    FALSE,
-                    &list_size,
-                    element_number,
-                    element_buffer,
-                    element_len))
+                                  FALSE,
+                                  &list_size,
+                                  element_number,
+                                  element_buffer,
+                                  element_len))
 
     {
         log_api_message ("ERROR", api_error);
@@ -327,9 +327,9 @@ keep track of the length of this element. */
     list_ptr = OSLockObject (list_handle);
 
     if (api_error = NSFItemAppend(note_handle, ITEM_SUMMARY,
-                    field_name, field_name_len,
-                    TYPE_TEXT_LIST,
-                    list_ptr, list_size))
+                                  field_name, field_name_len,
+                                  TYPE_TEXT_LIST,
+                                  list_ptr, list_size))
 
     {
         log_api_message ("ERROR", api_error);
@@ -360,8 +360,8 @@ keep track of the length of this element. */
 /* This function puts a number field into a note. */
 
 int put_number_field (NOTEHANDLE note_handle,
-			char * field_name,
-			char * field_text)
+                      char * field_name,
+                      char * field_text)
 {
 
 /* Local data */
@@ -383,9 +383,9 @@ the atof function returns a zero. We use this as the field in this case. */
 /* Write this field to the note. */
 
     if (api_error = NSFItemAppend(note_handle, ITEM_SUMMARY,
-                    field_name, field_name_len,
-                    TYPE_NUMBER,
-                    &binary_number, sizeof(binary_number)))
+                                  field_name, field_name_len,
+                                  TYPE_NUMBER,
+                                  &binary_number, sizeof(binary_number)))
 
     {
         log_api_message ("ERROR", api_error);
@@ -522,9 +522,9 @@ are). */
 /* Add the field to the note. */
 
     if (api_error = NSFItemAppend (note_handle, ITEM_SUMMARY,
-                    field_name, field_name_len,
-                    TYPE_NUMBER_RANGE,
-                    output_buffer, output_len))
+                                   field_name, field_name_len,
+                                   TYPE_NUMBER_RANGE,
+                                   output_buffer, output_len))
     {
         log_api_message ("ERROR", api_error);
         free (output_buffer);
@@ -551,8 +551,8 @@ are). */
 /* This function puts a time/date field into a note. */
 
 int put_time_field (NOTEHANDLE note_handle,
-		    char * field_name,
-		    char * field_text)
+                    char * field_name,
+                    char * field_text)
 {
 
 /* Local data */
@@ -574,10 +574,10 @@ the length of the field's name. */
 zeroes into the binary time so we have something to output. */
 
     if (api_error = ConvertTextToTIMEDATE(NULL,
-                    NULL,
-                    &pfield_text,
-                    input_len,
-                    &binary_time))
+                                          NULL,
+                                          &pfield_text,
+                                          input_len,
+                                          &binary_time))
     {
         log_api_message ("WARNING", api_error);
         TimeDateClear (&binary_time);
@@ -586,9 +586,9 @@ zeroes into the binary time so we have something to output. */
 /* Write this field to the note. */
 
     if (api_error = NSFItemAppend(note_handle, ITEM_SUMMARY,
-                    field_name, field_name_len,
-                    TYPE_TIME,
-                    &binary_time, sizeof(binary_time)))
+                                  field_name, field_name_len,
+                                  TYPE_TIME,
+                                  &binary_time, sizeof(binary_time)))
 
     {
         log_api_message ("ERROR", api_error);
@@ -611,8 +611,8 @@ in any kind of list field, since the Domino and Notes form specifies the separat
 between list elements. */
 
 int put_timelist_field (NOTEHANDLE note_handle,
-			char * field_name,
-			char * field_text)
+                        char * field_name,
+                        char * field_text)
 {
 
 /* Local data */
@@ -644,8 +644,8 @@ each element will fill one TIMEDATE structure. The number of timedates
 in the list cannot be greater than the length of the list plus one. */
 
     output_buffer = (BYTE *) malloc (sizeof(RANGE) +
-                   (sizeof(TIMEDATE) *
-                   (input_len+1)));
+                    (sizeof(TIMEDATE) *
+                    (input_len+1)));
 
 /* Reset the counters we will use. */
 
@@ -685,10 +685,10 @@ have something to output. */
             ptime_ptr = (char far *) ascii_time;
 
             if (api_error = ConvertTextToTIMEDATE(NULL,
-                            NULL,
-                            &ptime_ptr,
-                            element_len,
-                            &binary_time))
+                                                  NULL,
+                                                  &ptime_ptr,
+                                                  element_len,
+                                                  &binary_time))
 
             {
                 log_api_message ("WARNING", api_error);
@@ -723,10 +723,10 @@ keep track of the length of this element. */
     ptime_ptr = (char far *) ascii_time;
 
     if (api_error = ConvertTextToTIMEDATE(NULL,
-                    NULL,
-                    &ptime_ptr,
-                    element_len,
-                    &binary_time))
+                                          NULL,
+                                          &ptime_ptr,
+                                          element_len,
+                                          &binary_time))
 
     {
         log_api_message ("WARNING", api_error);
@@ -748,9 +748,9 @@ are). */
 /* Add the field to the note. */
 
     if (api_error = NSFItemAppend (note_handle, ITEM_SUMMARY,
-                    field_name, field_name_len,
-                    TYPE_TIME_RANGE,
-                    output_buffer, output_len))
+                                   field_name, field_name_len,
+                                   TYPE_TIME_RANGE,
+                                   output_buffer, output_len))
     {
         log_api_message ("ERROR", api_error);
         free (output_buffer);
@@ -851,73 +851,73 @@ replace all LFs with NULL, and count the length of the result. */
 
     memset(&def, 0, sizeof(CDPABDEFINITION));
 
-	def.Header.Signature = SIG_CD_PABDEFINITION;
-	def.Header.Length = sizeof(CDPABDEFINITION);
-	def.PABID = 1;
-	def.JustifyMode = DEFAULT_JUSTIFICATION;
-	def.LineSpacing =        DEFAULT_LINE_SPACING;
-	def.ParagraphSpacingBefore = DEFAULT_ABOVE_PAR_SPACING;
-	def.ParagraphSpacingAfter = DEFAULT_BELOW_PAR_SPACING;
-	def.LeftMargin = DEFAULT_LEFT_MARGIN;
-	def.RightMargin = DEFAULT_RIGHT_MARGIN;
-	def.FirstLineLeftMargin = DEFAULT_FIRST_LEFT_MARGIN;
-	def.Tabs = DEFAULT_TABS;
-	def.Tab[0] = DEFAULT_TAB_INTERVAL;
-	def.Flags = 0;
-	def.TabTypes = TAB_DEFAULT;
-	def.Flags2 = 0;
+    def.Header.Signature = SIG_CD_PABDEFINITION;
+    def.Header.Length = sizeof(CDPABDEFINITION);
+    def.PABID = 1;
+    def.JustifyMode = DEFAULT_JUSTIFICATION;
+    def.LineSpacing =        DEFAULT_LINE_SPACING;
+    def.ParagraphSpacingBefore = DEFAULT_ABOVE_PAR_SPACING;
+    def.ParagraphSpacingAfter = DEFAULT_BELOW_PAR_SPACING;
+    def.LeftMargin = DEFAULT_LEFT_MARGIN;
+    def.RightMargin = DEFAULT_RIGHT_MARGIN;
+    def.FirstLineLeftMargin = DEFAULT_FIRST_LEFT_MARGIN;
+    def.Tabs = DEFAULT_TABS;
+    def.Tab[0] = DEFAULT_TAB_INTERVAL;
+    def.Flags = 0;
+    def.TabTypes = TAB_DEFAULT;
+    def.Flags2 = 0;
 
 /* Advance the buffer pointer, so we know where to put the next object in 
 the buffer. */
 
-	ODSWriteMemory(&buff_ptr, _CDPABDEFINITION, &def, 1);
+    ODSWriteMemory(&buff_ptr, _CDPABDEFINITION, &def, 1);
 
 /* Put a paragraph header in the field, and advance the pointer. */
 
-	para.Header.Signature = SIG_CD_PARAGRAPH;
-	para.Header.Length = (BYTE)ODSLength(_CDPARAGRAPH);
+    para.Header.Signature = SIG_CD_PARAGRAPH;
+    para.Header.Length = (BYTE)ODSLength(_CDPARAGRAPH);
 
 	ODSWriteMemory(&buff_ptr, _CDPARAGRAPH, &para, 1);
 
 /* Put a paragraph reference block in the field, and advance the pointer.
 Specify that the paragraph uses definition block #1 (above). */
 
-	ref.Header.Signature = SIG_CD_PABREFERENCE;
-	ref.Header.Length = (BYTE)ODSLength(_CDPABREFERENCE);
-	ref.PABID = 1;
-	
-	ODSWriteMemory(&buff_ptr, _CDPABREFERENCE, &ref, 1);
+    ref.Header.Signature = SIG_CD_PABREFERENCE;
+    ref.Header.Length = (BYTE)ODSLength(_CDPABREFERENCE);
+    ref.PABID = 1;
+    
+    ODSWriteMemory(&buff_ptr, _CDPABREFERENCE, &ref, 1);
 
 /* Add a text header to the field, and advance the pointer. */
 
-	text.Header.Signature = SIG_CD_TEXT;
-	text.Header.Length = ODSLength(_CDTEXT) + rt_text_len;
-	
+    text.Header.Signature = SIG_CD_TEXT;
+    text.Header.Length = ODSLength(_CDTEXT) + rt_text_len;
+    
 /* Fill in the font information for this run of text. The font information
 is stored in the text header that we already created. */
 
-	font = (FONTIDFIELDS *) &(text.FontID);
+    font = (FONTIDFIELDS *) &(text.FontID);
 
-	font->Face = FONT_FACE_SWISS;
-	font->Attrib = 0;
-	font->Color = NOTES_COLOR_BLACK;
-	font->PointSize = 10;
+    font->Face = FONT_FACE_SWISS;
+    font->Attrib = 0;
+    font->Color = NOTES_COLOR_BLACK;
+    font->PointSize = 10;
 
-	ODSWriteMemory(&buff_ptr, _CDTEXT, &text, 1);
+    ODSWriteMemory(&buff_ptr, _CDTEXT, &text, 1);
 
 /* Copy the text into the field. */
 
-	memcpy ((char *)buff_ptr, rt_text, rt_text_len);
-	buff_ptr += rt_text_len;
+    memcpy ((char *)buff_ptr, rt_text, rt_text_len);
+    buff_ptr += rt_text_len;
 
-	rt_size = (DWORD)(buff_ptr - rt_field);
+    rt_size = (DWORD)(buff_ptr - rt_field);
 
 /* Add the rich-text field to the note. */
 
     if (api_error = NSFItemAppend (note_handle, 0,
-                    field_name, field_name_len,
-                    TYPE_COMPOSITE,
-                    rt_field, rt_size))
+                                   field_name, field_name_len,
+                                   TYPE_COMPOSITE,
+                                   rt_field, rt_size))
     {
         log_api_message ("ERROR", api_error);
         free (rt_text);
@@ -942,8 +942,8 @@ is stored in the text header that we already created. */
 is written out to the field, plus a dummy binary ID. */
 
 int put_userid_field (NOTEHANDLE note_handle,
-			char * field_name,
-			char * field_text)
+                      char * field_name,
+                      char * field_text)
 {
 
 /* Local data */
@@ -960,38 +960,38 @@ int put_userid_field (NOTEHANDLE note_handle,
 /* Find the length of the field text (as input to this function) and
 the length of the field's name. */
 
-	input_len = strlen (field_text);
-	field_name_len = strlen (field_name);
+    input_len = strlen (field_text);
+    field_name_len = strlen (field_name);
 
 /* Find the length of the field that we will output. */
 
-	output_len = input_len + sizeof (LICENSEID);
+    output_len = input_len + sizeof (LICENSEID);
 
 /* Allocate a buffer that will hold the output. Keep a pointer to our
 current location in the output buffer. */
 
-	output_buffer = (BYTE *) malloc (output_len);
-	buff_ptr = output_buffer;
+    output_buffer = (BYTE *) malloc (output_len);
+    buff_ptr = output_buffer;
 
 /* Copy the user name to the output buffer. */
 
-	memcpy (buff_ptr, field_text, input_len);
-	buff_ptr += input_len;
+    memcpy (buff_ptr, field_text, input_len);
+    buff_ptr += input_len;
 
 /* Create a dummy LICENSEID. */
 
-	memset (&id, '\0', sizeof(LICENSEID));
+    memset (&id, '\0', sizeof(LICENSEID));
 
 /* Append the ID to the output buffer. */
 
-	memcpy (buff_ptr, &id, sizeof(LICENSEID));
+    memcpy (buff_ptr, &id, sizeof(LICENSEID));
 
 /* Write this field to the note. */
 
     if (api_error = NSFItemAppend(note_handle, ITEM_SUMMARY,
-                    field_name, field_name_len,
-                    TYPE_USERID,
-                    output_buffer, output_len))
+                                  field_name, field_name_len,
+                                  TYPE_USERID,
+                                  output_buffer, output_len))
 
     {
         log_api_message ("ERROR", api_error);

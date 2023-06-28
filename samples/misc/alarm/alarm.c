@@ -87,34 +87,34 @@ int main(int argc, char * argv[])
 
     /* Register the client with the Alarms Daemon */
     if (error = Alarm_RegisterInterest (NOTESCLIENT, 0))
-       goto Done2;
+        goto Done2;
 
     /* Tell the Alarms Daemon to refresh it's list of alarms */
     if (error = Alarm_RefreshAlarms (NOTESCLIENT))
-       goto Done3;
+        goto Done3;
 
     /* Main loop to process Alarm message.  We'll wait for 5 minutes for a
     message and if we don't get one, we'll time out */
 
     while (bNO_ALARM_MSG)
     {
-      PRINTLOG("Waiting for message from the Alarms Daemon...\n");
-      error = MQGet (hQueue, MsgBuffer, MAX_MESSAGE,
-           MQ_WAIT_FOR_MSG, (300 * 1000), &MsgLen);
+        PRINTLOG("Waiting for message from the Alarms Daemon...\n");
+        error = MQGet (hQueue, MsgBuffer, MAX_MESSAGE,
+                       MQ_WAIT_FOR_MSG, (300 * 1000), &MsgLen);
 
-      MsgBuffer[MsgLen] = '\0';
+        MsgBuffer[MsgLen] = '\0';
 
-      if (NOERROR == error)
-      {
-       PRINTLOG("Received Alarm Message!\n\n");
-       error = ProcessAlarmMessage (MsgBuffer, MsgLen);
-       bNO_ALARM_MSG = FALSE; 
-      }
-      else if (ERR_MQ_TIMEOUT == error)
-      {
-       PRINTLOG("Received Timeout...\n");
-       bNO_ALARM_MSG = FALSE; 
-      }
+        if (NOERROR == error)
+        {
+            PRINTLOG("Received Alarm Message!\n\n");
+            error = ProcessAlarmMessage (MsgBuffer, MsgLen);
+            bNO_ALARM_MSG = FALSE; 
+        }
+        else if (ERR_MQ_TIMEOUT == error)
+        {
+            PRINTLOG("Received Timeout...\n");
+            bNO_ALARM_MSG = FALSE; 
+        }
     }   /* End of main task loop. */
  
 Done3:
@@ -131,7 +131,7 @@ Done1:
     /* End of subroutine. */
     if (error)
     {
-         if (error!=999)
+        if (error!=999)
             PRINTERROR (error,"MQOpen");  
     }
     else
@@ -170,19 +170,19 @@ STATUS ProcessAlarmMessage (char *pMsg, WORD msgLen)
     /* see what type of alarm message type we have */
     switch (pAlarmMsg.Type)
     {
-      case ALARM_MSG_PENDING_ALARMS:
-   PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_PENDING_ALARMS");
-      break;
-      case ALARM_MSG_NEW_ALARM:
-   PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_NEW_ALARM");
-      break;
-      case ALARM_MSG_IS_TERMINATING:
-   PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_IS_TERMINATING");
-      break;
-      default:
-   PRINTLOG("Invalid Alarm Message Type!\n");
-   return(999);
-      break;
+        case ALARM_MSG_PENDING_ALARMS:
+            PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_PENDING_ALARMS");
+            break;
+        case ALARM_MSG_NEW_ALARM:
+            PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_NEW_ALARM");
+            break;
+        case ALARM_MSG_IS_TERMINATING:
+            PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_IS_TERMINATING");
+            break;
+        default:
+            PRINTLOG("Invalid Alarm Message Type!\n");
+            return(999);
+            break;
     }
 
     /* print out the data */
@@ -192,7 +192,7 @@ STATUS ProcessAlarmMessage (char *pMsg, WORD msgLen)
     /* get a pointer to the ALARMS_DATA structure */
     pData = (char *)OSLockObject(pAlarmMsg.hAlarmsData);
     memcpy((ALARM_DATA *)&pAlarmData, (ALARM_DATA *)pData,
-                  sizeof(ALARM_DATA));
+            sizeof(ALARM_DATA));
 
     /* convert timedate info to string */
     GetTDString(&(pAlarmData.tmEventTime), szEventTime);
@@ -224,9 +224,9 @@ void LNPUBLIC  GetTDString( TIMEDATE * ptdModified, char * szTimedate )
     WORD            wLen;
 
     ConvertTIMEDATEToText( NULL, NULL, 
-             ptdModified, 
-             szTimedate, 
-             MAXALPHATIMEDATE,
+                           ptdModified, 
+                           szTimedate, 
+                           MAXALPHATIMEDATE,
              &wLen );
     szTimedate[wLen] = '\0';
     return;

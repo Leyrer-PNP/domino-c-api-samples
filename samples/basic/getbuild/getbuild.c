@@ -70,8 +70,8 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-     PRINTLOG("\n Unable to initialize Notes.\n");
-     return (1);
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
     }
     
     /* Open the database. */
@@ -79,10 +79,10 @@ int main(int argc, char *argv[])
     error = NSFDbOpen (db_filename, &db_handle);
     if (NOERROR != error)
     {
-      PRINTLOG("Error: unable to open database '%s'.\n", db_filename);
-      PRINTERROR (error,"NSFDbOpen");  
-      NotesTerm();
-      return (1); 
+        PRINTLOG("Error: unable to open database '%s'.\n", db_filename);
+        PRINTERROR (error,"NSFDbOpen");  
+        NotesTerm();
+        return (1); 
     }
     
     
@@ -91,10 +91,10 @@ int main(int argc, char *argv[])
     error = NSFDbGetBuildVersion (db_handle, &wbuild);
     if (NOERROR != error)
     {
-      NSFDbClose (db_handle);
-      PRINTERROR (error,"NSFDbGetBuildVersion");  
-      NotesTerm();
-      return (1); 
+        NSFDbClose (db_handle);
+        PRINTERROR (error,"NSFDbGetBuildVersion");  
+        NotesTerm();
+        return (1); 
     }
     
     PRINTLOG ("\nThe major build number is: %d\n", wbuild);
@@ -104,15 +104,15 @@ int main(int argc, char *argv[])
     error = NSFDbClose (db_handle);
     if (NOERROR != error)
     {
-      PRINTERROR (error,"NSFDbClose");  
-      NotesTerm();
-      return (1); 
+        PRINTERROR (error,"NSFDbClose");  
+        NotesTerm();
+        return (1); 
     }
     
     /* End of subroutine. */
 
-   NotesTerm();
-   return (0); 
+    NotesTerm();
+    return (0); 
 }
 
 /************************************************************************
@@ -131,13 +131,13 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
     if (argc != 2)  
     {
 
-      printf("Enter name of database: ");      
-      fflush(stdout);
-      gets(db_filename);
-      
+        printf("Enter name of database: ");      
+        fflush(stdout);
+        gets(db_filename);
+        
     }    
     else
     {
-         strcpy(db_filename, argv[1]);    
+        strcpy(db_filename, argv[1]);    
     } /* end if */
 } /* ProcessArgs */

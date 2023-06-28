@@ -619,7 +619,7 @@ STATUS LNPUBLIC AddSchedule()
     } /* end of for */
 
     sError = NSFNoteUpdate( hNote, 0 );
-	PRINTLOG("\n Scheduled meeting for %s between %s to %s ", szMailFileName,startTime,endTime);
+    PRINTLOG("\n Scheduled meeting for %s between %s to %s ", szMailFileName,startTime,endTime);
 Exit3:
 
     OSUnlockObject (hData);

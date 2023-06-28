@@ -25,24 +25,24 @@
 
     Iedit is an example edit level import library. Install iedit into
     the Domino and Notes User interface by copying the executable file into 
-	the Domino and Notes     program directory, and adding the appropriate 
-	EDITIMP line to the notes.ini file. Then, from Domino and Notes, open a 
-	document for editing, move the cursor to a rich text field, and issue the 
-	File Import command from the Domino and Notes user interface menu. In the 
-	File Import dialog box, select "Sample ASCII Import" from the the list of 
-	formats available. Domino and Notes will transfer control to this progam. 
-	This program imports one or more ASCII text files into the rich text field 
-	of the document currently being edited.
+    the Domino and Notes     program directory, and adding the appropriate 
+    EDITIMP line to the notes.ini file. Then, from Domino and Notes, open a 
+    document for editing, move the cursor to a rich text field, and issue the 
+    File Import command from the Domino and Notes user interface menu. In the 
+    File Import dialog box, select "Sample ASCII Import" from the the list of 
+    formats available. Domino and Notes will transfer control to this progam. 
+    This program imports one or more ASCII text files into the rich text field 
+    of the document currently being edited.
     
     You may need a custom import library similar to this sample program
     if none of the import modules provided with Domino and Notes support the 
-	file format you require.  You may enhance this program to handle the
+    file format you require.  You may enhance this program to handle the
     particular file format you require.
 
     FUNCTIONS:
 
     MainEntryPoint()-   Import text into current Domino and Notes 
-	                    TYPE_COMPOSITE item.
+                        TYPE_COMPOSITE item.
 
 ****************************************************************************/
 
@@ -77,9 +77,9 @@ char  buffer[IEDIT_BUFFSZ];  /* for copying data from CD file to temp file */
 
     INPUTS:      
         EditorData = Pointer to data structure, initialized by Domino and 
-		             Notes, that provides the name of output file this 
-					 function should create and the FONTID of text at the 
-					 caret position in the rich text field. See ixedit.h.
+                     Notes, that provides the name of output file this 
+                     function should create and the FONTID of text at the 
+                     caret position in the rich text field. See ixedit.h.
         Flags      = Import flags (see ixport.h)
         hModule    = handle to this module, if Windows. Not used if UNIX.
         AltLibraryName = Ignored here
@@ -94,24 +94,24 @@ char  buffer[IEDIT_BUFFSZ];  /* for copying data from CD file to temp file */
 
     DISCUSSION:
         Domino and Notes loads this library and calls this function, 
-		MainEntryPoint, when the Domino and Notes user has selected this 
-		file format in the File Import dialog box. This function must 
-		create one output file, also known as a temporary file, with the 
-		name specified by the OutputFileName member of the EditorData data 
-		structure. This temporary file must containing the imported data in 
-		Compound Document (rich text) format. After this function has returned 
-		NOERROR, Domino and Notes reads the contents of this temporary file 
-		into the rich text field being edited by the user. Then Domino and Notes 
-		deletes the temporary file.
+        MainEntryPoint, when the Domino and Notes user has selected this 
+        file format in the File Import dialog box. This function must 
+        create one output file, also known as a temporary file, with the 
+        name specified by the OutputFileName member of the EditorData data 
+        structure. This temporary file must containing the imported data in 
+        Compound Document (rich text) format. After this function has returned 
+        NOERROR, Domino and Notes reads the contents of this temporary file 
+        into the rich text field being edited by the user. Then Domino and Notes 
+        deletes the temporary file.
 
         If the user selects more than one file to import in the File Import
         dialog box, then Domino and Notes will call this function multiple times, 
-		once on each imput file. The import flags parameter tells this function
+        once on each imput file. The import flags parameter tells this function
         whether it is processing the First or Last input file.
         
         This function must conform to the syntax defined by the IXENTRYPROC
         typedef in HCL C API for Notes/Domino header file ixport.h. Under 
-		Unix, this function MUST be named MainEntryPoint. Under OS/2 or Windows,
+        Unix, this function MUST be named MainEntryPoint. Under OS/2 or Windows,
         this function may have any name, but must be the ordinally first
         function exported by this library.
 
@@ -191,7 +191,7 @@ STATUS LNPUBLIC  MainEntryPoint(EDITIMPORTDATA *EditorData,WORD Flags,
 
     CompoundTextInitStyle( &Style );
     if (error = CompoundTextDefineStyle( hCompound, "", &Style,
-                                            &dwStyleID ))
+                                         &dwStyleID ))
     {
         IeditMessageBox ("Unable to define compound text style", error);
         CompoundTextDiscard( hCompound );
@@ -201,16 +201,16 @@ STATUS LNPUBLIC  MainEntryPoint(EDITIMPORTDATA *EditorData,WORD Flags,
     /* Add text from the input file to the Compound Text Context */
 
     if (error = CompoundTextAddTextExt (
-                        hCompound,          /* context */
-                        dwStyleID,          /* style  */
-                        EditorData->FontID, /* font ID */
-                        FileName,           /* name of text file to read */
-                        0,                  /* not used if COMP_FROM_FILE */
-                        "\r\n",             /* newline delimiter */
-                        COMP_FROM_FILE |    /* take input from file */
-                        COMP_PRESERVE_LINES,/* preserve line breaks */
-                        /* don't specify any paragraph directive: 1K each */
-                        NULLHANDLE))        /* CLS translation table */
+                                        hCompound,          /* context */
+                                        dwStyleID,          /* style  */
+                                        EditorData->FontID, /* font ID */
+                                        FileName,           /* name of text file to read */
+                                        0,                  /* not used if COMP_FROM_FILE */
+                                        "\r\n",             /* newline delimiter */
+                                        COMP_FROM_FILE |    /* take input from file */
+                                        COMP_PRESERVE_LINES,/* preserve line breaks */
+                                        /* don't specify any paragraph directive: 1K each */
+                                        NULLHANDLE))        /* CLS translation table */
     {
         IeditMessageBox ("Unable to add text from file to CD Context", error);
         CompoundTextDiscard (hCompound);
@@ -281,7 +281,7 @@ STATUS LNPUBLIC  MainEntryPoint(EDITIMPORTDATA *EditorData,WORD Flags,
             if (error = IeditFileSeek( hCDTextFile, sizeof(WORD) ))
             {
                 IeditMessageBox ("Error seeking past first word of CD file",
-                                    error);
+                                 error);
                 goto Exit2;
             }
         }

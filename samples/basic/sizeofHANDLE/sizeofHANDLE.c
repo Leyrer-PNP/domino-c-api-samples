@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
 
 	if (error)
 	{
-		fprintf (stderr, "\nError initializing Notes.\n");
-		return (1);
+	    fprintf (stderr, "\nError initializing Notes.\n");
+	    return (1);
 	}
 
 	PRINTLOG("sizeof HANDLE %d\n", sizeof(HANDLE));
@@ -133,7 +133,7 @@ void  LNPUBLIC  ProcessArgs (char *ServerName, char *DBFileName, int *ArgNumber)
 
 	if (!strcmp(ServerName, ""))
 	{
-		*ArgNumber = 2;
+	    *ArgNumber = 2;
 	}
 
 } /* ProcessArgs */

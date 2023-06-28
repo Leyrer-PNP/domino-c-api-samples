@@ -88,9 +88,9 @@ int main (int argc, char *argv[])
        default form to use when displaying the note. */
 
     if (error = NSFItemSetText ( note_handle,
-                "FORM",
-                "SimpleDataForm",
-                MAXWORD))
+                                 "FORM",
+                                 "SimpleDataForm",
+                                 MAXWORD))
     {
         PRINTERROR (error,"NSFItemSetText");
         NSFNoteClose (note_handle);
@@ -102,9 +102,9 @@ int main (int argc, char *argv[])
     /* Write a text field named PLAIN_TEXT to the note. */
 
     if (error = NSFItemSetText ( note_handle,
-                "PLAIN_TEXT",
-                "The quick brown fox jumped over the lazy dogs.",
-                MAXWORD))
+                                 "PLAIN_TEXT",
+                                 "The quick brown fox jumped over the lazy dogs.",
+                                 MAXWORD))
     {
         PRINTERROR (error,"NSFItemSetText");
         NSFNoteClose (note_handle);
@@ -142,9 +142,9 @@ int main (int argc, char *argv[])
     /* Create a text-list field and add it to the note. */
 
     if (error = NSFItemCreateTextList ( note_handle,
-                       "TEXT_LIST",
-                       "Charles",
-                       MAXWORD))
+                                        "TEXT_LIST",
+                                        "Charles",
+                                        MAXWORD))
     {
         PRINTERROR (error,"NSFItemCreateTextList");
         NSFNoteClose (note_handle);
@@ -156,10 +156,10 @@ int main (int argc, char *argv[])
     /* Add several items to the text-list field. */
 
     if (error = NSFItemAppendTextList ( note_handle,
-                       "TEXT_LIST",
-                       "Janet",
-                       MAXWORD,
-                       TRUE))
+                                        "TEXT_LIST",
+                                        "Janet",
+                                        MAXWORD,
+                                        TRUE))
     {
         PRINTERROR (error,"NSFItemAppendTextList");
         NSFNoteClose (note_handle);
@@ -169,10 +169,10 @@ int main (int argc, char *argv[])
     }
 
     if (error = NSFItemAppendTextList ( note_handle,
-                       "TEXT_LIST",
-                       "Chuck",
-                       MAXWORD,
-                       TRUE))
+                                        "TEXT_LIST",
+                                        "Chuck",
+                                        MAXWORD,
+                                        TRUE))
     {
         PRINTERROR (error,"NSFItemAppendTextList");
         NSFNoteClose (note_handle);

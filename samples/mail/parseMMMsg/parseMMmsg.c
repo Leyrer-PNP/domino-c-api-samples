@@ -126,13 +126,13 @@ int main(int argc, char * argv[])
 
     if ( argc == 2 )
     {
-       memset(szDbName, '\0', MAX_NAME_LEN);    
-       strncpy( szDbName, argv[1], MAX_NAME_LEN-1 );
+        memset(szDbName, '\0', MAX_NAME_LEN);    
+        strncpy( szDbName, argv[1], MAX_NAME_LEN-1 );
     }
     else
     {
-       strncpy( szDbName, TESTDB, sizeof(TESTDB) ); 
-       szDbName[sizeof(TESTDB)]='\0';
+        strncpy( szDbName, TESTDB, sizeof(TESTDB) ); 
+        szDbName[sizeof(TESTDB)]='\0';
     }
 
     /* Open the test DB */
@@ -144,14 +144,14 @@ int main(int argc, char * argv[])
     }
 
     error = NSFFormulaCompile (
-                NULL,               
-                (WORD) 0,           
-                formula,            
-                (WORD) strlen(formula),   
-                &formula_handle,    
-                &wdc,               
-                &wdc,               
-                &wdc, &wdc, &wdc, &wdc); 
+                               NULL,               
+                               (WORD) 0,           
+                               formula,            
+                               (WORD) strlen(formula),   
+                               &formula_handle,    
+                               &wdc,               
+                               &wdc,               
+                               &wdc, &wdc, &wdc, &wdc); 
     if ( error != NOERROR )
     {
         PRINTERROR(error,"NSFFormulaCompile");
@@ -159,15 +159,15 @@ int main(int argc, char * argv[])
     }
 
     error = NSFSearch (
-                hDB,      
-                formula_handle, 
-                NULL,           
-                0,              
-                NOTE_CLASS_DOCUMENT,
-                NULL,         
-                EnumProc, 
-                &hDB, 
-                NULL);
+                       hDB,      
+                       formula_handle, 
+                       NULL,           
+                       0,              
+                       NOTE_CLASS_DOCUMENT,
+                       NULL,         
+                       EnumProc, 
+                       &hDB, 
+                       NULL);
     if ( error != NOERROR ) 
     {
         PRINTERROR(error,"NSFSearch");
@@ -178,19 +178,19 @@ int main(int argc, char * argv[])
 
 exit:
     if( hDB )
-       NSFDbClose(hDB);
+        NSFDbClose(hDB);
 
     NotesTerm();
 
     if ( error )
     {
-       PRINTLOG( "\n Fail to parse mime messages.\n" );
-       return (1);
+        PRINTLOG( "\n Fail to parse mime messages.\n" );
+        return (1);
     }
     else
     {    
-      PRINTLOG ( "\n succeed return.\n" );
-      return (NOERROR);
+        PRINTLOG ( "\n succeed return.\n" );
+        return (NOERROR);
     }
 
 }
@@ -234,26 +234,26 @@ STATUS  LNPUBLIC  EnumProc(void far *phDB, SEARCH_MATCH far *pSearchMatch, ITEM_
     fflush(stdout);
     /* Open the note. */
     error = NSFNoteOpenExt (
-                *(DBHANDLE far *)phDB,
-                SearchMatch.ID.NoteID,
-                OPEN_RAW_MIME,        
-                &hNote);
+                            *(DBHANDLE far *)phDB,
+                            SearchMatch.ID.NoteID,
+                            OPEN_RAW_MIME,        
+                            &hNote);
     if ( error != NOERROR )           
         return (error);
 
     /* skip the note if it has no mime content */
     if ( NSFNoteHasMIMEPart(hNote) )
     {
-       PRINTLOG(  "============================================================\n");
-       error = ParseMIMEMsg( hNote );
-       if ( error != NOERROR )
-       {
-          PRINTLOG( "Error when output MIME part content to file.\n" );
-          return( error );        
-       }
+        PRINTLOG(  "============================================================\n");
+        error = ParseMIMEMsg( hNote );
+        if ( error != NOERROR )
+        {
+            PRINTLOG( "Error when output MIME part content to file.\n" );
+            return( error );        
+        }
     
-       PRINTLOG(  "============================================================\n");
-    fflush(stdout);
+        PRINTLOG(  "============================================================\n");
+        fflush(stdout);
     }
 
     error = NSFNoteClose (hNote);
@@ -288,16 +288,16 @@ STATUS  LNPUBLIC  ParseMIMEMsg(NOTEHANDLE hNote )
     error = MIMEOpenDirectory(hNote, &hMD);
     if (error != NOERROR)
     {
-       PRINTERROR(error,"MIMEOpenDirectory");
-       goto done;
+        PRINTERROR(error,"MIMEOpenDirectory");
+        goto done;
     }
 
     /* get the root entity */
     error = MIMEGetRootEntity(hMD, &pMERoot);
     if (error != NOERROR)
     {
-       PRINTERROR(error,"MIMEGetRootEntity");
-       goto done;
+        PRINTERROR(error,"MIMEGetRootEntity");
+        goto done;
     }
 
     /* Check the message type.
@@ -317,10 +317,10 @@ STATUS  LNPUBLIC  ParseMIMEMsg(NOTEHANDLE hNote )
         /* first print the header to the output file. */
         for ( i=0; mszHeaderList[i]; i++ )
         {
-             if (MIMEEntityGetHeader(pMERoot,mszHeaderList[i]) != NULL)
-                 PRINTLOG(  "\t[%s : %s]\n", pszHeaderName[i],
-                        MIMEEntityGetHeader(pMERoot, mszHeaderList[i]) );
-             fflush(stdout);
+            if (MIMEEntityGetHeader(pMERoot,mszHeaderList[i]) != NULL)
+                PRINTLOG(  "\t[%s : %s]\n", pszHeaderName[i],
+                           MIMEEntityGetHeader(pMERoot, mszHeaderList[i]) );
+            fflush(stdout);
         }
 
         /* 2nd print the body text to the output file. */
@@ -338,14 +338,14 @@ STATUS  LNPUBLIC  ParseMIMEMsg(NOTEHANDLE hNote )
         error = ScanMIMEMsgBody( hNote, hMD, pMERoot, 0 );
         if ( error != NOERROR )
         {
-           PRINTLOG( "Error when scan the multi part mime body item.\n" );
-           goto done;
+            PRINTLOG( "Error when scan the multi part mime body item.\n" );
+            goto done;
         }
     } 
     
 done:
     if ( hMD )
-       MIMEFreeDirectory(hMD);
+        MIMEFreeDirectory(hMD);
 
     if ( error != NOERROR )
         return (1);
@@ -384,12 +384,12 @@ STATUS  LNPUBLIC  ScanMIMEMsgBody( NOTEHANDLE hNote, HMIMEDIRECTORY hMD, PMIMEEN
     if ( error != NOERROR )
     {
        PRINTERROR(error,"MIMEGetFirstSubpart");
-       return (1);        
+        return (1);        
     }
 
     /* return if no child found */
     if ( pMEChild == NULLPTR || pMEChild == NULL)
-       return (0);
+        return (0);
     
     iContentType = MIMEEntityContentType(pMEChild);
     iSubType = MIMEEntityContentSubtype(pMEChild);
@@ -408,23 +408,23 @@ STATUS  LNPUBLIC  ScanMIMEMsgBody( NOTEHANDLE hNote, HMIMEDIRECTORY hMD, PMIMEEN
 
         /* to see if the body includes attachment */
         error = MIMEGetEntityPartFlags( hNote,
-                                       pMEChild,
-                                       &dwPartFlags );
+                                        pMEChild,
+                                        &dwPartFlags );
         if ( error != NOERROR )
         {
-           PRINTERROR(error,"MIMEGetEntityPartFlags");
-           return(1);
+            PRINTERROR(error,"MIMEGetEntityPartFlags");
+            return(1);
         }
 
         if ( dwPartFlags & MIME_PART_BODY_IN_DBOBJECT )
         {
-          /* get the attachment file name */
-          /* NOTES: embedded object has the same flag, so only output the file name */
-          /*        when the function succeed      */
+            /* get the attachment file name */
+            /* NOTES: embedded object has the same flag, so only output the file name */
+            /*        when the function succeed      */
             error = MIMEEntityGetTypeParam(pMEChild,
-                                    MIME_SYMBOL_NAME,
-                                    &hTypeParam,
-                                    &dwTypeParamLen );
+                                           MIME_SYMBOL_NAME,
+                                           &hTypeParam,
+                                           &dwTypeParamLen );
             if (error == NOERROR)
             {
                 pczParaName = OSLock(char, hTypeParam);
@@ -443,7 +443,7 @@ STATUS  LNPUBLIC  ScanMIMEMsgBody( NOTEHANDLE hNote, HMIMEDIRECTORY hMD, PMIMEEN
 
         /* Now go to next part*/
         MIMEGetNextSibling( hMD, pMEChild, &pMEChild);
-       if (pMEChild == NULLPTR || pMEChild == NULL)
+        if (pMEChild == NULLPTR || pMEChild == NULL)
             return 0;
         iContentType = MIMEEntityContentType(pMEChild);
         iSubType = MIMEEntityContentSubtype(pMEChild);

@@ -190,8 +190,8 @@ int main(int argc, char *argv[])
 
     if (sError = NotesInitExtended (argc, argv))
     {
-        PRINTLOG("\n Unable to initialize Notes.\n");
-        return (1);
+       PRINTLOG("\n Unable to initialize Notes.\n");
+       return (1);
     }
 
    
@@ -200,8 +200,8 @@ int main(int argc, char *argv[])
  */
     if (sError = NSFDbOpen( szFileName, &hDB ))
     {
-        PRINTLOG("Error: unable to open database '%s'.\n", szFileName );
-        goto Exit1;
+       PRINTLOG("Error: unable to open database '%s'.\n", szFileName );
+       goto Exit1;
     }
 
 /*
@@ -239,11 +239,11 @@ int main(int argc, char *argv[])
  * Set the view name. 
  */
        sError = NSFItemSetText( hViewNote, VIEW_TITLE_ITEM,
-                              szNavViewName, MAXWORD );
+                                szNavViewName, MAXWORD );
        if (sError)
        {
            PRINTLOG("Error: unable to set text item '%s' in view note.\n",
-                   VIEW_TITLE_ITEM );
+                    VIEW_TITLE_ITEM );
            goto Exit3;
        }
 
@@ -254,16 +254,16 @@ int main(int argc, char *argv[])
        szDFlags[1] = DESIGN_FLAG_HIDE_FROM_V3;
        szDFlags[2] = '\0';
        sError = NSFItemAppend(  hViewNote,
-                               ITEM_SUMMARY,
-                               DESIGN_FLAGS,
-                               (WORD)strlen(DESIGN_FLAGS),
-                               TYPE_TEXT,
-                               szDFlags,
-                               (DWORD)strlen(szDFlags ));
+                                ITEM_SUMMARY,
+                                DESIGN_FLAGS,
+                                (WORD)strlen(DESIGN_FLAGS),
+                                TYPE_TEXT,
+                                szDFlags,
+                                (DWORD)strlen(szDFlags ));
        if (sError) 
        {
            PRINTLOG("Error: unable to append item '%s' to view note.\n",
-                   DESIGN_FLAGS );
+                    DESIGN_FLAGS );
            goto Exit3;
        }
     }
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
     DateFormat.Date = TDFMT_FULL;
     DateFormat.Structure = TSFMT_DATE;
     ConvertTIMEDATEToText(NULL, &DateFormat, &CurrDate, szNavLabel, 
-                     wNavLabelLen, &wNavLabelLen);
+                          wNavLabelLen, &wNavLabelLen);
     szNavLabel[wNavLabelLen] = '\0';                         
 
     YesterTimeDate = CurrTimeDate;
@@ -290,15 +290,15 @@ int main(int argc, char *argv[])
     bDocNoteFound = FALSE;
 
     if (sError = NSFSearch (
-                    hDB,            /* database handle */
-                    NULLHANDLE,        /* selection formula (all) */
-                    szMainView,        /* title of view in selection formula */
-                    0,                 /* search flags */
-                    NOTE_CLASS_DOCUMENT,   /* note class to find */
-                    &YesterTimeDate,   /* starting date (unused) */
-                    FindFirstNote,      /* action routine for notes found */
-                    &hDB,           /* argument to action routine */
-                    NULL))              /* returned ending date (unused) */
+                            hDB,            /* database handle */
+                            NULLHANDLE,        /* selection formula (all) */
+                            szMainView,        /* title of view in selection formula */
+                            0,                 /* search flags */
+                            NOTE_CLASS_DOCUMENT,   /* note class to find */
+                            &YesterTimeDate,   /* starting date (unused) */
+                            FindFirstNote,      /* action routine for notes found */
+                            &hDB,           /* argument to action routine */
+                            NULL))              /* returned ending date (unused) */
     {
        PRINTLOG("Error: database search failed.\n");
        goto Exit3;
@@ -328,8 +328,8 @@ int main(int argc, char *argv[])
     {
        if (sError = NSFNoteOpen(hDB, MainViewID, 0, &hMainView ))
        {
-          PRINTLOG("Error: unable to open MainView note in database.\n");
-          goto Exit3;
+           PRINTLOG("Error: unable to open MainView note in database.\n");
+           goto Exit3;
        }
     }
     else
@@ -352,8 +352,8 @@ int main(int argc, char *argv[])
     sError = NSFItemScan(hViewNote, FindLayoutCount, NULL );
     if ((sError) && (sError != ERR_ITEM_NOT_FOUND )) 
     {
-        PRINTLOG("Error: unable to scan '%s' view note.\n", VIEWMAP_LAYOUT_ITEM );
-        goto Exit3;
+       PRINTLOG("Error: unable to scan '%s' view note.\n", VIEWMAP_LAYOUT_ITEM );
+       goto Exit3;
     }
 
 /*
@@ -383,30 +383,30 @@ int main(int argc, char *argv[])
  /* 
   * If first navigator layout, then include header record in buffer length. 
   */
-   if (wLayoutCount == 0 )
-      wNavLayoutBufLen =  ODSLength( _VIEWMAP_HEADER_RECORD ) +
-                         ODSLength( _VIEWMAP_RECT_RECORD )   +
-                     wNavNameLen                         +
-                     wNavLabelLen                        +
-                     ODSLength( _VIEWMAP_ACTION_RECORD );   
-   else
-      wNavLayoutBufLen =  ODSLength( _VIEWMAP_RECT_RECORD )   +
-                     wNavNameLen                         +
-                     wNavLabelLen                        +
-                     ODSLength( _VIEWMAP_ACTION_RECORD );   
+    if (wLayoutCount == 0 )
+       wNavLayoutBufLen =  ODSLength( _VIEWMAP_HEADER_RECORD ) +
+                           ODSLength( _VIEWMAP_RECT_RECORD )   +
+                           wNavNameLen                         +
+                           wNavLabelLen                        +
+                           ODSLength( _VIEWMAP_ACTION_RECORD );   
+    else
+       wNavLayoutBufLen =  ODSLength( _VIEWMAP_RECT_RECORD )   +
+                           wNavNameLen                         +
+                           wNavLabelLen                        +
+                           ODSLength( _VIEWMAP_ACTION_RECORD );   
 
 /* 
  * Allocate and initialize the CD buffer for the entire $ViewMapLayout item.
  */
     if (sError = OSMemAlloc( 0, wNavLayoutBufLen, &hNavLayoutBuffer ))
     {
-        PRINTLOG("Error: unable to allocate %d bytes memory.\n", 
+       PRINTLOG("Error: unable to allocate %d bytes memory.\n", 
                 wNavLayoutBufLen);
-        goto Exit3;
-    }
+       goto Exit3;
+   }
 
-    pNavLayoutBuffer = (char*) OSLockObject( hNavLayoutBuffer );
-    memset( pNavLayoutBuffer, 0, (size_t) wNavLayoutBufLen );
+   pNavLayoutBuffer = (char*) OSLockObject( hNavLayoutBuffer );
+   memset( pNavLayoutBuffer, 0, (size_t) wNavLayoutBufLen );
 
 /* 
  * Initialize pNLBuf. pNavLayoutBuffer will remain pointing to the top 
@@ -424,15 +424,15 @@ int main(int argc, char *argv[])
        NavHeader.Version = VIEWMAP_VERSION;
        NavHeader.NameLen = 0;
 
-   /*
-    * Call ODSWriteMemory to convert the VIEWMAP_HEADER_RECORD structure from
-    * host-specific format to Domino and Notes canonical format, and copy it into the 
-    * buffer at location pNLBuf. ODSWriteMemory increments pNLBuf to point
-    * to the next byte in the buffer after the written data structure.
-    */
-      ODSWriteMemory( &pNLBuf, _VIEWMAP_HEADER_RECORD, &NavHeader, 1 );
+       /*
+        * Call ODSWriteMemory to convert the VIEWMAP_HEADER_RECORD structure from
+        * host-specific format to Domino and Notes canonical format, and copy it into the 
+        * buffer at location pNLBuf. ODSWriteMemory increments pNLBuf to point
+        * to the next byte in the buffer after the written data structure.
+        */
+       ODSWriteMemory( &pNLBuf, _VIEWMAP_HEADER_RECORD, &NavHeader, 1 );
 
-    }
+   }
           
 /*
  *  Create the VIEWMAP_RECT_RECORD structure.
@@ -592,55 +592,55 @@ STATUS LNPUBLIC FindFirstNote ( VOID *hDB,
 {
 
 /* Local data declarations. */
-   SEARCH_MATCH    SearchMatch;             /* local copy of search match */  
-   STATUS          error;
-   NOTEHANDLE      hNoteHandle;
-   TIMEDATE        CurDate;
-   TIMEDATE        ModDate;
+    SEARCH_MATCH    SearchMatch;             /* local copy of search match */  
+    STATUS          error;
+    NOTEHANDLE      hNoteHandle;
+    TIMEDATE        CurDate;
+    TIMEDATE        ModDate;
 
-   memcpy ((char*)(&SearchMatch), (char *)search_info, sizeof(SEARCH_MATCH));
+    memcpy ((char*)(&SearchMatch), (char *)search_info, sizeof(SEARCH_MATCH));
 
-   /*
-    * Skip this note if it does not really match the search criteria (it is
-    * now deleted or modified), or if a matching note has been found.
-    */
-   if (!(SearchMatch.SERetFlags & SE_FMATCH ))
-        return (NOERROR);
+    /*
+     * Skip this note if it does not really match the search criteria (it is
+     * now deleted or modified), or if a matching note has been found.
+     */
+    if (!(SearchMatch.SERetFlags & SE_FMATCH ))
+       return (NOERROR);
 
-   if (bDocNoteFound ) 
-        return (NOERROR);
+    if (bDocNoteFound ) 
+       return (NOERROR);
       
     /* Open the note. */
-   if (error = NSFNoteOpen(
-            *(DBHANDLE *)hDB,            /* database handle */
-            SearchMatch.ID.NoteID,       /* note ID */
-            0,                           /* open flags */
-            &hNoteHandle) )              /* note handle (return) */
+    if (error = NSFNoteOpen(
+                            *(DBHANDLE *)hDB,            /* database handle */
+                            SearchMatch.ID.NoteID,       /* note ID */
+                            0,                           /* open flags */
+                            &hNoteHandle) )              /* note handle (return) */
        
         return (ERR(error));
 
-   /* Get Modified time and compare it to today's date. */
-   OSCurrentTIMEDATE(&CurDate );
-   NSFNoteGetInfo(hNoteHandle, _NOTE_MODIFIED, &ModDate );
+    /* Get Modified time and compare it to today's date. */
+    OSCurrentTIMEDATE(&CurDate );
+    NSFNoteGetInfo(hNoteHandle, _NOTE_MODIFIED, &ModDate );
 
     /* Extract out date only. */
-   TimeExtractLocal(&CurDate, FALSE, &CurDate );
-   TimeExtractLocal(&ModDate, FALSE, &ModDate );
+    TimeExtractLocal(&CurDate, FALSE, &CurDate );
+    TimeExtractLocal(&ModDate, FALSE, &ModDate );
     
-   /* If date compares, then set global flag, note id, and note OID. */
-   if (TimeDateEqual(&CurDate, &ModDate ))
-   {
-      bDocNoteFound = TRUE;
-      DocNoteID = SearchMatch.ID.NoteID;
-      NSFNoteGetInfo(hNoteHandle, _NOTE_OID, &DocNoteOID );
-   }
+    /* If date compares, then set global flag, note id, and note OID. */
+    if (TimeDateEqual(&CurDate, &ModDate ))
+    {
+       bDocNoteFound = TRUE;
+       DocNoteID = SearchMatch.ID.NoteID;
+       NSFNoteGetInfo(hNoteHandle, _NOTE_OID, &DocNoteOID );
+    }
 
-   /* Close the note. */
-   if (error = NSFNoteClose(hNoteHandle ))
-        return (ERR(error));
+    /* Close the note. */
+    if (error = NSFNoteClose(hNoteHandle ))
+       return (ERR(error));
 
-   /* End of subroutine. */
-   return (NOERROR);
+    /* End of subroutine. */
+    return (NOERROR);
 }
 
 /************************************************************************
@@ -672,8 +672,8 @@ STATUS LNPUBLIC FindLayoutCount (   WORD  wUnused,
  * Determine if item is a Navigator Layout (VIEWMAP_LAYOUT_ITEM);
  * if it is, then increment global count. 
  */
-   if (!strcmp(szItemName, VIEWMAP_LAYOUT_ITEM ))
-      wLayoutCount++;
+    if (!strcmp(szItemName, VIEWMAP_LAYOUT_ITEM ))
+       wLayoutCount++;
 
    return (NOERROR);
 }

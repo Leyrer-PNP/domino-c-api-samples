@@ -90,22 +90,22 @@ STATUS DisplayUnread (
 
    /* Function to apply actions to unread note table */
 STATUS UpdateUnread (
-   DBHANDLE       hDb,
-   char           NOTESPTR pName,
-   WORD           nameLen,
-   ACTION_ENTRY   *pActions,
-   int            actionCount,
-   NOTEID         *pUndoID
+                     DBHANDLE       hDb,
+                     char           NOTESPTR pName,
+                     WORD           nameLen,
+                     ACTION_ENTRY   *pActions,
+                     int            actionCount,
+                     NOTEID         *pUndoID
 );
 
    /* Function that updates a note without changing its unread status */
 STATUS UndoUnreadStatus (
-   DBHANDLE       hDb, 
-   char           NOTESPTR pName, 
-   WORD           nameLen, 
-   ACTION_ENTRY   *pActions,
-   int            actionCount,
-   NOTEID         UndoID);
+                         DBHANDLE       hDb, 
+                         char           NOTESPTR pName, 
+                         WORD           nameLen, 
+                         ACTION_ENTRY   *pActions,
+                         int            actionCount,
+                         NOTEID         UndoID);
 
 
 /*
@@ -234,9 +234,9 @@ exit0:
  */
 
 STATUS DisplayUnread (
-        DBHANDLE      hDb,
-        char         *pName,
-        WORD          nameLen)
+                      DBHANDLE      hDb,
+                      char         *pName,
+                      WORD          nameLen)
 {
    STATUS         status=NOERROR;
    STATUS         stat2=NOERROR;
@@ -247,11 +247,11 @@ STATUS DisplayUnread (
 
    /* Get the unread list */
    status = NSFDbGetUnreadNoteTable (
-           hDb,
-           pName,
-           nameLen,
-           TRUE,         /* Create the list if it's not already there */
-           &hTable);
+                                      hDb,
+                                      pName,
+                                      nameLen,
+                                      TRUE,         /* Create the list if it's not already there */
+                                      &hTable);
 
    if (NOERROR != status)
       return (status);
@@ -290,12 +290,12 @@ STATUS DisplayUnread (
  */
 
 STATUS UpdateUnread (
-         DBHANDLE      hDb,
-         char          *pName,
-         WORD          nameLen,
-         ACTION_ENTRY  *pActions,
-         int           actionCount,
-         NOTEID        *pUndoID)
+                      DBHANDLE      hDb,
+                      char          *pName,
+                      WORD          nameLen,
+                      ACTION_ENTRY  *pActions,
+                      int           actionCount,
+                      NOTEID        *pUndoID)
 {
    STATUS         status=NOERROR;
    STATUS         stat2=NOERROR;
@@ -307,11 +307,11 @@ STATUS UpdateUnread (
 
    /* Get the unread list */
    status = NSFDbGetUnreadNoteTable (
-      hDb,
-      pName,
-      nameLen,
-      TRUE,         /* Create the list if it's not already there */
-      &hTable);
+                                     hDb,
+                                     pName,
+                                     nameLen,
+                                     TRUE,         /* Create the list if it's not already there */
+                                     &hTable);
    if (NOERROR != status)
       return (status);
 
@@ -391,10 +391,10 @@ STATUS UpdateUnread (
 
    if (NOERROR == status)
       status = NSFDbSetUnreadNoteTable (hDb, pName, nameLen,
-                                           FALSE,      /* Don't force the 
+                                        FALSE,      /* Don't force the 
                                                           write to disk */
-                                           hOriginalTable,
-                                           hTable);
+                                        hOriginalTable,
+                                        hTable);
 
    stat2 = IDDestroyTable (hOriginalTable);
    if (NOERROR == status)
@@ -414,12 +414,12 @@ STATUS UpdateUnread (
  */
 
 STATUS UndoUnreadStatus (
-         DBHANDLE       hDb,
-         char           *pName,
-         WORD           nameLen,
-         ACTION_ENTRY   *pActions,
-         int            actionCount,
-         NOTEID         UndoID)
+                         DBHANDLE       hDb,
+                         char           *pName,
+                         WORD           nameLen,
+                         ACTION_ENTRY   *pActions,
+                         int            actionCount,
+                         NOTEID         UndoID)
 {
    STATUS         status=NOERROR;
    STATUS         stat2=NOERROR;
@@ -526,8 +526,8 @@ STATUS UndoUnreadStatus (
                   (NOTESBOOL NOTESPTR) NULL);
       if (NOERROR == status)
       {
-                  PRINTLOG ("Note %lX was updated and then marked as Read.\n",
-                          UndoID);
+           PRINTLOG ("Note %lX was updated and then marked as Read.\n",
+                      UndoID);
       }
       else
       {

@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-       PRINTLOG("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
 
     /* Find the specified macro */
     if (error = NIFFindDesignNote( hDb, szMacroName, NOTE_CLASS_FILTER,
-                            &nidMacro ))
+                                   &nidMacro ))
     {
         PRINTLOG ("Error: unable to find macro '%s' in database '%s'.\n",
                      szMacroName, szDbName);
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
     if (error = NSFNoteOpen(hDb, nidMacro, 0, &hMacro))
     {
         PRINTLOG ("Error: unable to open macro note '%s'.\n", 
-                szMacroName);
+                   szMacroName);
         goto Exit2;
     }
 
@@ -321,8 +321,8 @@ int main(int argc, char *argv[])
 
     /* set up for a series of formula compilations */
     error = NSFComputeStart(0, 
-                (OSLockBlock(char,bidFormula1) + sizeof(WORD)),
-                &hCompute1);
+                            (OSLockBlock(char,bidFormula1) + sizeof(WORD)),
+                            &hCompute1);
     OSUnlockBlock(bidFormula1);
     if (error)
     {
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
 
     dwNotesDone--;
     PRINTLOG("Macro processing completed for %ld %s.\n",  
-            dwNotesDone, ((dwNotesDone==1) ? "document" : "documents") );
+              dwNotesDone, ((dwNotesDone==1) ? "document" : "documents") );
 
 Exit4:
     if (fCompute1Started)   NSFComputeStop(hCompute1);
@@ -398,7 +398,7 @@ Exit0:
     }
     if (error)
     {
-       PRINTERROR(error, "main");
+        PRINTERROR(error, "main");
     }
     NotesTerm();
     return(error);
@@ -468,8 +468,8 @@ STATUS  LNPUBLIC  GetMacroInfo( NOTEHANDLE    hMacro,
 
     /* "$Formula" */
     error = NSFItemInfo(hMacro, FILTER_FORMULA_ITEM, 
-                            sizeof(FILTER_FORMULA_ITEM)-1, NULL,
-                            &wDataType, &bidValue, &dwValueLength);
+                        sizeof(FILTER_FORMULA_ITEM)-1, NULL,
+                        &wDataType, &bidValue, &dwValueLength);
     if ( (ERR(error) == ERR_ITEM_NOT_FOUND) && (*pfSearchMacro == TRUE) )
     {
         error = NOERROR;    /* search macros don't require $Formula */
@@ -557,7 +557,7 @@ STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro,
           fSearchMacro )
     {
         PRINTLOG ("Error: '%s' not a Filter nor a Background macro.\n",
-                                                szMacroName);
+                   szMacroName);
         return ERR_RUNMACRO_UNSUPPORTED;
     }
 
@@ -573,7 +573,7 @@ STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro,
     if (wOperation == FILTER_OP_SELECT )
     {
         PRINTLOG ("Error: Operation not supported: \n\t'%s'\n",
-                "Select documents when run");
+                  "Select documents when run");
         return ERR_RUNMACRO_UNSUPPORTED;
     }
     switch (wScan)
@@ -584,15 +584,15 @@ STATUS LNPUBLIC MacroIsSupported( NOTEHANDLE hMacro,
             return NOERROR;
         case FILTER_SCAN_UNREAD:
             PRINTLOG ("Error: Setting not supported: \n\t'%s'\n",
-                    "Run on documents not yet marked read by you.");
+                      "Run on documents not yet marked read by you.");
             break;
         case FILTER_SCAN_SELECTED:
             PRINTLOG ("Error: Setting not supported: \n\t'%s'\n",
-                    "Run on selected documents in view.");
+                      "Run on selected documents in view.");
             break;
         case FILTER_SCAN_MAIL:    /* Domino and Notes does not use this setting */
             PRINTLOG ("Error: Setting not supported: \n\t'%s'\n",
-                    "Run on documents mailed/pasted into database");
+                      "Run on documents mailed/pasted into database");
             break;
         default:
             PRINTLOG ("Error: unrecognized run option $Scan = %#x\n", wScan);
@@ -638,10 +638,10 @@ STATUS  LNPUBLIC  RunMacroOnThisMachine ( NOTEHANDLE hMacro,
    
     /* lower case both names because there is no stricmp on the Macintosh */
     for (i = 0,strPtr = szUserName; i < strlen(szUserName); i++,strPtr++)
-       *strPtr = tolower(*strPtr);
+        *strPtr = tolower(*strPtr);
    
     for (i = 0,strPtr = szMachineName; i < strlen(szMachineName); i++,strPtr++)
-       *strPtr = tolower(*strPtr);
+        *strPtr = tolower(*strPtr);
 
     if (strcmp(szUserName, szMachineName) == 0)
     {
@@ -649,7 +649,7 @@ STATUS  LNPUBLIC  RunMacroOnThisMachine ( NOTEHANDLE hMacro,
     }
 
     PRINTLOG ("Error: background macro runs only on machine '%s'.\n",
-                            szMachineName);
+               szMachineName);
 
     return ERR_RUNMACRO_NOTTHISMACHINE;
 }
@@ -662,33 +662,33 @@ STATUS  LNPUBLIC  RunMacroOnThisMachine ( NOTEHANDLE hMacro,
 
 STATUS  LNPUBLIC  SetMacroMachineName( NOTEHANDLE hMacro, WORD wType )
 {
-  STATUS      error=NOERROR;
-  char        szUserName[MAXUSERNAME+1];
+    STATUS      error=NOERROR;
+    char        szUserName[MAXUSERNAME+1];
       
-  if (wType != FILTER_TYPE_BACKGROUND)
-  {
-    return NOERROR;
-  }
-  if (error = SECKFMGetUserName(szUserName))
-  {
-    PRINTLOG ("Error: unable to get user name from ID file.\n");
+    if (wType != FILTER_TYPE_BACKGROUND)
+    {
+        return NOERROR;
+    }
+    if (error = SECKFMGetUserName(szUserName))
+    {
+        PRINTLOG ("Error: unable to get user name from ID file.\n");
     return(error);
-  }
-  if (error = NSFItemSetText(hMacro,
-              FILTER_MACHINE_ITEM,    /* "$MachineName" */
-              szUserName, MAXWORD))
-  {
-    PRINTLOG ("Error: unable to set Machine Name field in macro note.\n");
-    return(error);
-  }
-  if (error = NSFNoteUpdate(hMacro, 0))
-  {
-    PRINTLOG ("Error: unable to update macro note.\n");
-    return(error);
-  }
-  PRINTLOG("Macro updated to run on %s\n", szUserName);
+    }
+    if (error = NSFItemSetText(hMacro,
+                FILTER_MACHINE_ITEM,    /* "$MachineName" */
+                szUserName, MAXWORD))
+    {
+        PRINTLOG ("Error: unable to set Machine Name field in macro note.\n");
+        return(error);
+    }
+    if (error = NSFNoteUpdate(hMacro, 0))
+    {
+        PRINTLOG ("Error: unable to update macro note.\n");
+        return(error);
+    }
+    PRINTLOG("Macro updated to run on %s\n", szUserName);
 
-  return(error);
+    return(error);
 }
 
 /************************************************************************
@@ -760,11 +760,11 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInDb( DBHANDLE hDb, DHANDLE hNoteIDTable)
     STATUS      error=NOERROR;
 
     if (error = NSFSearch ( hDb, NULLHANDLE, NULL, 0, 
-                NOTE_CLASS_DOCUMENT,/* find all document notes */
-                NULL,           /* starting date (unused) */
-                AddIDUnique,    /* call for each note found */
-                &hNoteIDTable,  /* argument to AddIDUnique */
-                NULL))          /* returned ending date (unused) */
+                            NOTE_CLASS_DOCUMENT,/* find all document notes */
+                            NULL,           /* starting date (unused) */
+                            AddIDUnique,    /* call for each note found */
+                            &hNoteIDTable,  /* argument to AddIDUnique */
+                            NULL))          /* returned ending date (unused) */
     {
         PRINTLOG ("Error: unable to search for all docs in database.\n");
     }
@@ -813,11 +813,11 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb,
     wClass = NOTE_CLASS_VIEW | NOTE_CLASS_DEFAULT;
 
     if (error = NSFSearch ( hDb, NULLHANDLE, NULL, 0, 
-                wClass,         /* find the default view note */
-                NULL,           /* starting date (unused) */
-                GetNoteID,      /* call for each note found */
-                (void*)(&ViewID), /* argument to GetnoteID */
-                NULL))          /* returned ending date (unused) */
+                            wClass,         /* find the default view note */
+                            NULL,           /* starting date (unused) */
+                            GetNoteID,      /* call for each note found */
+                            (void*)(&ViewID), /* argument to GetnoteID */
+                            NULL))          /* returned ending date (unused) */
 
     {
         PRINTLOG ("Error: unable to search for default view in database.\n");
@@ -826,7 +826,7 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb,
 
     /* Open the view. */                                
     if (error = NIFOpenCollection ( hDb, hDb, ViewID, 0, NULLHANDLE, 
-                &hCollection, NULLHANDLE, NULL, NULLHANDLE, NULLHANDLE))
+                                    &hCollection, NULLHANDLE, NULL, NULLHANDLE, NULLHANDLE))
     {
         PRINTLOG ("Error: unable to open default view collection.\n");
         goto Exit0;
@@ -839,9 +839,9 @@ STATUS  LNPUBLIC  GetIDsOfAllDocsInView ( DBHANDLE    hDb,
     do
     {
         if (error = NIFReadEntries( hCollection, &CollPosition, 
-                    NAVIGATE_NEXT, 1L, NAVIGATE_NEXT, MAXDWORD,
-                    READ_MASK_NOTEID, &hBuffer, NULL, NULL,
-                    &dwEntriesFound, &wSignalFlag))
+                                    NAVIGATE_NEXT, 1L, NAVIGATE_NEXT, MAXDWORD,
+                                    READ_MASK_NOTEID, &hBuffer, NULL, NULL,
+                                    &dwEntriesFound, &wSignalFlag))
         {
             PRINTLOG ("Error detected reading entries in default view.\n");
             goto Exit1;
@@ -925,10 +925,10 @@ STATUS LNPUBLIC GetIDsOfAllNewDocs(   DBHANDLE    hDb,
 
     /* Get the "$LeftToDo" item */
     error = ReadLeftToDoObject( hDb, hMacro, 
-                        &objLeftToDo,   /* gets the object Type and ID */
-                        &hLeftToDo,     /* gets handle to the ID table */
-                        &tdLeftToDoTime,/* gets Time member of ID table */
-                        &wLeftToDoFlags);/* "" Flags member of ID table */
+                                &objLeftToDo,   /* gets the object Type and ID */
+                                &hLeftToDo,     /* gets handle to the ID table */
+                                &tdLeftToDoTime,/* gets Time member of ID table */
+                                &wLeftToDoFlags);/* "" Flags member of ID table */
 
     if ( ERR(error) == ERR_ITEM_NOT_FOUND )
     {
@@ -1107,10 +1107,10 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
     }
 
     error = ReadLeftToDoObject( hDb, hMacro, 
-                        &objLeftToDo,   /* gets the object Type and ID */
-                        &hLeftToDo,     /* gets handle to the ID table */
-                        &tdLeftToDoTime,/* gets Time member of ID table */
-                        &wLeftToDoFlags);/* "" Flags member of ID table */
+                                &objLeftToDo,   /* gets the object Type and ID */
+                                &hLeftToDo,     /* gets handle to the ID table */
+                                &tdLeftToDoTime,/* gets Time member of ID table */
+                                &wLeftToDoFlags);/* "" Flags member of ID table */
 
     if (error)
     {
@@ -1121,7 +1121,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
         else
         {
             PRINTLOG ("Error: unable to get '%s' object to update in macro.\n",
-                    FILTER_LEFTTODO_ITEM);
+                      FILTER_LEFTTODO_ITEM);
         }
         goto Exit2;
     }
@@ -1129,7 +1129,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
     /* Update the ID Table to reflect the current state of the database. */
    
     error = NSFDbGetModifiedNoteTable( hDb, NOTE_CLASS_DOCUMENT,
-                            tdLeftToDoTime, &tdLeftToDoTime, &hIDsModified);
+                                       tdLeftToDoTime, &tdLeftToDoTime, &hIDsModified);
 
     ptable = OSLock(void, hLeftToDo) ;
     IDTableSetTime(ptable, tdLeftToDoTime);
@@ -1187,7 +1187,7 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
     if (error = OSMemRealloc(hLeftToDo, dwNeededSize))
     {
         PRINTLOG ("Error: unable to re-allocate ID table to %ld bytes.\n",
-                                            dwNeededSize);
+                   dwNeededSize);
         goto Exit2;
     }
 
@@ -1202,12 +1202,12 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
     /* Get the size of the existing $LeftToDo object. */
 
     if (error = NSFDbGetObjectSize(hDb, 
-                        (WORD) objLeftToDo.RRV, 
-                        (WORD) objLeftToDo.ObjectType,
-                        &dwExistingSize, &wClass, &wPrivs))
+                                   (WORD) objLeftToDo.RRV, 
+                                   (WORD) objLeftToDo.ObjectType,
+                                   &dwExistingSize, &wClass, &wPrivs))
     {
         PRINTLOG ("Error: unable to get size of object '%s' in macro.\n",
-                        FILTER_LEFTTODO_ITEM);
+                  FILTER_LEFTTODO_ITEM);
         goto Exit2;
     }
 
@@ -1217,21 +1217,21 @@ STATUS LNPUBLIC UpdateLeftToDo(char * szDbName, NOTEID nidMacro,
     {
         /* realloc 1K more than needed so won't have to realloc as often */
         if (error = NSFDbReallocObject(hDb,
-                                    (WORD) objLeftToDo.RRV, dwNeededSize+1024))
+                                       (WORD) objLeftToDo.RRV, dwNeededSize+1024))
         {
             PRINTLOG ("Error: unable to re-allocate '%s' to %ld bytes.\n",
-                        FILTER_LEFTTODO_ITEM, dwNeededSize);
+                      FILTER_LEFTTODO_ITEM, dwNeededSize);
             goto Exit2;
         }
     }
 
     /*  Write the object */
     if (error = NSFDbWriteObject(hDb, (WORD) objLeftToDo.RRV, 
-                        hLeftToDo, 0,
-                        dwNeededSize))
+                                 hLeftToDo, 0,
+                                 dwNeededSize))
     {
         PRINTLOG ("Error: unable to write '%s' object to macro note.\n",
-                                FILTER_LEFTTODO_ITEM);
+                  FILTER_LEFTTODO_ITEM);
     }
 
 Exit2:
@@ -1460,9 +1460,9 @@ STATUS  LNPUBLIC CreateIDTables(DHANDLE *phIDTable1, DHANDLE *phIDTable2,
 {
     STATUS      error=NOERROR;
 
-    if (    (error = IDCreateTable(sizeof(NOTEID), phIDTable1)) ||
-            (error = IDCreateTable(sizeof(NOTEID), phIDTable2)) ||
-            (error = IDCreateTable(sizeof(NOTEID), phIDTable3)) )
+    if ( (error = IDCreateTable(sizeof(NOTEID), phIDTable1)) ||
+         (error = IDCreateTable(sizeof(NOTEID), phIDTable2)) ||
+         (error = IDCreateTable(sizeof(NOTEID), phIDTable3)) )
     {
         PRINTLOG ("Error: unable to create ID table.\n");
     }
@@ -1476,11 +1476,11 @@ STATUS  LNPUBLIC CreateIDTables(DHANDLE *phIDTable1, DHANDLE *phIDTable2,
 *************************************************************************/
 
 STATUS  LNPUBLIC  ProcessOneNote( 
-        DBHANDLE hDb, NOTEHANDLE hMacro, NOTEID nidDoc, 
-        WORD wType, WORD wOperation, WORD wScan,
-        BOOL fCompute1Started, HCOMPUTE hCompute1,
-        BOOL fCompute2Started, HCOMPUTE hCompute2,
-        DHANDLE hDeletedIDTab, DHANDLE hProcessedIDTab)
+                                 DBHANDLE hDb, NOTEHANDLE hMacro, NOTEID nidDoc, 
+                                 WORD wType, WORD wOperation, WORD wScan,
+                                 BOOL fCompute1Started, HCOMPUTE hCompute1,
+                                 BOOL fCompute2Started, HCOMPUTE hCompute2,
+                                 DHANDLE hDeletedIDTab, DHANDLE hProcessedIDTab)
 {
     STATUS      error=NOERROR;
     NOTEHANDLE  hDoc;
@@ -1498,9 +1498,9 @@ STATUS  LNPUBLIC  ProcessOneNote(
 
     /* Open the note */
     if (error = NSFNoteOpen( hDb, nidDoc, 
-                (OPEN_EXPAND |          /* makes all text into text lists */
-                OPEN_NOVERIFYDEFAULT), 
-                &hDoc))                 /* hDoc gets handle to open note */
+                             (OPEN_EXPAND |          /* makes all text into text lists */
+                             OPEN_NOVERIFYDEFAULT), 
+                             &hDoc))                 /* hDoc gets handle to open note */
     {
         PRINTLOG ("Error: unable to open document to process.\n");
         goto Exit0;
@@ -1510,20 +1510,20 @@ STATUS  LNPUBLIC  ProcessOneNote(
     if (fCompute1Started)
     {
         if (error = NSFComputeEvaluate( 
-                    hCompute1,          /* returned from NSFComputeStart */
-                    hDoc,               /* This note provides any additional
-                                           variable used by the formula. It
-                                           also gets FIELD variables assigned
-                                           during the evaluation. */
-                    NULLHANDLE,         /* don't need the ComputeResult */
-                    NULL,               /* don't need Compute Result Len */
-                   &fDocMatchesFormula1,/* gets TRUE if note matches the
-                                           SELECT portion of the formula */
-                   &fDocShouldBeDeleted1,/* gets TRUE if formula 
-                                           indicates note should be deleted*/
-                   &fDocModified1 ))    /* gets TRUE if any of the fields
-                                           of hDoc were modified as result
-                                           of the formulat evaluation. */
+                                        hCompute1,           /* returned from NSFComputeStart */
+                                        hDoc,                /* This note provides any additional
+                                                               variable used by the formula. It
+                                                               also gets FIELD variables assigned
+                                                               during the evaluation. */
+                                        NULLHANDLE,          /* don't need the ComputeResult */
+                                        NULL,                /* don't need Compute Result Len */
+                                        &fDocMatchesFormula1,/* gets TRUE if note matches the
+                                                                SELECT portion of the formula */
+                                        &fDocShouldBeDeleted1,/* gets TRUE if formula 
+                                                                 indicates note should be deleted*/
+                                        &fDocModified1 ))    /* gets TRUE if any of the fields
+                                                                of hDoc were modified as result
+                                                                of the formulat evaluation. */
         {
             PRINTLOG ("Error: unable to compute forumula on document.\n");
             goto Exit1;
@@ -1538,9 +1538,9 @@ STATUS  LNPUBLIC  ProcessOneNote(
     if (fCompute2Started && fDocMatchesFormula1 && !fDocShouldBeDeleted1)
     {
         if (error = NSFComputeEvaluate( hCompute2, hDoc, NULLHANDLE, NULL,
-                   &fDocMatchesFormula2,
-                   &fDocShouldBeDeleted2,
-                   &fDocModified2 ))
+                                        &fDocMatchesFormula2,
+                                        &fDocShouldBeDeleted2,
+                                        &fDocModified2 ))
         {
             PRINTLOG ("Error: unable to compute formula 2 on document.\n");
             goto Exit1;
@@ -1604,7 +1604,7 @@ STATUS  LNPUBLIC  ProcessOneNote(
         if (fUpdate)
         {
             error = NSFNoteUpdate(hDoc,
-                    UPDATE_FORCE | UPDATE_NOCOMMIT | UPDATE_DUPLICATES );
+                                  UPDATE_FORCE | UPDATE_NOCOMMIT | UPDATE_DUPLICATES );
             if (error == ERR_CONFLICT)
             {
                 PRINTLOG ("Nonfatal error updating modified document %#lx.\n",
@@ -1616,7 +1616,7 @@ STATUS  LNPUBLIC  ProcessOneNote(
             if (error)
             {
                 PRINTLOG ("Error: unable to update modified document %#lx\n",
-                            nidDoc);
+                          nidDoc);
                 goto Exit1;
             }
         }

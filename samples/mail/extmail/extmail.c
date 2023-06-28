@@ -87,7 +87,7 @@ CRITICAL_SECTION    gCriticalSection;
 STATUS LNPUBLIC DLL_EXPORT MainEntryPoint( void );
 
 BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD fdwReason,
-		     LPVOID lpReserved );
+                     LPVOID lpReserved );
 
 STATUS LNPUBLIC DLL_EXPORT EMHandlerProc( EMRECORD FAR * pExRecord);
 STATUS NSFSendMailReport(char *UserName);
@@ -105,11 +105,11 @@ void CleanUp( void );
 void LogLine(char *Line)
 {
     if (gFStream) {
-	      __WriteLine(Line, gFStream);
-	      if (__FileError(gFStream)) {
-		 __CloseFile(gFStream);
-		 gFStream = (__FILE *)0;
-	      }
+        __WriteLine(Line, gFStream);
+        if (__FileError(gFStream)) {
+            __CloseFile(gFStream);
+            gFStream = (__FILE *)0;
+        }
     }
 }
 
@@ -129,15 +129,15 @@ STATUS RegisterEntry()
 
     error = EMRegister(EM_MAILSENDNOTE,
                        EM_REG_BEFORE | EM_REG_AFTER,
-	                   (EMHANDLER)gHandlerProc,
-	                   gRecursionID,
-	                   &hHandler);
+                       (EMHANDLER)gHandlerProc,
+                       gRecursionID,
+                       &hHandler);
 
     if (error) {
-		LogLine("EMRegister Failed\n");
-		if (gFStream) __CloseFile(gFStream);
-		gFStream = (__FILE *)0;
-		return(error);
+        LogLine("EMRegister Failed\n");
+        if (gFStream) __CloseFile(gFStream);
+            gFStream = (__FILE *)0;
+            return(error);
     }
 
     LogLine("-------------------------------------------------\n");
@@ -164,10 +164,10 @@ STATUS DeregisterEntry()
     error = EMDeregister(hHandler);
 
     if (error) {
-		LogLine("EMDregister Failed\n");
-		if (gFStream) __CloseFile(gFStream);
-		gFStream = (__FILE *)0;
-		return(error);
+        LogLine("EMDregister Failed\n");
+        if (gFStream) __CloseFile(gFStream);
+            gFStream = (__FILE *)0;
+        return(error);
     }
 
     LogLine("-------------------------------------------------\n");
@@ -188,8 +188,8 @@ STATUS LNPUBLIC DLL_EXPORT MainEntryPoint( void )
 *    keeps the main code from being executed more than once.
 */
     if ( gHooksRegistered )
-	 return(NOERROR);
-	gHooksRegistered = TRUE;
+        return(NOERROR);
+    gHooksRegistered = TRUE;
 
 	
 /* Open log __FILE for DLL. */
@@ -215,13 +215,13 @@ STATUS LNPUBLIC DLL_EXPORT MainEntryPoint( void )
 
     else
     {
-	  LogLine("EMCreateRecursionID Returned Success\n");
-	  error = RegisterEntry();
-	}
+        LogLine("EMCreateRecursionID Returned Success\n");
+        error = RegisterEntry();
+    }
 
     if ( gFStream ) {
-		     __CloseFile(gFStream);
-		     gFStream = (__FILE *)0;
+        __CloseFile(gFStream);
+        gFStream = (__FILE *)0;
     }
     return( error );
 }
@@ -231,236 +231,236 @@ STATUS LNPUBLIC DLL_EXPORT MainEntryPoint( void )
 STATUS LNPUBLIC EMHandlerProc( EMRECORD FAR * pExRecord )
 {
 
-  static BOOL BeforeMailSent = FALSE;
-  static BOOL AfterMailSent = FALSE;
-  STATUS sError = NOERROR;
+    static BOOL BeforeMailSent = FALSE;
+    static BOOL AfterMailSent = FALSE;
+    STATUS sError = NOERROR;
 
-  /* open log file... */
-  gFStream = __OpenFile( FileName, APPEND_PERMISSION );
-	
-  switch (pExRecord->EId)
-  {
-    /* Extension Manager hook EM_MAILSENDNOTE */
-	case EM_MAILSENDNOTE:
-	{
-	    DHANDLE hNote;
-		void   *pViewDesc;
-		WORD   Flags;
-		BOOL   *pModified;
-	    VARARG_PTR ap;
+    /* open log file... */
+    gFStream = __OpenFile( FileName, APPEND_PERMISSION );
+     
+    switch (pExRecord->EId)
+    {
+        /* Extension Manager hook EM_MAILSENDNOTE */
+        case EM_MAILSENDNOTE:
+        {
+            DHANDLE hNote;
+            void   *pViewDesc;
+            WORD   Flags;
+            BOOL   *pModified;
+            VARARG_PTR ap;
 
-		char AppendLine[1024];
-        char *Value, *SubjectText;
-		char TargetText[]="Extension Manager";
+            char AppendLine[1024];
+            char *Value, *SubjectText;
+            char TargetText[]="Extension Manager";
 
-		DHANDLE far hBody;
-		DWORD far dwBodyLen;
-		WORD Len;
+            DHANDLE far hBody;
+            DWORD far dwBodyLen;
+            WORD Len;
 
-        BLOCKID bhValue;
-        WORD ValueType,  SubjectTextLen;
-        DWORD ValueLength;
+            BLOCKID bhValue;
+            WORD ValueType,  SubjectTextLen;
+            DWORD ValueLength;
 
-	    /* get the arguments */
-	    ap = pExRecord->Ap;
-	    hNote = VARARG_GET (ap, DHANDLE);
-	    pViewDesc = VARARG_GET (ap, VOID *);
-	    Flags = VARARG_GET (ap, WORD);
-	    pModified = VARARG_GET (ap, BOOL *);
+            /* get the arguments */
+            ap = pExRecord->Ap;
+            hNote = VARARG_GET (ap, DHANDLE);
+            pViewDesc = VARARG_GET (ap, VOID *);
+            Flags = VARARG_GET (ap, WORD);
+            pModified = VARARG_GET (ap, BOOL *);
 
-        /* check error code */
-	    if (pExRecord->Status != NOERROR)
-		  break;
+            /* check error code */
+            if (pExRecord->Status != NOERROR)
+                break;
 
-        LogLine("-------------------------------------------------\n");
-	    sprintf(gTextBuffer, "Calling EM_MAILSENDNOTE\n");
-	    LogLine( gTextBuffer );
-	
-	    if (pExRecord->NotificationType == EM_BEFORE)
-	      sprintf(gTextBuffer, "EM_BEFORE...\n");
-	    else if (pExRecord->NotificationType == EM_AFTER)
-	      sprintf(gTextBuffer, "EM_AFTER...\n");
-	
-	    LogLine( gTextBuffer );
-	    sprintf(gTextBuffer, "hNote:%X\n",hNote);
-	    LogLine( gTextBuffer );
-	    sprintf(gTextBuffer, "Flags:%X\n",Flags);
-	    LogLine( gTextBuffer );
-	    sprintf(gTextBuffer, "*pModified:%d\n",*pModified);
-	    LogLine( gTextBuffer );
-	    LogLine("-------------------------------------------------\n");
-        sprintf(gTextBuffer, "Calling SECKFMGetUserName...\n");
-	    LogLine( gTextBuffer );
-
-        /* get the logged in user's name */
-	    sError = SECKFMGetUserName(UserName);
-
-		if (sError)
-		{
-          sprintf(gTextBuffer, "SECKFMGetUserName->sError:%X\n", sError);
-	      LogLine( gTextBuffer );
-	      goto Exit0;
-	    }
-
-        sprintf(gTextBuffer, "SECKFMGetUserName->UserName:%s\n", UserName);
-	    LogLine( gTextBuffer );
-
-        sprintf(gTextBuffer, "Calling MailGetMessageItemHandle...\n");
-	    LogLine( gTextBuffer );
-	
-	    /* get the subject text of this message */
-        sError = MailGetMessageItemHandle(hNote, MAIL_SUBJECT_ITEM_NUM, &bhValue, &ValueType,
-                                          &ValueLength);
-	
-	    if (sError)
-		{
-	      sprintf(gTextBuffer, "MailGetMessageItemHandle->sError %X\n", sError);
-	      LogLine( gTextBuffer );
-	      goto Exit0;
-		}
-	
-	    Value = OSLockBlock(char, bhValue);
-	    SubjectText = Value + sizeof(WORD);
-		SubjectTextLen = (WORD) ValueLength - sizeof(WORD);
-	    SubjectText[SubjectTextLen]='\0';
-		sprintf(gTextBuffer, "MailGetMessageItemHandle->SubjectText:%s\n", SubjectText);
-	    LogLine( gTextBuffer );
-	
-	    OSUnlockBlock(bhValue);
-
-        /* if before function check the Subject text of the mail message.  If we have
-         * a match for "Extension Manager", append line to mail message.
-         */
-	    if (pExRecord->NotificationType == EM_BEFORE)
-	    {
-
-          /* compare mail message subject with our target string */
-          if (strcmp(SubjectText, TargetText)!=0)
-		    goto Exit0;
-
-		  sprintf(gTextBuffer, "Calling MailCreateBodyItem...\n");
-	      LogLine( gTextBuffer );
-
-          sError = MailCreateBodyItem(&hBody, &dwBodyLen);
-	
-	      if (sError)
-		  {
-	        sprintf(gTextBuffer, "MailCreateBodyItem->sError %X\n", sError);
-	        LogLine( gTextBuffer );
-	        goto Exit0;
-		  }
-
-		  sprintf(gTextBuffer, "Calling MailAppendBodyItemLine...\n");
-	      LogLine( gTextBuffer );
-	
-		  sError = MailAppendBodyItemLine(hBody, &dwBodyLen, NULL, 0);
-	
-	      if (sError)
-		  {
-	        sprintf(gTextBuffer, "MailAppendBodyItemLine->sError %X\n", sError);
-	        LogLine( gTextBuffer );
-	        goto Exit0;
-		  }
-
-		  sError = MailAppendBodyItemLine(hBody, &dwBodyLen, NULL, 0);
-	
-	      if (sError)
-		  {
-	        sprintf(gTextBuffer, "MailAppendBodyItemLine->sError %X\n", sError);
-	        LogLine( gTextBuffer );
-	        goto Exit0;
-		  }
-		
-		  strcpy(AppendLine, "*** This mail message has been intercepted by the EXTENSION MANAGER! ***");
-	      Len = strlen(AppendLine);
-
-		  sError = MailAppendBodyItemLine(hBody, &dwBodyLen, AppendLine, Len);
-	
-	      if (sError)
-		  {
-	        sprintf(gTextBuffer, "MailAppendBodyItemLine->sError %X\n", sError);
-	        LogLine( gTextBuffer );
-	        goto Exit0;
-		  }
-	
-	      strcpy(AppendLine, "You will be receiving a message report shortly.");
-	      Len = strlen(AppendLine);
-
-		  sError = MailAppendBodyItemLine(hBody, &dwBodyLen, AppendLine, Len);
-	
-	      if (sError)
-		  {
-	        sprintf(gTextBuffer, "MailAppendBodyItemLine->sError %X\n", sError);
-	        LogLine( gTextBuffer );
-	        goto Exit0;
-		  }
-			
-		  sprintf(gTextBuffer, "Calling MailAddBodyItemExt...\n");
-	      LogLine( gTextBuffer );
-	
-          sError = MailAddBodyItemExt(hNote, hBody, dwBodyLen, NULL);
-	
-	      if (sError)
-		  {
-	        sprintf(gTextBuffer, "MailAddBodyItem->sError %X\n", sError);
-	        LogLine( gTextBuffer );
-	        goto Exit0;
-		  }
-
-          /* set flag that an EM_BEFORE was processed */
-          BeforeMailSent = TRUE;
-
-	    }
-
-        /* if after function and we have processed before function,
-         * call NSFSendMailReport routine.
-         */
-        if (pExRecord->NotificationType == EM_AFTER)
-	    {										
-	      /* if we just processed an EM_BEFORE... */
-	      if (BeforeMailSent == TRUE)
-		  {
             LogLine("-------------------------------------------------\n");
-		    sprintf(gTextBuffer, "Calling NSFSendMailReport...\n");
-	        LogLine( gTextBuffer );
-            __CloseFile(gFStream);
+            sprintf(gTextBuffer, "Calling EM_MAILSENDNOTE\n");
+            LogLine( gTextBuffer );
 
-            /* send a mail report back to the user */
-	        sError = NSFSendMailReport(UserName);
+            if (pExRecord->NotificationType == EM_BEFORE)
+                sprintf(gTextBuffer, "EM_BEFORE...\n");
+            else if (pExRecord->NotificationType == EM_AFTER)
+                sprintf(gTextBuffer, "EM_AFTER...\n");
+    
+            LogLine( gTextBuffer );
+            sprintf(gTextBuffer, "hNote:%X\n",hNote);
+            LogLine( gTextBuffer );
+            sprintf(gTextBuffer, "Flags:%X\n",Flags);
+            LogLine( gTextBuffer );
+            sprintf(gTextBuffer, "*pModified:%d\n",*pModified);
+            LogLine( gTextBuffer );
+            LogLine("-------------------------------------------------\n");
+            sprintf(gTextBuffer, "Calling SECKFMGetUserName...\n");
+            LogLine( gTextBuffer );
 
-		    gFStream = __OpenFile( FileName, APPEND_PERMISSION );
-	        LogLine("-------------------------------------------------\n");
-	        sprintf(gTextBuffer, "After NSFSendMailReport...\n");
-	        LogLine( gTextBuffer );
+            /* get the logged in user's name */
+            sError = SECKFMGetUserName(UserName);
+
+            if (sError)
+            {
+                sprintf(gTextBuffer, "SECKFMGetUserName->sError:%X\n", sError);
+                LogLine( gTextBuffer );
+                goto Exit0;
+            }
+
+            sprintf(gTextBuffer, "SECKFMGetUserName->UserName:%s\n", UserName);
+            LogLine( gTextBuffer );
+
+            sprintf(gTextBuffer, "Calling MailGetMessageItemHandle...\n");
+            LogLine( gTextBuffer );
+    
+            /* get the subject text of this message */
+            sError = MailGetMessageItemHandle(hNote, MAIL_SUBJECT_ITEM_NUM, &bhValue, &ValueType,
+                                              &ValueLength);
+    
+            if (sError)
+            {
+                sprintf(gTextBuffer, "MailGetMessageItemHandle->sError %X\n", sError);
+                LogLine( gTextBuffer );
+                goto Exit0;
+            }
+    
+            Value = OSLockBlock(char, bhValue);
+            SubjectText = Value + sizeof(WORD);
+            SubjectTextLen = (WORD) ValueLength - sizeof(WORD);
+            SubjectText[SubjectTextLen]='\0';
+            sprintf(gTextBuffer, "MailGetMessageItemHandle->SubjectText:%s\n", SubjectText);
+            LogLine( gTextBuffer );
+    
+        OSUnlockBlock(bhValue);
+
+            /* if before function check the Subject text of the mail message.  If we have
+             * a match for "Extension Manager", append line to mail message.
+             */
+            if (pExRecord->NotificationType == EM_BEFORE)
+            {
+
+                /* compare mail message subject with our target string */
+                if (strcmp(SubjectText, TargetText)!=0)
+                    goto Exit0;
+
+                sprintf(gTextBuffer, "Calling MailCreateBodyItem...\n");
+                LogLine( gTextBuffer );
+
+                sError = MailCreateBodyItem(&hBody, &dwBodyLen);
+    
+                if (sError)
+                {
+                    sprintf(gTextBuffer, "MailCreateBodyItem->sError %X\n", sError);
+                    LogLine( gTextBuffer );
+                    goto Exit0;
+                }
+
+                sprintf(gTextBuffer, "Calling MailAppendBodyItemLine...\n");
+                LogLine( gTextBuffer );
 	
-            BeforeMailSent= FALSE;
-		  }
-	    }
+                sError = MailAppendBodyItemLine(hBody, &dwBodyLen, NULL, 0);
+	
+                if (sError)
+                {
+                    sprintf(gTextBuffer, "MailAppendBodyItemLine->sError %X\n", sError);
+                    LogLine( gTextBuffer );
+                    goto Exit0;
+                }
 
-	    break;
-	} /* end of case */
+                sError = MailAppendBodyItemLine(hBody, &dwBodyLen, NULL, 0);
+	
+                if (sError)
+                {
+                    sprintf(gTextBuffer, "MailAppendBodyItemLine->sError %X\n", sError);
+                    LogLine( gTextBuffer );
+                    goto Exit0;
+                }
 
-  } /* end of switch */
+                strcpy(AppendLine, "*** This mail message has been intercepted by the EXTENSION MANAGER! ***");
+                Len = strlen(AppendLine);
+
+                sError = MailAppendBodyItemLine(hBody, &dwBodyLen, AppendLine, Len);
+	
+                if (sError)
+                {
+                    sprintf(gTextBuffer, "MailAppendBodyItemLine->sError %X\n", sError);
+                    LogLine( gTextBuffer );
+                    goto Exit0;
+                }
+	
+                strcpy(AppendLine, "You will be receiving a message report shortly.");
+                Len = strlen(AppendLine);
+
+                sError = MailAppendBodyItemLine(hBody, &dwBodyLen, AppendLine, Len);
+	
+                if (sError)
+                {
+                    sprintf(gTextBuffer, "MailAppendBodyItemLine->sError %X\n", sError);
+                    LogLine( gTextBuffer );
+                    goto Exit0;
+                }
+   
+                sprintf(gTextBuffer, "Calling MailAddBodyItemExt...\n");
+                LogLine( gTextBuffer );
+	
+                sError = MailAddBodyItemExt(hNote, hBody, dwBodyLen, NULL);
+	
+                if (sError)
+                {
+                    sprintf(gTextBuffer, "MailAddBodyItem->sError %X\n", sError);
+                    LogLine( gTextBuffer );
+                    goto Exit0;
+                }
+
+                /* s et flag that an EM_BEFORE was processed */
+                BeforeMailSent = TRUE;
+
+            }
+
+            /* if after function and we have processed before function,
+             * call NSFSendMailReport routine.
+            */ 
+            if (pExRecord->NotificationType == EM_AFTER)
+            {
+                /* if we just processed an EM_BEFORE... */
+                if (BeforeMailSent == TRUE)
+                {
+                    LogLine("-------------------------------------------------\n");
+                    sprintf(gTextBuffer, "Calling NSFSendMailReport...\n");
+                    LogLine( gTextBuffer );
+                    __CloseFile(gFStream);
+
+                    /* send a mail report back to the user */
+                    sError = NSFSendMailReport(UserName);
+
+                    gFStream = __OpenFile( FileName, APPEND_PERMISSION );
+                    LogLine("-------------------------------------------------\n");
+                    sprintf(gTextBuffer, "After NSFSendMailReport...\n");
+                    LogLine( gTextBuffer );
+    
+                    BeforeMailSent= FALSE;
+                }
+            }
+
+            break;
+        } /* end of case */
+
+    } /* end of switch */
 
 Exit0:
 
-  if (sError)
-  {
-    LogLine("-------------------------------------------------\n");
-    if (sError != ERR_SENDMAIL_SERVERNAME && sError != ERR_SENDMAIL_MAILFILENAME)
-      OSLoadString( NULLHANDLE, sError, szString, sizeof(szString)-1);
-    else if (sError == ERR_SENDMAIL_SERVERNAME)
-	  strcpy(szString, "Mail Server Name not defined in notes.ini.");
-    else if (sError == ERR_SENDMAIL_MAILFILENAME)
-	  strcpy(szString, "Mail File Name not defined in notes.ini.");
-	
-    sprintf(gTextBuffer, "Error Message->%s\n", szString);
-    LogLine( gTextBuffer );
-  }
+    if (sError)
+    {
+        LogLine("-------------------------------------------------\n");
+        if (sError != ERR_SENDMAIL_SERVERNAME && sError != ERR_SENDMAIL_MAILFILENAME)
+            OSLoadString( NULLHANDLE, sError, szString, sizeof(szString)-1);
+        else if (sError == ERR_SENDMAIL_SERVERNAME)
+            strcpy(szString, "Mail Server Name not defined in notes.ini.");
+        else if (sError == ERR_SENDMAIL_MAILFILENAME)
+            strcpy(szString, "Mail File Name not defined in notes.ini.");
 
-  __CloseFile(gFStream);
+        sprintf(gTextBuffer, "Error Message->%s\n", szString);
+        LogLine( gTextBuffer );
+    }
 
-  return( ERR_EM_CONTINUE );
+    __CloseFile(gFStream);
+
+    return( ERR_EM_CONTINUE );
 }
 
 
@@ -495,25 +495,25 @@ void CleanUp(void)
 ===========================================================================*/
 BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved )
 {
-  STATUS error=NOERROR;
+    STATUS error=NOERROR;
 
-  switch(fdwReason)
-  {
-    case DLL_PROCESS_ATTACH:
-      InitializeCriticalSection(&gCriticalSection);
-      gHandlerProc = (EMHANDLER)MakeProcInstance((FARPROC)EMHandlerProc, hInstance);
-      break;
+    switch(fdwReason)
+    {
+        case DLL_PROCESS_ATTACH:
+            InitializeCriticalSection(&gCriticalSection);
+            gHandlerProc = (EMHANDLER)MakeProcInstance((FARPROC)EMHandlerProc, hInstance);
+            break;
 
-    case DLL_PROCESS_DETACH:
-      CleanUp();
-      /* Free procedure instance */
-      FreeProcInstance( gHandlerProc );
-	  error = DeregisterEntry();
-      DeleteCriticalSection(&gCriticalSection);
-      break;
-  }
+        case DLL_PROCESS_DETACH:
+            CleanUp();
+            /* Free procedure instance */
+            FreeProcInstance( gHandlerProc );
+            error = DeregisterEntry();
+            DeleteCriticalSection(&gCriticalSection);
+            break;
+    }
 
-  return( TRUE );
+    return( TRUE );
 
   UNREFERENCED_PARAMETER(lpReserved);
 }
@@ -532,127 +532,127 @@ BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved )
 STATUS NSFSendMailReport(char *UserName)
 {
 
-  STATUS      sError = NOERROR;
-  DBHANDLE    hMailBox;
-  NOTEHANDLE  hMemo;
-  DHANDLE       hRichTextBody;
-  TIMEDATE    tdCurrent;
-  BLOCKID     bidValue;
-  BLOCKID     bidItem;
-  WORD        wDataType;
-  DWORD       dwValueLen;
-  DWORD       dwRichTextLen;
-  BYTE        *pRichTextBody;
-  BOOL        sResult;
-  char        szSubject[] = "Extension Manager Message Report";
-  char        szBody[1024];
-  char        szFrom[MAXUSERNAME+1] = "Extension Manager";
-  char        MailServerName[MAXUSERNAME + 1];
-  char        MailFileName[MAXPATH + 1];
-  char        szMailBoxPath[MAXPATH+1];
+    STATUS      sError = NOERROR;
+    DBHANDLE    hMailBox;
+    NOTEHANDLE  hMemo;
+    DHANDLE       hRichTextBody;
+    TIMEDATE    tdCurrent;
+    BLOCKID     bidValue;
+    BLOCKID     bidItem;
+    WORD        wDataType;
+    DWORD       dwValueLen;
+    DWORD       dwRichTextLen;
+    BYTE        *pRichTextBody;
+    BOOL        sResult;
+    char        szSubject[] = "Extension Manager Message Report";
+    char        szBody[1024];
+    char        szFrom[MAXUSERNAME+1] = "Extension Manager";
+    char        MailServerName[MAXUSERNAME + 1];
+    char        MailFileName[MAXPATH + 1];
+    char        szMailBoxPath[MAXPATH+1];
 
-  /* start logging... */
-  gFStream = __OpenFile( FileName, APPEND_PERMISSION );
-  LogLine("-------------------------------------------------\n");
+    /* start logging... */
+    gFStream = __OpenFile( FileName, APPEND_PERMISSION );
+    LogLine("-------------------------------------------------\n");
 
-  /* get the Mail Server from notes.ini */
-  sResult = OSGetEnvironmentString(MAIL_MAILSERVER_ITEM, MailServerName, MAXUSERNAME);
+    /* get the Mail Server from notes.ini */
+    sResult = OSGetEnvironmentString(MAIL_MAILSERVER_ITEM, MailServerName, MAXUSERNAME);
 
-  if (!sResult)
-  {
-    sError = ERR_SENDMAIL_SERVERNAME;
+    if (!sResult)
+    {
+        sError = ERR_SENDMAIL_SERVERNAME;
+        sprintf(gTextBuffer, "OSGetEnvironmentString->sError:%X\n", sError);
+        LogLine( gTextBuffer );
+        goto Exit;
+    }
+
     sprintf(gTextBuffer, "OSGetEnvironmentString->sError:%X\n", sError);
-	LogLine( gTextBuffer );
-    goto Exit;
-  }
+    LogLine( gTextBuffer );
 
-  sprintf(gTextBuffer, "OSGetEnvironmentString->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    /* get the Mail File from notes.ini */
+    sResult = OSGetEnvironmentString(MAIL_MAILFILE_ITEM, MailFileName, MAXUSERNAME);
 
-  /* get the Mail File from notes.ini */
-  sResult = OSGetEnvironmentString(MAIL_MAILFILE_ITEM, MailFileName, MAXUSERNAME);
+    if (!sResult)
+    {
+        sError = ERR_SENDMAIL_MAILFILENAME;
+        sprintf(gTextBuffer, "OSGetEnvironmentString->sError:%X\n", sError);
+        LogLine( gTextBuffer );
+        goto Exit;
+    }
 
-  if (!sResult)
-  {
-    sError = ERR_SENDMAIL_MAILFILENAME;
     sprintf(gTextBuffer, "OSGetEnvironmentString->sError:%X\n", sError);
-	LogLine( gTextBuffer );
-    goto Exit;
-  }
+    LogLine( gTextBuffer );
 
-  sprintf(gTextBuffer, "OSGetEnvironmentString->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sError = OSPathNetConstruct(NULL, MailServerName, MAILBOX_NAME, szMailBoxPath);
 
-  sError = OSPathNetConstruct(NULL, MailServerName, MAILBOX_NAME, szMailBoxPath);
+    sprintf(gTextBuffer, "OSPathNetConstruct->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  sprintf(gTextBuffer, "OSPathNetConstruct->sError:%X\n", sError);
-  LogLine( gTextBuffer );
-
-  if (sError)
-    goto Exit;
+    if (sError)
+        goto Exit;
 
   /* open mail.box */
-  sError = NSFDbOpen(szMailBoxPath, &hMailBox);
+    sError = NSFDbOpen(szMailBoxPath, &hMailBox);
 
-  sprintf(gTextBuffer, "NSFDbOpen->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sprintf(gTextBuffer, "NSFDbOpen->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  if (sError)
-  {
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+    if (sError)
+    {
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
   OSCurrentTIMEDATE(&tdCurrent);
 
-  /* create the note */
-  sError = NSFNoteCreate(hMailBox, &hMemo);
+    /* create the note */
+    sError = NSFNoteCreate(hMailBox, &hMemo);
 
-  sprintf(gTextBuffer, "NSFNoteCreate->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sprintf(gTextBuffer, "NSFNoteCreate->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  if (sError)
-  {
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+    if (sError)
+    {
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
   sError = NSFItemSetText(hMemo,
                           FIELD_FORM,     /* "Form" */
                           MAIL_MEMO_FORM, /* "Memo" = Standard memo */
                           MAXWORD);
 
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
-
-  if (sError)
-  {
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
-
-  sError = NSFItemSetText(hMemo,
-                          MAIL_SENDTO_ITEM,  /* "SendTo" */
-                          UserName,
-                          MAXWORD);
-
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
-
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error setting MAIL_SENDTO_ITEM.\n");
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
     LogLine( gTextBuffer );
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
 
-  sError = NSFItemSetText(hMemo, /* use NSFItemCreateTextList if > 1*/
-                          MAIL_RECIPIENTS_ITEM,   /* "Recipients" */
-                          UserName,
-                          MAXWORD);
+    if (sError)
+    {
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
+
+    sError = NSFItemSetText(hMemo,
+                            MAIL_SENDTO_ITEM,  /* "SendTo" */
+                            UserName,
+                            MAXWORD);
+
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
+    LogLine( gTextBuffer );
+
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error setting MAIL_SENDTO_ITEM.\n");
+        LogLine( gTextBuffer );
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
+
+    sError = NSFItemSetText(hMemo, /* use NSFItemCreateTextList if > 1*/
+                            MAIL_RECIPIENTS_ITEM,   /* "Recipients" */
+                            UserName,
+                            MAXWORD);
 
   sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
   LogLine( gTextBuffer );
@@ -672,257 +672,257 @@ STATUS NSFSendMailReport(char *UserName)
                           szFrom,
                           MAXWORD);
 
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
-
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error setting MAIL_FROM_ITEM.\n");
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
     LogLine( gTextBuffer );
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error setting MAIL_FROM_ITEM.\n");
+        LogLine( gTextBuffer );
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
 
-  sError = NSFItemSetText(hMemo,
-                          MAIL_SUBJECT_ITEM,     /* "Subject" */
-                          szSubject,
-                          MAXWORD);
+    sError = NSFItemSetText(hMemo,
+                            MAIL_SUBJECT_ITEM,     /* "Subject" */
+                            szSubject,
+                            MAXWORD);
 
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
-
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error setting MAIL_SUBJECT_ITEM.\n");
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
     LogLine( gTextBuffer );
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error setting MAIL_SUBJECT_ITEM.\n");
+        LogLine( gTextBuffer );
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
 
-  sError = NSFItemSetText(hMemo,
-                          MAIL_DELIVERYPRIORITY_ITEM, /* "DeliveryPriority" */
-                          "Normal",
-                          MAXWORD);
+    sError = NSFItemSetText(hMemo,
+                            MAIL_DELIVERYPRIORITY_ITEM, /* "DeliveryPriority" */
+                            "Normal",
+                            MAXWORD);
 
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
-
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error setting MAIL_DELIVERYPRIORITY_ITEM.\n");
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
     LogLine( gTextBuffer );
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
 
-  sError = NSFItemSetText(hMemo,
-                          MAIL_DELIVERYREPORT_ITEM, /* "DeliveryReport" */
-                          "Basic",
-                          MAXWORD);
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error setting MAIL_DELIVERYPRIORITY_ITEM.\n");
+        LogLine( gTextBuffer );
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sError = NSFItemSetText(hMemo,
+                            MAIL_DELIVERYREPORT_ITEM, /* "DeliveryReport" */
+                            "Basic",
+                            MAXWORD);
 
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error setting MAIL_DELIVERYREPORT_ITEM.\n");
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
     LogLine( gTextBuffer );
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
 
-  sError = NSFItemSetText(hMemo,
-                          MAIL_RETURNRECEIPT_ITEM,  /* "ReturnReceipt" */
-                          "No",
-                          MAXWORD);
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error setting MAIL_DELIVERYREPORT_ITEM.\n");
+        LogLine( gTextBuffer );
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sError = NSFItemSetText(hMemo,
+                            MAIL_RETURNRECEIPT_ITEM,  /* "ReturnReceipt" */
+                            "No",
+                            MAXWORD);
 
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error setting MAIL_RETURNRECEIPT_ITEM.\n");
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
     LogLine( gTextBuffer );
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
 
-  sError = NSFItemSetTime(hMemo,
-                          MAIL_COMPOSEDDATE_ITEM, /* "ComposedDate" */
-                          &tdCurrent);
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error setting MAIL_RETURNRECEIPT_ITEM.\n");
+        LogLine( gTextBuffer );
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sError = NSFItemSetTime(hMemo,
+                            MAIL_COMPOSEDDATE_ITEM, /* "ComposedDate" */
+                            &tdCurrent);
 
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error setting MAIL_COMPOSEDDATE_ITEM.\n");
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
     LogLine( gTextBuffer );
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
 
-  strcpy(szBody, "*** Extension Manager Message Report ***\nUser Name:\t\t");
-  strcat(szBody, UserName);
-  strcat(szBody, "\n");
-  strcat(szBody, "User Mail File:\t\t");
-  strcat(szBody, MailFileName);
-  strcat(szBody, "\n");
-  strcat(szBody, "User Mail Server:\t");
-  strcat(szBody, MailServerName);
-  strcat(szBody, "\n\n");
-  strcat(szBody, "Attached is the Extension Manager Log.\n");
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error setting MAIL_COMPOSEDDATE_ITEM.\n");
+        LogLine( gTextBuffer );
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  /*sprintf(szBody, "*** Extension Manager Message Report ***\nUser Name:\t\t%s\nUser Mail File:\t\t%s\nUser Mail Server:\t%s\n\nAttached is the Extension Manager Log", UserName, MailFileName, MailServerName);
-  */
+    strcpy(szBody, "*** Extension Manager Message Report ***\nUser Name:\t\t");
+    strcat(szBody, UserName);
+    strcat(szBody, "\n");
+    strcat(szBody, "User Mail File:\t\t");
+    strcat(szBody, MailFileName);
+    strcat(szBody, "\n");
+    strcat(szBody, "User Mail Server:\t");
+    strcat(szBody, MailServerName);
+    strcat(szBody, "\n\n");
+    strcat(szBody, "Attached is the Extension Manager Log.\n");
 
-  sError = NSFItemSetText(hMemo,
-                          TEMP_MAIL_BODY_ITEM,  /* "TempBody" */
-                          szBody,
-                          MAXWORD);
+    /*sprintf(szBody, "*** Extension Manager Message Report ***\nUser Name:\t\t%s\nUser Mail File:\t\t%s\nUser Mail Server:\t%s\n\nAttached is the Extension Manager Log", UserName, MailFileName, MailServerName);
+    */
 
-  sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sError = NSFItemSetText(hMemo,
+                            TEMP_MAIL_BODY_ITEM,  /* "TempBody" */
+                            szBody,
+                            MAXWORD);
 
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error setting TEMP_MAIL_BODY_ITEM.\n");
+    sprintf(gTextBuffer, "NSFItemSetText->sError:%X\n", sError);
     LogLine( gTextBuffer );
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
 
-  sError = NSFItemInfo(hMemo,
-                       TEMP_MAIL_BODY_ITEM,
-                       (WORD)strlen(TEMP_MAIL_BODY_ITEM),
-                       &bidItem, &wDataType, &bidValue, &dwValueLen);
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error setting TEMP_MAIL_BODY_ITEM.\n");
+        LogLine( gTextBuffer );
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  sprintf(gTextBuffer, "NSFItemInfo->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sError = NSFItemInfo(hMemo,
+                         TEMP_MAIL_BODY_ITEM,
+                         (WORD)strlen(TEMP_MAIL_BODY_ITEM),
+                         &bidItem, &wDataType, &bidValue, &dwValueLen);
 
-  if (sError)
-  {
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+    sprintf(gTextBuffer, "NSFItemInfo->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  sError = ConvertItemToCompositeExt(bidValue, dwValueLen,
-                                  DEFAULT_FONT_ID, "\r\n", PARADELIM_ANYLINE,
-                                  &hRichTextBody, &dwRichTextLen,
-                                  NULL, 0, FALSE);
+    if (sError)
+    {
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  sprintf(gTextBuffer, "ConvertItemToCompositeExt->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sError = ConvertItemToCompositeExt(bidValue, dwValueLen,
+                                       DEFAULT_FONT_ID, "\r\n", PARADELIM_ANYLINE,
+                                       &hRichTextBody, &dwRichTextLen,
+                                       NULL, 0, FALSE);
 
-  if (sError)
-  {
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+    sprintf(gTextBuffer, "ConvertItemToCompositeExt->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  pRichTextBody = OSLockObject(hRichTextBody) ;
-  pRichTextBody += sizeof(WORD);
-  dwRichTextLen -= sizeof(WORD);
+    if (sError)
+    {
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  sError = NSFItemAppend(hMemo, 0, MAIL_BODY_ITEM,
-                         (WORD)strlen(MAIL_BODY_ITEM), TYPE_COMPOSITE, pRichTextBody,
-                         dwRichTextLen);
+    pRichTextBody = OSLockObject(hRichTextBody) ;
+    pRichTextBody += sizeof(WORD);
+    dwRichTextLen -= sizeof(WORD);
 
-  sprintf(gTextBuffer, "NSFItemAppend->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sError = NSFItemAppend(hMemo, 0, MAIL_BODY_ITEM,
+                           (WORD)strlen(MAIL_BODY_ITEM), TYPE_COMPOSITE, pRichTextBody,
+                           dwRichTextLen);
 
-  if (sError)
-  {
-    sprintf(gTextBuffer, "Error appending MAIL_BODY_ITEM.\n");
-    LogLine( gTextBuffer );OSUnlockObject(hRichTextBody);
+    sprintf(gTextBuffer, "NSFItemAppend->sError:%X\n", sError);
+    LogLine( gTextBuffer );
+
+    if (sError)
+    {
+        sprintf(gTextBuffer, "Error appending MAIL_BODY_ITEM.\n");
+        LogLine( gTextBuffer );OSUnlockObject(hRichTextBody);
+        OSMemFree(hRichTextBody);
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
+
+    OSUnlockObject(hRichTextBody) ;
     OSMemFree(hRichTextBody);
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
 
-  OSUnlockObject(hRichTextBody) ;
-  OSMemFree(hRichTextBody);
+    sError = NSFItemDelete(hMemo, TEMP_MAIL_BODY_ITEM,
+                           (WORD)strlen(TEMP_MAIL_BODY_ITEM));
 
-  sError = NSFItemDelete(hMemo, TEMP_MAIL_BODY_ITEM,
-                         (WORD)strlen(TEMP_MAIL_BODY_ITEM));
+    sprintf(gTextBuffer, "NSFItemDelete->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  sprintf(gTextBuffer, "NSFItemDelete->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    if (sError)
+    {
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  if (sError)
-  {
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+    /* let's close the log file here so we get most of the info in the attachment */
+    __CloseFile(gFStream);
 
-  /* let's close the log file here so we get most of the info in the attachment */
-  __CloseFile(gFStream);
+    sError = NSFNoteAttachFile(hMemo,
+                               ITEM_NAME_ATTACHMENT,
+                               (WORD) strlen(ITEM_NAME_ATTACHMENT),
+                               FileName,
+                               "extmail.log",
+                               HOST_LOCAL | COMPRESS_NONE);
 
-  sError = NSFNoteAttachFile(hMemo,
-                             ITEM_NAME_ATTACHMENT,
-                             (WORD) strlen(ITEM_NAME_ATTACHMENT),
-                             FileName,
-                             "extmail.log",
-                             HOST_LOCAL | COMPRESS_NONE);
+    /* reopen for complete logging */
+    gFStream = __OpenFile( FileName, APPEND_PERMISSION );
 
-  /* reopen for complete logging */
-  gFStream = __OpenFile( FileName, APPEND_PERMISSION );
+    sprintf(gTextBuffer, "NSFNoteAttachFile->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  sprintf(gTextBuffer, "NSFNoteAttachFile->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    if (sError)
+    {
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  if (sError)
-  {
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+    sError = NSFNoteUpdate(hMemo, 0);
 
-  sError = NSFNoteUpdate(hMemo, 0);
+    sprintf(gTextBuffer, "NSFNoteUpdate->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  sprintf(gTextBuffer, "NSFNoteUpdate->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    if (sError)
+    {
+        NSFNoteClose(hMemo);
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  if (sError)
-  {
-    NSFNoteClose(hMemo);
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+    sError = NSFNoteClose(hMemo);
 
-  sError = NSFNoteClose(hMemo);
+    sprintf(gTextBuffer, "NSFNoteClose->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
-  sprintf(gTextBuffer, "NSFNoteClose->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    if (sError)
+    {
+        NSFDbClose(hMailBox);
+        goto Exit;
+    }
 
-  if (sError)
-  {
-    NSFDbClose(hMailBox);
-    goto Exit;
-  }
+    sError = NSFDbClose(hMailBox);
 
-  sError = NSFDbClose(hMailBox);
-
-  sprintf(gTextBuffer, "NSFDbClose->sError:%X\n", sError);
-  LogLine( gTextBuffer );
+    sprintf(gTextBuffer, "NSFDbClose->sError:%X\n", sError);
+    LogLine( gTextBuffer );
 
 Exit:
 
-  __CloseFile(gFStream);
-  return(sError);
+    __CloseFile(gFStream);
+    return(sError);
 
 }
 

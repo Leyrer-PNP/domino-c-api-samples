@@ -91,16 +91,16 @@
 
 typedef struct
 {
-   WORD ID;
-   char *MenuString;
+    WORD ID;
+    char *MenuString;
 } MENUINFO1;
 
 static MENUINFO1 MenuTable[] =
 {
-   IDM_DISPLAY_DATE,   "Displa&y Date/Time",
-   IDM_INSERT_DATE,    "Insert Date&/Time",
-   IDM_INSERT_CO_NAME, "Insert Company Name",
-   IDM_INSERT_LOC,     "Insert Location"
+    IDM_DISPLAY_DATE,   "Displa&y Date/Time",
+    IDM_INSERT_DATE,    "Insert Date&/Time",
+    IDM_INSERT_CO_NAME, "Insert Company Name",
+    IDM_INSERT_LOC,     "Insert Location"
 };
 
 
@@ -112,196 +112,196 @@ int OpenOutputFile (char *);
 
 NAMRESULT LNCALLBACK DTMenuProc (WORD wMsg, void far *pParam)
 {
-   static WORD startingID;   /* the Notes ID for the first 
+    static WORD startingID;   /* the Notes ID for the first 
                                 addin menu item */
 
-   switch (wMsg)
-   {
-      case NAMM_INIT:
-      {
-         NAM_INIT_INFO *pInitInfo;
+    switch (wMsg)
+    {
+        case NAMM_INIT:
+        {
+            NAM_INIT_INFO *pInitInfo;
 
-         /* pParam is a pointer to the NAM_INIT_INFO structure */
-         pInitInfo = (NAM_INIT_INFO *)pParam;
+            /* pParam is a pointer to the NAM_INIT_INFO structure */
+            pInitInfo = (NAM_INIT_INFO *)pParam;
 
-         /* If this is the first time through, save wStartingID.
-            The menu ID for this item in Windows is wStartingID + 
-            the menu item ID which is stored in the MenuTable.
-            The menu item ID is given to Notes via the 
-            wMenuID member of the NAM_INIT_INFO
-            strucure */
+            /* If this is the first time through, save wStartingID.
+               The menu ID for this item in Windows is wStartingID + 
+               the menu item ID which is stored in the MenuTable.
+               The menu item ID is given to Notes via the 
+               wMenuID member of the NAM_INIT_INFO
+               strucure */
 
-         if (pInitInfo->wMenuItemNumber == 0)    /* first time through */
-            startingID = pInitInfo->wStartingID;
+            if (pInitInfo->wMenuItemNumber == 0)    /* first time through */
+                startingID = pInitInfo->wStartingID;
 
-         /* Add each menu item to the Notes Actions menu */
-         /* Tell Notes about the menu item id and name */
+            /* Add each menu item to the Notes Actions menu */
+            /* Tell Notes about the menu item id and name */
 
-         pInitInfo->wMenuID = MenuTable[pInitInfo->wMenuItemNumber].ID;
+            pInitInfo->wMenuID = MenuTable[pInitInfo->wMenuItemNumber].ID;
 
-         strcpy (pInitInfo->MenuItemName, 
-                 MenuTable[pInitInfo->wMenuItemNumber].MenuString);
+            strcpy (pInitInfo->MenuItemName, 
+                    MenuTable[pInitInfo->wMenuItemNumber].MenuString);
 
-         /* if there are more menu items to add, request Notes to send
-            NAM_INIT again so that the second menu item may be added */
+            /* if there are more menu items to add, request Notes to send
+               NAM_INIT again so that the second menu item may be added */
             
-         if ( pInitInfo->wMenuItemNumber < 
-             sizeof(MenuTable) / sizeof(MENUINFO1) - 1 )
-             return (NAM_INIT_CONTINUE);
+            if ( pInitInfo->wMenuItemNumber < 
+                 sizeof(MenuTable) / sizeof(MENUINFO1) - 1 )
+                return (NAM_INIT_CONTINUE);
          
-         return (NAM_INIT_STOP);
-      }
+            return (NAM_INIT_STOP);
+        }
 
-      case NAMM_INITMENU:
-      {
-         NAM_INITMENU_INFO *pInitMenuInfo;
-         WORD Flags;
+        case NAMM_INITMENU:
+        {
+            NAM_INITMENU_INFO *pInitMenuInfo;
+            WORD Flags;
 
-         /* pParam is a pointer to a NAM_INITMENU_INFO structure */
-         pInitMenuInfo = (NAM_INITMENU_INFO *)pParam;
+            /* pParam is a pointer to a NAM_INITMENU_INFO structure */
+            pInitMenuInfo = (NAM_INITMENU_INFO *)pParam;
 
-         /* enable the Insert Date/Time menu item ONLY IF the user is in
-            the proper context (ie:  editing a TIME field in 
-            a document) */
+            /* enable the Insert Date/Time menu item ONLY IF the user is in
+               the proper context (ie:  editing a TIME field in 
+               a document) */
 
-         if ( pInitMenuInfo->Data.fCanImport &&
-              (pInitMenuInfo->Data.Context == NAM_IN_EDIT_RW) &&
-              (pInitMenuInfo->Data.IXData.Edit.CaretFieldType == 
-                  FIELD_TYPE_TIME) )
+            if ( pInitMenuInfo->Data.fCanImport &&
+                (pInitMenuInfo->Data.Context == NAM_IN_EDIT_RW) &&
+                (pInitMenuInfo->Data.IXData.Edit.CaretFieldType == 
+                 FIELD_TYPE_TIME) )
 
-            Flags = MF_ENABLED | MF_BYCOMMAND;
-         else
-            Flags = MF_GRAYED | MF_BYCOMMAND;
+                Flags = MF_ENABLED | MF_BYCOMMAND;
+            else
+                Flags = MF_GRAYED | MF_BYCOMMAND;
 
-         EnableMenuItem( pInitMenuInfo->hMenu,
-                         startingID + MenuTable[IDM_INSERT_DATE].ID,
-                         Flags);
+            EnableMenuItem( pInitMenuInfo->hMenu,
+                            startingID + MenuTable[IDM_INSERT_DATE].ID,
+                            Flags);
 
-         /* enable Insert Company Name menu item ONLY IF the user is in
-            the proper context (ie:  editing a field called CompanyName) */
+            /* enable Insert Company Name menu item ONLY IF the user is in
+               the proper context (ie:  editing a field called CompanyName) */
 
-         if ( pInitMenuInfo->Data.fCanImport &&
-              (pInitMenuInfo->Data.Context == NAM_IN_EDIT_RW) &&
-              !strcmp(pInitMenuInfo->Data.IXData.Edit.CaretFieldName, 
-                       "CompanyName") )
+            if ( pInitMenuInfo->Data.fCanImport &&
+                 (pInitMenuInfo->Data.Context == NAM_IN_EDIT_RW) &&
+                 !strcmp(pInitMenuInfo->Data.IXData.Edit.CaretFieldName, 
+                 "CompanyName") )
 
-            Flags = MF_ENABLED  | MF_BYCOMMAND;
-         else
-            Flags = MF_GRAYED | MF_BYCOMMAND;
+                Flags = MF_ENABLED  | MF_BYCOMMAND;
+            else
+                Flags = MF_GRAYED | MF_BYCOMMAND;
 
-         EnableMenuItem( pInitMenuInfo->hMenu,
-                         startingID + MenuTable[IDM_INSERT_CO_NAME].ID,
-                         Flags);
+            EnableMenuItem( pInitMenuInfo->hMenu,
+                            startingID + MenuTable[IDM_INSERT_CO_NAME].ID,
+                            Flags);
 
-        /* enable Insert Location menu item ONLY IF the user is in
-           the proper context (ie:  editing a plain text field) */
+            /* enable Insert Location menu item ONLY IF the user is in
+               the proper context (ie:  editing a plain text field) */
 
-         if ( pInitMenuInfo->Data.fCanImport &&
-              (pInitMenuInfo->Data.Context == NAM_IN_EDIT_RW) &&
-              (pInitMenuInfo->Data.IXData.Edit.CaretFieldType == 
+            if ( pInitMenuInfo->Data.fCanImport &&
+                 (pInitMenuInfo->Data.Context == NAM_IN_EDIT_RW) &&
+                 (pInitMenuInfo->Data.IXData.Edit.CaretFieldType == 
                   FIELD_TYPE_TEXT) )
             
             Flags = MF_ENABLED | MF_BYCOMMAND;
-         else
-            Flags = MF_GRAYED | MF_BYCOMMAND;
+            else
+                Flags = MF_GRAYED | MF_BYCOMMAND;
 
-         EnableMenuItem( pInitMenuInfo->hMenu,
-                         startingID + MenuTable[IDM_INSERT_LOC].ID,
-                         Flags);
-         return (NAM_NOERROR);
+            EnableMenuItem( pInitMenuInfo->hMenu,
+                            startingID + MenuTable[IDM_INSERT_LOC].ID,
+                            Flags);
+            return (NAM_NOERROR);
 
-      }
-
-
-      case NAMM_COMMAND:
-      {
-         NAM_COMMAND_INFO *pCmdInfo;
-         STATUS apiSts;
-
-         /* pParam is a pointer to a NAM_COMMAND_INFO structure */
-         pCmdInfo = (NAM_COMMAND_INFO *)pParam;
+        }
 
 
-         switch (pCmdInfo->wMenuID)
-         {
-            case IDM_DISPLAY_DATE:
+        case NAMM_COMMAND:
+        {
+            NAM_COMMAND_INFO *pCmdInfo;
+            STATUS apiSts;
+
+            /* pParam is a pointer to a NAM_COMMAND_INFO structure */
+            pCmdInfo = (NAM_COMMAND_INFO *)pParam;
+
+
+            switch (pCmdInfo->wMenuID)
+            {
+                case IDM_DISPLAY_DATE:
                /* display the date and time in a message box */
-            {
-               TIMEDATE td;
-               char szTD[MAXALPHATIMEDATE + 1];
-               WORD wRetLen;
-               TFMT tdFormat;
+                {
+                    TIMEDATE td;
+                    char szTD[MAXALPHATIMEDATE + 1];
+                    WORD wRetLen;
+                    TFMT tdFormat;
 
-               memset (szTD, '\0',MAXALPHATIMEDATE + 1);
-               OSCurrentTIMEDATE (&td);
-               tdFormat.Date = TDFMT_FULL4;
-               tdFormat.Time = TTFMT_FULL;
-               tdFormat.Zone = TZFMT_NEVER;
-               tdFormat.Structure = TSFMT_DATETIME;
+                    memset (szTD, '\0',MAXALPHATIMEDATE + 1);
+                    OSCurrentTIMEDATE (&td);
+                    tdFormat.Date = TDFMT_FULL4;
+                    tdFormat.Time = TTFMT_FULL;
+                    tdFormat.Zone = TZFMT_NEVER;
+                    tdFormat.Structure = TSFMT_DATETIME;
 
-               if (apiSts = ConvertTIMEDATEToText (NULL, &tdFormat, &td, szTD,
-                                                   MAXALPHATIMEDATE, 
-                                                   &wRetLen))
-               {
-                  DspMessageBox (pCmdInfo->hNotesWnd,
-                                 "Error converting system date/time", 
-                                 "UIADDIN2");
-                  return (NAM_NOERROR);
-               }
-               DspMessageBox (pCmdInfo->hNotesWnd, szTD, "DATE AND TIME");
-               break;
+                    if (apiSts = ConvertTIMEDATEToText (NULL, &tdFormat, &td, szTD,
+                                                        MAXALPHATIMEDATE, 
+                                                        &wRetLen))
+                    {
+                        DspMessageBox (pCmdInfo->hNotesWnd,
+                                       "Error converting system date/time", 
+                                       "UIADDIN2");
+                        return (NAM_NOERROR);
+                    }
+                    DspMessageBox (pCmdInfo->hNotesWnd, szTD, "DATE AND TIME");
+                    break;
+                }
+
+                case IDM_INSERT_DATE:
+                /* insert the date and time in the document */
+                {
+                    TIMEDATE td;
+                    char szTD[MAXALPHATIMEDATE + 1];
+                    WORD wRetLen;
+                    TFMT tdFormat;
+
+                    memset (szTD, '\0',MAXALPHATIMEDATE + 1);
+                    tdFormat.Date = TDFMT_FULL4;
+                    tdFormat.Time = TTFMT_FULL;
+                    tdFormat.Zone = TZFMT_NEVER;
+                    tdFormat.Structure = TSFMT_DATETIME;
+
+                    OSCurrentTIMEDATE (&td);
+                    if (apiSts = ConvertTIMEDATEToText (NULL, &tdFormat, &td, szTD,
+                                                        MAXALPHATIMEDATE, 
+                                                        &wRetLen))
+                    {
+                        DspMessageBox (pCmdInfo->hNotesWnd,
+                                       "Error converting system date/time", 
+                                       "UIADDIN2");
+                        return (NAM_NOERROR);
+                    }
+
+                    InsertText (pCmdInfo, szTD);
+                    break;
+                }
+
+                case IDM_INSERT_CO_NAME:
+                    InsertText (pCmdInfo, COMPANY_NAME);
+                    break;
+
+                case IDM_INSERT_LOC:
+                    InsertText (pCmdInfo, LOCATION);
+                    break;
+
+                default:
+                    break;
             }
-
-            case IDM_INSERT_DATE:
-               /* insert the date and time in the document */
-            {
-               TIMEDATE td;
-               char szTD[MAXALPHATIMEDATE + 1];
-               WORD wRetLen;
-               TFMT tdFormat;
-
-               memset (szTD, '\0',MAXALPHATIMEDATE + 1);
-               tdFormat.Date = TDFMT_FULL4;
-               tdFormat.Time = TTFMT_FULL;
-               tdFormat.Zone = TZFMT_NEVER;
-               tdFormat.Structure = TSFMT_DATETIME;
-
-               OSCurrentTIMEDATE (&td);
-               if (apiSts = ConvertTIMEDATEToText (NULL, &tdFormat, &td, szTD,
-                                                   MAXALPHATIMEDATE, 
-                                                   &wRetLen))
-               {
-                  DspMessageBox (pCmdInfo->hNotesWnd,
-                                 "Error converting system date/time", 
-                                 "UIADDIN2");
-                  return (NAM_NOERROR);
-               }
-
-               InsertText (pCmdInfo, szTD);
-               break;
-            }
-
-            case IDM_INSERT_CO_NAME:
-               InsertText (pCmdInfo, COMPANY_NAME);
-               break;
-
-            case IDM_INSERT_LOC:
-               InsertText (pCmdInfo, LOCATION);
-               break;
-
-            default:
-               break;
-         }
          return (NAM_NOERROR);
 
-      } /* case NAMM_COMMAND */
+        } /* case NAMM_COMMAND */
 
-      case NAMM_TERM:
-         return (NAM_NOERROR);
+        case NAMM_TERM:
+            return (NAM_NOERROR);
 
-      default:                /* default processing */
-         return (NAM_NOERROR);
-   } /* switch wMsg */
+        default:                /* default processing */
+            return (NAM_NOERROR);
+    } /* switch wMsg */
 }
 /************************************************************************
 
@@ -320,137 +320,137 @@ NAMRESULT LNCALLBACK DTMenuProc (WORD wMsg, void far *pParam)
  **************************************************************************/
 void InsertText (NAM_COMMAND_INFO *pInfo, char *szText)
 {
-   NAM_CONTEXT_DATA *pData = &(pInfo->Data);
-   int hCDFile;
-   unsigned int wError;
-   STATUS nError;
-   DHANDLE hCompound, hReturnCD;     /* handle to CompoundText, and 
+    NAM_CONTEXT_DATA *pData = &(pInfo->Data);
+    int hCDFile;
+    unsigned int wError;
+    STATUS nError;
+    DHANDLE hCompound, hReturnCD;     /* handle to CompoundText, and 
                                        returned CD buffer */
-   COMPOUNDSTYLE Style;
-   DWORD  dwStyleID;
-   DWORD  dwReturnCDSize;
-   char   szReturnCDFile[MAXPATH];  /* returned CD filename if the data
-                                       cannot be stored in memory */
-   void  *pCD;
+    COMPOUNDSTYLE Style;
+    DWORD  dwStyleID;
+    DWORD  dwReturnCDSize;
+    char   szReturnCDFile[MAXPATH];  /* returned CD filename if the data
+                                        cannot be stored in memory */
+    void  *pCD;
 
-   nError = CompoundTextCreate (
-               NULLHANDLE,     /* create a standalone CompoundText context */
-               NULL,
-               &hCompound);
+    nError = CompoundTextCreate (
+                                 NULLHANDLE,     /* create a standalone CompoundText context */
+                                 NULL,
+                                 &hCompound);
 
-   if (nError != NOERROR)
-   {
-      DspMessageBox (pInfo->hNotesWnd, "Unable to create compound text", 
-                     "UIADDIN2");
-      return;
-   }
+    if (nError != NOERROR)
+    {
+        DspMessageBox (pInfo->hNotesWnd, "Unable to create compound text", 
+                       "UIADDIN2");
+        return;
+    }
 
-   /* Add the compound text (the Location) */
-   CompoundTextInitStyle (&Style);
-   nError = CompoundTextDefineStyle (
-               hCompound,          /* handle to compound text */
-               "Normal",           /* style name */
-               &Style,
-               &dwStyleID);        /* style id */
+    /* Add the compound text (the Location) */
+    CompoundTextInitStyle (&Style);
+    nError = CompoundTextDefineStyle (
+                                      hCompound,          /* handle to compound text */
+                                      "Normal",           /* style name */
+                                      &Style,
+                                      &dwStyleID);        /* style id */
  
-   if (nError)
-   {
-      DspMessageBox (pInfo->hNotesWnd, "Unable to define CompoundText style",
-                     "UIADDIN2");
-      CompoundTextDiscard (hCompound);
-      return;
-   }
-   nError = CompoundTextAddParagraphExt (
-               hCompound,            /* handle to compound text */
-               dwStyleID,            /* style id */
-               pData->IXData.Edit.Import.FontID,       /* font id */
-               szText,               /* text to add */
-               (DWORD)strlen(szText),  /* length of text to add */
-               NULL);          /* CLS translation table */
+    if (nError)
+    {
+        DspMessageBox (pInfo->hNotesWnd, "Unable to define CompoundText style",
+                       "UIADDIN2");
+        CompoundTextDiscard (hCompound);
+        return;
+    }
+    nError = CompoundTextAddParagraphExt (
+                                          hCompound,            /* handle to compound text */
+                                          dwStyleID,            /* style id */
+                                          pData->IXData.Edit.Import.FontID,       /* font id */
+                                          szText,               /* text to add */
+                                          (DWORD)strlen(szText),  /* length of text to add */
+                                          NULL);          /* CLS translation table */
 
-   if (nError)
-   {
-      DspMessageBox (pInfo->hNotesWnd, 
-                     "Unable to add CompoundText paragraph", "UIADDIN2");
-      CompoundTextDiscard (hCompound);
-      return;
-   }
+    if (nError)
+    {
+        DspMessageBox (pInfo->hNotesWnd, 
+                       "Unable to add CompoundText paragraph", "UIADDIN2");
+        CompoundTextDiscard (hCompound);
+        return;
+    }
 
-   nError = CompoundTextClose (
-               hCompound,          /* handle to compound text */
-               &hReturnCD,         /* handle to CD buffer */
-               &dwReturnCDSize,    /* size of returned buffer */
-               szReturnCDFile,     /* file, if CD can't fit into a buffer */
-               MAXPATH - 1);       /* size of szReturnCDFile */
-   if (nError != NOERROR)
-   {
-      CompoundTextDiscard (hCompound);
-      DspMessageBox (pInfo->hNotesWnd, "Unable to process compound text", 
-                     "UIADDIN2");
-      return;
-   }
+    nError = CompoundTextClose (
+                                hCompound,          /* handle to compound text */
+                                &hReturnCD,         /* handle to CD buffer */
+                                &dwReturnCDSize,    /* size of returned buffer */
+                                szReturnCDFile,     /* file, if CD can't fit into a buffer */
+                                MAXPATH - 1);       /* size of szReturnCDFile */
+    if (nError != NOERROR)
+    {
+        CompoundTextDiscard (hCompound);
+        DspMessageBox (pInfo->hNotesWnd, "Unable to process compound text", 
+                       "UIADDIN2");
+        return;
+    }
 
-   if (hReturnCD != NULLHANDLE)
-   {
-      /* CompositeText is in a buffer - write it to the import file */
-      /* Create the import file */
+    if (hReturnCD != NULLHANDLE)
+    {
+        /* CompositeText is in a buffer - write it to the import file */
+        /* Create the import file */
 
-      hCDFile = OpenOutputFile (pData->IXData.Edit.Import.OutputFileName);
+        hCDFile = OpenOutputFile (pData->IXData.Edit.Import.OutputFileName);
 
-      if (hCDFile == -1)
-      {
-         DspMessageBox (pInfo->hNotesWnd, "Unable to create import file", 
-                        "UIADDIN2");
-         return;
-      }
+        if (hCDFile == -1)
+        {
+            DspMessageBox (pInfo->hNotesWnd, "Unable to create import file", 
+                           "UIADDIN2");
+            return;
+        }
 
-      /* write the Composite Text to the file */
+        /* write the Composite Text to the file */
 
-      pCD = OSLockObject (hReturnCD);
-      if (pCD == NULL)
-      {
-         DspMessageBox (pInfo->hNotesWnd, "Unable to access CompoundText", 
-                        "UIADDIN2");
-         OSMemFree (hReturnCD);    /* free the buffer */
-         _close(hCDFile);
-         return;
-      }
+        pCD = OSLockObject (hReturnCD);
+        if (pCD == NULL)
+        {
+            DspMessageBox (pInfo->hNotesWnd, "Unable to access CompoundText", 
+                           "UIADDIN2");
+            OSMemFree (hReturnCD);    /* free the buffer */
+            _close(hCDFile);
+            return;
+        }
 
-      /* Since the compound text is in a buffer, it is known that this
-         buffer must be < 64K and we can therefore cast dwReturnCDSize
-         to an unsigned int */
+        /* Since the compound text is in a buffer, it is known that this
+           buffer must be < 64K and we can therefore cast dwReturnCDSize
+           to an unsigned int */
 
-      wError = _write (hCDFile, pCD, (unsigned int)dwReturnCDSize );
-      if (wError == -1)
-      {
-         DspMessageBox (pInfo->hNotesWnd, "Unable to write to import file", 
-                        "UIADDIN2");
-         OSUnlockObject (hReturnCD);
-         OSMemFree (hReturnCD);    /* free the buffer */
-         _close(hCDFile);
-         return;
-      }
-      OSUnlockObject(hReturnCD);
-      OSMemFree (hReturnCD);    /* free the buffer */
+        wError = _write (hCDFile, pCD, (unsigned int)dwReturnCDSize );
+        if (wError == -1)
+        {
+            DspMessageBox (pInfo->hNotesWnd, "Unable to write to import file", 
+                           "UIADDIN2");
+            OSUnlockObject (hReturnCD);
+            OSMemFree (hReturnCD);    /* free the buffer */
+            _close(hCDFile);
+            return;
+        }
+        OSUnlockObject(hReturnCD);
+        OSMemFree (hReturnCD);    /* free the buffer */
  
-      _close(hCDFile);
-   }
-   else
-   {
-      /* CompoundText is in a file, rename the file to the import
-         file name */
-      wError = rename (szReturnCDFile,
+        _close(hCDFile);
+    }
+    else
+    {
+        /* CompoundText is in a file, rename the file to the import
+           file name */
+        wError = rename (szReturnCDFile,
                        pData->IXData.Edit.Import.OutputFileName);
-      if (wError)
-      {
-         DspMessageBox (pInfo->hNotesWnd, "Unable to write to import file", 
-                        "UIADDIN2");
-         return;
-      }
-   }
+        if (wError)
+        {
+            DspMessageBox (pInfo->hNotesWnd, "Unable to write to import file", 
+                           "UIADDIN2");
+            return;
+        }
+    }
 
-   /* Send Notes the message to import the file */
-   SendMessage(pInfo->hNotesWnd, WM_ADDIN_IMPORT, 0, (LONG)pInfo);
+    /* Send Notes the message to import the file */
+    SendMessage(pInfo->hNotesWnd, WM_ADDIN_IMPORT, 0, (LONG)pInfo);
 }
 
 
@@ -479,6 +479,6 @@ void DspMessageBox (HWND hWndParent, char *szString, char *szCaption)
 *************************************************************************/
 int OpenOutputFile (char *CDFile)
 {
-   return (_open (CDFile, O_CREAT | O_WRONLY | O_BINARY, S_IREAD | S_IWRITE));
+    return (_open (CDFile, O_CREAT | O_WRONLY | O_BINARY, S_IREAD | S_IWRITE));
 }
 

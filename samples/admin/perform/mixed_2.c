@@ -164,9 +164,9 @@ int main (int argc, char *argv[])
 /* Add all the fields. */
 
       if (error = NSFItemSetText ( note_handle, 
-                  "Form",
-                  "Person",
-                  MAXWORD))
+                                   "Form",
+                                   "Person",
+                                   MAXWORD))
       {
           NSFNoteClose (note_handle);
           NSFDbClose (db_handle);
@@ -176,9 +176,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "Type",
-                  "Person",
-                  MAXWORD))
+                                   "Type",
+                                   "Person",
+                                   MAXWORD))
       {
           NSFNoteClose (note_handle);
           NSFDbClose (db_handle);
@@ -188,9 +188,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "FirstName",
-                  "Charles",
-                  MAXWORD))
+                                   "FirstName",
+                                   "Charles",
+                                   MAXWORD))
       {
           NSFNoteClose (note_handle);
           NSFDbClose (db_handle);
@@ -200,9 +200,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "LastName",
-                  last_name,
-                  MAXWORD))
+                                   "LastName",
+                                   last_name,
+                                   MAXWORD))
       {
           NSFNoteClose (note_handle);
           NSFDbClose (db_handle);
@@ -212,9 +212,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "MailDomain",
-                  "NOTES",
-                  MAXWORD))
+                                   "MailDomain",
+                                   "NOTES",
+                                   MAXWORD))
       {
           NSFNoteClose (note_handle);
           NSFDbClose (db_handle);
@@ -224,9 +224,9 @@ int main (int argc, char *argv[])
       }
 
       if (error = NSFItemSetText ( note_handle,
-                  "MailFile",
-                  "MAIL\\CCONNELL",
-                  MAXWORD))
+                                   "MailFile",
+                                   "MAIL\\CCONNELL",
+                                   MAXWORD))
       {
           NSFNoteClose (note_handle);
           NSFDbClose (db_handle);
@@ -432,9 +432,9 @@ int main (int argc, char *argv[])
 /* Modify one of the fields in this note. */
 
    if (error = NSFItemSetText ( note_handle,
-               "FirstName",
-               "Janet",
-               MAXWORD))
+                                "FirstName",
+                                "Janet",
+                                MAXWORD))
    {
       NIFCloseCollection (coll_handle);
       NSFNoteClose (note_handle);

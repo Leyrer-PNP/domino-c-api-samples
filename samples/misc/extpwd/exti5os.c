@@ -99,7 +99,7 @@ STATUS LNPUBLIC MainEntryPoint()
     STATUS err;
 
     if(err=EMRegister(EM_GETPASSWORD, EM_REG_BEFORE, handler,0, &hHandler))
-      fprintf(stderr, "EMRegister failed.\n");
+        fprintf(stderr, "EMRegister failed.\n");
 
     return err;
 }

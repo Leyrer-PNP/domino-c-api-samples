@@ -116,16 +116,16 @@ STATUS LNPUBLIC NotesMain(int argc, char far *argv[])
 
     if (argc == 3)
     {
-         server_name = argv[1];
+        server_name = argv[1];
 
-         if (strcmp(server_name, ""))
-         {
+        if (strcmp(server_name, ""))
+        {
             if (error = OSPathNetConstruct( NULL, server_name, db_name, pname))
             {
-               return (ERR(error));
+                return (ERR(error));
             }
             path_name = pname;
-         }
+        }
     }
 
 /* Open the database. */
