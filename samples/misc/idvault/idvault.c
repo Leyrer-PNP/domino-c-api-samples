@@ -20,7 +20,7 @@
    FILE:       idvault.c
 
    PURPOSE:    This programe upload id file to ID vault,gets id file from ID vault,
-			   synch id file contents with the ID vault
+               synch id file contents with the ID vault
 
 
 
@@ -50,12 +50,12 @@
 /* Program declaration */
 int main(int argc, char *argv[])
 {
-    /* Local data declarations */
+	/* Local data declarations */
          
-    STATUS     error = NOERROR;             /* error code from API calls */
+	STATUS     error = NOERROR;             /* error code from API calls */
 	KFHANDLE	hKFC = NULLKFHANDLE;
 	KFHANDLE	hKFC2 = NULLKFHANDLE;
-    DBHANDLE  hDB;
+	DBHANDLE  hDB;
 
 	char    *ServerName;
 	char    *DomainName;
@@ -79,8 +79,8 @@ int main(int argc, char *argv[])
 	char	PASSWORD[]="123456";
 	DWORD	VaultFlags = 0;  
 	WORD    wFlags = 0;
-  char    UserName[MAXUSERNAME] = { 0 };
-  LICENSEID licenseID;
+	char    UserName[MAXUSERNAME] = { 0 };
+	LICENSEID licenseID;
     
 	if(argc != 3)
 	{
