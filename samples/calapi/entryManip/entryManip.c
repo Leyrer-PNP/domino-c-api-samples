@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    entrymanip
 
@@ -51,6 +66,7 @@
 #include "textlist.h"
 #include "names.h"
 /*#include "timelist.h"*/
+#include "printLog.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -63,34 +79,6 @@
 
 FILE        *gOutFP=NULL;
 FILE        *gInFP=NULL;
-
-void PrintAPIError (STATUS api_error)
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-    char    NATIVE_error_text[200];
-#endif /* OS390, ebcdic compile */
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-    OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, error_text, MAXWORD, NATIVE_error_text, sizeof(NATIVE_error_text));
-    fprintf (stderr, "\n%s\n", NATIVE_error_text);
-#else
-    fprintf (stderr, "\n%s\n", error_text);
-#endif /* OS390, ebcdic compile */
-
-}
 
 #if defined(LINUX)
 
@@ -129,7 +117,7 @@ STATUS GetDBHdl(char* pszPath, DBHANDLE* phDB)
 
     if (error=OSPathNetConstruct(NULL, NULL, pszPath, fullPath))
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"OSPathNetConstruct");
         return error;
     }
 
@@ -137,7 +125,7 @@ STATUS GetDBHdl(char* pszPath, DBHANDLE* phDB)
 
     if (error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFDbOpen");
         return error;
     }
 
@@ -150,12 +138,12 @@ STATUS GetDBHdl(char* pszPath, DBHANDLE* phDB)
                                     szInternetPath, sizeof(szInternetPath)-1);
         if (!error)
         {
-           printf("\nGiven DB [%s] is on a remote server. Remote server details:  TCP name: [%s], Host name: [%s]," \
+           PRINTLOG("\nGiven DB [%s] is on a remote server. Remote server details:  TCP name: [%s], Host name: [%s]," \
                   " Domain name: [%s].\n", pszPath, szInternetPath, szHostName, szDomainName);
         }
         else
         {
-           PrintAPIError(error);
+           PRINTERROR(error,"NSFDbGetTcpHostName");
         }
 
     } 
@@ -163,11 +151,11 @@ STATUS GetDBHdl(char* pszPath, DBHANDLE* phDB)
     /* Check whether the database has full access using NSFDbHasFullAccess */
     if (NSFDbHasFullAccess(*phDB))
     {
-        printf("\nDB [%s] has full access.\n", fullPath);
+        PRINTLOG("\nDB [%s] has full access.\n", fullPath);
     }
     else
     {
-       printf("\nDB [%s] doesn't have full access.\n", fullPath);
+       PRINTLOG("\nDB [%s] doesn't have full access.\n", fullPath);
     }
 
     return error;
@@ -183,7 +171,7 @@ STATUS TestCalCreateEntry(DHANDLE hDB, char* pszICalender)
     error = CalCreateEntry(hDB, pszICalender, dwFlags, &hRetUID, NULL);
     if(error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"CalCreateEntry");
         return error;
     }
 
@@ -192,7 +180,7 @@ STATUS TestCalCreateEntry(DHANDLE hDB, char* pszICalender)
     fprintf (gOutFP, "%s\n", pszRetUID);
     fclose(gOutFP); 
     	
-    printf("UID returned %s \n", pszRetUID);
+    PRINTLOG("UID returned %s \n", pszRetUID);
 
     OSMemoryUnlock(hRetUID);
     OSMemoryFree(hRetUID);
@@ -209,11 +197,11 @@ STATUS TestCalUpdateEntry(DHANDLE hDB, char* pszICalender)
     error = CalUpdateEntry(hDB, pszICalender, NULL, NULL, "Delayed for some reason...", dwFlags, NULL);
     if(error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"CalUpdateEntry");
         return error;
     }
 
-    printf("CalUpdateEntry success!\n");
+    PRINTLOG("CalUpdateEntry success!\n");
 
     return error;
 }
@@ -229,7 +217,7 @@ STATUS TestCalReadEntry(DHANDLE hDB, char* pszICalenderUID)
     error = CalReadEntry(hDB, pszICalenderUID, NULL, &hCalData, NULL, dwFlags, NULL);
     if(error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"CalReadEntry");
         return error;
     }
 
@@ -238,10 +226,10 @@ STATUS TestCalReadEntry(DHANDLE hDB, char* pszICalenderUID)
     #if defined (LINUX)
     {
         if (!removeSpecialChar(pszCalData)) 
-            printf( "Calender data returned:\n%s\n",pszCalData);
+            PRINTLOG( "Calender data returned:\n%s\n",pszCalData);
     }
     #else
-        printf("Calender data returned:\n%s\n", pszCalData);
+        PRINTLOG("Calender data returned:\n%s\n", pszCalData);
     #endif
 
     OSMemoryUnlock(hCalData);
@@ -262,11 +250,11 @@ STATUS TestCalEntryActionDelete(DHANDLE hDB, char* pszICalenderUID)
 
     if (error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"CalEntryAction");
         return error;
     }
     else
-        printf("\nCalActionDelete success!\n");
+        PRINTLOG("\nCalActionDelete success!\n");
 
     return error;
 }
@@ -277,31 +265,31 @@ int main(int argc, char *argv[])
     /* example from rfc5545 */
     /* start at 20121122T100000Z and end at 20121122T120000Z */
     char pszICalendar[] = "BEGIN:VCALENDAR" CRLF
-                "VERSION:2.0" CRLF
-                "PRODID:-//hacksw/handcal//NONSGML v1.0//EN" CRLF
-                "BEGIN:VEVENT" CRLF
-                "UID:" ICAL_UID CRLF
-                "DTSTAMP:20121122T172345Z" CRLF
-                "DTSTART:20121122T100000Z" CRLF
-                "DTEND:20121122T120000Z" CRLF
-                /*"RRULE:FREQ=DAILY;COUNT=10" CRLF*/
-                "SUMMARY:Bastille Day Party" CRLF
-                "END:VEVENT" CRLF
-                "END:VCALENDAR" CRLF;
+                          "VERSION:2.0" CRLF
+                          "PRODID:-//hacksw/handcal//NONSGML v1.0//EN" CRLF
+                          "BEGIN:VEVENT" CRLF
+                          "UID:" ICAL_UID CRLF
+                          "DTSTAMP:20121122T172345Z" CRLF
+                          "DTSTART:20121122T100000Z" CRLF
+                          "DTEND:20121122T120000Z" CRLF
+                          /*"RRULE:FREQ=DAILY;COUNT=10" CRLF*/
+                          "SUMMARY:Bastille Day Party" CRLF
+                          "END:VEVENT" CRLF
+                          "END:VCALENDAR" CRLF;
 
     /* delayed */
     /* start at 20121122T180000Z and end at 20121122T210000Z */
     char pszICalendarDelayedTemp[] = "BEGIN:VCALENDAR" CRLF
-                "VERSION:2.0" CRLF
-                "PRODID:-//hacksw/handcal//NONSGML v1.0//EN" CRLF
-                "BEGIN:VEVENT" CRLF
-                "UID: %s" CRLF
-                "DTSTAMP:20121122T172345Z" CRLF
-                "DTSTART:20121122T180000Z" CRLF
-                "DTEND:20121122T210000Z" CRLF
-                "SUMMARY:(Delayed)Bastille Day Party" CRLF
-                "END:VEVENT" CRLF
-                "END:VCALENDAR" CRLF;
+                                     "VERSION:2.0" CRLF
+                                     "PRODID:-//hacksw/handcal//NONSGML v1.0//EN" CRLF
+                                     "BEGIN:VEVENT" CRLF
+                                     "UID: %s" CRLF
+                                     "DTSTAMP:20121122T172345Z" CRLF
+                                     "DTSTART:20121122T180000Z" CRLF
+                                     "DTEND:20121122T210000Z" CRLF
+                                     "SUMMARY:(Delayed)Bastille Day Party" CRLF
+                                     "END:VEVENT" CRLF
+                                     "END:VCALENDAR" CRLF;
 
     char pszICalendarDelayed[1024] = {0};
     STATUS error = NOERROR;
@@ -310,19 +298,19 @@ int main(int argc, char *argv[])
     error = NotesInitExtended (argc, argv);
     if ( error != NOERROR )
     {
-        printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);    
         goto ERROR_EXIT;
     }
     if(argc != 2)
     {
-        printf("Usage: %s mailfileName\n", argv[0]);
+        PRINTLOG("Usage: %s mailfileName\n", argv[0]);
         NotesTerm();
         return 0;
     }
     error = GetDBHdl(argv[1], &hDB);
     if(error != NOERROR)
     {
-        printf("GetDBHdl error!");
+        PRINTLOG("GetDBHdl error!");
         NotesTerm();
         return error;
     }
@@ -331,7 +319,7 @@ int main(int argc, char *argv[])
     error = TestCalCreateEntry(hDB, pszICalendar);
     if(error != NOERROR)
     {
-        printf("TestCalCreateEntry error!");
+        PRINTLOG("TestCalCreateEntry error!");
         goto ERROR_EXIT;
     }
 
@@ -347,21 +335,21 @@ int main(int argc, char *argv[])
     error = TestCalUpdateEntry(hDB, pszICalendarDelayed);
     if(error != NOERROR)
     {
-        printf("TestCalUpdateEntry error!");
+        PRINTLOG("TestCalUpdateEntry error!");
         goto ERROR_EXIT;
     }
 
     error = TestCalReadEntry(hDB, UID);
     if(error != NOERROR)
     {
-        printf("TestCalUpdateEntry error!");
+        PRINTLOG("TestCalUpdateEntry error!");
         goto ERROR_EXIT;
     }
 
     error = TestCalEntryActionDelete(hDB, UID);
     if(error != NOERROR)
     {
-        printf("TestCalEntryActionDelete error!");
+        PRINTLOG("TestCalEntryActionDelete error!");
         goto ERROR_EXIT;
     }
 ERROR_EXIT:

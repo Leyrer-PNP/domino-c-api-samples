@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    OneAttendee
 
@@ -40,6 +55,7 @@
 #include "names.h"
 #include "kfm.h"
 #include "icalSample.h"
+#include "printLog.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -51,35 +67,6 @@
 // Global variables
 FILE        *InFile=NULL;
 
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-    char    NATIVE_error_text[200];
-#endif /* OS390, ebcdic compile */
-
-    /* Get the message for this HCL C API for Domino and Notes error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-    OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, error_text, MAXWORD, NATIVE_error_text, sizeof(NATIVE_error_text));
-    fprintf (stderr, "\n%s\n", NATIVE_error_text);
-#else
-    fprintf (stderr, "\n%s\n", error_text);
-#endif /* OS390, ebcdic compile */
-
-}
-
 STATUS GetDBHdl(char* szPath, DHANDLE* hDB)
 {
     STATUS error = NOERROR;
@@ -89,7 +76,7 @@ STATUS GetDBHdl(char* szPath, DHANDLE* hDB)
     error = NSFDbOpen(fullPath, hDB);
 
     if (error != NOERROR)
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFDbOpen");
 
     return error;
 }
@@ -105,13 +92,13 @@ STATUS TestCalReadEntryExt(DHANDLE hDB, char* pszICalenderUID, char* pszRecurren
     error = CalReadEntry(hDB, pszICalenderUID, pszRecurrenceID, &hCalData, NULL, dwFlags, NULL);
     if(error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"CalReadEntry");
         return error;
     }
 
     pszCalData = (char*)OSMemoryLock(hCalData);
 
-    printf("Calender Data Returnd\r\n%s\r\n", pszCalData);
+    PRINTLOG("Calender Data Returnd\r\n%s\r\n", pszCalData);
 
     OSMemoryUnlock(hCalData);
     OSMemoryFree(hCalData);
@@ -127,14 +114,14 @@ STATUS TestCalEntryActionDeclineExt(DHANDLE hDB, char* pszICalenderUID, char* ps
     DWORD dwRange = 0;
     PEXT_CALACTION_DATA pExtActionInfo = NULL;
 
-    printf("Calender UID : %s\n", pszICalenderUID);
-    printf("Deleting Recurrence ID : %s\n", pszRecurrenceID);
+    PRINTLOG("Calender UID : %s\n", pszICalenderUID);
+    PRINTLOG("Deleting Recurrence ID : %s\n", pszRecurrenceID);
 
     error = CalEntryAction(hDB, pszICalenderUID, pszRecurrenceID, dwAction, dwRange, "decline", pExtActionInfo, 0, NULL);
 
     if (error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"CalEntryAction");
         return error;
     }
 
@@ -154,7 +141,7 @@ STATUS TestCalNoticeActionAccept(DHANDLE hDB, NOTEID noteID)
 
     if (error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"CalNoticeAction");
         return error;
     }
 
@@ -179,7 +166,7 @@ STATUS GetAndAcceptNewInvitationsFromYesterday(DHANDLE hDB)
 
     if (error != NOERROR)
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"CalGetNewInvitations");
         return error;
     }
 
@@ -190,7 +177,7 @@ STATUS GetAndAcceptNewInvitationsFromYesterday(DHANDLE hDB)
 
         while(wNumInvites)
         {
-            printf("CalGetNewInvitations returned NoteID: 0x%x\n", *pNoteID);
+            PRINTLOG("CalGetNewInvitations returned NoteID: 0x%x\n", *pNoteID);
             error = TestCalNoticeActionAccept(hDB, *pNoteID);
             pNoteID++;
             wNumInvites--;
@@ -220,7 +207,7 @@ int main(int argc, char *argv[])
 
     if(argc < 5)
     {
-        printf("usage: OneAttendee server1/test mail\\attendee.nsf 'chair test/test' 'attendee test/test'\r\n");
+        PRINTLOG("usage: OneAttendee server1/test mail\\attendee.nsf 'chair test/test' 'attendee test/test'\r\n");
         return 0;
     }
 
@@ -230,7 +217,7 @@ int main(int argc, char *argv[])
     {
         if (error = OSPathNetConstruct( NULL, argv[1], argv[2], pname))
         {
-            PrintAPIError (error);
+            PRINTERROR (error,"OSPathNetConstruct");
             NotesTerm();
             return (1);
         }
@@ -252,7 +239,7 @@ int main(int argc, char *argv[])
     error = GetDBHdl(pname, &hDB);
     if(error != NOERROR)
     {
-        printf("GetDBHdl error!");
+        PRINTLOG("GetDBHdl error!");
         goto ERROR_EXIT;
     }
 
@@ -268,11 +255,11 @@ int main(int argc, char *argv[])
     error = GetAndAcceptNewInvitationsFromYesterday(hDB);
     if(error != NOERROR)
     {
-        printf("GetAndAcceptNewInvitationsFromYesterday error!");
+        PRINTLOG("GetAndAcceptNewInvitationsFromYesterday error!");
         goto ERROR_EXIT;
     }
 
-    printf("Meeting Invitation came from %s to %s\n", pOrganizer, pAttendee);
+    PRINTLOG("Meeting Invitation came from %s to %s\n", pOrganizer, pAttendee);
 
     /*
     decline meeting at this day.
@@ -280,7 +267,7 @@ int main(int argc, char *argv[])
     error = TestCalEntryActionDeclineExt(hDB, UID, pRecurrenceID);
     if(error != NOERROR)
     {
-        printf("TestCalEntryActionDeclineExt error!");
+        PRINTLOG("TestCalEntryActionDeclineExt error!");
         goto ERROR_EXIT;
     }
 
@@ -288,7 +275,7 @@ int main(int argc, char *argv[])
     error = TestCalReadEntryExt(hDB, UID, pRecurrenceID);
     if(ERR(error) == 0x404)
     {
-        printf("Instance was deleted successfully so we can not find it now!\n");
+        PRINTLOG("Instance was deleted successfully so we can not find it now!\n");
         goto ERROR_EXIT;
     }
 

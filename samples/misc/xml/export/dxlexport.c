@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
       
     PROGRAM:    dxlexport
 
@@ -52,6 +67,7 @@
 #include <idtable.h>
 #include <lapiplat.h>
 #include "dxlexport.h"
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -61,83 +77,83 @@
 int main(int argc, char *argv[])
 {
     STATUS		error =  NOERROR;
-	struct		ExportOptions	expOptions;
-	DBHANDLE	hDB;
+    struct		ExportOptions	expOptions;
+    DBHANDLE	hDB;
 
-	char       pname[MAXPATH] = "";         /* buffer to store the input path to database */
-	char       *path_name;					/* pathname of database */
+    char		pname[MAXPATH] = "";         /* buffer to store the input path to database */
+    char		*path_name;					/* pathname of database */
 
 
-	if (error = NotesInitExtended (argc, argv))
-	{
-		fprintf( stdout, "\n Unable to initialize Notes.\n");
-		return (1);
-	} 
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG( "\n Unable to initialize Notes.\n");
+        return (1);
+    } 
 
-    fprintf( stdout, "DXLEXPORT Utility\n" );
+    PRINTLOG(  "DXLEXPORT Utility\n" );
 
     expOptions.pOutputFile = stdout;
 
-	memset(&expOptions, 0, sizeof(expOptions));
+    memset(&expOptions, 0, sizeof(expOptions));
     error = ProcessArgs( argc, argv, &expOptions );
    
     /* ProcessArgs checks the syntax, etc. */
     if (error)
     {
-		NotesTerm(); /* ProcessArgs already printed an error message */ 
-		return (0);
+        NotesTerm(); /* ProcessArgs already printed an error message */ 
+        return (0);
     }
 
-	path_name = expOptions.fileDatabase;		/* Assign Database to Export */
+    path_name = expOptions.fileDatabase;		/* Assign Database to Export */
 
-	if (expOptions.serverName != NULL)			/* Check to see if user supplied a servername */
+    if (expOptions.serverName != NULL)			/* Check to see if user supplied a servername */
     {
-		if (error = OSPathNetConstruct( NULL, expOptions.serverName, expOptions.fileDatabase, pname))
+        if (error = OSPathNetConstruct( NULL, expOptions.serverName, expOptions.fileDatabase, pname))
         {
-             PrintAPIError(error);
-			 NotesTerm();
-			 return(1);
+            PRINTERROR(error,"OSPathNetConstruct");
+            NotesTerm();
+            return(1);
         }
         path_name = pname;
     }
 
-	if(expOptions.pOutputFile == NULL)			/* Assign pOutputFile to stdout if not specified. */
-		expOptions.pOutputFile = stdout;
+    if(expOptions.pOutputFile == NULL)			/* Assign pOutputFile to stdout if not specified. */
+        expOptions.pOutputFile = stdout;
 
-    fprintf( stdout, "dxlexport: exporting '%s'\n", path_name );
+    PRINTLOG( "dxlexport: exporting '%s'\n", path_name );
 
     if (error = NSFDbOpen( path_name, &hDB ))	/* Open the Domino/Notes Database */
     {
-		fprintf( stdout, "Error: unable to open '%s.'\n", path_name );
-		PrintAPIError (error); 
-		NotesTerm();
-		return (1);
+        PRINTLOG(  "Error: unable to open '%s.'\n", path_name );
+        PRINTERROR (error,"NSFDbOpen"); 
+        NotesTerm();
+        return (1);
     }
 
-	if(expOptions.noteClassMask != 0)			/* Check to see if exporting a class of Notes */
-		error = ExportSetofNotes(&expOptions, hDB);
-	else
-		error = ExportData(&expOptions, hDB);	/* Otherwise exporting, Database, ACL or specific note */
+    if(expOptions.noteClassMask != 0)			/* Check to see if exporting a class of Notes */
+        error = ExportSetofNotes(&expOptions, hDB);
+    else
+        error = ExportData(&expOptions, hDB);	/* Otherwise exporting, Database, ACL or specific note */
 
-	if(error)
-	{
-		NSFDbClose(hDB);
-		PrintAPIError(error);
-		NotesTerm();
-		return(1);
-	}
+    if(error)
+    {
+        NSFDbClose(hDB);
+        PRINTERROR(error,"NSFDbOpen");
+        NotesTerm();
+         return(1);
+    }
 
     NSFDbClose( hDB );
 
     fflush(expOptions.pOutputFile);
 
-    fprintf( stdout, "\n\nDXLEXPORT: Done.\n" );
+    PRINTLOG(  "\n\nDXLEXPORT: Done.\n" );
     if ( stdout != expOptions.pOutputFile ) 
-		fclose(expOptions.pOutputFile);
+        fclose(expOptions.pOutputFile);
     if (error == NOERROR)
-      printf("\nProgram completed successfully.\n");
-    NotesTerm();
-    return (0);
+        PRINTLOG("\nProgram completed successfully.\n");
+        NotesTerm();
+        return (0);
 }
 
 /************************************************************************
@@ -151,73 +167,73 @@ int main(int argc, char *argv[])
 STATUS LNPUBLIC ExportData( struct ExportOptions *expOptions, DBHANDLE hDB )
 {
 
-	STATUS					error = NOERROR;
-	DXLEXPORTHANDLE			hDXLExport;			/* Handle need for all DXL Export functions */
-	NOTEHANDLE				noteHandle;			/* Handle of specific note going to export */
+    STATUS				error = NOERROR;
+    DXLEXPORTHANDLE			hDXLExport;			/* Handle need for all DXL Export functions */
+    NOTEHANDLE			noteHandle;			/* Handle of specific note going to export */
 
 
-	/* Assign the DXLEXPORTHANDLE for this Export Session */
-	if(error = DXLCreateExporter (&hDXLExport))
-		return(error);
+    /* Assign the DXLEXPORTHANDLE for this Export Session */
+    if(error = DXLCreateExporter (&hDXLExport))
+        return(error);
 
-	/* Check our DXL_EXPORT_PROPERTY options and set appropriately */
-	if(error = SetExportOptions(hDXLExport, expOptions))
-		return(error);
+    /* Check our DXL_EXPORT_PROPERTY options and set appropriately */
+    if(error = SetExportOptions(hDXLExport, expOptions))
+        return(error);
 
-	/* 
-	 * Find out what is to be exported.
-	 */
-	/*
-	 * Check to see if user wants to Export the Database ACL
-	 */
-	if(expOptions->whatToExport == EXP_ACL)
-		error = DXLExportACL( hDXLExport, DXLExportStreamFunc, hDB, (void far *)expOptions);
-
-	/*
-	 * Check to see if the user wants to export a full Database 
-	 */
-	else if(expOptions->whatToExport == EXP_DATABASE)
-		error = DXLExportDatabase( hDXLExport, DXLExportStreamFunc, hDB, (void far *)expOptions);
-
-	/*
-	 * Check to see if there is a specific note to be exported via the NoteID or a Note Design Name
+    /* 
+     * Find out what is to be exported.
      */
-	else if((expOptions->noteID != 0) || (expOptions->noteSpec != NULL))
-	{
-		if(expOptions->noteSpec != NULL)
-		{
-			/*
-			 * Want to export a design note, see if it can be found
-			 */
-			if(error = NIFFindDesignNote(hDB, expOptions->noteSpec, NOTE_CLASS_ALL, &expOptions->noteID))
-			{
-				DXLDeleteExporter(hDXLExport);
-				return(error);
-			}
-		}
-		/*
-		 * See if the NoteID wanted to export can be found 
-		 */
-		if(error = NSFNoteOpenExt(hDB, expOptions->noteID, 0, &noteHandle))
-		{
-			DXLDeleteExporter(hDXLExport);
-			return(error);
-		}
-		error = DXLExportNote( hDXLExport, DXLExportStreamFunc, noteHandle, (void far *)expOptions);
-		NSFNoteClose(noteHandle);
-	}
-	else
-		/* Should not get here, this is an invalid request for what to export */
-		fprintf( stdout, "\nInvalid request on what to Export\n");
+    /*
+     * Check to see if user wants to Export the Database ACL
+     */
+    if(expOptions->whatToExport == EXP_ACL)
+        error = DXLExportACL( hDXLExport, DXLExportStreamFunc, hDB, (void far *)expOptions);
 
-	/*
-	 * Find out if there are any errors to report.
-	 */
-	CheckDXLErrorLog(hDXLExport);
+    /*
+     * Check to see if the user wants to export a full Database 
+     */
+    else if(expOptions->whatToExport == EXP_DATABASE)
+        error = DXLExportDatabase( hDXLExport, DXLExportStreamFunc, hDB, (void far *)expOptions);
 
-	/* Free and Unlock the DXLEXPORTHANDLE */
-	DXLDeleteExporter(hDXLExport);
-	return (error);
+    /*
+     * Check to see if there is a specific note to be exported via the NoteID or a Note Design Name
+     */
+    else if((expOptions->noteID != 0) || (expOptions->noteSpec != NULL))
+    {
+        if(expOptions->noteSpec != NULL)
+        {
+            /*
+             * Want to export a design note, see if it can be found
+             */
+            if(error = NIFFindDesignNote(hDB, expOptions->noteSpec, NOTE_CLASS_ALL, &expOptions->noteID))
+            {
+                DXLDeleteExporter(hDXLExport);
+                return(error);
+            }
+        }
+        /*
+         * See if the NoteID wanted to export can be found 
+         */
+        if(error = NSFNoteOpenExt(hDB, expOptions->noteID, 0, &noteHandle))
+        {
+            DXLDeleteExporter(hDXLExport);
+            return(error);
+        }
+        error = DXLExportNote( hDXLExport, DXLExportStreamFunc, noteHandle, (void far *)expOptions);
+        NSFNoteClose(noteHandle);
+    }
+    else
+        /* Should not get here, this is an invalid request for what to export */
+        PRINTLOG(  "\nInvalid request on what to Export\n");
+
+    /*
+     * Find out if there are any errors to report.
+     */
+    CheckDXLErrorLog(hDXLExport);
+
+    /* Free and Unlock the DXLEXPORTHANDLE */
+    DXLDeleteExporter(hDXLExport);
+    return (error);
 }
 /************************************************************************
                                                                         
@@ -229,82 +245,82 @@ STATUS LNPUBLIC ExportData( struct ExportOptions *expOptions, DBHANDLE hDB )
 *************************************************************************/
 STATUS LNPUBLIC ExportSetofNotes( struct ExportOptions *expOptions, DBHANDLE hDB )
 {
-	STATUS				error = NOERROR;
-	DXLEXPORTHANDLE		hDXLExport;
-	DHANDLE				hNoteIDTable;   /* table of Note IDs to modify */
+    STATUS			error = NOERROR;
+    DXLEXPORTHANDLE		hDXLExport;
+    DHANDLE			hNoteIDTable;   /* table of Note IDs to modify */
 
-	/*
-	 * Need to set up an ID Table which will contain a list of Note IDs that are to be exported.
-	 */
-	if (error = IDCreateTable(sizeof(NOTEID), &hNoteIDTable))
-		return(error);
+    /*
+     * Need to set up an ID Table which will contain a list of Note IDs that are to be exported.
+     */
+    if (error = IDCreateTable(sizeof(NOTEID), &hNoteIDTable))
+        return(error);
 
-	/* 
-	 * Call NSFSearch to find the notes that match the note classes we would like to export. 
+    /* 
+     * Call NSFSearch to find the notes that match the note classes we would like to export. 
      * For each note found, the routine AddIdUnique is called.
-	 */
+     */
 
-	if (error = NSFSearch (
-       hDB,						/* database handle */
-       NULLHANDLE,				/* selection formula */
-       NULL,					/* title of view in selection formula */
-       0,						/* search flags */
-       expOptions->noteClassMask,    /* note class to find */
-       NULL,					/* starting date (unused) */
-       AddIDUnique,				/* call for each note found */
-       &hNoteIDTable,			/* argument to AddIDUnique */
-       NULL))					/* returned ending date (unused) */
+    if (error = NSFSearch (
+                           hDB,						/* database handle */
+                           NULLHANDLE,				/* selection formula */
+                           NULL,					/* title of view in selection formula */
+                           0,						/* search flags */
+                           expOptions->noteClassMask,    /* note class to find */
+                           NULL,					/* starting date (unused) */
+                           AddIDUnique,				/* call for each note found */
+                           &hNoteIDTable,			/* argument to AddIDUnique */
+                           NULL))					/* returned ending date (unused) */
 
-	{
-		IDDestroyTable(hNoteIDTable);
-		return(error);
-	}
+    {
+        IDDestroyTable(hNoteIDTable);
+        return(error);
+    }
 
-	/* 
-	 * Get our DXLEXPORTHANDLE, our session started 
-	 */
-	if(error = DXLCreateExporter (&hDXLExport))
-	{
-		IDDestroyTable(hNoteIDTable);
-		return(error);
-	}
+    /* 
+     * Get our DXLEXPORTHANDLE, our session started 
+     */
+    if(error = DXLCreateExporter (&hDXLExport))
+    {
+        IDDestroyTable(hNoteIDTable);
+        return(error);
+    }
 
-	/* 
-	 * Check our DXL_EXPORT_PROPERTY options and set appropriately 
-	 */
-	if(error = SetExportOptions(hDXLExport, expOptions))
-	{
-		IDDestroyTable(hNoteIDTable);
-		return(error);
-	}
+    /* 
+     * Check our DXL_EXPORT_PROPERTY options and set appropriately 
+     */
+    if(error = SetExportOptions(hDXLExport, expOptions))
+    {
+        IDDestroyTable(hNoteIDTable);
+        return(error);
+    }
 
-	/*
-	 * Export the set of notes, based on noteClassMask that are to be exported.
-	 */
-	if( error = DXLExportIDTable(hDXLExport, DXLExportStreamFunc, hDB, hNoteIDTable, (void far *)expOptions))
-	{	
-		CheckDXLErrorLog(hDXLExport);
-		DXLDeleteExporter(hDXLExport);
-		IDDestroyTable(hNoteIDTable);
-		return(error);
-	}
+    /*
+     * Export the set of notes, based on noteClassMask that are to be exported.
+     */
+    if( error = DXLExportIDTable(hDXLExport, DXLExportStreamFunc, hDB, hNoteIDTable, (void far *)expOptions))
+    {	
+        CheckDXLErrorLog(hDXLExport);
+        DXLDeleteExporter(hDXLExport);
+        IDDestroyTable(hNoteIDTable);
+        return(error);
+    }
 
-	/*
-	 * Find out if there are any errors to report.
-	 */
-	CheckDXLErrorLog(hDXLExport);
-	
-	/* 
-	 * Free and Unlock the DXLEXPORTHANDLE 
-	 */
-	DXLDeleteExporter(hDXLExport);
+    /*
+     * Find out if there are any errors to report.
+     */
+    CheckDXLErrorLog(hDXLExport);
+    
+    /* 
+     * Free and Unlock the DXLEXPORTHANDLE 
+     */
+    DXLDeleteExporter(hDXLExport);
 
-	/* 
-	 * Free the memory containing the ID table
-	 */
-	IDDestroyTable(hNoteIDTable);
+    /* 
+     * Free the memory containing the ID table
+     */
+    IDDestroyTable(hNoteIDTable);
 
-	return (error);
+    return (error);
 }
 /************************************************************************
                                                                         
@@ -313,11 +329,11 @@ STATUS LNPUBLIC ExportSetofNotes( struct ExportOptions *expOptions, DBHANDLE hDB
 *************************************************************************/
 STATUS LNPUBLIC SetExportOptions(DXLEXPORTHANDLE hDXLExport, struct ExportOptions *expOptions)
 {
-	STATUS					error = NOERROR;
+	STATUS				error = NOERROR;
 	DXL_EXPORT_PROPERTY		propValue;
-	BOOL					setGetValue;
+	BOOL				setGetValue;
 	DXL_RICHTEXT_OPTION		richOpt;
-	char					bannerComment[100];
+	char				bannerComment[100];
 
 	
 	/*
@@ -388,9 +404,13 @@ void LNCALLBACK DXLExportStreamFunc ( const BYTE *bytes, DWORD length, void far 
 	
 	numberWritten = fwrite( bytes, sizeof(BYTE), length, tmpCtx->pOutputFile);
 	if( numberWritten != length )
-		fprintf( stdout, "Error: Did not write specified bytes required %d\n", length );
+	{
+		PRINTLOG(  "Error: Did not write specified bytes required %d\n", length );
+	}
 	else
+	{
 		tmpCtx->totalBytesWritten += numberWritten;
+	}
 
 
 	return;
@@ -405,8 +425,8 @@ void LNCALLBACK CheckDXLErrorLog( DXLEXPORTHANDLE hDXLExport)
 {
 
 	DXL_EXPORT_PROPERTY		propValue;
-	MEMHANDLE				hMem;
-	char					*pData;
+	MEMHANDLE			hMem;
+	char				*pData;
 
 	if(DXLExportWasErrorLogged(hDXLExport))
 	{
@@ -414,11 +434,11 @@ void LNCALLBACK CheckDXLErrorLog( DXLEXPORTHANDLE hDXLExport)
 		propValue = eDxlExportResultLog;
 		if(DXLGetExporterProperty(hDXLExport, propValue, &hMem))
 		{
-			fprintf( stdout, "\nNot Able to Retrieve Error Log Information!!!\n");
+			PRINTLOG( "\nNot Able to Retrieve Error Log Information!!!\n");
 			return;
 		}
 		pData = (char *)OSMemoryLock(hMem);
-		fprintf( stdout, "\nResultLog = %s\n", pData);
+		PRINTLOG( "\nResultLog = %s\n", pData);
 		OSMemoryUnlock(hMem);
 		OSMemoryFree(hMem);
 	}
@@ -431,12 +451,12 @@ void LNCALLBACK CheckDXLErrorLog( DXLEXPORTHANDLE hDXLExport)
                                                                         
 *************************************************************************/
 STATUS LNPUBLIC AddIDUnique    
-            (void far * phNoteIDTable,
-            SEARCH_MATCH far *pSearchMatch,
-            ITEM_TABLE far *summary_info)
+                           (void far * phNoteIDTable,
+                            SEARCH_MATCH far *pSearchMatch,
+                            ITEM_TABLE far *summary_info)
 {
    SEARCH_MATCH SearchMatch;
-   DHANDLE        hNoteIDTable;
+   DHANDLE      hNoteIDTable;
    STATUS       error;
    BOOL         flagOK;
 
@@ -464,10 +484,10 @@ STATUS LNPUBLIC AddIDUnique
 
 STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *expOptions)
 {
-	if (argc == 1)   
+    if (argc == 1)   
     {
-		PrintUsage();
-		return (ERR_INVALID_ARGS);
+        PrintUsage();
+        return (ERR_INVALID_ARGS);
     }
 	
     argc--, argv++;
@@ -505,7 +525,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 				/* open the file and assign to dump file pointer */
 				if ((expOptions->pOutputFile = fopen(argv[0],"w+")) == NULL)
 				{
-					fprintf( stdout, 
+					PRINTLOG(  
                        "Error: dump output file could not be opened.\n");
 					return (ERR_INVALID_ARGS);
 				}                
@@ -521,7 +541,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 				break;
 			
             default:    /* Invalid Option Specified */
-                fprintf ( stdout, "Didn't understand option %s\n", argv[0]);
+                PRINTLOG ( "Didn't understand option %s\n", argv[0]);
 				PrintUsage();
 				return(ERR_INVALID_ARGS);
             }
@@ -538,7 +558,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 				{
 					if(sscanf(expOptions->noteSpec+2, "%x", &expOptions->noteID) != 1 || expOptions->noteID == 0)
 					{
-						fprintf( stdout, "\nCouldn't parse noteid '%s'\n", expOptions->noteSpec);
+						PRINTLOG( "\nCouldn't parse noteid '%s'\n", expOptions->noteSpec);
 						PrintUsage();
 						return(ERR_INVALID_ARGS);
 					}
@@ -548,7 +568,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 			}
 			else
 			{
-				fprintf ( stdout, "Too many args: %s\n", argv[0]);
+				PRINTLOG ( "Too many args: %s\n", argv[0]);
 				PrintUsage();
 				return(ERR_INVALID_ARGS);
 			}
@@ -556,7 +576,7 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
     }
 	if(expOptions->fileDatabase == NULL)
 	{
-		fprintf( stdout, "\nYou must specify a Database Name to export from. \n");
+		PRINTLOG( "\nYou must specify a Database Name to export from. \n");
 		PrintUsage();
 		return(ERR_INVALID_ARGS);
 	}
@@ -571,49 +591,19 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ExportOptions *exp
 *************************************************************************/
 void    LNPUBLIC  PrintUsage()
 {
-    fprintf( stdout, "\nUSAGE : dxlexport [options] dbpath [notespec]\n" );
-	fprintf( stdout, "\ndbpath    - is relative to the Domino data directory\n");
-	fprintf( stdout, "notespec  - is either a design element name, or a hex noteid (ie. 0x211a)\n");
-	fprintf( stdout, "\noptions : \n");
-	fprintf( stdout, "         -a Write all notes in the database (including acl and design elements)\n");
-	fprintf( stdout, "         -c <number> Write all notes with the given note class(es).\n");
-	fprintf( stdout, "         -d <file> Write a DOCTYPE declaration using the given file\n");
-	fprintf( stdout, "         -l Write acl elements only.\n");
-	fprintf( stdout, "         -n Write all notes as <note>.\n");
-	fprintf( stdout, "         -o <file> Write the DXL to the file (default is standard out)\n");
-	fprintf( stdout, "         -s <server> Use the database on the specified Domino server\n");
-	fprintf( stdout, "         -r Write rich text items as uninterpreted data (<itemdata>) \n");
+    PRINTLOG(  "\nUSAGE : dxlexport [options] dbpath [notespec]\n" );
+	PRINTLOG( "\ndbpath    - is relative to the Domino data directory\n");
+	PRINTLOG( "notespec  - is either a design element name, or a hex noteid (ie. 0x211a)\n");
+	PRINTLOG( "\noptions : \n");
+	PRINTLOG( "         -a Write all notes in the database (including acl and design elements)\n");
+	PRINTLOG( "         -c <number> Write all notes with the given note class(es).\n");
+	PRINTLOG( "         -d <file> Write a DOCTYPE declaration using the given file\n");
+	PRINTLOG( "         -l Write acl elements only.\n");
+	PRINTLOG( "         -n Write all notes as <note>.\n");
+	PRINTLOG( "         -o <file> Write the DXL to the file (default is standard out)\n");
+	PRINTLOG( "         -s <server> Use the database on the specified Domino server\n");
+	PRINTLOG( "         -r Write rich text items as uninterpreted data (<itemdata>) \n");
    
     return;
-}
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-				error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stdout, "\n%s\n", error_text);
-
 }
 

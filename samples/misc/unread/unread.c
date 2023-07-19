@@ -1,5 +1,20 @@
 /*
  *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
  *  unread.c - Display the unread note table for a user
  *
  *  Usage:
@@ -34,6 +49,7 @@
 #include <nsfdb.h>
 #include <nsfnote.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -74,25 +90,23 @@ STATUS DisplayUnread (
 
    /* Function to apply actions to unread note table */
 STATUS UpdateUnread (
-   DBHANDLE       hDb,
-   char           NOTESPTR pName,
-   WORD           nameLen,
-   ACTION_ENTRY   *pActions,
-   int            actionCount,
-   NOTEID         *pUndoID
+                     DBHANDLE       hDb,
+                     char           NOTESPTR pName,
+                     WORD           nameLen,
+                     ACTION_ENTRY   *pActions,
+                     int            actionCount,
+                     NOTEID         *pUndoID
 );
 
    /* Function that updates a note without changing its unread status */
 STATUS UndoUnreadStatus (
-   DBHANDLE       hDb, 
-   char           NOTESPTR pName, 
-   WORD           nameLen, 
-   ACTION_ENTRY   *pActions,
-   int            actionCount,
-   NOTEID         UndoID);
+                         DBHANDLE       hDb, 
+                         char           NOTESPTR pName, 
+                         WORD           nameLen, 
+                         ACTION_ENTRY   *pActions,
+                         int            actionCount,
+                         NOTEID         UndoID);
 
-
-void PrintAPIError (STATUS);
 
 /*
  *      Main program
@@ -118,11 +132,11 @@ int main (int argc, char *argv[])
 
    if (argc < 2)
    {
-      printf ("Usage:\n\tunread pathname [username] [+/-id] ...\n\n");
-      printf ("where:\n\tpathname\tPathname to .nsf file\n");
-      printf ("\tusername\tOptional user name\n");
-      printf ("\tid\t\tNote ID to add (+) or remove (-)\n\n");
-      printf ("You may supply up to %d Note IDs to be added or removed\n",
+      PRINTLOG ("Usage:\n\tunread pathname [username] [+/-id] ...\n\n");
+      PRINTLOG ("where:\n\tpathname\tPathname to .nsf file\n");
+      PRINTLOG ("\tusername\tOptional user name\n");
+      PRINTLOG ("\tid\t\tNote ID to add (+) or remove (-)\n\n");
+      PRINTLOG ("You may supply up to %d Note IDs to be added or removed\n",
                ACTION_COUNT_MAX);
       return (NOERROR);
    }
@@ -130,7 +144,7 @@ int main (int argc, char *argv[])
 
    if (status = NotesInitExtended (argc, argv))
    {
-      printf("\n Unable to initialize Notes.\n");
+      PRINTLOG("\n Unable to initialize Notes.\n");
       return (1);
    }
 
@@ -169,8 +183,8 @@ int main (int argc, char *argv[])
          ActionTable[curAction].AddFlag = FALSE;
       else
       {
-         printf ("Invalid action: %s\n", argv[curArg]);
-         printf ("Expecting \"+XXXX\" or \"-XXXX\"\n");
+         PRINTLOG ("Invalid action: %s\n", argv[curArg]);
+         PRINTLOG ("Expecting \"+XXXX\" or \"-XXXX\"\n");
          goto exit0;
       }
 
@@ -188,8 +202,8 @@ int main (int argc, char *argv[])
    if (NOERROR   != status)
       goto exit0;
 
-   printf ("Database name: %s\n", pPath);
-   printf ("User name: %s\n", pName);
+   PRINTLOG ("Database name: %s\n", pPath);
+   PRINTLOG ("User name: %s\n", pName);
 
    if (JustDisplay)
       status = DisplayUnread (hDb, pName, UserNameLen);
@@ -209,7 +223,7 @@ int main (int argc, char *argv[])
 
 exit0:
    if (status)
-      PrintAPIError (status);
+   PRINTERROR (status,"NSFDbOpen");
    NotesTerm();
    return(status);
 
@@ -220,9 +234,9 @@ exit0:
  */
 
 STATUS DisplayUnread (
-        DBHANDLE      hDb,
-        char         *pName,
-        WORD          nameLen)
+                      DBHANDLE      hDb,
+                      char         *pName,
+                      WORD          nameLen)
 {
    STATUS         status=NOERROR;
    STATUS         stat2=NOERROR;
@@ -233,11 +247,11 @@ STATUS DisplayUnread (
 
    /* Get the unread list */
    status = NSFDbGetUnreadNoteTable (
-           hDb,
-           pName,
-           nameLen,
-           TRUE,         /* Create the list if it's not already there */
-           &hTable);
+                                      hDb,
+                                      pName,
+                                      nameLen,
+                                      TRUE,         /* Create the list if it's not already there */
+                                      &hTable);
 
    if (NOERROR != status)
       return (status);
@@ -254,13 +268,13 @@ STATUS DisplayUnread (
    }
 
    scanFlag = TRUE;
-   printf ("Unread notes:\n");
+   PRINTLOG ("Unread notes:\n");
 
        /* Print the entries in the unread list */
    while (IDScan (hTable, scanFlag, &noteID))
    {
       scanFlag = FALSE;
-      printf ("\tNote ID: %lX %s\n", noteID,
+      PRINTLOG ("\tNote ID: %lX %s\n", noteID,
          (RRV_DELETED & noteID) ? "(Deleted)" : "");
    }
    
@@ -276,12 +290,12 @@ STATUS DisplayUnread (
  */
 
 STATUS UpdateUnread (
-         DBHANDLE      hDb,
-         char          *pName,
-         WORD          nameLen,
-         ACTION_ENTRY  *pActions,
-         int           actionCount,
-         NOTEID        *pUndoID)
+                      DBHANDLE      hDb,
+                      char          *pName,
+                      WORD          nameLen,
+                      ACTION_ENTRY  *pActions,
+                      int           actionCount,
+                      NOTEID        *pUndoID)
 {
    STATUS         status=NOERROR;
    STATUS         stat2=NOERROR;
@@ -293,11 +307,11 @@ STATUS UpdateUnread (
 
    /* Get the unread list */
    status = NSFDbGetUnreadNoteTable (
-      hDb,
-      pName,
-      nameLen,
-      TRUE,         /* Create the list if it's not already there */
-      &hTable);
+                                     hDb,
+                                     pName,
+                                     nameLen,
+                                     TRUE,         /* Create the list if it's not already there */
+                                     &hTable);
    if (NOERROR != status)
       return (status);
 
@@ -327,7 +341,7 @@ STATUS UpdateUnread (
             /* (Marks note as Unread) */
             if (IDIsPresent (hTable, pActions[index].NoteID))
             {
-               printf ("* * Note %lX is already in the unread list\n",
+               PRINTLOG ("* * Note %lX is already in the unread list\n",
                   pActions[index].NoteID);
             }
             else
@@ -343,7 +357,7 @@ STATUS UpdateUnread (
                    status = IDInsert (hTable, pActions[index].NoteID,
                                       (NOTESBOOL NOTESPTR) NULL);
                    if (NOERROR == status)
-                      printf ("Note %lX marked Unread\n", 
+                      PRINTLOG ("Note %lX marked Unread\n", 
                               pActions[index].NoteID); 
                }
             }   
@@ -358,7 +372,7 @@ STATUS UpdateUnread (
                   (NOTESBOOL NOTESPTR) NULL);
                if (NOERROR == status)
                {
-                  printf ("Note %lX marked Read\n", 
+                  PRINTLOG ("Note %lX marked Read\n", 
                           pActions[index].NoteID);
                   if (!gotUndoID)
                   {
@@ -369,7 +383,7 @@ STATUS UpdateUnread (
             }
             else
             {
-               printf ("* * Note %lX is not in the unread list\n",
+               PRINTLOG ("* * Note %lX is not in the unread list\n",
                        pActions[index].NoteID);
             }
          }
@@ -377,10 +391,10 @@ STATUS UpdateUnread (
 
    if (NOERROR == status)
       status = NSFDbSetUnreadNoteTable (hDb, pName, nameLen,
-                                           FALSE,      /* Don't force the 
+                                        FALSE,      /* Don't force the 
                                                           write to disk */
-                                           hOriginalTable,
-                                           hTable);
+                                        hOriginalTable,
+                                        hTable);
 
    stat2 = IDDestroyTable (hOriginalTable);
    if (NOERROR == status)
@@ -400,12 +414,12 @@ STATUS UpdateUnread (
  */
 
 STATUS UndoUnreadStatus (
-         DBHANDLE       hDb,
-         char           *pName,
-         WORD           nameLen,
-         ACTION_ENTRY   *pActions,
-         int            actionCount,
-         NOTEID         UndoID)
+                         DBHANDLE       hDb,
+                         char           *pName,
+                         WORD           nameLen,
+                         ACTION_ENTRY   *pActions,
+                         int            actionCount,
+                         NOTEID         UndoID)
 {
    STATUS         status=NOERROR;
    STATUS         stat2=NOERROR;
@@ -503,18 +517,22 @@ STATUS UndoUnreadStatus (
         call to NSFDbSetUnreadNoteTable not making any changes. */
 
       if (status = IDDestroyTable(hOriginalTable))
-         printf("IDDestroyTable failed!\n");
+         PRINTLOG("IDDestroyTable failed!\n");
       if (status = IDTableCopy(hTable, &hOriginalTable))
-         printf("IDTableCopy failed!\n");
+         PRINTLOG("IDTableCopy failed!\n");
 
       /* Remove the Note ID that we just modified to mark it as read*/
       status = IDDelete (hTable, UndoID,
                   (NOTESBOOL NOTESPTR) NULL);
       if (NOERROR == status)
-                  printf ("Note %lX was updated and then marked as Read.\n",
-                          UndoID);
+      {
+           PRINTLOG ("Note %lX was updated and then marked as Read.\n",
+                      UndoID);
+      }
       else
-         printf ("* * Note %lX is not in the unread list\n", UndoID);
+      {
+         PRINTLOG ("* * Note %lX is not in the unread list\n", UndoID);
+      }
    }
 
    /* Save unread table to disk */
@@ -533,28 +551,3 @@ STATUS UndoUnreadStatus (
       status = stat2;
    return (status);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

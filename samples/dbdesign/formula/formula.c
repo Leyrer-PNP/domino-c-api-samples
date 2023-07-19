@@ -1,4 +1,19 @@
 /*************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    formula
 
@@ -52,12 +67,11 @@
 #include <osmem.h>
 #include <misc.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -75,54 +89,54 @@ int main(int argc, char *argv[])
 
 /*  Local data declarations */
 
-    char        path_name[]="formula.nsf";   /* pathname of database */
-    DBHANDLE    hDb;            /* database handle      */
-    NOTEHANDLE  hNote;          /* Note handle.         */
+    char          path_name[]="formula.nsf";   /* pathname of database */
+    DBHANDLE      hDb;                         /* database handle      */
+    NOTEHANDLE    hNote;                       /* Note handle.         */
 
-    char        szFormula[] = "numberfield";
+    char          szFormula[] = "numberfield";
 
-    char       *pFormula;       /* pointer to compiled formula.    */
+    char          *pFormula;                   /* pointer to compiled formula.    */
     FORMULAHANDLE hFormula;
-    WORD        wFormulaLen;
+    WORD          wFormulaLen;
 
-    NOTEID      note_id;        /* Noteid for newly created note. */
+    NOTEID        note_id;                     /* Noteid for newly created note. */
 
-    DHANDLE       hResult;        /* Handle to results returned by  */
-                                /* NSFComputeEvaluate()           */
-    char       *pResult;        /* Pointer to results buffer.     */
-    WORD        wResultLen;     /* Length of result buffer.       */
+    DHANDLE       hResult;                     /* Handle to results returned by  */
+                                               /* NSFComputeEvaluate()           */
+    char          *pResult;                    /* Pointer to results buffer.     */
+    WORD          wResultLen;                  /* Length of result buffer.       */
 
-    HCOMPUTE    hCompute;       /* Handle to COMPUTE returned by  */
-                                /* NSFComputeStart()              */
-    BOOL        bModified;      /* Set to TRUE by NSFComputeEvaluate  */
-                                /*  if note modified by formula.      */
-    BOOL        bShouldDelete;  /* TRUE if formula indicates that the */
-                                /*   note should be deleted.          */
+    HCOMPUTE      hCompute;                    /* Handle to COMPUTE returned by  */
+                                               /* NSFComputeStart()              */
+    BOOL          bModified;                   /* Set to TRUE by NSFComputeEvaluate  */
+                                               /*  if note modified by formula.      */
+    BOOL          bShouldDelete;               /* TRUE if formula indicates that the */
+                                               /*   note should be deleted.          */
 
-    WORD        wdc;            /* "We Don't Care" - We're not interested 
-                                    in some of the info passed back by 
-                                    NSFFormulaCompile(), but the syntax
-                                    requires several word pointers. We  
-                                    pass the address of this word for all 
-                                    parameters we are not interested in.
-                                 */
+    WORD          wdc;                         /* "We Don't Care" - We're not interested 
+                                                  in some of the info passed back by 
+                                                  NSFFormulaCompile(), but the syntax
+                                                  requires several word pointers. We  
+                                                  pass the address of this word for all 
+                                                  parameters we are not interested in.
+                                               */
 
-    STATUS      sError = NOERROR;     /* error code from API calls */
+    STATUS        sError = NOERROR;            /* error code from API calls */
 
-    WORD        wDataType;
-    double      dNumber = BODY_TEMP;
-    RANGE      *pRange;
-    NUMBER     *pNumber;
-    WORD        wEntry;
-    char        szTextNum[MAXALPHANUMBER+1];
-    WORD        wTextNumLen;
+    WORD          wDataType;
+    double        dNumber = BODY_TEMP;
+    RANGE         *pRange;
+    NUMBER        *pNumber;
+    WORD          wEntry;
+    char          szTextNum[MAXALPHANUMBER+1];
+    WORD          wTextNumLen;
 
 
-	if (sError = NotesInitExtended (argc, argv))
-	{
-        printf("\n Unable to initialize Notes.\n");
+    if (sError = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
 
 /*
@@ -131,7 +145,7 @@ int main(int argc, char *argv[])
 
     if (sError = NSFDbOpen (path_name, &hDb))
     {
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFDbOpen");
         NotesTerm();
         return (1);
     } 
@@ -144,7 +158,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteCreate(hDb, &hNote))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteCreate");
         NotesTerm();
         return (1);
     }
@@ -160,7 +174,7 @@ int main(int argc, char *argv[])
                                  MAXWORD))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFItemSetText");
         NotesTerm();
         return (1);
     }
@@ -174,7 +188,7 @@ int main(int argc, char *argv[])
                                   &dNumber))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFItemSetNumber");
         NotesTerm();
         return (1);
     }
@@ -187,7 +201,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteUpdate(hNote, 0))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteUpdate");
         NotesTerm();
         return (1);
     }
@@ -205,7 +219,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteClose(hNote))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteClose");
         NotesTerm();
         return (1);
     }
@@ -217,7 +231,7 @@ int main(int argc, char *argv[])
     if (sError = NSFNoteOpen(hDb, note_id, OPEN_EXPAND, &hNote))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFNoteOpen");
         NotesTerm();
         return (1);
     }
@@ -236,7 +250,7 @@ int main(int argc, char *argv[])
                                    &wdc, &wdc))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFFormulaCompile");
         NotesTerm();
         return (1);
     }
@@ -256,7 +270,7 @@ int main(int argc, char *argv[])
         OSUnlockObject(hFormula);
         OSMemFree(hFormula);
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFComputeStart");
         NotesTerm();
         return (1);
     }
@@ -278,7 +292,7 @@ int main(int argc, char *argv[])
         OSUnlockObject(hFormula);
         OSMemFree(hFormula);
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFComputeEvaluate");
         NotesTerm();
         return (1);
     }
@@ -310,17 +324,17 @@ int main(int argc, char *argv[])
         case TYPE_NUMBER:
 
             sError = ConvertFLOATToText( NULL, NULL,
-                            (NUMBER*)pResult,
-                            szTextNum,
-                            MAXALPHANUMBER,
-                            &wTextNumLen );
+                                         (NUMBER*)pResult,
+                                         szTextNum,
+                                         MAXALPHANUMBER,
+                                         &wTextNumLen );
             if (ERR(sError))
             {
-                printf("Error: unable to convert number to text.\n");
+                PRINTLOG("Error: unable to convert number to text.\n");
             }
             else
             {
-                printf( "The number is: %s\n", szTextNum);
+                PRINTLOG( "The number is: %s\n", szTextNum);
             }
          
             break;
@@ -338,18 +352,18 @@ int main(int argc, char *argv[])
                                     pNumber, szTextNum,
                                     MAXALPHANUMBER, &wTextNumLen ))
                 {
-                    printf( "Error: unable to convert number to text.\n" );
+                    PRINTLOG( "Error: unable to convert number to text.\n" );
                 }
                 else
                 {
-                    printf( "The number is: %s\n", szTextNum );
+                    PRINTLOG( "The number is: %s\n", szTextNum );
                 }
             }
             break;
 
         case TYPE_INVALID_OR_UNKNOWN:
         default:
-            printf( "TYPE_INVALID_OR_UNKNOWN : %x\n", wDataType );
+            PRINTLOG( "TYPE_INVALID_OR_UNKNOWN : %x\n", wDataType );
             break;
 
     }
@@ -372,7 +386,7 @@ int main(int argc, char *argv[])
     if (sError = NSFComputeStop(hCompute))
     {
         NSFDbClose (hDb);
-        PrintAPIError (sError);  
+        PRINTERROR (sError,"NSFComputeStop");
         NotesTerm();
         return (1);
     }
@@ -380,45 +394,15 @@ int main(int argc, char *argv[])
 /* Close the database. */
 
     if (sError = NSFDbClose (hDb))
-	{
-        PrintAPIError (sError);  
+    {
+        PRINTERROR (sError,"NSFDbClose");
         NotesTerm();
         return (1);
-	}
+    }
 
 /* End of program. */
-    printf("\nProgram completed successfully\n"); 
+    PRINTLOG("\nProgram completed successfully\n"); 
     NotesTerm();
     return (0); 
-
-}
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
 
 }

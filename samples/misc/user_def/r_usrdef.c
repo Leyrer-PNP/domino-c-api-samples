@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    r_usrdef
 
@@ -36,6 +51,7 @@ extern "C" {
 #include <osmem.h>
 #include <nsferr.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 /* Local include files */
 
@@ -49,7 +65,6 @@ extern "C" {
 
 STATUS LNPUBLIC find_my_data (void *, SEARCH_MATCH *, ITEM_TABLE *);
 STATUS LNPUBLIC EnumProc(void far *, SEARCH_MATCH far *, ITEM_TABLE far *);
-void PrintAPIError (STATUS);
 
 /* Main HCL C API for Notes/Domino routine */
 
@@ -68,7 +83,7 @@ int main(int argc, char *argv[])
 
     if (error = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -76,7 +91,7 @@ int main(int argc, char *argv[])
     db_filename = (char *) malloc(STRING_LENGTH);
     if (db_filename == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         goto exit0;
     }
 
@@ -91,19 +106,19 @@ int main(int argc, char *argv[])
 
     /* Write an ASCII selection formula. */
     strcpy (ascii_formula, "@IsAvailable(");
-        strcat (ascii_formula, MY_FIELD_NAME);
-        strcat (ascii_formula, ")");
+    strcat (ascii_formula, MY_FIELD_NAME);
+    strcat (ascii_formula, ")");
 
     /* Compile the selection formula. */
     error = NSFFormulaCompile (
-        NULL,                   /* name of formula (none) */
-        0,                      /* length of name */
-        ascii_formula,          /* the ASCII formula */
-        (WORD) strlen(ascii_formula),  /* length of ASCII formula */
-        &compiled_formula,      /* handle of compiled formula */
-        &dc,                    /* compiled formula length */
-        &formula_error,         /* error code from compile */
-        &dc, &dc, &dc, &dc);    /* compile error info (don't care) */
+                               NULL,                   /* name of formula (none) */
+                               0,                      /* length of name */
+                               ascii_formula,          /* the ASCII formula */
+                               (WORD) strlen(ascii_formula),  /* length of ASCII formula */
+                               &compiled_formula,      /* handle of compiled formula */
+                               &dc,                    /* compiled formula length */
+                               &formula_error,         /* error code from compile */
+                               &dc, &dc, &dc, &dc);    /* compile error info (don't care) */
 
     /* If there was an error in the formula, return that error. If there
     was some other kind of error (unlikely) return that instead. */
@@ -123,31 +138,31 @@ int main(int argc, char *argv[])
     argument to NULLHANDLE and eliminate the formula compilation.) */
 
     if (error = NSFSearch (
-        db_handle,              /* database handle */
-        compiled_formula,       /* selection formula */
-        NULL,                   /* title of view in selection formula */
-        0,                      /* search flags */
-        NOTE_CLASS_DOCUMENT,        /* note class to find */
-        NULL,                   /* starting date (unused) */
-        find_my_data,           /* action routine */
-        &db_handle,             /* argument to action routine */
-        NULL))                  /* returned ending date (unused) */
+                           db_handle,              /* database handle */
+                           compiled_formula,       /* selection formula */
+                           NULL,                   /* title of view in selection formula */
+                           0,                      /* search flags */
+                           NOTE_CLASS_DOCUMENT,        /* note class to find */
+                           NULL,                   /* starting date (unused) */
+                           find_my_data,           /* action routine */
+                           &db_handle,             /* argument to action routine */
+                           NULL))                  /* returned ending date (unused) */
 
 		goto exitFreeCompiledFormula;
 	
-	error = NSFSearch (
-                db_handle,      
-                compiled_formula, 
-                NULL,           
-                0,              
-                NOTE_CLASS_DOCUMENT,
-                NULL,         
-                EnumProc, 
-                &db_handle, 
-                NULL);
+    error = NSFSearch (
+                       db_handle,      
+                       compiled_formula, 
+                       NULL,           
+                       0,              
+                       NOTE_CLASS_DOCUMENT,
+                       NULL,         
+                       EnumProc, 
+                       &db_handle, 
+                       NULL);
     if ( error != NOERROR ) 
     {
-        PrintAPIError(error);
+        PRINTERROR(error,"NSFSearch");
         goto exitCloseDB;
     }
 
@@ -166,8 +181,7 @@ exitFreeDBFile:
 
 exit0:
     if (error)
-       PrintAPIError (error);
-
+    PRINTERROR (error,"(char *) malloc");
     NotesTerm();
     return(error);
 }
@@ -179,9 +193,9 @@ the search criteria. */
 
 
 STATUS LNPUBLIC find_my_data
-            (void *db_handle, 
-            SEARCH_MATCH far *pSearchMatch,
-            ITEM_TABLE *summary_info)
+                            (void *db_handle, 
+                             SEARCH_MATCH far *pSearchMatch,
+                             ITEM_TABLE *summary_info)
 {
     SEARCH_MATCH    SearchMatch;
     NOTEHANDLE      note_handle;
@@ -211,29 +225,29 @@ STATUS LNPUBLIC find_my_data
 
     /* Print the note ID. */
 
-    printf ("\n\n***** Note ID is: %lX. *****\n", SearchMatch.ID.NoteID);
+    PRINTLOG ("\n\n***** Note ID is: %lX. *****\n", SearchMatch.ID.NoteID);
 
     /* Open the note. */
 
     if (error = NSFNoteOpen (
-            *(DBHANDLE*)db_handle,  /* database handle */
-            SearchMatch.ID.NoteID, /* note ID */
-            0,                      /* open flags */
-            &note_handle))          /* note handle (return) */
+                             *(DBHANDLE*)db_handle,  /* database handle */
+                             SearchMatch.ID.NoteID, /* note ID */
+                             0,                      /* open flags */
+                             &note_handle))          /* note handle (return) */
         
         return (ERR(error));
 
     /* Get the block ID of the field we are interested in. */
 
     error = NSFItemInfo (
-            note_handle,
-            MY_FIELD_NAME, (WORD) strlen(MY_FIELD_NAME),
-            &item_block, &item_type,
-            &value_block, &value_len);
+                         note_handle,
+                         MY_FIELD_NAME, (WORD) strlen(MY_FIELD_NAME),
+                         &item_block, &item_type,
+                         &value_block, &value_len);
 
     if (ERR(error) == ERR_ITEM_NOT_FOUND)
     {
-		printf ("\nField %s was NOT found in this note.\n", MY_FIELD_NAME);
+        PRINTLOG ("\nField %s was NOT found in this note.\n", MY_FIELD_NAME);
         NSFNoteClose (note_handle);
         return (NOERROR);
     }
@@ -246,7 +260,7 @@ STATUS LNPUBLIC find_my_data
 
     /* Tell the user that we found the field. */
 
-    printf ("\nField %s was found in this note.\n", MY_FIELD_NAME);
+    PRINTLOG ("\nField %s was found in this note.\n", MY_FIELD_NAME);
 
     /* Convert the BLOCKID of the field value into a memory pointer. We will
     advance this pointer as we extract the parts of the field. */
@@ -270,7 +284,7 @@ STATUS LNPUBLIC find_my_data
     item_ptr += descrip_len;
 
     type_descrip[descrip_len] = '\0';
-    printf ("\nType description string is: %s.\n", type_descrip);
+    PRINTLOG ("\nType description string is: %s.\n", type_descrip);
 
     /* Figure out the length of the user-defined data. This length is the
     total length of the Domino and Notes field, minus the two-byte data 
@@ -283,9 +297,9 @@ STATUS LNPUBLIC find_my_data
 
     memcpy (user_data, item_ptr, user_data_len);
 
-    printf ("\nData is: ");
-    for (i=0; i<user_data_len; i++) printf ("%X", user_data[i]);
-    printf ("\n");
+    PRINTLOG ("\nData is: ");
+    for (i=0; i<user_data_len; i++) PRINTLOG ("%X", user_data[i]);
+    PRINTLOG ("\n");
 
     /* Unlock the memory block holding this field. */
 
@@ -299,31 +313,6 @@ STATUS LNPUBLIC find_my_data
     /* End of subroutine. */
 
     return (NOERROR);
-
-}
-
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
 
 }
 
@@ -352,13 +341,13 @@ STATUS  LNPUBLIC  EnumProc(void far *phDB, SEARCH_MATCH far *pSearchMatch, ITEM_
     if (!(SearchMatch.SERetFlags & SE_FMATCH))
         return (NOERROR);
 	
-	fflush(stdout);
+    fflush(stdout);
 
     /* Delete Note */
     error = NSFNoteDelete(*(DBHANDLE far *)phDB, SearchMatch.ID.NoteID, 0);
     
     if (error)
-		return(error);
+        return(error);
 
     docCount++;
 /* End of subroutine. */

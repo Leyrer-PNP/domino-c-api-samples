@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    namelook
 
@@ -46,6 +61,7 @@
 #include <niferr.h>                     /* ERR_NO_MORE_MEMBERS */
 #include <lookup.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -63,9 +79,6 @@ STATUS  LNPUBLIC  DisplayItem(char  *pMatch,
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                 char *view_names, char *names, char *items, char *servername); 
 
-
-void PrintAPIError (STATUS);
-
 /* constants */
 #define MAX_ARG_LEN 512
 #define MAX_ITEM_TEXT 512
@@ -82,29 +95,29 @@ void PrintAPIError (STATUS);
 
 int main (int argc, char *argv[])
 {
-    STATUS error = NOERROR;
-    char   argNameSpaces[MAX_ARG_LEN];
-    char   argNames[MAX_ARG_LEN];
-    char   argItems[MAX_ARG_LEN];
-    char   ServerName[MAX_ARG_LEN];
-    char   *ptr;
-    char   *pItemName;
-    WORD    NumNameSpaces, NumNames, NumNameRecords, NumItems;
-    WORD    Length; /* NumMatches; */
-    DWORD   NumMatches;
-    WORD    i, j ;
-    WORD    usNameRecord, usMatch, usItem ;
-    char    NameSpaces[MAX_ARG_LEN];
-    char    Names[MAX_ARG_LEN];
-    char    Items[MAX_ARG_LEN];
+    STATUS   error = NOERROR;
+    char     argNameSpaces[MAX_ARG_LEN];
+    char     argNames[MAX_ARG_LEN];
+    char     argItems[MAX_ARG_LEN];
+    char     ServerName[MAX_ARG_LEN];
+    char     *ptr;
+    char     *pItemName;
+    WORD     NumNameSpaces, NumNames, NumNameRecords, NumItems;
+    WORD     Length; /* NumMatches; */
+    DWORD    NumMatches;
+    WORD     i, j ;
+    WORD     usNameRecord, usMatch, usItem ;
+    char     NameSpaces[MAX_ARG_LEN];
+    char     Names[MAX_ARG_LEN];
+    char     Items[MAX_ARG_LEN];
     DHANDLE  hLookup;
-    char   *pLookup;
-    BYTE   *pNameRecord;
-    char   *pView;
-    char   *pName;
-    char   *pMatch;
-    WORD    DataType, Size;
-    char   *pItemValue;
+    char     *pLookup;
+    BYTE     *pNameRecord;
+    char     *pView;
+    char     *pName;
+    char     *pMatch;
+    WORD     DataType, Size;
+    char     *pItemValue;
 
 
     memset(argNameSpaces, '\0', MAX_ARG_LEN);
@@ -152,20 +165,20 @@ int main (int argc, char *argv[])
     }
     if (NumItems == 0)
     {
-        printf("Error: no items requested.\n");
+        PRINTLOG("Error: no items requested.\n");
         error=1;
         goto End1;
     }
 
-    printf("Looking up %d item(s) for %d name(s) in %d view(s).\n",
+    PRINTLOG("Looking up %d item(s) for %d name(s) in %d view(s).\n",
                           NumItems, NumNames, NumNameSpaces);
 
     /*   Start by calling Notes Init.  */
 
     if (error = NotesInitExtended (argc, argv))
     {
-       printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
-       goto End1;
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+        goto End1;
     }
    
     if (error = NAMELookup2(ServerName, 0,
@@ -174,7 +187,7 @@ int main (int argc, char *argv[])
                             NumItems, Items,
                             &hLookup))
     {
-        printf("Error: unable to look up names in N&A books.\n");
+        PRINTLOG("Error: unable to look up names in N&A books.\n");
         goto End;
     }
 
@@ -203,7 +216,7 @@ int main (int argc, char *argv[])
             pName += (strlen(pName)+1);
         }
 
-        printf("Found %d match(es) in record for name '%s' in view '%s'.\n",
+        PRINTLOG("Found %d match(es) in record for name '%s' in view '%s'.\n",
                           NumMatches, pName, pView);
 
         /* Loop over matches in this name record */
@@ -213,7 +226,7 @@ int main (int argc, char *argv[])
         {
             pMatch = (char *) NAMELocateNextMatch2(pLookup, pNameRecord, pMatch);
 
-            printf("Item(s) in match # %d:\n", usMatch+1);
+            PRINTLOG("Item(s) in match # %d:\n", usMatch+1);
 
             /* For each requested item, get information and display. */
 
@@ -247,9 +260,13 @@ CleanUp:
 
 End:
     if (error == NOERROR)
-        printf("\nProgram completed successfully.\n");
+    {
+        PRINTLOG("\nProgram completed successfully.\n");
+    }
     else
-        PrintAPIError (error);  
+    {
+        PRINTERROR (error,"NAMELookup2"); 
+    }
 
     NotesTerm();
 End1:
@@ -269,25 +286,25 @@ STATUS  LNPUBLIC  DisplayItem(char   *pMatch,
                                   WORD    DataType, 
                                   WORD    Size)
 {
-    STATUS    error = NOERROR;
-    char      szItemText[MAX_ITEM_TEXT+1];  /* text of an item */
-    WORD      wItemTextLen = 0;         /* length of str in szItemText[] */
-    char     *szDataType;               /* printable version of DataType */
-    WORD      wElement;                 /* number of element of list */
-    char      szElement[MAX_ITEM_TEXT+1];  /* text of element of list */
-    NUMBER     NumericItem;              /* numeric item value */
-    TIMEDATE  TimeItem;                 /* time/date item value */
-    TIMEDATE_PAIR TimeDatePair;         /* time/date pair item value */
-    WORD      TimeStringLen;            /* length of ASCII time/date */
-    RANGE     Range;                    /* time list or number list header */
+    STATUS        error = NOERROR;
+    char          szItemText[MAX_ITEM_TEXT+1]; /* text of an item */
+    WORD          wItemTextLen = 0;            /* length of str in szItemText[] */
+    char          *szDataType;                 /* printable version of DataType */
+    WORD          wElement;                    /* number of element of list */
+    char          szElement[MAX_ITEM_TEXT+1];  /* text of element of list */
+    NUMBER        NumericItem;                 /* numeric item value */
+    TIMEDATE      TimeItem;                    /* time/date item value */
+    TIMEDATE_PAIR TimeDatePair;                /* time/date pair item value */
+    WORD          TimeStringLen;               /* length of ASCII time/date */
+    RANGE         Range;                       /* time list or number list header */
 
-    printf("item %d:", wItemNum+1);
-    printf("\tName   = '%s'\n", szItemName);
-    printf("\tLength = %d\n", Size-DATATYPE_SIZE);
+    PRINTLOG("item %d:", wItemNum+1);
+    PRINTLOG("\tName   = '%s'\n", szItemName);
+    PRINTLOG("\tLength = %d\n", (Size-DATATYPE_SIZE));
 
     if (Size <= DATATYPE_SIZE)
     {
-        printf("\tItem has no value.\n");
+        PRINTLOG("\tItem has no value.\n");
         return (NOERROR);
     }
 
@@ -438,8 +455,8 @@ STATUS  LNPUBLIC  DisplayItem(char   *pMatch,
             szItemText[0] = '\0';
     }
 
-    printf("\tType   = %s\n", szDataType);
-    printf("\tValue  = '%s'\n", szItemText);
+    PRINTLOG("\tType   = %s\n", szDataType);
+    PRINTLOG("\tValue  = '%s'\n", szItemText);
 
     return (NOERROR);
 }
@@ -493,33 +510,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         
 } /* ProcessArgs */
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 

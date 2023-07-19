@@ -1,4 +1,20 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+
     PROGRAM:    copydb
 
     FILE:       copydb.c
@@ -30,6 +46,7 @@
 #include <idtable.h>  
 #include <osmem.h>  
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -39,8 +56,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *input_path, 
                          char *output_path, 
                          char *output_title); 
-
-void PrintAPIError (STATUS);
                          
 #define  STRING_LENGTH  256
 
@@ -74,49 +89,45 @@ int main(int argc, char *argv[])
     NOTEHANDLE  hIconNote;          /* handle to the icon note */
     STATUS      error = NOERROR;    /* return status from API calls */
 
-    ProcessArgs (argc, argv, 
-                 input_path, output_path, output_title);
+    ProcessArgs (argc, argv, input_path, output_path, output_title);
 
-
-	if (error = NotesInitExtended (argc, argv))
-	{
-     printf("\n Unable to initialize Notes.\n");
-     return (1);
-	}
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
 
 
 /* Open the input database. */
 
     if (error = NSFDbOpen (input_path, &input_handle))
-		{
-		PrintAPIError (error);  
-		NotesTerm();
-		return (1);
-		} 
+    {
+        PRINTERROR (error,"NSFDbOpen");  
+        NotesTerm();
+        return (1);
+    } 
 
-    printf("\nOpened \"%s\" as the input database", input_path); 
-    fflush(stdout);
+    PRINTLOG("\nOpened \"%s\" as the input database", input_path); 
    
 /* Create and open the output database. */
 
     if (error = NSFDbCreate (output_path, DBCLASS_NOTEFILE, TRUE))
     {
         NSFDbClose (input_handle);
-	    PrintAPIError (error);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (error,"NSFDbCreate");  
+        NotesTerm();
+        return (1);
     }
 
     if (error = NSFDbOpen (output_path, &output_handle))
     {
         NSFDbClose (input_handle);
-	    PrintAPIError (error);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (error,"NSFDbOpen");  
+        NotesTerm();
+        return (1);
     }
  
-    printf("\nCreated \"%s\" as the output database\n", output_path); 
-    fflush(stdout);
+    PRINTLOG("\nCreated \"%s\" as the output database\n", output_path); 
 
 /* Copy the replication settings (not the replication history) from
 the input database to the output database. The replication settings
@@ -127,18 +138,18 @@ a replica copy of the source database. */
     {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
-	    PrintAPIError (error);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (error,"NSFDbReplicaInfoGet");  
+        NotesTerm();
+        return (1);
     }
 
     if (error = NSFDbReplicaInfoSet (output_handle, &replica_info))
     {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
-	    PrintAPIError (error);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (error,"NSFDbReplicaInfoSet");  
+        NotesTerm();
+        return (1);
     }
 
 /* Copy the ACL from the input database to the output database. */
@@ -147,9 +158,9 @@ a replica copy of the source database. */
     {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
-	    PrintAPIError (error);  
-	    NotesTerm();
-	    return (1);
+        PRINTERROR (error,"NSFDbCopyACL");  
+        NotesTerm();
+        return (1);
     }
 
 /* Set a time/date structure that will determine the date of the earliest
@@ -173,16 +184,18 @@ specified to indicate that we do not want any cutoff date.  */
                                            NOTE_CLASS_ALL,
                                            start_time, &last_time,
                                            &idtable_p) )
-        if (error == ERR_NO_MODIFIED_NOTES)
-            printf ("There are no documents in the Database.\n");
-        else
-        {
-            NSFDbClose (input_handle);
-            NSFDbClose (output_handle);
-	        PrintAPIError (error);  
-	        NotesTerm();
-	        return (1);
-        }
+    if (error == ERR_NO_MODIFIED_NOTES)
+    {
+        PRINTLOG ("There are no documents in the Database.\n");
+    }
+    else
+    {
+        NSFDbClose (input_handle);
+        NSFDbClose (output_handle);
+        PRINTERROR (error,"NSFDbGetModifiedNoteTable");  
+        NotesTerm();
+        return (1);
+    }
     num_scanned = 0L;
     num_entries = IDEntries (idtable_p);
     if (num_entries)
@@ -196,15 +209,14 @@ specified to indicate that we do not want any cutoff date.  */
                 IDDestroyTable (idtable_p);
                 NSFDbClose (input_handle);
                 NSFDbClose (output_handle);
-		        PrintAPIError (error);  
-			    NotesTerm();
-			    return (1);
+                PRINTERROR (error,"NSFDbCopyNote");  
+                NotesTerm();
+                return (1);
             }
     IDDestroyTable (idtable_p);
                        
 
-    printf("\nDatabase documents copied"); 
-    fflush(stdout);
+    PRINTLOG("\nDatabase documents copied"); 
 
 
 /* Now we can change the title of the output database
@@ -227,7 +239,7 @@ specified to indicate that we do not want any cutoff date.  */
     {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
-	    PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbInfoGet");  
         NotesTerm();
         return (1);
     }
@@ -239,7 +251,7 @@ specified to indicate that we do not want any cutoff date.  */
     {
         NSFDbClose (input_handle);
         NSFDbClose (output_handle);
-	    PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbInfoSet");  
         NotesTerm();
         return (1);
     }
@@ -264,31 +276,29 @@ specified to indicate that we do not want any cutoff date.  */
 
 /* if there was no ICON note, do nothing. */
 
-    printf("\nSet the title of \"%s\" to \"%s\"", output_path, output_title); 
-    fflush(stdout);
+    PRINTLOG("\nSet the title of \"%s\" to \"%s\"", output_path, output_title); 
 
 /* Close the databases. */
 
     if (error = NSFDbClose (input_handle))
-        {
+    {
         NSFDbClose (output_handle);
-	    PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbClose");  
         NotesTerm();
         return (1);
-        }
+    }
 
     if (error = NSFDbClose (output_handle))
-	{
-	    PrintAPIError (error);  
+    {
+        PRINTERROR (error,"NSFDbClose");  
         NotesTerm();
         return (1);
-	}
+    }
 
-   printf("\n Done.\n"); 
-   fflush(stdout);
+    PRINTLOG("\n Done.\n"); 
 
 /* End of program. */
-    printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
     NotesTerm();
     return (0); 
 }
@@ -308,62 +318,32 @@ specified to indicate that we do not want any cutoff date.  */
 *************************************************************************/
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                         char *input_path, 
-                         char *output_path, 
-                         char *output_title)
+                             char *input_path, 
+                             char *output_path, 
+                             char *output_title)
 { 
     if (argv[1] == NULL)
     {       
       
-      printf("Enter name of input database: ");   
-      fflush(stdout);
-      gets(input_path);
+        printf("Enter name of input database: ");   
+        fflush(stdout);
+        gets(input_path);
            
-      printf("\n");
-      printf("Enter name of output database: ");
-      fflush(stdout);
-      gets(output_path);
+        printf("\n");
+        printf("Enter name of output database: ");
+        fflush(stdout);
+        gets(output_path);
 
-      printf("\n");
-      printf("Enter title of output database: ");      
-      fflush(stdout);
-      gets(output_title);
+        printf("\n");
+        printf("Enter title of output database: ");      
+        fflush(stdout);
+        gets(output_title);
 
-   }  
-   else
+    }  
+    else
     {
-      strcpy(input_path, argv[1]);
-      strcpy(output_path, argv[2]);
-      strcpy(output_title, argv[3]);      
+        strcpy(input_path, argv[1]);
+        strcpy(output_path, argv[2]);
+        strcpy(output_title, argv[3]);      
     } /* end if */
 } /* ProcessArgs */
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}

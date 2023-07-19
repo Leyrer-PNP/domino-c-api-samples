@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    addin    
 
@@ -87,35 +102,35 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
     
     /* Local data. */
 
-    STATUS     error;           /* return code from API calls */
+    STATUS       error;           /* return code from API calls */
     DHANDLE      hOldStatusLine;  /* handle to initial default status line*/
     DHANDLE      hStatusLineDesc; /* handle to new default status line */
-    HMODULE    hMod;            /* add-in task's module handle */
-	int count = 0;
-	bool Automation = false;			/* Automation flag set to false */
+    HMODULE      hMod;            /* add-in task's module handle */
+    int          count = 0;
+    bool         Automation = false;     /* Automation flag set to false */
 	
-    char string1[] = "Sample Addin";
-    char string2[] = "Initializing";
-    char string3[] = "Addin Test: Initialization complete.";
-    char string4[] = "Idle";     /* 'Idle' replaces 'Initializing' */
-    char string5[] = "Doing daily job";
-    char string6[] = "Addin Test: Daily job complete.";
-    char string7[] = "Doing two-minute job";
-    char string8[] = "Addin Test: Two-minute job complete.";
-    char string9[] = "Doing 20-second job";
-    char string10[] = "Addin Test: 20-second job complete.";
-    char string11[] = "Terminating";
-    char string12[] = "Addin Test: Termination complete.";
+    char         string1[] = "Sample Addin";
+    char         string2[] = "Initializing";
+    char         string3[] = "Addin Test: Initialization complete.";
+    char         string4[] = "Idle";     /* 'Idle' replaces 'Initializing' */
+    char         string5[] = "Doing daily job";
+    char         string6[] = "Addin Test: Daily job complete.";
+    char         string7[] = "Doing two-minute job";
+    char         string8[] = "Addin Test: Two-minute job complete.";
+    char         string9[] = "Doing 20-second job";
+    char         string10[] = "Addin Test: 20-second job complete.";
+    char         string11[] = "Terminating";
+    char         string12[] = "Addin Test: Termination complete.";
 
-	if (argc > 1)
-	{
-		int rslt = strcmp(argv[1], "auto"); /*check for automation */
+    if (argc > 1)
+    {
+	int rslt = strcmp(argv[1], "auto"); /*check for automation */
 		
-		if (rslt == 0)
-		{
+        if (rslt == 0)
+        {
 			Automation = true;
-		}		
-	}
+        }		
+    }
    /* 
       Initialization.
 
@@ -221,7 +236,7 @@ STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 STATUS OurJob (char *db_name)
 {
 
-/* Local data declarations. */
+   /* Local data declarations. */
 
     DBHANDLE   db_handle;       /* database handle */
     NOTEHANDLE note_handle;     /* note handle */

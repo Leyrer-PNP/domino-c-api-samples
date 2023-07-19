@@ -1,5 +1,20 @@
 /*************************************************************************
  *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
  *    ATTACH:  Create a document containing an OLE2 object.
  *
  *    This program creates a note containing a Microsoft Paint OLE2 object.
@@ -58,6 +73,7 @@
 #include <osmem.h>
 #include <nsfole.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #include "cdrecord.h"
 
@@ -76,9 +92,6 @@ STATUS LNPUBLIC AppendRichText(
   char *szItemName,
   char *szObjectName,
   char *szClassName);
-
-
-void PrintAPIError (STATUS);
  
 
 /*
@@ -88,31 +101,31 @@ void PrintAPIError (STATUS);
 int main(int argc, char *argv[])
 {
 
-  LPMALLOC lpMalloc    = NULL;
-  LPSTORAGE lpRootStg  = NULL;
-  LPSTORAGE lpSubStg   = NULL;
-  LPOLEOBJECT lpOleObj = NULL;
-  LPPERSISTSTORAGE lpPersistStg = NULL;
-  WCHAR szSrcFile[]    = L"c:\\notesapi\\samples\\richtext\\ole2\\attach\\notes.bmp";
-  CLSID clsid;
-  LPOLESTR lpProgID;
-  DWORD dwMode         = STGM_READWRITE | STGM_SHARE_EXCLUSIVE;
-  STATSTG StatStg;
-  char szStgFile[MAXPATH_OLE];
-  DBHANDLE hDb;
-  NOTEHANDLE hNote;
-  char szObjectName[]  = "EXT12345";  /* should really be unique (random) number */
-  char szItemName[]    = "Body";
-  char szProgID[MAXPATH_OLE];
-  WORD ClassDocument   = NOTE_CLASS_DOCUMENT;
-  STATUS sError=0;
-  BOOL bError=0;
+  LPMALLOC          lpMalloc    = NULL;
+  LPSTORAGE         lpRootStg  = NULL;
+  LPSTORAGE         lpSubStg   = NULL;
+  LPOLEOBJECT       lpOleObj = NULL;
+  LPPERSISTSTORAGE  lpPersistStg = NULL;
+  WCHAR             szSrcFile[] = L"c:\\notesapi\\samples\\richtext\\ole2\\attach\\notes.bmp";
+  CLSID             clsid;
+  LPOLESTR          lpProgID;
+  DWORD             dwMode = STGM_READWRITE | STGM_SHARE_EXCLUSIVE;
+  STATSTG           StatStg;
+  char              szStgFile[MAXPATH_OLE];
+  DBHANDLE          hDb;
+  NOTEHANDLE        hNote;
+  char              szObjectName[] = "EXT12345";  /* should really be unique (random) number */
+  char              szItemName[] = "Body";
+  char              szProgID[MAXPATH_OLE];
+  WORD              ClassDocument   = NOTE_CLASS_DOCUMENT;
+  STATUS            sError=0;
+  BOOL              bError=0;
 
   /* Initialize Domino and Notes */
    
   if (sError = NotesInitExtended (argc, argv))
   {
-     printf("\n Unable to initialize Notes.\n");
+     PRINTLOG("\n Unable to initialize Notes.\n");
      return (1);
   }
   /* Initialize OLE */
@@ -131,7 +144,7 @@ int main(int argc, char *argv[])
 
   if(FAILED(GetClassFile(szSrcFile, &clsid)))
   {
-    printf ("Sample file used to create OLE2 object not found.\n");
+    PRINTLOG ("Sample file used to create OLE2 object not found.\n");
     goto exit2;
   }
 
@@ -238,11 +251,11 @@ int main(int argc, char *argv[])
   if (sError = NSFNoteUpdate(hNote, 0))
     goto exit9;
 
-  printf("Attached OLE object...\n");
+  PRINTLOG("Attached OLE object...\n");
 
 exit9:
   if (sError)
-      PrintAPIError (sError);  
+      PRINTERROR (sError,"NSFNoteUpdate");  
 
   NSFNoteClose(hNote);
 
@@ -298,7 +311,7 @@ STATUS LNPUBLIC AppendRichText(
   char *szClassName)
 {
 
-  DHANDLE    hBuffer;
+  DHANDLE  hBuffer;
   BYTE    *pBuffer;
   STATUS   sError=0;
   BOOL     bError=0;
@@ -306,7 +319,7 @@ STATUS LNPUBLIC AppendRichText(
   DWORD    dwBytesLeft = MAXONESEGSIZE;  
   DWORD    dwItemLength = 0; /* Length of current item.  */
 
-  char nonZeroString[] = "Double-click here *** to activate the object.";
+  char     nonZeroString[] = "Double-click here *** to activate the object.";
 
   /*
    *  First, allocate and lock a buffer.
@@ -318,7 +331,7 @@ STATUS LNPUBLIC AppendRichText(
   if ((pBuffer = OSLockObject(hBuffer)) == NULL)
   {
     OSMemFree (hBuffer);
-    printf("Error: Can not do OSLockObject on the buffer handle\n");
+    PRINTLOG("Error: Can not do OSLockObject on the buffer handle\n");
     return (FALSE);
   }
 
@@ -397,34 +410,3 @@ STATUS LNPUBLIC AppendRichText(
   return(NOERROR);
 }
  
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    NoteCWF
 
@@ -32,6 +47,7 @@
 #include <nsfnote.h>
 #include <editods.h>
 #include <osmem.h>
+#include <printLog.h>
 
 #include <lapiplat.h>
 
@@ -42,7 +58,6 @@
 /* Function prototypes */
 void PromptValues(NUMBER *, NUMBER *);              /* user input routine */
 void DisplayValues(NUMBER, NUMBER, NUMBER, NUMBER); /* display routine */
-void PrintAPIError (STATUS);
 
 /* CWF_ERROR_PROC callback function */
 STATUS LNPUBLIC CWFCallback (const void *pCDField, WORD phase, STATUS error,
@@ -84,49 +99,49 @@ int main(int argc, char *argv[])
 
     STATUS  error=0;        /* return code from API calls */
 
-	 error = NotesInitExtended (argc, argv);
-	 if (error)
-	 {
-		 printf("Error: Unable to initialize Notes.\n");
-		 return (1);
-	 }
+    error = NotesInitExtended (argc, argv);
+    if (error)
+    {
+        PRINTLOG("Error: Unable to initialize Notes.\n");
+        return (1);
+    }
 
 /* Get the pathname of the database (Compute.nsf). */
     path_name = (char *) malloc(IO_LENGTH);
     if (path_name == NULL)
-       {
-        printf("Error: Out of memory.\n");
-		  NotesTerm();
-		  return (0);
-       }
+    {
+        PRINTLOG("Error: Out of memory.\n");
+        NotesTerm();
+        return (0);
+    }
 
     if (argc != 2 && argc != 4)
-        {
-        printf("\nEnter the database filename: ");
+    {
+        PRINTLOG("\nEnter the database filename: ");
         fflush(stdout);
         gets(path_name);
-        }
+    }
     else
         strcpy(path_name, argv[1]);
 
 /* Open the database. */
     if (error = NSFDbOpen (path_name, &db_handle))
     {
-		 PrintAPIError(error);
-		 NotesTerm();
-		 return(1);
-	 }
+        PRINTERROR(error,"NSFDbOpen");
+        NotesTerm();
+        return(1);
+    }
 
 /* Finished with database name. */
     free(path_name);
 
     /* Create a note and add all input data to it. */
-        if (error = NSFNoteCreate (db_handle, &note_handle))
+    if (error = NSFNoteCreate (db_handle, &note_handle))
     {
-		  PrintAPIError(error);
-		  NSFDbClose (db_handle);
-		  NotesTerm();
-		  return(1);
+        PRINTERROR(error,"NSFNoteCreate");
+        NSFDbClose (db_handle);
+        NotesTerm();
+        return(1);
     }
 
     /* process command line arguments or prompt for user input */
@@ -176,13 +191,13 @@ Item_Error:
 	 NotesTerm();
 
     if (error)
-	 {
-	     PrintAPIError(error);
-	     return(1);
-	 }
+    {
+        PRINTERROR(error,"NSFNoteUpdate");
+        return(1);
+    }
 
-	 printf("\nProgram completed successfully.\n");
-	 return(0);
+    PRINTLOG("\nProgram completed successfully.\n");
+    return(0);
 
 }
 
@@ -223,16 +238,16 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 *************************************************************************/
 void PromptValues(NUMBER *length, NUMBER *width)
 {
-        printf("\nEnter Rectangle Measurment Values:\n");
+        PRINTLOG("\nEnter Rectangle Measurment Values:\n");
 
-        printf("\tLength (l): ");
+        PRINTLOG("\tLength (l): ");
         scanf("\n%lf", length);
         fflush(stdin);
 
-        printf("\tWidth (w): ");
+        PRINTLOG("\tWidth (w): ");
         scanf("\n%lf", width);
 
-        printf("\n");
+        PRINTLOG("\n");
 
 /* Note: Non numeric entries will be converted to floating point by using
  *       scanf().  For these input, since the resulting value is always less
@@ -254,14 +269,14 @@ void PromptValues(NUMBER *length, NUMBER *width)
 *************************************************************************/
 void DisplayValues(NUMBER length, NUMBER width, NUMBER perimeter, NUMBER area)
 {
-        printf("\nRectangle Measurement Value Summary:");
+        PRINTLOG("\nRectangle Measurement Value Summary:");
 
-        printf("\n\tLength (l): %.2lf", length);
-        printf("\n\tWidth (w): %.2lf", width);
-        printf("\n\tPerimeter (2l+2w): %.2lf", perimeter);
-        printf("\n\tArea (lw): %.4lf", area);
+        PRINTLOG("\n\tLength (l): %.2lf", length);
+        PRINTLOG("\n\tWidth (w): %.2lf", width);
+        PRINTLOG("\n\tPerimeter (2l+2w): %.2lf", perimeter);
+        PRINTLOG("\n\tArea (lw): %.4lf", area);
 
-        printf("\n");
+        PRINTLOG("\n");
         return;
 }
 
@@ -275,12 +290,12 @@ void DisplayValues(NUMBER length, NUMBER width, NUMBER perimeter, NUMBER area)
 *************************************************************************/
 
 STATUS LNPUBLIC CWFCallback(
-   const void *pCDField,
-   WORD phase,
-   STATUS error,
-   DHANDLE ErrorText,
-   WORD wErrorTextSize,
-   void *Ctx)
+                            const void *pCDField,
+                            WORD phase,
+                            STATUS error,
+                            DHANDLE ErrorText,
+                            WORD wErrorTextSize,
+                            void *Ctx)
 {
    char    *ptr = (char *) pCDField;
    CDFIELD  field;
@@ -291,7 +306,7 @@ STATUS LNPUBLIC CWFCallback(
    int      bufPos;
 
    /* Build field value/phase error string */
-   printf ("***NSFNoteComputeWithForm ERROR***\n");
+   PRINTLOG ("***NSFNoteComputeWithForm ERROR***\n");
 
    /* Point to the field name by moving past the CDFIELD structure,
       then copy its value */
@@ -299,38 +314,38 @@ STATUS LNPUBLIC CWFCallback(
    strncpy(name, ptr + field.DVLength + field.ITLength + field.IVLength,
            field.NameLength);
    name[field.NameLength] = '\0';
-   printf ("\tField Name: %s\n", name);
+   PRINTLOG ("\tField Name: %s\n", name);
 
    /* determine compute phase where error occurred */
-   printf ("\tPhase: ");
+   PRINTLOG ("\tPhase: ");
    switch(phase)
    {
       case CWF_DV_FORMULA:
-         printf ("Default Value\n");
+         PRINTLOG ("Default Value\n");
          break;
 
       case CWF_IT_FORMULA:
-         printf ("Translation\n");
+         PRINTLOG ("Translation\n");
          break;
 
       case CWF_IV_FORMULA:
-         printf ("Validation\n");
+         PRINTLOG ("Validation\n");
          break;
 
       case CWF_COMPUTED_FORMULA:
-         printf ("Computed Value\n");
+         PRINTLOG ("Computed Value\n");
          break;
 
       case CWF_DATATYPE_CONVERSION:
-         printf ("DataType\n");
+         PRINTLOG ("DataType\n");
          break;
 
       case CWF_COMPUTED_FORMULA_SAVE:
-         printf ("Computed Formula Save\n");
+         PRINTLOG ("Computed Formula Save\n");
          break;
 
       default:
-         printf ("Unknown - phase code is %d (0x%X)\n", phase, phase);
+         PRINTLOG ("Unknown - phase code is %d (0x%X)\n", phase, phase);
          break;
    }
 
@@ -357,32 +372,10 @@ STATUS LNPUBLIC CWFCallback(
       }
 
       ErrTextBuf[bufPos++] = '\0';
-      printf("\tErrorText: %s\n", ErrTextBuf);
+      PRINTLOG("\tErrorText: %s\n", ErrTextBuf);
 
       OSUnlockObject(ErrorText);
    }
 
    return CWF_NEXT_FIELD;
 }
-
-
-void PrintAPIError (STATUS api_error)
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

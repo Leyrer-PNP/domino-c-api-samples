@@ -10,12 +10,12 @@ All rights reserved.
 PROGRAM
 -------
 idtables - Sample HCL C API for Domino and Notes Program:
-	       Delete, Touch and Set Categories
+	       Delete, Touch, Replace and Set Categories
 
 
 PURPOSE
 -------
-This program shows how to use ID Tables to delete, touch, archive, and
+This program shows how to use ID Tables to delete, touch, replace, archive, and
 categorize documents in Domino databases.
 
 
@@ -60,6 +60,10 @@ icon to your Notes workspace.
 		T  touch selected document's last modified date.
 		D  delete selected documents.
 		C  stamp selected documents with a given category value.
+		K  check the ID exists in the table
+		F  Find the difference between two tables
+		R  Replace destination table with source table
+
 	options:
 		B  begin document selection (n) days ago.
 		N  new category string. Use with 'C' action.
@@ -93,6 +97,13 @@ Checking ID is in the table
 	
 Checking the difference of two tables
 	idtables -Sdb_name -F	
+
+Replacing a table with another table
+    idtables -Sdb_name -R
+
+Creates new table with deleted NoteIds and removes Deleted NoteIDs from original table.
+    idtables -Sdb_name -X
+
 
 Specifying Options:
 
@@ -312,3 +323,93 @@ You have selected documents in id.nsf from:
 
 	Release 12.0|May 14, 2021
 	ID present after 68
+    
+EXAMPLE Using The -R Option
+---------------------------
+
+	idtables -Sid.nsf -R 	
+	
+You have selected documents in id.nsf from:
+        Begin date: Beginning of Cosmos through
+        End date  : 04/06/2022 04:27:00 PM ZE5B
+
+ID Table Flags = 0001
+ID Table size:  23
+Number of entries in ID Table = 3
+
+Testing IDTableReplaceExt API
+=================================
+
+Before IDTableReplaceExt API called
+
+Tables are not equal.
+
+
+After IDTableReplaceExt API called
+
+Tables are equal.
+
+
+All Done!
+
+Program completed successfully.
+
+
+EXAMPLE Using The -X Option
+---------------------------    
+You have selected documents in id.nsf from:
+        Begin date: Beginning of Cosmos through
+        End date  : 02/04/2022 09:20:23 PM ZE5B
+
+ID Table Flags = 0001
+ID Table size:  23
+Number of entries in ID Table = 3
+
+Testing IDTableReplaceExt API
+===========================
+Number of entries in ID Table after creation = 0
+Number of entries in ID Table after inserting a range of IDs = 10
+
+Before IDTableReplaceExt API called
+
+Tables are not equal.
+
+
+After IDTableReplaceExt API called
+
+Tables are equal.
+
+
+Testing IDTableSplitDeleted API
+===================================
+
+Before Split
+-------------
+
+NoteID from Source Table 8110
+NoteID from Source Table 9110
+NoteID from Source Table 80008110
+NoteID from Source Table 80009110
+
+No. of entries in Source Table : 4
+
+
+No. of entries in Deleted Table : 0
+
+After Split
+-------------
+
+NoteID from Source Table 8110
+NoteID from Source Table 9110
+
+No. of entries in Source Table : 2
+
+NoteID from Deleted Table 80008110
+NoteID from Deleted Table 80009110
+
+No. of entries in Deleted Table : 2
+
+All Done!
+
+Program completed successfully.
+

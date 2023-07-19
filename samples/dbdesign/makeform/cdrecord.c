@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:      makeform
 
@@ -58,9 +73,9 @@
  **********************************************************************/
 
 BOOL LNPUBLIC PutPabDef(char far * far * ppBuf,
-                          WORD wPabDefNumber,
-                          WORD wLength,
-                          WORD wJustifyMode)
+                        WORD wPabDefNumber,
+                        WORD wLength,
+                        WORD wJustifyMode)
 {
     CDPABDEFINITION  CDPabDef;      /* style definition for this para */
 
@@ -69,8 +84,8 @@ BOOL LNPUBLIC PutPabDef(char far * far * ppBuf,
     if (wLength < ODSLength(_CDPABDEFINITION))
         return (FALSE);
     
-   /* Fill in paragraph definition block.  We use all defaults, except  */
-   /* for centered justification.                                       */
+    /* Fill in paragraph definition block.  We use all defaults, except  */
+    /* for centered justification.                                       */
 
     memset (&CDPabDef, 0, sizeof(CDPABDEFINITION));
 
@@ -90,10 +105,10 @@ BOOL LNPUBLIC PutPabDef(char far * far * ppBuf,
     CDPabDef.TabTypes               = TAB_DEFAULT;
     CDPabDef.Flags2                 = 0;
 
-/*
- *  Convert the PABDEFINITION item to Notes Canonical format and store it in
- *  the ODS buffer.
- */
+    /*
+     *  Convert the PABDEFINITION item to Notes Canonical format and store it in
+     *  the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDPABDEFINITION, &CDPabDef, 1 );
      
@@ -122,7 +137,7 @@ BOOL LNPUBLIC PutPabDef(char far * far * ppBuf,
  ***********************************************************************/
 
 BOOL LNPUBLIC PutPara( char far * far *ppBuf,
-                         WORD wLength )
+                       WORD wLength )
 {
     CDPARAGRAPH CDPara;
     BYTE        bLength =  (BYTE) ODSLength(_CDPARAGRAPH);
@@ -134,15 +149,15 @@ BOOL LNPUBLIC PutPara( char far * far *ppBuf,
     if (wLength < ODSLength(_CDPARAGRAPH))
         return (FALSE);
 
-/* Fill in PARAGRAPH item structure  */
+    /* Fill in PARAGRAPH item structure  */
         
     CDPara.Header.Length = bLength;/* (BYTE) ODSLength(_CDPARAGRAPH); */
     CDPara.Header.Signature = bSig;/* SIG_CD_PARAGRAPH; */
 
-/*
- *  Convert the CDPARAGRAPH item to Domino and Notes Canonical format 
- *  and store it in the ODS buffer.
- */
+    /*
+     *  Convert the CDPARAGRAPH item to Domino and Notes Canonical format 
+     *  and store it in the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDPARAGRAPH, &CDPara, 1 );
      
@@ -173,12 +188,12 @@ BOOL LNPUBLIC PutPara( char far * far *ppBuf,
  **********************************************************************/
 
 BOOL LNPUBLIC PutPabRef(char far * far *ppBuf,
-                          WORD wPabDefNumber,
-                          WORD wLength)
+                        WORD wPabDefNumber,
+                        WORD wLength)
 {
     CDPABREFERENCE  CDPabRef;      /* style reference for this para */
-    BYTE        bLength =  (BYTE) ODSLength(_CDPABREFERENCE);
-    BYTE        bSig  =  (BYTE)SIG_CD_PABREFERENCE;
+    BYTE            bLength =  (BYTE) ODSLength(_CDPABREFERENCE);
+    BYTE            bSig  =  (BYTE)SIG_CD_PABREFERENCE;
     
 
     /* If not enough space in buffer for this struct, then exit.      */
@@ -194,9 +209,9 @@ BOOL LNPUBLIC PutPabRef(char far * far *ppBuf,
 
 
 /*
- *  Convert the CDPABREFERENCE item to Domino and Notes Canonical format 
- *  and store it in the ODS buffer.
- */
+    *  Convert the CDPABREFERENCE item to Domino and Notes Canonical format 
+    *  and store it in the ODS buffer.
+    */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDPABREFERENCE, &CDPabRef, 1 );
      
@@ -224,8 +239,8 @@ BOOL LNPUBLIC PutPabRef(char far * far *ppBuf,
  **********************************************************************/
 
 BOOL LNPUBLIC PutText(char far * far *ppBuf,
-                        char far * pText,
-                        WORD wLength)
+                      char far * pText,
+                      WORD wLength)
 
 {
     CDTEXT         CDText;      /* begin a run of text */
@@ -268,10 +283,10 @@ BOOL LNPUBLIC PutText(char far * far *ppBuf,
     pFont->PointSize = 10;
 
 
-/*
- *  Convert the CDTEXT item to Domino and Notes Canonical format 
- *  and store it in the ODS buffer.
- */
+    /*
+     *  Convert the CDTEXT item to Domino and Notes Canonical format 
+     *  and store it in the ODS buffer.
+     */
 
     ODSWriteMemory( (void far * far *)ppBuf, _CDTEXT, &CDText, 1 );
 

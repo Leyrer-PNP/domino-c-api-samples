@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    tracker
 
@@ -7,9 +22,9 @@
     DESCRIPTION:
         Tracker is an example NSF hook driver. After tracker is
         installed, Domino and Notes calls the entry points it provides 
-		whenever Domino and Notes initializes, terminates, opens a note, 
-		updates a note,or categorizes a set of notes. Updating a note 
-		encompasses creation, modification, and deletion.
+        whenever Domino and Notes initializes, terminates, opens a note, 
+        updates a note,or categorizes a set of notes. Updating a note 
+        encompasses creation, modification, and deletion.
 
         Tracker is designed to work with the Service Request tracking
         database: tracker.nsf. Tracker keeps a log of all activity in
@@ -24,7 +39,7 @@
         from the Service Request tracking database, this copies the
         document to a separate "trash can" database before the document
         is actually deleted by Domino and Notes. This trash can helps avoid 
-		loss of data through accidental deletion of documents.
+        loss of data through accidental deletion of documents.
 
 ****************************************************************************/
 #if defined(OS400)
@@ -79,8 +94,8 @@ int            inst; /* instance index for multi-process systems */
     FUNCTION:   MainEntryPoint
 
     PURPOSE:    Domino and Notes calls this function whenever a Domino and 
-	            Notes process initializes. The main purpose of this function 
-				is to fill in the DBHOOKVEC structure with function pointers
+                Notes process initializes. The main purpose of this function 
+                is to fill in the DBHOOKVEC structure with function pointers
                 that specify the other entry points in this DLL. This
                 routine also starts the tracker log in the target DB.
 
@@ -99,27 +114,27 @@ STATUS LNPUBLIC  MainEntryPoint(DBHOOKVEC * pDBHooks)
     /* get the current instance number and update next */ 
     if (error = GetInstanceNumber(&inst))
     {
-      /* if we have an error log it and return */
+        /* if we have an error log it and return */
  
-      strcpy(TrackerLogFile, TRACE_FILENAME);
-      strcat(TrackerLogFile,".001");
+        strcpy(TrackerLogFile, TRACE_FILENAME);
+        strcat(TrackerLogFile,".001");
   
       /* open the trace log file */
 #if defined (OS400)
-	/*
-	* Open files in binary on the i5/OS to avoid conversion AND tag them w/ the
-	* 819 CCSID for ASCII contents
-	*/
-      if ((pTraceFile[inst] = fopen(TrackerLogFile, "wb ccsid=819")) == NULL )
+        /*
+         * Open files in binary on the i5/OS to avoid conversion AND tag them w/ the
+         * 819 CCSID for ASCII contents
+         */
+        if ((pTraceFile[inst] = fopen(TrackerLogFile, "wb ccsid=819")) == NULL )
 #else
-      if ((pTraceFile[inst] = fopen(TrackerLogFile, "w")) == NULL )
+        if ((pTraceFile[inst] = fopen(TrackerLogFile, "w")) == NULL )
 #endif
-      {
-        return NOERROR;
-      }
-      fprintf(pTraceFile[inst], "Error %d: GetInstanceNumber: exiting.\n", error);
-      fclose(pTraceFile[inst]);
-      return(error);
+        {
+            return NOERROR;
+        }
+        fprintf(pTraceFile[inst], "Error %d: GetInstanceNumber: exiting.\n", error);
+        fclose(pTraceFile[inst]);
+        return(error);
     }
 
     /* open the trace log file */
@@ -215,13 +230,13 @@ STATUS LNPUBLIC  TrackerTerm(DBHOOKVEC * pDBHooks)
 *************************************************************************/
 
 STATUS LNPUBLIC  TrackerNoteOpen (
-                    DBHOOKVEC  *pDBHooks,
-                    char       *UserName, 
-                    LIST       *GroupList, 
-                    DBHANDLE    hDB, 
-                    NOTEID      NoteID, 
-                    NOTEHANDLE  hNote,
-                    WORD        UpdateFlags)
+                                  DBHOOKVEC  *pDBHooks,
+                                  char       *UserName, 
+                                  LIST       *GroupList, 
+                                  DBHANDLE    hDB, 
+                                  NOTEID      NoteID, 
+                                  NOTEHANDLE  hNote,
+                                  WORD        UpdateFlags)
 {
     STATUS      error;
     NUMBER      ReqNumber;
@@ -230,7 +245,7 @@ STATUS LNPUBLIC  TrackerNoteOpen (
     fprintf(pTraceFile[inst-1], "TrackerNoteOpen: called.\n" );
 
     PrintToTraceFile("TrackerNoteOpen", UserName, GroupList, hDB, NoteID, 
-                                        hNote, UpdateFlags);
+                     hNote, UpdateFlags);
 
     /* Check database name. Do nothing if it is not the target database. */
     if ( !IsTargetDB(hDB) )
@@ -249,22 +264,22 @@ STATUS LNPUBLIC  TrackerNoteOpen (
     {
         /* "ReqNumber" field is not available. Not a fatal error. */
         sprintf(szLine,
-        "Service Request Log: user '%s' opened a request document.\n",
-            UserName);
+                "Service Request Log: user '%s' opened a request document.\n",
+                UserName);
 
         fprintf(pTraceFile[inst-1], 
-            "TrackerNoteOpen: user '%s' opened a request document.\n",
-            UserName);
+                "TrackerNoteOpen: user '%s' opened a request document.\n",
+                UserName);
     }
     else
     {
         sprintf(szLine,
-            "Service Request Log: user '%s' opened request number %f.\n",
-                    UserName, ReqNumber);
+                "Service Request Log: user '%s' opened request number %f.\n",
+                UserName, ReqNumber);
 
         fprintf(pTraceFile[inst-1], 
-            "TrackerNoteOpen: user '%s' opened request number %f.\n",
-            UserName, ReqNumber);
+                "TrackerNoteOpen: user '%s' opened request number %f.\n",
+                UserName, ReqNumber);
     }
 
     AddLogEntry(szLine, "TrackerNoteOpen");
@@ -286,13 +301,13 @@ Exit:
 *************************************************************************/
 
 STATUS LNPUBLIC  TrackerNoteUpdate (
-                    DBHOOKVEC  *pDBHooks,
-                    char       *UserName, 
-                    LIST       *GroupList, 
-                    DBHANDLE    hDB, 
-                    NOTEID      NoteID, 
-                    NOTEHANDLE  hNote,
-                    WORD       *pwUpdateFlags)
+                                    DBHOOKVEC  *pDBHooks,
+                                    char       *UserName, 
+                                    LIST       *GroupList, 
+                                    DBHANDLE    hDB, 
+                                    NOTEID      NoteID, 
+                                    NOTEHANDLE  hNote,
+                                    WORD       *pwUpdateFlags)
 {
     NUMBER      ReqNumber;
     WORD        UpdateFlags;
@@ -309,7 +324,7 @@ STATUS LNPUBLIC  TrackerNoteUpdate (
     UpdateFlags = *pwUpdateFlags;
 
     PrintToTraceFile("TrackerNoteUpdate", UserName, GroupList, hDB, NoteID, 
-                                        hNote, UpdateFlags);
+                     hNote, UpdateFlags);
 
     /* Do nothing if hDB is not the target database. */
     if ( !IsTargetDB(hDB) )
@@ -345,17 +360,17 @@ STATUS LNPUBLIC  TrackerNoteUpdate (
                     TRACKER_ITEM_REQ_NUMBER, &ReqNumber))
         {
             TraceNotesError(error, 
-                    "TrackerNoteUpdate: Unable to set ReqNumber.");
+                            "TrackerNoteUpdate: Unable to set ReqNumber.");
             goto Exit;
         }
 
         fprintf(pTraceFile[inst-1],
-            "TrackerNoteUpdate: user '%s' composed request number %f.\n",
-            UserName, ReqNumber);
+                "TrackerNoteUpdate: user '%s' composed request number %f.\n",
+                UserName, ReqNumber);
 
-         sprintf(szLine,
-            "Service Request Log: user '%s' composed request number %f.\n",
-            UserName, ReqNumber);
+        sprintf(szLine,
+                "Service Request Log: user '%s' composed request number %f.\n",
+                UserName, ReqNumber);
 
         AddLogEntry(szLine, "TrackerNoteUpdate");
     }
@@ -367,7 +382,7 @@ STATUS LNPUBLIC  TrackerNoteUpdate (
                document to be deleted.
              */
             fprintf(pTraceFile[inst-1], 
-                "TrackerNoteUpdate: Deleting a request document.\n");
+                    "TrackerNoteUpdate: Deleting a request document.\n");
 
             if (error = CopyNoteToTrashcan(hDB,NoteID))
             {
@@ -388,8 +403,8 @@ STATUS LNPUBLIC  TrackerNoteUpdate (
                     UserName);
 
             fprintf(pTraceFile[inst-1], 
-                "TrackerNoteUpdate: user '%s' deleted a request document.\n",
-                 UserName);
+                    "TrackerNoteUpdate: user '%s' deleted a request document.\n",
+                    UserName);
                     
             AddLogEntry(szLine, "TrackerNoteUpdate");
         }
@@ -408,22 +423,22 @@ STATUS LNPUBLIC  TrackerNoteUpdate (
             {
                 /* Field is not available. Not a fatal error. */
                 sprintf(szLine,
-                    "Service Request Log: user '%s' updated a request.\n",
-                    UserName);
+                        "Service Request Log: user '%s' updated a request.\n",
+                        UserName);
 
                 fprintf(pTraceFile[inst-1], 
-                "TrackerNoteUpdate: user '%s' updated a request document.\n",
-                    UserName);
+                        "TrackerNoteUpdate: user '%s' updated a request document.\n",
+                        UserName);
             }
             else
             {
                 sprintf(szLine,
-                "Service Request Log: user '%s' updated request number %f.\n",
-                    UserName, ReqNumber);
+                        "Service Request Log: user '%s' updated request number %f.\n",
+                        UserName, ReqNumber);
 
                 fprintf(pTraceFile[inst-1], 
-                "TrackerNoteUpdate: user '%s' updated request number %f.\n",
-                    UserName, ReqNumber);
+                        "TrackerNoteUpdate: user '%s' updated request number %f.\n",
+                        UserName, ReqNumber);
             }
             AddLogEntry(szLine, "TrackerNoteUpdate");
         }
@@ -443,10 +458,10 @@ Exit:
 *************************************************************************/
 
 STATUS LNPUBLIC  TrackerDbStampNotes (DBHOOKVEC  *pDBHooks,
-                    char       *UserName, LIST       *GroupList,
-                    DBHANDLE    hDB,      DHANDLE       hIDTable,
-                    char       *ItemName, WORD        ItemNameLength,
-                    void       *Data,     WORD        Length)
+                                      char       *UserName, LIST       *GroupList,
+                                      DBHANDLE    hDB,      DHANDLE       hIDTable,
+                                      char       *ItemName, WORD        ItemNameLength,
+                                      void       *Data,     WORD        Length)
 {
     STATUS  error;
     char   *szItemName;                 /* zero-terminated copy of ItemName */
@@ -476,8 +491,8 @@ STATUS LNPUBLIC  TrackerDbStampNotes (DBHOOKVEC  *pDBHooks,
     }
 
     sprintf(szLine,
-    "Service Request Log: user '%s' set field '%s' to '%s' in %ld documents.",
-         UserName, szItemName, szItemText, IDEntries(hIDTable));
+            "Service Request Log: user '%s' set field '%s' to '%s' in %ld documents.",
+            UserName, szItemName, szItemText, IDEntries(hIDTable));
 
     AddLogEntry(szLine, "TrackerDbStampNotes");
 
@@ -503,24 +518,24 @@ STATUS  LNPUBLIC  StartLog (DBHANDLE hDB)
     NOTEHANDLE      hNote;
     char            szServer[MAXUSERNAME+1];
     TIMEDATE        tdStartTime;
-    DHANDLE           hCompound;      /* Compound Text context */
+    DHANDLE         hCompound;      /* Compound Text context */
     COMPOUNDSTYLE   Style;
     DWORD           dwStyleID;
-    char           *szStartLogMessage;
+    char            *szStartLogMessage;
 
     if (error = NSFNoteCreate(hDB, &hNote))
     {
         TraceNotesError(error,
-            "MainEntryPoint: unable to open tracker log note.");
+                        "MainEntryPoint: unable to open tracker log note.");
         return (error);                            
     }
 
     /* Set FORM field */
     if (error = NSFItemSetText(hNote, FIELD_FORM,   /* "Form" */
-                TRACKER_FORM, MAXWORD))
+                               TRACKER_FORM, MAXWORD))
     {
         TraceNotesError(error,
-                "MainEntryPoint: unable to set form field in tracker log.");
+                        "MainEntryPoint: unable to set form field in tracker log.");
         NSFNoteClose(hNote);
         return (error);
     }
@@ -529,15 +544,15 @@ STATUS  LNPUBLIC  StartLog (DBHANDLE hDB)
     if (error = SECKFMGetUserName (szServer))
     {
         TraceNotesError(error,
-            "MainEntryPoint: unable to get current server or user name.");
+                        "MainEntryPoint: unable to get current server or user name.");
         NSFNoteClose(hNote);
         return (error);
     }
     if (error = NSFItemSetText(hNote, TRACKER_ITEM_SERVER,  /* "Server" */
-                szServer, MAXWORD))
+                               szServer, MAXWORD))
     {
         TraceNotesError(error,
-            "MainEntryPoint: unable to set Server field in tracker log.");
+                        "MainEntryPoint: unable to set Server field in tracker log.");
         NSFNoteClose(hNote);
         return (error);
     }
@@ -545,22 +560,22 @@ STATUS  LNPUBLIC  StartLog (DBHANDLE hDB)
     /* set the StartTime field */
     OSCurrentTIMEDATE(&tdStartTime);
     if (error = NSFItemSetTime(hNote, TRACKER_ITEM_STARTTIME, /*"StartTime"*/
-                &tdStartTime))
+                               &tdStartTime))
     {
         TraceNotesError(error,
-            "MainEntryPoint: unable to set StartTime field in tracker log.");
+                        "MainEntryPoint: unable to set StartTime field in tracker log.");
         NSFNoteClose(hNote);
         return (error);
     }
 
     /* Create compound text context. This initializes hCompound. */
     if (error = CompoundTextCreate (
-                        hNote, 
-                        TRACKER_ITEM_BODY,  /* "Body" */
-                        &hCompound)) 
+                                    hNote, 
+                                    TRACKER_ITEM_BODY,  /* "Body" */
+                                    &hCompound)) 
     {
         TraceNotesError(error,
-            "MainEntryPoint: unable to create Compound Text context.");
+                        "MainEntryPoint: unable to create Compound Text context.");
         NSFNoteClose(hNote);
         return (error);
     }
@@ -573,7 +588,7 @@ STATUS  LNPUBLIC  StartLog (DBHANDLE hDB)
                                          &dwStyleID))
     {
         TraceNotesError(error,
-            "MainEntryPoint: unable to define Compound Text style.");
+                        "MainEntryPoint: unable to define Compound Text style.");
         CompoundTextDiscard (hCompound);
         NSFNoteClose(hNote);
         return (error);
@@ -584,16 +599,16 @@ STATUS  LNPUBLIC  StartLog (DBHANDLE hDB)
     szStartLogMessage = "Start of Service Request Tracking Log.";
 
     if (error = CompoundTextAddParagraphExt (
-                        hCompound,
-                        dwStyleID,
-                        DEFAULT_FONT_ID,
-                        szStartLogMessage,      /* text to append */
+                                             hCompound,
+                                             dwStyleID,
+                                             DEFAULT_FONT_ID,
+                                             szStartLogMessage,      /* text to append */
                                                 /* text length: omit '\0' */
-                        (DWORD)( strlen(szStartLogMessage)-1 ),
-                        NULLHANDLE))            /* CLS translation table */
+                                             (DWORD)( strlen(szStartLogMessage)-1 ),
+                                             NULLHANDLE))            /* CLS translation table */
     {
         TraceNotesError(error,
-            "MainEntryPoint: unable to add paragraph to tracker log.");
+                        "MainEntryPoint: unable to add paragraph to tracker log.");
         CompoundTextDiscard (hCompound);
         NSFNoteClose(hNote);
         return (error);
@@ -602,7 +617,7 @@ STATUS  LNPUBLIC  StartLog (DBHANDLE hDB)
     if (error = NSFNoteUpdate(hNote, UPDATE_FORCE))
     {
         TraceNotesError(error,
-                "MainEntryPoint: unable to update tracker log note.");
+                        "MainEntryPoint: unable to update tracker log note.");
         NSFNoteClose(hNote);
         return (error);
     }
@@ -633,7 +648,7 @@ VOID   LNPUBLIC  FinishLog (void)
 {
     STATUS          error;
     NOTEHANDLE      hNote;
-    DHANDLE           hCompound;      /* Compound Text context */
+    DHANDLE         hCompound;      /* Compound Text context */
     DWORD           dwStyleID;
     TIMEDATE        tdFinishTime;
 
@@ -649,23 +664,23 @@ VOID   LNPUBLIC  FinishLog (void)
     if (error = CompoundTextClose (hCompound, 0, 0L, NULL, 0))
     {
         TraceNotesError(error,
-            "TrackerTerm: unable to append body to tracker log document.");
+                        "TrackerTerm: unable to append body to tracker log document.");
         CompoundTextDiscard(hCompound);
     }
 
     /* set the FinishTime field */
     OSCurrentTIMEDATE(&tdFinishTime);
     if (error = NSFItemSetTime(hNote, TRACKER_ITEM_FINISHTIME,
-            &tdFinishTime))
+                               &tdFinishTime))
     {
         TraceNotesError(error,
-            "TrackerTerm: unable to set FinishTime field in tracker log.");
+                        "TrackerTerm: unable to set FinishTime field in tracker log.");
     }
 
     if (error = NSFNoteUpdate(hNote, UPDATE_FORCE))
     {
         TraceNotesError(error,
-            "TrackerTerm: unable to update tracker log note.");
+                        "TrackerTerm: unable to update tracker log note.");
     }
 
     if (error = NSFNoteClose(hNote))
@@ -687,7 +702,7 @@ VOID   LNPUBLIC  FinishLog (void)
 VOID  LNPUBLIC  AddLogEntry(char * szLine, char * szFunction)
 {
     STATUS          error;
-    DHANDLE           hCompound;
+    DHANDLE         hCompound;
     DWORD           dwStyleID;
     char            szErrorMessage[MAX_NOTES_ERROR];
 
@@ -695,12 +710,12 @@ VOID  LNPUBLIC  AddLogEntry(char * szLine, char * szFunction)
     dwStyleID = dwStyleID_global;
 
     if (error = CompoundTextAddParagraphExt (
-                        hCompound,
-                        dwStyleID,
-                        DEFAULT_FONT_ID,
-                        szLine,
-                        (DWORD)( strlen(szLine)-1 ),
-                        NULLHANDLE))
+                                             hCompound,
+                                             dwStyleID,
+                                             DEFAULT_FONT_ID,
+                                             szLine,
+                                             (DWORD)( strlen(szLine)-1 ),
+                                             NULLHANDLE))
     {
         sprintf(szErrorMessage, "%s: unable to add line to tracker log.",
                 szFunction);
@@ -820,13 +835,13 @@ BOOL   LNPUBLIC  NoteIsServiceRequest(NOTEHANDLE hNote)
 ************************************************************************/
 
 VOID    LNPUBLIC PrintToTraceFile(
-                    char       *szFunction, 
-                    char       *UserName, 
-                    LIST       *GroupList, 
-                    DBHANDLE    hDB, 
-                    NOTEID      NoteID, 
-                    NOTEHANDLE  hNote,
-                    WORD        UpdateFlags)
+                                  char       *szFunction, 
+                                  char       *UserName, 
+                                  LIST       *GroupList, 
+                                  DBHANDLE    hDB, 
+                                  NOTEID      NoteID, 
+                                  NOTEHANDLE  hNote,
+                                  WORD        UpdateFlags)
 {
     fprintf(pTraceFile[inst-1], "%s: UserName = '%s'.\n", szFunction, UserName);
 
@@ -914,8 +929,8 @@ VOID   LNPUBLIC PrintDBPathToTraceFile( DBHANDLE hDB, char * szFunction )
 ************************************************************************/
 
 STATUS  LNPUBLIC  GetReqNumItem( NOTEHANDLE hNote, 
-                                   NUMBER * pReqNumber,
-                                   char * szFunction )
+                                 NUMBER * pReqNumber,
+                                 char * szFunction )
 {
     STATUS      error;
     BLOCKID     bhReqNumberItem;
@@ -937,7 +952,7 @@ STATUS  LNPUBLIC  GetReqNumItem( NOTEHANDLE hNote,
                              &dwReqNumberValueLen ))
     {
         fprintf(pTraceFile[inst-1], "%s: Unable to get ReqNumber item.\n", 
-               szFunction);
+                szFunction);
         return(error);
     }
     
@@ -947,7 +962,7 @@ STATUS  LNPUBLIC  GetReqNumItem( NOTEHANDLE hNote,
                         TRACKER_ITEM_REQ_NUMBER, pReqNumber))
         {
             fprintf(pTraceFile[inst-1], "%s: Unable to get ReqNumber item.\n",
-                  szFunction);
+                    szFunction);
             return (ERR_TRACKER_REQNUMITEM);
         }
 
@@ -956,7 +971,7 @@ STATUS  LNPUBLIC  GetReqNumItem( NOTEHANDLE hNote,
     else if (wReqNumberType != TYPE_NUMBER_RANGE)
     {
         fprintf(pTraceFile[inst-1], "%s: Unable to get ReqNumber item.\n", 
-               szFunction);
+                szFunction);
         return (ERR_TRACKER_REQNUMITEM);
     }
 
@@ -973,7 +988,7 @@ STATUS  LNPUBLIC  GetReqNumItem( NOTEHANDLE hNote,
     if (Range.ListEntries == 0)
     {
         fprintf(pTraceFile[inst-1], "%s: Unable to get ReqNumber item.\n", 
-               szFunction);
+                szFunction);
         OSUnlockBlock( bhReqNumberValue );    
         return (ERR_TRACKER_REQNUMITEM);
     }
@@ -1015,7 +1030,7 @@ STATUS  LNPUBLIC  GetReqNumber (NUMBER * pReqNumber)
     if (pReqNumFile == (FILE*)NULL)
     {
         fprintf(pTraceFile[inst-1],"TrackerNoteOpen: unable to open file '%s': %d.\n",
-                            REQNUM_FILENAME, errno);
+                REQNUM_FILENAME, errno);
         return (ERR_TRACKER_REQNUMFILE);
     }
 
@@ -1025,7 +1040,7 @@ STATUS  LNPUBLIC  GetReqNumber (NUMBER * pReqNumber)
     {
         fclose(pReqNumFile);
         fprintf(pTraceFile[inst-1], "TrackerNoteOpen: error reading file '%s': %d.\n",
-                            REQNUM_FILENAME, errno);
+                REQNUM_FILENAME, errno);
         return (ERR_TRACKER_REQNUMFILE);
     }
 
@@ -1040,7 +1055,7 @@ STATUS  LNPUBLIC  GetReqNumber (NUMBER * pReqNumber)
     {
         fclose(pReqNumFile);
         fprintf(pTraceFile[inst-1], "TrackerNoteOpen: error writing file '%s': %d.\n",
-                            REQNUM_FILENAME, errno);
+                REQNUM_FILENAME, errno);
         return (ERR_TRACKER_REQNUMFILE);
     }
 
@@ -1060,7 +1075,7 @@ STATUS  LNPUBLIC  GetReqNumber (NUMBER * pReqNumber)
 ************************************************************************/
 
 STATUS  LNPUBLIC  CopyNoteToTrashcan (DBHANDLE hDB,
-                                        NOTEID NoteID)
+                                      NOTEID NoteID)
 {
     STATUS          error;
     DBREPLICAINFO   TargetDBRepInfo;
@@ -1095,14 +1110,14 @@ STATUS  LNPUBLIC  CopyNoteToTrashcan (DBHANDLE hDB,
     if (error = NSFDbOpen (szTrashcanName, &hTrashcanDB))
     {
         TraceNotesError(error,
-            "TrackerNoteUpdate: unable to open trashcan DB.");
+                        "TrackerNoteUpdate: unable to open trashcan DB.");
         return(error);
     }
 
     if (error = NSFDbReplicaInfoGet (hTrashcanDB, &TrashcanRepInfo))
     {
         TraceNotesError(error,
-            "TrackerNoteUpdate: unable to get trashcan DB replica info.");
+                        "TrackerNoteUpdate: unable to get trashcan DB replica info.");
         NSFDbClose(hTrashcanDB);
         return(error);
     }
@@ -1110,23 +1125,23 @@ STATUS  LNPUBLIC  CopyNoteToTrashcan (DBHANDLE hDB,
     if (error = NSFDbIDGet (hTrashcanDB, &TrashcanDBID))
     {
         TraceNotesError(error, 
-            "TrackerNoteUpdate: unable to get trashcan DBID.");
+                        "TrackerNoteUpdate: unable to get trashcan DBID.");
         NSFDbClose(hTrashcanDB);
         return(error);
     }
 
     if (error = NSFDbCopyNote(hDB,      /* source database handle */
-                    NULL,               /* source database DBID */
-                    &(TargetDBRepInfo.ID),  /* source database Replica ID */
-                    NoteID,             /* ID of note to copy */
-                    hTrashcanDB,        /* destination database handle */
-                    &TrashcanDBID,      /* destination database DBID */
-                    &(TrashcanRepInfo.ID),  /* destination database Rep ID */
-                    (NOTEID*)NULL,      /* ret detination NoteID */
-                    (WORD*)NULL))       /* ret note class */
+                              NULL,               /* source database DBID */
+                              &(TargetDBRepInfo.ID),  /* source database Replica ID */
+                              NoteID,             /* ID of note to copy */
+                              hTrashcanDB,        /* destination database handle */
+                              &TrashcanDBID,      /* destination database DBID */
+                              &(TrashcanRepInfo.ID),  /* destination database Rep ID */
+                              (NOTEID*)NULL,      /* ret detination NoteID */
+                              (WORD*)NULL))       /* ret note class */
     {
         TraceNotesError(error, 
-            "TrackerNoteUpdate: unable to copy note to trashcan.\n");
+                        "TrackerNoteUpdate: unable to copy note to trashcan.\n");
     }
     NSFDbClose(hTrashcanDB);
     return(error);
@@ -1149,7 +1164,7 @@ STATUS  LNPUBLIC  CopyNoteToTrashcan (DBHANDLE hDB,
 ************************************************************************/
 
 STATUS  LNPUBLIC  RenderDataAsText(void *Data, WORD Length,
-                                     char * * pszItemText)
+                                   char * * pszItemText)
 {
     STATUS      error;
     WORD        wDataType;
@@ -1167,8 +1182,8 @@ STATUS  LNPUBLIC  RenderDataAsText(void *Data, WORD Length,
     if (error = OSMemAlloc(0, dwValueLen, &(bidValue.pool)))
     {
         sprintf(szErrorMessage,
-            "TrackerDbStampNotes: unable to allocate %ld bytes memory.\n",
-            dwValueLen);
+                "TrackerDbStampNotes: unable to allocate %ld bytes memory.\n",
+                dwValueLen);
         TraceNotesError(error, szErrorMessage);
         return(error);
     }
@@ -1182,7 +1197,7 @@ STATUS  LNPUBLIC  RenderDataAsText(void *Data, WORD Length,
 
     /* Given a BLOCKID and a big text buffer, can convert value to text */
     wTextLength = NSFItemConvertValueToText (wDataType,
-            bidValue, dwValueLen, szTextBuff, VERY_BIG_MALLOC, ',');
+                                             bidValue, dwValueLen, szTextBuff, VERY_BIG_MALLOC, ',');
 
     /* Now allocate a return buffer just the size we really need. */
     *pszItemText = (char *)malloc(wTextLength);
@@ -1243,55 +1258,55 @@ STATUS  LNPUBLIC  GetInstanceNumber (int *pInstNum)
     if (pFile == (FILE*)NULL)
     {
 #if defined(OS400)
-      pFile = fopen(INSTANCE_FILENAME, "wb ccsid=819");
+        pFile = fopen(INSTANCE_FILENAME, "wb ccsid=819");
 #else        
-      pFile = fopen(INSTANCE_FILENAME, "wb");
+        pFile = fopen(INSTANCE_FILENAME, "wb");
 #endif
 
-      if (pFile == (FILE*)NULL)
-      {
-        return errno;
-      }
+        if (pFile == (FILE*)NULL)
+        {
+            return errno;
+        }
 
-      /* write 1 to the file */
-      count = fwrite(&InstNum, sizeof(int), 1, pFile);
+        /* write 1 to the file */
+        count = fwrite(&InstNum, sizeof(int), 1, pFile);
 
-      if (count != 1)
-      {
-        fclose(pFile);
-        return (ERR_TRACKER_INSTANCEFILE);
-      }
+        if (count != 1)
+        {
+            fclose(pFile);
+            return (ERR_TRACKER_INSTANCEFILE);
+        }
     }
     else /* read the current number than update it */
     {
-      /* read the number in the file */
-      count = fread(&InstNum, sizeof(int), 1, pFile);
+        /* read the number in the file */
+        count = fread(&InstNum, sizeof(int), 1, pFile);
 
-      if (count != 1)
-      {
-        fclose(pFile);
-        return (ERR_TRACKER_INSTANCEFILE);
-      }
+        if (count != 1)
+        {
+            fclose(pFile);
+            return (ERR_TRACKER_INSTANCEFILE);
+        }
 
-      /* increment the instance number */
-      InstNum++;
+        /* increment the instance number */
+        InstNum++;
 
-      /* check to see if we have exceeded instances */
-      if (InstNum > MAX_TRACKER_INSTANCES)
-      {
-        return (ERR_TRACKER_MAX_INSTANCES);
-      }
+        /* check to see if we have exceeded instances */
+        if (InstNum > MAX_TRACKER_INSTANCES)
+        {
+            return (ERR_TRACKER_MAX_INSTANCES);
+        }
 
-      fseek(pFile, 0L, SEEK_SET);
+        fseek(pFile, 0L, SEEK_SET);
 
-      /* write the updated number to the file */
-      count = fwrite(&InstNum, sizeof(int), 1, pFile);
+        /* write the updated number to the file */
+        count = fwrite(&InstNum, sizeof(int), 1, pFile);
 
-      if (count != 1)
-      {
-        fclose(pFile);
-        return (ERR_TRACKER_INSTANCEFILE);
-      }
+        if (count != 1)
+        {
+            fclose(pFile);
+            return (ERR_TRACKER_INSTANCEFILE);
+        }
     }
 
     if (fclose(pFile))
@@ -1306,9 +1321,9 @@ STATUS  LNPUBLIC  GetInstanceNumber (int *pInstNum)
     
     /* add part of number extension to file name */
     if (InstNum <= 9)
-      strcat(TrackerLogFile,".00");
+        strcat(TrackerLogFile,".00");
     else
-      strcat(TrackerLogFile,".0");
+        strcat(TrackerLogFile,".0");
     
     /* append number to log file name (ex. TRACKER.001 ) */
     strcat(TrackerLogFile,tmpnum);

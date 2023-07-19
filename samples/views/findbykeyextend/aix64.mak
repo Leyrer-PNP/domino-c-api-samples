@@ -1,11 +1,11 @@
 #
-#  makefile for Notes API sample program twokey
+#  makefile for Notes API sample program findbykeyextend
 #                 AIX 64-bit version
 #
 #
 
 # set TARGET to the name of the executable to create
-TARGET = twokey
+TARGET = findbykeyextend
 
 # set SOURCES to the list of C source files in this program
 SOURCES = $(TARGET).c

@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    embedole
 
@@ -28,6 +43,7 @@
 #include <editdflt.h>
 #include <editods.h>
 #include <colorid.h>
+#include <PRINTLOG.h>
 
 
 /**********************************************************************
@@ -68,7 +84,7 @@ BOOL LNPUBLIC PutText(BYTE *pbRTItem, LPSTR pText,
     
     if (pbRTItem == NULL || pdwRTLength == (DWORD far *)NULL)
     {
-        printf("Error in PutText: Current buffer is empty\n");
+        PRINTLOG("Error in PutText: Current buffer is empty\n");
         return (FALSE);
     }
 
@@ -79,7 +95,7 @@ BOOL LNPUBLIC PutText(BYTE *pbRTItem, LPSTR pText,
 
     if (((DWORD) (ODSLength(_CDTEXT) + wTextLength)) > dwLength)
     {
-        printf("Error in PutText: Not enough space left in the buffer\n");
+        PRINTLOG("Error in PutText: Not enough space left in the buffer\n");
         return (FALSE);
     }
 
@@ -152,7 +168,7 @@ BOOL LNPUBLIC PutOLEBegin(BYTE far *pbRTItem,
     
     if (pbRTItem == NULL || pdwRTLength == (DWORD far *)NULL)
     {
-        printf("Error in PutOLEBegin: Item buffer is invalid\n");
+        PRINTLOG("Error in PutOLEBegin: Item buffer is invalid\n");
         return (FALSE);
     }
 
@@ -164,7 +180,7 @@ BOOL LNPUBLIC PutOLEBegin(BYTE far *pbRTItem,
          lstrlen(pszAttachmentName) +
          lstrlen(pszClassName))) > dwLength)
     {
-        printf("Error in PutOLEBegin: Not enough space left in the item buffer\n");
+        PRINTLOG("Error in PutOLEBegin: Not enough space left in the item buffer\n");
         return (FALSE);
     }
 
@@ -234,7 +250,7 @@ BOOL LNPUBLIC PutOLEBegin(BYTE far *pbRTItem,
  *       Domino and Notes
  *     
  *   Arguments:
- *       BYTE *pbRTItem          Ptr to buffer containing the CD record
+ *       BYTE *pbRTItem         Ptr to buffer containing the CD record
  *                              being created.
  *       DWORD dwLength         Number of bytes remaining in the buffer. 
  *       DWORD FAR *pdwRTLength Current length of the CD record;
@@ -257,7 +273,7 @@ BOOL LNPUBLIC PutOLEEnd(BYTE *pbRTItem, DWORD dwLength,
     
     if (pbRTItem == NULL || pdwRTLength == (DWORD far *)NULL)
     {
-        printf("Error in PutOLEEnd: Invalid buffer\n");
+        PRINTLOG("Error in PutOLEEnd: Invalid buffer\n");
         return (FALSE);
     }
 
@@ -265,7 +281,7 @@ BOOL LNPUBLIC PutOLEEnd(BYTE *pbRTItem, DWORD dwLength,
     
     if (dwLength < ODSLength(_CDOLEEND))
     {
-        printf("Error in PutOLEEnd: Not enough space left in the buffer\n");
+        PRINTLOG("Error in PutOLEEnd: Not enough space left in the buffer\n");
         return (FALSE);
     }
 

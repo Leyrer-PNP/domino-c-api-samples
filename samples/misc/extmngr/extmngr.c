@@ -1,4 +1,18 @@
 /*
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
 PROGRAM:    extmngr.dll
 
@@ -373,11 +387,11 @@ STATUS GetDBTitle(DBHANDLE hDb, char *title);
 void LogLine(char *Line)
 {
 	if (gFStream) {
-		__WriteLine(Line, gFStream);
-		if (__FileError(gFStream)) {
-			__CloseFile(gFStream);
-			gFStream = (__FILE *)0;
-		}
+	    __WriteLine(Line, gFStream);
+	    if (__FileError(gFStream)) {
+	        __CloseFile(gFStream);
+	        gFStream = (__FILE *)0;
+	    }
 	}
 }
 
@@ -397,18 +411,18 @@ STATUS RegisterEntry(int x)
 	//LogLine("-------------------------------------------------\n");
 
 	sprintf(gTextBuffer, "EMRegister with %s \n",
-		ExtensionHookTable[x].m_Name );
+            ExtensionHookTable[x].m_Name );
 	LogLine( gTextBuffer );
 
 	error = EMRegister( ExtensionHookTable[x].m_Identifier,
-		ExtensionHookTable[x].m_Notification,
-		(EMHANDLER)gHandlerProc,
-		gRecursionID,
-		&ExtensionHookTable[x].m_RegistrationHandle);
+	                    ExtensionHookTable[x].m_Notification,
+	                    (EMHANDLER)gHandlerProc,
+	                    gRecursionID,
+	                    &ExtensionHookTable[x].m_RegistrationHandle);
 
 	if (error) {
-		LogLine("EMRegister Failed\n");
-		return(error);
+	    LogLine("EMRegister Failed\n");
+	    return(error);
 	}
 	//LogLine("-------------------------------------------------\n");
 
@@ -426,7 +440,7 @@ STATUS DeregisterEntry(int x)
 {
 	STATUS error = NOERROR;
 	if (gFStream)
-		__CloseFile(gFStream);
+	    __CloseFile(gFStream);
 	gFStream = __OpenFile(FileName, APPEND_PERMISSION);
 	if (ExtensionHookTable[x].m_Name == NULL) return(error);
 
@@ -434,16 +448,16 @@ STATUS DeregisterEntry(int x)
 	//LogLine("-------------------------------------------------\n");
 
 	sprintf(gTextBuffer, "Calling EMDeregister with %s\n",
-		ExtensionHookTable[x].m_Name);
+	        ExtensionHookTable[x].m_Name);
 	LogLine( gTextBuffer );
 
 	error = EMDeregister(ExtensionHookTable[x].m_RegistrationHandle);
 
 	if (error) {
-		LogLine("EMDregister Failed\n");
-		if (gFStream) __CloseFile(gFStream);
-		gFStream = (__FILE *)0;
-		return(error);
+	    LogLine("EMDregister Failed\n");
+	        if (gFStream) __CloseFile(gFStream);
+	            gFStream = (__FILE *)0;
+	    return(error);
 	}
 	//LogLine("-------------------------------------------------\n");
 	__CloseFile(gFStream);
@@ -464,7 +478,7 @@ DLL_EXPORT_PREFIX STATUS LNPUBLIC MainEntryPoint( void )
 	*    keeps the main code from being executed more than once.
 	*/
 	if ( gHooksRegistered )
-		return(NOERROR);
+	    return(NOERROR);
 	gHooksRegistered = TRUE;
 
 
@@ -494,22 +508,22 @@ DLL_EXPORT_PREFIX STATUS LNPUBLIC MainEntryPoint( void )
 	error = EMCreateRecursionID( &gRecursionID );
 
 	if (error)
-		LogLine("EMCreateRecursionID Failed\n");
+	    LogLine("EMCreateRecursionID Failed\n");
 
 	/* Loop through the table testing each entry */
 
 	else {
-		LogLine("EMCreateRecursionID Returned Success\n");
+	    LogLine("EMCreateRecursionID Returned Success\n");
 
-		for ( x = 0; ExtensionHookTable[x].m_Name != NULL; x += 1 ) {
-			error = RegisterEntry(x);
-			if (error)
-				break;
-		}
+	    for ( x = 0; ExtensionHookTable[x].m_Name != NULL; x += 1 ) {
+	        error = RegisterEntry(x);
+	        if (error)
+	            break;
+	    }
 	}
 	if ( gFStream ) {
-		__CloseFile(gFStream);
-		gFStream = (__FILE *)0;
+	    __CloseFile(gFStream);
+	    gFStream = (__FILE *)0;
 	}
 	return( error );
 }
@@ -529,144 +543,144 @@ DLL_EXPORT_PREFIX STATUS LNPUBLIC EMHandlerProc( EMRECORD FAR * pExRecord )
 
 	switch (pExRecord->EId)
 	{
-			case EM_NSFDBCREATE:
-			{
-			    char far *DBName;
-			    USHORT DbClass;
-			    BOOL Force;
-			    VARARG_PTR ap;
+	    case EM_NSFDBCREATE:
+	    {
+	        char far *DBName;
+	        USHORT DbClass;
+	        BOOL Force;
+	        VARARG_PTR ap;
+	    
+	        char PathName[256];
+	
+	        /* get arguments */
+	        ap = pExRecord->Ap;
+	        DBName = VARARG_GET (ap, char far *);
+	        DbClass = VARARG_GET (ap, USHORT);
+	        Force = VARARG_GET (ap, BOOL);
 		
-		            char PathName[256];
+	        /* check error code */
+	        if (pExRecord->Status != NOERROR) {
+	            sprintf(gTextBuffer, "Error Status[%d]\n",pExRecord->Status);
+	            LogLine( gTextBuffer);
+	            fflush(gFStream);
+	            break;
+	        }
 		
-		        /* get arguments */
-			    ap = pExRecord->Ap;
-			    DBName = VARARG_GET (ap, char far *);
-			    DbClass = VARARG_GET (ap, USHORT);
-			    Force = VARARG_GET (ap, BOOL);
+	        if (pExRecord->NotificationType != EM_AFTER)
+	            break;
 		
-		        /* check error code */
-			    if (pExRecord->Status != NOERROR) {
- 	   			sprintf(gTextBuffer, "Error Status[%d]\n",pExRecord->Status);
-           			LogLine( gTextBuffer);
-				fflush(gFStream);
-				break;
-			    }
+	        /* construct database path name */
+	        strcpy(PathName,DataDir);
+	        #if defined(OS400)
+	            strcat(PathName,"/");
+	        #else
+	            strcat(PathName,"\\");
+	        #endif
+	            strcat(PathName,"animals.nsf");
+	    
+	        /* if this isn't the database we're looking for then break */
+	        if (strcmp(DBName, PathName) && strcmp(DBName,"animals.nsf"))
+	            break;
 		
-			    if (pExRecord->NotificationType != EM_AFTER)
-				  break;
+	        inHook = 0; /* init tracking routine cnt to zero on creation */
 		
-			    /* construct database path name */
-			    strcpy(PathName,DataDir);
-		#if defined(OS400)
-		        strcat(PathName,"/");
-		#else
-		        strcat(PathName,"\\");
-		#endif
-			    strcat(PathName,"animals.nsf");
+	        inHook += 1;
 		
-			    /* if this isn't the database we're looking for then break */
-			    if (strcmp(DBName, PathName) && strcmp(DBName,"animals.nsf"))
-			      break;
+	        LogLine("-------------------------------------------------\n");
 		
-			    inHook = 0; /* init tracking routine cnt to zero on creation */
+	        /* read the non-Domino database and parse info into records */ 
+	        LogLine("Calling ReadDataBase \n");
+	        error = ReadDataBase(&pDBRecord);
+	        pDBHead = pDBRecord;
 		
-			    inHook += 1;
+	        if (error)
+	        {
+	            sprintf(gTextBuffer, "Read Database Error: %d\n",error);
+	            LogLine( gTextBuffer );
+	            goto FreeMem;
+	        }
 		
-			    LogLine("-------------------------------------------------\n");
+	        /* create the Domino and Notes form in the Domino database */
+	        error = CreateDBForm(pDBHead);
+	        if (error)
+	        {
+	            sprintf(gTextBuffer, "Create Database Form Error: %d\n",error);
+	            LogLine( gTextBuffer );
+	            goto FreeMem;
+	        }
 		
-			    /* read the non-Domino database and parse info into records */ 
-			    LogLine("Calling ReadDataBase \n");
-			    error = ReadDataBase(&pDBRecord);
-			    pDBHead = pDBRecord;
-		
-			    if (error)
-			    {
-			      sprintf(gTextBuffer, "Read Database Error: %d\n",error);
-			      LogLine( gTextBuffer );
-			      goto FreeMem;
-			    }
-		
-			    /* create the Domino and Notes form in the Domino database */
-			    error = CreateDBForm(pDBHead);
-			    if (error)
-			    {
-			      sprintf(gTextBuffer, "Create Database Form Error: %d\n",error);
-			      LogLine( gTextBuffer );
-			      goto FreeMem;
-			    }
-		
-			    /* create all the notes from the data records */
-			    error = CreateDBNotes(pDBHead);
+	        /* create all the notes from the data records */
+	         error = CreateDBNotes(pDBHead);
 
-			    if (error)
-			    {
-			      sprintf(gTextBuffer, "Create Database Note Error: %d\n",error);
-			      LogLine( gTextBuffer );
-			      goto FreeMem;
-			    }
-		
-			    /* create the view in the Domino database */
-			    error = CreateDBView();
-			    if (error)
-			    {
-			      sprintf(gTextBuffer, "Create Database View Error: %d\n",error);
-			      LogLine( gTextBuffer );
-			      goto FreeMem;
-			    }
+	        if (error)
+	        {
+	            sprintf(gTextBuffer, "Create Database Note Error: %d\n",error);
+	            LogLine( gTextBuffer );
+	            goto FreeMem;
+	        }
+	    
+	        /* create the view in the Domino database */
+	        error = CreateDBView();
+	        if (error)
+	        {
+	            sprintf(gTextBuffer, "Create Database View Error: %d\n",error);
+	            LogLine( gTextBuffer );
+	            goto FreeMem;
+	        }
 
-			    LogLine("-------------------------------------------------\n");
-			    LogLine("Done create DB \n");
-			    fflush(gFStream);
+	        LogLine("-------------------------------------------------\n");
+	        LogLine("Done create DB \n");
+	        fflush(gFStream);
 
-		FreeMem:
-			
-			    /* free up memory */
-			    if (pDBHead)
-			    {
-			      pDBRecord = pDBHead;
-			      while (pDBRecord != NULL)
-			      {
-				pDBNext = pDBRecord->Next;
-				__FreeMemory(pDBRecord);
-				pDBRecord = pDBNext;
-			      }
-			      pDBHead = 0;
-			    }
-			    break;
-			}
+	        FreeMem:
+	        
+	            /* free up memory */
+	            if (pDBHead)
+	            {
+	                pDBRecord = pDBHead;
+	                while (pDBRecord != NULL)
+	                {
+	                    pDBNext = pDBRecord->Next;
+	                    __FreeMemory(pDBRecord);
+	                    pDBRecord = pDBNext;
+	                }
+	                pDBHead = 0;
+	            }
+	            break;
+	    }
 		
-			/* before the Database is closed, create all forms, notes, and views */
-			case EM_NSFDBCLOSE:
-			{
-			    DHANDLE hDb;
-			    VARARG_PTR ap;
-			    char title [MAXSPRINTF];
+	    /* before the Database is closed, create all forms, notes, and views */
+	    case EM_NSFDBCLOSE:
+	    {
+	        DHANDLE hDb;
+	        VARARG_PTR ap;
+	        char title [MAXSPRINTF];
 		
-			    /* get arguments */
-			    ap = pExRecord->Ap;
-			    hDb = VARARG_GET(ap,DHANDLE);
+	        /* get arguments */
+	        ap = pExRecord->Ap;
+	        hDb = VARARG_GET(ap,DHANDLE);
+	    
+	        /* check error code */
+	        if (pExRecord->Status != NOERROR)
+	            break;
 		
-		        /* check error code */
-		        if (pExRecord->Status != NOERROR)
-				  break;
+	        if (pExRecord->NotificationType != EM_BEFORE)
+	            break;
 		
-			    if (pExRecord->NotificationType != EM_BEFORE)
-				break;
+	        /* Only do this for our sample DB */
+	        if (error = GetDBTitle (hDb, title))
+	            break;
 		
-			    /* Only do this for our sample DB */
-			    if (error = GetDBTitle (hDb, title))
-				  break;
+	        if (strcmp(title, "animals"))
+	            break;
 		
-			    if (strcmp(title, "animals"))
-			      break;
+	        LogLine("-------------------------------------------------\n");
 		
-			    LogLine("-------------------------------------------------\n");
-		
-			    sprintf(gTextBuffer, "Calling EM_NSFDBCLOSE for Database: %s\n",title);
-			    LogLine( gTextBuffer );
-			    LogLine("-------------------------------------------------\n");
-			    break;
-			} 
+	        sprintf(gTextBuffer, "Calling EM_NSFDBCLOSE for Database: %s\n",title);
+	        LogLine( gTextBuffer );
+	        LogLine("-------------------------------------------------\n");
+	        break;
+	    } 
 
 	//case EM_NSFDBCREATE:
 	//case EM_NSFNOTEOPEN:
@@ -705,7 +719,7 @@ STATUS GetDBTitle(DHANDLE hDb, char *title)
 	char the_title[MAXSPRINTF];
 
 	if (error = NSFDbInfoGet (hDb, dbinfo))
-		return(error);
+	    return(error);
 
 	NSFDbInfoParse(dbinfo, INFOPARSE_TITLE, the_title, sizeof(the_title));
 	strcpy(title, &the_title[0]);
@@ -743,30 +757,30 @@ BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD fdwReason,
 	//__asm int 3;
 	switch(fdwReason)
 	{
-	case DLL_PROCESS_ATTACH:
-		InitializeCriticalSection(&gCriticalSection);
+	    case DLL_PROCESS_ATTACH:
+	        InitializeCriticalSection(&gCriticalSection);
 
-		gHandlerProc = (EMHANDLER)MakeProcInstance((FARPROC)EMHandlerProc,
-			hInstance);
-		break;
+	        gHandlerProc = (EMHANDLER)MakeProcInstance((FARPROC)EMHandlerProc,
+	        hInstance);
+	        break;
 
-	case DLL_PROCESS_DETACH:
-		CleanUp();
+	    case DLL_PROCESS_DETACH:
+	        CleanUp();
 
-		/* Free procedure instance */
-		FreeProcInstance( gHandlerProc );
+	        /* Free procedure instance */
+	        FreeProcInstance( gHandlerProc );
 
-		/* Deregister Extension Manager routines */
-		for ( x = 0; ExtensionHookTable[x].m_Name != NULL; x += 1 )
-		{
-			error = DeregisterEntry(x);
-			if (error)
-				break;
-		}
+	        /* Deregister Extension Manager routines */
+	        for ( x = 0; ExtensionHookTable[x].m_Name != NULL; x += 1 )
+	        {
+	            error = DeregisterEntry(x);
+	            if (error)
+	                break;
+		    }
 
-		DeleteCriticalSection(&gCriticalSection);
+	        DeleteCriticalSection(&gCriticalSection);
 
-		break;
+	        break;
 	}
 
 	return( TRUE );

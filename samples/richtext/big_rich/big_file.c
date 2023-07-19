@@ -1,4 +1,19 @@
 /************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
     
     PROGRAM:    BIG_FILE
                                                                     
@@ -32,6 +47,7 @@
 #include <string.h>
 #include <memory.h>                     /* _fmemset() */
 #include <stdlib.h>                     /* atol() */
+#include <printLog.h>
 
 #define LINE_LEN    72
 
@@ -52,7 +68,7 @@ int main(int argc, char *argv[])
 
     if (argc != 3)
     {
-        printf ("Usage: BIG_FILE  <filename>  <count> \n");
+        PRINTLOG ("Usage: BIG_FILE  <filename>  <count> \n");
         exit(0);
     }
     file_name = argv[1];
@@ -60,20 +76,20 @@ int main(int argc, char *argv[])
 
     if (count == 0)
     {
-        printf ("Error: unable to convert '%s' to number.\n", argv[2]);
+        PRINTLOG ("Error: unable to convert '%s' to number.\n", argv[2]);
         exit(1);
     }
 
     /* Create file */
 #if defined (LINUX)
-	hFile = open (file_name, O_WRONLY| O_CREAT, S_IWRITE);
+    hFile = open (file_name, O_WRONLY| O_CREAT, S_IWRITE);
 #else
-	hFile = open(file_name, O_WRONLY | O_TEXT | O_CREAT, S_IWRITE);
+    hFile = open(file_name, O_WRONLY | O_TEXT | O_CREAT, S_IWRITE);
 #endif
        
     if (hFile == 0)
     {
-        printf ("Error: unable to open file '%s' for write.\n", file_name);
+        PRINTLOG ("Error: unable to open file '%s' for write.\n", file_name);
         exit (1);
     }
 
@@ -85,13 +101,13 @@ int main(int argc, char *argv[])
 
     l_count = count / (LINE_LEN+2) ;
     c_count = count % (LINE_LEN+2) ;
-    printf("Writing %ld lines plus %ld characters.\n", l_count, c_count);
+    PRINTLOG("Writing %ld lines plus %ld characters.\n", l_count, c_count);
 
     for (i=0; i<l_count; i++)
     {
        if (write (hFile, line, LINE_LEN+1) == -1)
        {
-           printf ("Error: write.\n");
+           PRINTLOG ("Error: write.\n");
            close(hFile);
            exit(1);
        }
@@ -99,14 +115,14 @@ int main(int argc, char *argv[])
 
     if (write (hFile, line, (unsigned)c_count) == -1)
     {
-        printf ("Error: write.\n");
+        PRINTLOG ("Error: write.\n");
         close(hFile);
         exit(1);
     }
 
     close(hFile);
 
-    printf ("Created ASCII file '%s' containing %ld characters.\n",
+    PRINTLOG ("Created ASCII file '%s' containing %ld characters.\n",
                 file_name, count);
 
     exit(0);

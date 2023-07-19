@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM: AGENTS
 
@@ -55,6 +70,7 @@
 #include <ostime.h>
 #include <agents.h>         /* Agent execution header */ 
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -78,14 +94,12 @@ STATUS  LNPUBLIC  SetAgentTrigger( NOTEHANDLE, WORD );
 STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE, ODS_ASSISTSTRUCT );
 STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE, BYTE *, DWORD );
 STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE, NOTEHANDLE, WORD );
-/* Local function prototypes */
-void PrintAPIError (STATUS);
 
 /* Progam constants */
 char szAGENT_MANUAL[]     = "Send Reminder to Support Rep";
 char szAGENT_BACKGROUND[] = "Assign Support Rep";
-char szAGENT_SCHEDULED[]    = "Escalate Priority";
-char szAGENT_JAVA[]         = "Assign Hot Problems";
+char szAGENT_SCHEDULED[]  = "Escalate Priority";
+char szAGENT_JAVA[]       = "Assign Hot Problems";
 #define SHARED_AGENT        0
 #define PRIVATE_AGENT       1
 
@@ -103,15 +117,15 @@ int main (int argc, char *argv[])
     int         goodAgents=0;
 
     if (error = NotesInitExtended (argc, argv))
-	 {
-        printf("\n Unable to initialize Notes.\n");
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	 }
+    }
 
     /* Process arguments */
     if (argc != 2)
     {
-        printf ("Usage: Agents <database filename>\n");
+        PRINTLOG ("Usage: Agents <database filename>\n");
         goto Exit0;
     }
     szDbName = argv[1];
@@ -119,7 +133,7 @@ int main (int argc, char *argv[])
     /* Open input database */
     if (error = NSFDbOpen(szDbName, &hDb))
     {
-        printf ("Error: unable to open target database '%s'\n", szDbName);
+        PRINTLOG ("Error: unable to open target database '%s'\n", szDbName);
         goto Exit0;
     }
 
@@ -149,16 +163,18 @@ int main (int argc, char *argv[])
     goodAgents++;
 
 
-    printf("\nSuccessfully added %d Agents to '%s'.\n", goodAgents,szDbName);
+    PRINTLOG("\nSuccessfully added %d Agents to '%s'.\n", goodAgents,szDbName);
 
     /* Close database, report completion, close log file pointer, and return */
 Exit1:
     NSFDbClose(hDb);
-    printf ("Program execution to create agent notes completed.\n");
+    PRINTLOG ("Program execution to create agent notes completed.\n");
 
 Exit0:
     if (error)
-       PrintAPIError (error);
+    {
+       PRINTERROR(error, "NSFDbOpen");
+    }
 
     NotesTerm();
     return(error);
@@ -203,13 +219,13 @@ STATUS  LNPUBLIC  AddManualAgent( DBHANDLE hDb )
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
 
-    char   szComment[] = 
+    char                szComment[] = 
 "Send a reminder email to the appropriate support reps for the documents \
 selected in the view.";
-    char   szFormula[] = 
-"@MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
-\" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
-SELECT @All";
+    char                szFormula[] = 
+                                      "@MailSend(SRep; \"\"; \"\"; \"Reminder: \" + CompanyName + \
+                                      \" problem still open\"; Subject; \"\"; [IncludeDoclink]);\n\
+                                      SELECT @All";
 
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT ))
@@ -270,7 +286,7 @@ SELECT @All";
                                     &hFormula, &wFormulaLen, &wdc, &wdc, 
                                     &wdc, &wdc, &wdc))
     {
-        printf("Error compiling formula.\n");
+        PRINTLOG("Error compiling formula.\n");
         goto Exit1;
     }
 
@@ -281,7 +297,7 @@ SELECT @All";
                                    wFormulaLen );
     if (AgentAction == (BYTE *) NULL) 
     {
-        printf("Error: unable to allocate memory.\n");
+        PRINTLOG("Error: unable to allocate memory.\n");
         goto Exit1;
     }
     buff_ptr = AgentAction;
@@ -319,7 +335,7 @@ SELECT @All";
     /* Finally update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to update Agent note to database.\n");
+        PRINTLOG("Error: unable to update Agent note to database.\n");
         goto Exit1;
     }
 
@@ -379,45 +395,45 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     int                 destAllocated=0;
     int                 errorBufferAllocated=0;
 
-    DHANDLE               hSource=NULL;
-    DHANDLE               hDest=NULL;
-    DHANDLE               hErrorBuffer=NULL;
-    DHANDLE               hUnused=NULL;
+    DHANDLE             hSource=NULL;
+    DHANDLE             hDest=NULL;
+    DHANDLE             hErrorBuffer=NULL;
+    DHANDLE             hUnused=NULL;
 
-    char    szComment[] = "Assign all unassigned problems to Isabel Silton.";
+    char                szComment[] = "Assign all unassigned problems to Isabel Silton.";
 
-    char szScript[] = 
-"Sub Initialize\n\
-  Dim updcount As Integer\n\
-  Dim repname As String\n\
-  Dim session As New NotesSession\n\
-  Dim db As NotesDatabase\n\
-  Dim dc As NotesDocumentCollection\n\
-  Dim doc As NotesDocument\n\
-  Dim parm As NotesDocument\n\
-  Set db = session.CurrentDatabase\n\
-  Set dc = db.AllDocuments\n\
-  updcount = 0\n\
-  Set parm = session.DocumentContext\n\
- 'if running from UI, then hardcode new rep name\n\
-  If parm IS NOTHING then\n\
-   repname = \"Isabel Silton\"\n\
- 'else, use passed parameter document value\n\
-  Else\n\
-   repname = parm.NewRep(0)\n\
-  End If\n\
- 'assign passed name to all unassigned, open problems\n\
-  For j = 1 To dc.Count\n\
-   Set doc = dc.GetNthDocument(j)\n\
-   If doc.SRep(0) = \"\" AND doc.Status(0) = \"Open\" Then\n\
-    doc.SRep = repname\n\
-    updcount = updcount+1\n\
-   End If\n\
-   Call doc.Save(True,False)\n\
-  Next\n\
-  Print \"Support Rep parameter = \"+repname\n\
-  Print \"Updated documents = \"+STR$(updcount)\n\
- End Sub\n";
+    char                szScript[] = 
+                                     "Sub Initialize\n\
+                                      Dim updcount As Integer\n\
+                                      Dim repname As String\n\
+                                      Dim session As New NotesSession\n\
+                                      Dim db As NotesDatabase\n\
+                                      Dim dc As NotesDocumentCollection\n\
+                                      Dim doc As NotesDocument\n\
+                                      Dim parm As NotesDocument\n\
+                                      Set db = session.CurrentDatabase\n\
+                                      Set dc = db.AllDocuments\n\
+                                      updcount = 0\n\
+                                      Set parm = session.DocumentContext\n\
+                                      'if running from UI, then hardcode new rep name\n\
+                                      If parm IS NOTHING then\n\
+                                      repname = \"Isabel Silton\"\n\
+                                      'else, use passed parameter document value\n\
+                                      Else\n\
+                                      repname = parm.NewRep(0)\n\
+                                      End If\n\
+                                      'assign passed name to all unassigned, open problems\n\
+                                      For j = 1 To dc.Count\n\
+                                      Set doc = dc.GetNthDocument(j)\n\
+                                      If doc.SRep(0) = \"\" AND doc.Status(0) = \"Open\" Then\n\
+                                      doc.SRep = repname\n\
+                                      updcount = updcount+1\n\
+                                      End If\n\
+                                      Call doc.Save(True,False)\n\
+                                      Next\n\
+                                      Print \"Support Rep parameter = \"+repname\n\
+                                      Print \"Updated documents = \"+STR$(updcount)\n\
+                                      End Sub\n";
 
     /* Create Agent note and set note class to 
      * NOTE_CLASS_PRIVATE | NOTE_CLASS_FILTER 
@@ -486,8 +502,8 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
        null terminator.  */
     if (error = OSMemAlloc(0,strlen(szScript)+1,&hSource))
     {
-       printf("Error: unable to alloc hSource.\n");
-       goto Exit1;
+        PRINTLOG("Error: unable to alloc hSource.\n");
+        goto Exit1;
     }
     sourceAllocated=1;
 
@@ -509,25 +525,25 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
 
     if (error )
     { 
-       printf("Error: Error in AgentLSTextFormat.\n");
-       goto Exit1;
+        PRINTLOG("Error: Error in AgentLSTextFormat.\n");
+        goto Exit1;
     }
 
     /*** If any script error, retrieve the error text from hErrorBuffer 
     handle; otherwise, retrieve the IDE compliant script.  */
     if (hErrorBuffer)
     {
-       pFormattedLS=OSLock(char,hErrorBuffer);
-       printf("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
-       OSUnlock(hErrorBuffer);
-       error=1;
-       goto Exit1;
+        pFormattedLS=OSLock(char,hErrorBuffer);
+        PRINTLOG("\nError from AgentLSTextFormat: %s\n",pFormattedLS);
+        OSUnlock(hErrorBuffer);
+        error=1;
+        goto Exit1;
     }
     else if (hDest)
     {
-       OSMemFree(hErrorBuffer);
-       errorBufferAllocated=0;
-       pFormattedLS=OSLock(char,hDest);
+        OSMemFree(hErrorBuffer);
+        errorBufferAllocated=0;
+        pFormattedLS=OSLock(char,hDest);
 
        /*** When saving the formatted LS in the "$AssistAction" item, 
        the script should be ended with a null terminator, therefore, 
@@ -545,7 +561,7 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
                                    FormattedLSLen);
     if (AgentAction == (BYTE *) NULL) 
     {
-        printf("Error: unable to allocate memory.\n");
+        PRINTLOG("Error: unable to allocate memory.\n");
         goto Exit1;
     }
     buff_ptr = AgentAction;
@@ -589,28 +605,28 @@ STATUS  LNPUBLIC  AddBackgroundAgent( DBHANDLE hDb )
     /* Update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to update background Agent note to database.\n");
+        PRINTLOG("Error: unable to update background Agent note to database.\n");
         goto Exit1;
     }
     /* Compile the LS script to object code.  */
     if (error = NSFNoteLSCompile(hDb, hAgent, 0))
     {
-       printf("Error: unable to compile Agent note to database.\n");
-       goto Exit1;
+        PRINTLOG("Error: unable to compile Agent note to database.\n");
+        goto Exit1;
     }
 
     /* Finally update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to do final update on the background Agent note to database.\n");
+        PRINTLOG("Error: unable to do final update on the background Agent note to database.\n");
         goto Exit1;
     }
 Exit1:
     if (sourceAllocated)
-       OSMemFree(hSource);
+        OSMemFree(hSource);
 
     if (destAllocated)
-       OSMemFree(hDest);
+        OSMemFree(hDest);
 
     if (errorBufferAllocated)
        OSMemFree(hErrorBuffer);
@@ -665,13 +681,13 @@ STATUS  LNPUBLIC  AddScheduleAgent( DBHANDLE hDb )
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
 
-char   szComment[] = "Once per month, search for all open \
-problems that are older than one month and escalate the priority \
-one level.";
-char   szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
-SELECT((DateOpened<OneMonthAgo) & (Status=\"Open\"));\n\
-FIELD Priority := @If(Priority=\"Low\";\"Medium\";\
-Priority=\"Medium\";\"High\";\"High\");";
+    char                szComment[] = "Once per month, search for all open \
+                                       problems that are older than one month and escalate the priority \
+                                       one level.";
+    char                szFormula[] = "OneMonthAgo := @Adjust(@Now; 0; -1; 0; 0; 0; 0);\n\
+                                       SELECT((DateOpened<OneMonthAgo) & (Status=\"Open\"));\n\
+                                       FIELD Priority := @If(Priority=\"Low\";\"Medium\";\
+                                       Priority=\"Medium\";\"High\";\"High\");";
 
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT))
@@ -740,7 +756,7 @@ Priority=\"Medium\";\"High\";\"High\");";
                                     &hFormula, &wFormulaLen, &wdc, &wdc, 
                                     &wdc, &wdc, &wdc))
     {
-        printf("Error compiling formula.\n");
+        PRINTLOG("Error compiling formula.\n");
         goto Exit1;
     }
 
@@ -751,7 +767,7 @@ Priority=\"Medium\";\"High\";\"High\");";
                                    wFormulaLen );
     if (AgentAction == (BYTE *) NULL) 
     {
-        printf("Error: unable to allocate memory.\n");
+        PRINTLOG("Error: unable to allocate memory.\n");
         goto Exit1;
     }
     buff_ptr = AgentAction;
@@ -789,7 +805,7 @@ Priority=\"Medium\";\"High\";\"High\");";
     /* Finally update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to update Agent note to database.\n");
+        PRINTLOG("Error: unable to update Agent note to database.\n");
         goto Exit1;
     }
 
@@ -828,18 +844,18 @@ STATUS  LNPUBLIC  AddJavaAgent( DBHANDLE hDb )
     char                szDesignFlags[DESIGN_FLAGS_MAX];
     ODS_ASSISTSTRUCT    AgentInfo;
 
-    CDACTIONHEADER              AgentHeader;
+    CDACTIONHEADER      AgentHeader;
     CDACTIONJAVAAGENT   AgentJava;
 
     BYTE                *AgentAction; 
     BYTE                *buff_ptr; 
     DWORD               dwBuffLen;
     
-char szComment[] = "Assign all hot problems (high priority) to Fire Fighters.";
-char szClass[] = "HotAgent.class";
-char szCode[] = "/opt/lotus/notesapi/samples/sol_2x/dbdesign/agents";
-char szFileList[] = "HotAgent.class\0\0";
-static char szSourceFile[128]; /* fix this */
+    char                szComment[] = "Assign all hot problems (high priority) to Fire Fighters.";
+    char                szClass[] = "HotAgent.class";
+    char                szCode[] = "/opt/lotus/notesapi/samples/sol_2x/dbdesign/agents";
+    char                szFileList[] = "HotAgent.class\0\0";
+    static char         szSourceFile[128]; /* fix this */
 
     /* Create Agent note and set note class to NOTE_CLASS_FILTER */
     if (error = CreateAgentNote(hDb, &hAgent, SHARED_AGENT))
@@ -902,7 +918,7 @@ static char szSourceFile[128]; /* fix this */
 
     if (AgentAction == (BYTE *) NULL) 
     {
-        printf("Error: unable to allocate memory.\n");
+        PRINTLOG("Error: unable to allocate memory.\n");
         goto Exit1;
     }
     buff_ptr = AgentAction;
@@ -915,7 +931,7 @@ static char szSourceFile[128]; /* fix this */
 
     AgentJava.Header.Signature = SIG_ACTION_JAVAAGENT;             
     AgentJava.Header.Length = ODSLength(_CDACTIONJAVAAGENT) + 
-          strlen(szClass) + strlen(szCode) + strlen(szFileList) + 2;
+                              strlen(szClass) + strlen(szCode) + strlen(szFileList) + 2;
     AgentJava.wClassNameLen = strlen(szClass);
     AgentJava.wCodePathLen = strlen(szCode);
     AgentJava.wFileListBytes = strlen(szFileList) + 2;
@@ -970,7 +986,7 @@ static char szSourceFile[128]; /* fix this */
     /* Finally update note */
     if (error = NSFNoteUpdate(hAgent, 0))
     {
-        printf("Error: unable to update Agent note to database.\n");
+        PRINTLOG("Error: unable to update Agent note to database.\n");
         goto Exit1;
     }
         
@@ -1004,7 +1020,7 @@ STATUS  LNPUBLIC  CreateAgentNote ( DBHANDLE    hDb,
 
     if (error = NSFNoteCreate(hDb, phAgent))
     {
-        printf("Error: unable to create Agent note.\n");
+        PRINTLOG("Error: unable to create Agent note.\n");
         return(error);
     }
 
@@ -1032,15 +1048,15 @@ STATUS  LNPUBLIC  SetAgentTitle(NOTEHANDLE hAgent, char *szTitle)
     STATUS      error=NOERROR;
 
     if (error = NSFItemAppend(
-                hAgent,                       /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,     /* item flags */
-                FIELD_TITLE,                  /* item name: "$TITLE" */
-                (WORD) strlen(FIELD_TITLE),
-                TYPE_TEXT,                    /* item type */
-                szTitle,                      /* item value */
-                (DWORD) strlen(szTitle)))     /* value length */
+                              hAgent,                       /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,     /* item flags */
+                              FIELD_TITLE,                  /* item name: "$TITLE" */
+                              (WORD) strlen(FIELD_TITLE),
+                              TYPE_TEXT,                    /* item type */
+                              szTitle,                      /* item value */
+                              (DWORD) strlen(szTitle)))     /* value length */
     {
-        printf("Error: unable to set Title field of Agent note.\n");
+        PRINTLOG("Error: unable to set Title field of Agent note.\n");
     }
 
     return(error);
@@ -1062,15 +1078,15 @@ STATUS  LNPUBLIC  SetAgentComment(NOTEHANDLE hAgent, char *szComment)
     STATUS      error=NOERROR;
 
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                FILTER_COMMENT_ITEM,                /* item name: "$Comment" */
-                (WORD) strlen(FILTER_COMMENT_ITEM),
-                TYPE_TEXT,                          /* item type */
-                szComment,                          /* item value */
-                (DWORD) strlen(szComment)))         /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              FILTER_COMMENT_ITEM,                /* item name: "$Comment" */
+                              (WORD) strlen(FILTER_COMMENT_ITEM),
+                              TYPE_TEXT,                          /* item type */
+                              szComment,                          /* item value */
+                              (DWORD) strlen(szComment)))         /* value length */
     {
-        printf("Error: unable to set Comment field of Agent note.\n");
+        PRINTLOG("Error: unable to set Comment field of Agent note.\n");
     }
 
     return(error);
@@ -1101,15 +1117,15 @@ STATUS  LNPUBLIC  SetAgentDesignFlags( NOTEHANDLE hAgent, char *szFlags )
     STATUS      error=NOERROR;
 
     if (error = NSFItemAppend(
-                hAgent,                      /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,    /* item flags */
-                DESIGN_FLAGS,                /* "$Flags" */
-                (WORD) strlen(DESIGN_FLAGS),
-                TYPE_TEXT,                   /* item type */
-                szFlags,                     /* item value */
-                (DWORD) strlen(szFlags)))    /* value length */
+                              hAgent,                      /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,    /* item flags */
+                              DESIGN_FLAGS,                /* "$Flags" */
+                              (WORD) strlen(DESIGN_FLAGS),
+                              TYPE_TEXT,                   /* item type */
+                              szFlags,                     /* item value */
+                              (DWORD) strlen(szFlags)))    /* value length */
     {
-        printf("Error: unable to set Design Flags field in Agent note.\n");
+        PRINTLOG("Error: unable to set Design Flags field in Agent note.\n");
     }
     return (error);
 }
@@ -1137,19 +1153,19 @@ STATUS  LNPUBLIC  SetAgentMachineName( NOTEHANDLE hAgent )
     /* get local machine name */
     if (error = SECKFMGetUserName(szUserName))
     {
-        printf("Error: unable to get user name from ID file.\n");
+        PRINTLOG("Error: unable to get user name from ID file.\n");
         return(error);
     }
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                FILTER_MACHINE_ITEM,                /* "$MachineName" */
-                (WORD) strlen(FILTER_MACHINE_ITEM),
-                TYPE_TEXT,                          /* item type */
-                szUserName,                         /* item value */
-                (DWORD) strlen(szUserName)))        /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              FILTER_MACHINE_ITEM,                /* "$MachineName" */
+                              (WORD) strlen(FILTER_MACHINE_ITEM),
+                              TYPE_TEXT,                          /* item type */
+                              szUserName,                         /* item value */
+                              (DWORD) strlen(szUserName)))        /* value length */
     {
-        printf("Error: unable to set Machine Name field in Agent note.\n");
+        PRINTLOG("Error: unable to set Machine Name field in Agent note.\n");
     }
 
     return(error);
@@ -1175,7 +1191,7 @@ STATUS  LNPUBLIC  SetAgentVersion(NOTEHANDLE hAgent)
                       ASSIST_VERSION_ITEM,        /* "$AssistVersion" */
                       &CurrTimeDate))
     {
-        printf("Error: unable to set Version field of Agent note.\n");
+        PRINTLOG("Error: unable to set Version field of Agent note.\n");
     }
     return(error);
 }
@@ -1203,15 +1219,15 @@ STATUS  LNPUBLIC  SetAgentType (NOTEHANDLE hAgent, WORD wActionType)
 
     TempNumber = (NUMBER) wActionType;
     if (error = NSFItemAppend(
-                hAgent,                        /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,      /* item flags */
-                ASSIST_TYPE_ITEM,              /* item name: "$AssistType" */
-                (WORD) strlen(ASSIST_TYPE_ITEM),
-                TYPE_NUMBER,                   /* item type */
-                &TempNumber,                   /* item value */
-                (DWORD) sizeof(TempNumber)))   /* value length */
+                              hAgent,                        /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,      /* item flags */
+                              ASSIST_TYPE_ITEM,              /* item name: "$AssistType" */
+                              (WORD) strlen(ASSIST_TYPE_ITEM),
+                              TYPE_NUMBER,                   /* item type */
+                              &TempNumber,                   /* item value */
+                              (DWORD) sizeof(TempNumber)))   /* value length */
     {
-        printf("Error: unable to set AssistType field in Agent note.\n");
+        PRINTLOG("Error: unable to set AssistType field in Agent note.\n");
     }
     return(error);
 }
@@ -1239,29 +1255,29 @@ STATUS  LNPUBLIC  SetAgentLastInfo(NOTEHANDLE hAgent)
     EmptyTimeDate.Innards[0] = (DWORD) 0;
     EmptyTimeDate.Innards[1] = (DWORD) 0;
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                ASSIST_LASTRUN_ITEM,                /* $AssistLastRun */
-                (WORD) strlen(ASSIST_LASTRUN_ITEM),
-                TYPE_TIME,                          /* item type */
-                &EmptyTimeDate,                     /* item value */
-                (DWORD) sizeof(EmptyTimeDate)))     /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              ASSIST_LASTRUN_ITEM,                /* $AssistLastRun */
+                              (WORD) strlen(ASSIST_LASTRUN_ITEM),
+                              TYPE_TIME,                          /* item type */
+                              &EmptyTimeDate,                     /* item value */
+                              (DWORD) sizeof(EmptyTimeDate)))     /* value length */
     {
-        printf("Error: unable to set LastRun field of Agent note.\n");
+        PRINTLOG("Error: unable to set LastRun field of Agent note.\n");
         return(error);
     }
 
     /* set empty DocCountRun info */
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                ASSIST_DOCCOUNT_ITEM,               /* "$AssistDocCount" */
-                (WORD) strlen(ASSIST_DOCCOUNT_ITEM),
-                TYPE_NUMBER,                        /* item type */
-                &DocCount,                          /* item value */
-                (DWORD) sizeof(DocCount)))          /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              ASSIST_DOCCOUNT_ITEM,               /* "$AssistDocCount" */
+                              (WORD) strlen(ASSIST_DOCCOUNT_ITEM),
+                              TYPE_NUMBER,                        /* item type */
+                              &DocCount,                          /* item value */
+                              (DWORD) sizeof(DocCount)))          /* value length */
     {
-        printf("Error: unable to set DocCount field of Agent note.\n");
+        PRINTLOG("Error: unable to set DocCount field of Agent note.\n");
     }
     return(error);
 }
@@ -1289,15 +1305,15 @@ STATUS  LNPUBLIC  SetAgentAssistFlags( NOTEHANDLE hAgent, char *szFlags )
     STATUS      error=NOERROR;
 
     if (error = NSFItemAppend(
-                hAgent,                             /* handle to note to append to */
-                ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
-                ASSIST_FLAGS_ITEM,                  /* "$AssistFlags" */
-                (WORD) strlen(ASSIST_FLAGS_ITEM),
-                TYPE_TEXT,                          /* item type */
-                szFlags,                            /* item value */
-                (DWORD) strlen(szFlags)))           /* value length */
+                              hAgent,                             /* handle to note to append to */
+                              ITEM_SIGN | ITEM_SUMMARY,           /* item flags */
+                              ASSIST_FLAGS_ITEM,                  /* "$AssistFlags" */
+                              (WORD) strlen(ASSIST_FLAGS_ITEM),
+                              TYPE_TEXT,                          /* item type */
+                              szFlags,                            /* item value */
+                              (DWORD) strlen(szFlags)))           /* value length */
     {
-        printf("Error: unable to set AssistFlags field in Agent note.\n"); 
+        PRINTLOG("Error: unable to set AssistFlags field in Agent note.\n"); 
     }
     return (error);
 }
@@ -1329,12 +1345,12 @@ STATUS  LNPUBLIC  SetAgentTrigger( NOTEHANDLE hAgent, WORD wTrigger )
 
     cType = (char)('0' + wTrigger);
     if (error = NSFItemSetText(
-                hAgent,
-                ASSIST_TRIGGER_ITEM,   /* "$AssistTrigger" */
-                &cType, 
-                (WORD)1))
+                               hAgent,
+                               ASSIST_TRIGGER_ITEM,   /* "$AssistTrigger" */
+                               &cType, 
+                               (WORD)1))
     {
-        printf("Error: unable to set AssistTrigger field in Agent note.\n");
+        PRINTLOG("Error: unable to set AssistTrigger field in Agent note.\n");
     }
     return(error);    
 }
@@ -1359,7 +1375,7 @@ STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE hAgent, ODS_ASSISTSTRUCT AgentInfo )
 {
         STATUS          error = NOERROR;
         char            *pBuffer;
-        DHANDLE           hItem;
+        DHANDLE         hItem;
         DWORD           dwItemLen;
         BLOCKID         bhValue;
  
@@ -1390,20 +1406,20 @@ STATUS  LNPUBLIC  SetAgentInfo( NOTEHANDLE hAgent, ODS_ASSISTSTRUCT AgentInfo )
         /*      Save the item to the note */
  
         if (error = NSFItemAppendByBLOCKID(hAgent, /* handle to note to append*/
-                        ITEM_SIGN,                 /* item flags */
-                        ASSIST_INFO_ITEM,          /* item name: "$AssistInfo" */
-                       sizeof(ASSIST_INFO_ITEM)-1,/* item length */
-                        bhValue,                   /* BLOCKID with value */
-                        dwItemLen, NULL))          /* value length */
-                {
-                OSMemFree(hItem);
-                goto Exit0;
-                }
+                                           ITEM_SIGN,                 /* item flags */
+                                           ASSIST_INFO_ITEM,          /* item name: "$AssistInfo" */
+                                           sizeof(ASSIST_INFO_ITEM)-1,/* item length */
+                                           bhValue,                   /* BLOCKID with value */
+                                           dwItemLen, NULL))          /* value length */
+        {
+            OSMemFree(hItem);
+            goto Exit0;
+        }
 Exit0:
 
     if (error)
     {
-        printf("Error: unable to append AgentInfo item to Agent note.\n");
+        PRINTLOG("Error: unable to append AgentInfo item to Agent note.\n");
     }
     return (error);
 }
@@ -1452,43 +1468,43 @@ STATUS  LNPUBLIC  SetAgentAction( NOTEHANDLE hAgent,
     AgentQuery.dwFlags = (DWORD)0;
 
     if (error = NSFItemAppend(
-                hAgent,                            /* handle to note to append to */
-                ITEM_SIGN,                         /* item flags */
-                ASSIST_QUERY_ITEM,                 /* item name: "$AssistQuery" */
-                (WORD) strlen(ASSIST_QUERY_ITEM),
-                TYPE_QUERY,                        /* item type */
-                &AgentQuery,                       /* item value */
-                (DWORD) AgentQuery.Header.Length)) /* value length */
+                              hAgent,                            /* handle to note to append to */
+                              ITEM_SIGN,                         /* item flags */
+                              ASSIST_QUERY_ITEM,                 /* item name: "$AssistQuery" */
+                              (WORD) strlen(ASSIST_QUERY_ITEM),
+                              TYPE_QUERY,                        /* item type */
+                              &AgentQuery,                       /* item value */
+                              (DWORD) AgentQuery.Header.Length)) /* value length */
     {
-        printf("Error: unable to append AssistQuery item to Agent note.\n");
+        PRINTLOG("Error: unable to append AssistQuery item to Agent note.\n");
         return (error);
     }
 
 /* Then apppend TYPE_ACTION item */ 
     if (error = NSFItemAppend(
-                hAgent,                           /* handle to note to append to */
-                ITEM_SIGN,                        /* item flags */
-                ASSIST_ACTION_ITEM,               /* item name: "$AssistAction" */
-                (WORD) strlen(ASSIST_ACTION_ITEM),
-                TYPE_ACTION,                      /* item type */
-                AgentAction,                      /* item value */
-                (DWORD) dwActionLen ))           /* value length */
+                              hAgent,                           /* handle to note to append to */
+                              ITEM_SIGN,                        /* item flags */
+                              ASSIST_ACTION_ITEM,               /* item name: "$AssistAction" */
+                              (WORD) strlen(ASSIST_ACTION_ITEM),
+                              TYPE_ACTION,                      /* item type */
+                              AgentAction,                      /* item value */
+                              (DWORD) dwActionLen ))           /* value length */
     {
-        printf("Error: unable to append AssistAction item to Agent note.\n");
+        PRINTLOG("Error: unable to append AssistAction item to Agent note.\n");
         return (error);
     }
 
 /* Lastly, append "empty" TYPE_LSOBJECT (extra Action data) item */
     if (error = NSFItemAppend(
-                hAgent,                           /* handle to note to append to */
-                ITEM_SIGN,                        /* item flags */
-                ASSIST_EXACTION_ITEM,             /* item name: "$AssistAction_Ex" */
-                (WORD) strlen(ASSIST_EXACTION_ITEM),
-                TYPE_LSOBJECT,                    /* item type */
-                AgentAction,                      /* item value */
-                (DWORD) sizeof(WORD)))            /* value length */
+                              hAgent,                           /* handle to note to append to */
+                              ITEM_SIGN,                        /* item flags */
+                              ASSIST_EXACTION_ITEM,             /* item name: "$AssistAction_Ex" */
+                              (WORD) strlen(ASSIST_EXACTION_ITEM),
+                              TYPE_LSOBJECT,                    /* item type */
+                              AgentAction,                      /* item value */
+                              (DWORD) sizeof(WORD)))            /* value length */
     {
-        printf("Error: unable to append AssistActionEx item to Agent note.\n");
+        PRINTLOG("Error: unable to append AssistActionEx item to Agent note.\n");
     }
 
     return (error);
@@ -1555,7 +1571,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
                                      (NOTE_CLASS_FILTER | NOTE_CLASS_PRIVATE),
                                      0, &dwObjectID))
         {
-            printf("Error: unable to allocate private RunInfo Object.\n");
+            PRINTLOG("Error: unable to allocate private RunInfo Object.\n");
             goto Exit1;
         }
     }
@@ -1567,7 +1583,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
                                      NOTE_CLASS_DOCUMENT, 
                                      0, &dwObjectID))
         {
-            printf("Error: unable to allocate shared RunInfo Object.\n");
+            PRINTLOG("Error: unable to allocate shared RunInfo Object.\n");
             goto Exit1;
         }
     }
@@ -1580,7 +1596,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
 
     if (error = OSMemAlloc(0, dwItemSize, &(bidRunInfo.pool)))
     {
-        printf("Error: unable to allocate %ld bytes for RunInfo item.\n",
+        PRINTLOG("Error: unable to allocate %ld bytes for RunInfo item.\n",
                                     dwItemSize);
         NSFDbFreeObject(hDb, dwObjectID);
         goto Exit1;
@@ -1598,13 +1614,13 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
 
     /* finally append RunInfo object item */
     if (error = NSFItemAppendObject(hAgent, ITEM_SUMMARY,
-                            ASSIST_RUNINFO_ITEM, 
-                            (WORD) strlen (ASSIST_RUNINFO_ITEM),
-                            bidRunInfo,
-                            dwItemSize,
-                            TRUE))      /* Domino and Notes will deallocate memory */
+                                    ASSIST_RUNINFO_ITEM, 
+                                    (WORD) strlen (ASSIST_RUNINFO_ITEM),
+                                    bidRunInfo,
+                                    dwItemSize,
+                                    TRUE))      /* Domino and Notes will deallocate memory */
     {
-        printf("Error: unable to append %s item.\n", ASSIST_RUNINFO_ITEM);
+        PRINTLOG("Error: unable to append %s item.\n", ASSIST_RUNINFO_ITEM);
         OSMemFree(bidRunInfo.pool);
         goto Exit1;
     }
@@ -1612,7 +1628,7 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
         /* set up initial Run object header and entry placeholder */
     if (error = OSMemAlloc(0, dwObjectSize, &hRunInfo))
     {
-        printf("Error: unable to allocate empty initial RunInfo structures.\n");
+        PRINTLOG("Error: unable to allocate empty initial RunInfo structures.\n");
         goto Exit1;
     }
 
@@ -1627,35 +1643,10 @@ STATUS  LNPUBLIC  SetAgentRunInfo( DBHANDLE hDb,
     /* and add to object */
     if (error = NSFDbWriteObject(hDb, dwObjectID, hRunInfo, 0, dwObjectSize))
     {
-        printf("Error: unable to assign initial AssistRunInfo field.\n");
+        PRINTLOG("Error: unable to assign initial AssistRunInfo field.\n");
         goto Exit1;
     }
 
 Exit1:
     return (error);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

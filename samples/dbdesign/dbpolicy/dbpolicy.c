@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    dbpolicy
 
@@ -33,6 +48,7 @@
 #include <editdflt.h>
 #include <colorid.h>
 #include <nsferr.h>
+#include <printLog.h>
 
 #include <lapiplat.h>
 
@@ -57,7 +73,6 @@
 STATUS LNPUBLIC print_doc (DBHANDLE, NOTEID);
 STATUS add_rich_text (short, NOTEHANDLE);
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_name);
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -72,24 +87,24 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char          path_name[STRING_LENGTH];       /* pathname of database */
-   DBHANDLE      db_handle;        				 /* database handle */
-   NOTEHANDLE    note_handle;      				 /* note handle */
-   STATUS        error;            				 /* return code from API calls */
-   int           note_class_value; 				 /* set to NOTE_CLASS_INFO - policy doc */
-   NOTEID        note_ID;          				 /* to read the policy and help docs */
+   char          path_name[STRING_LENGTH];                          /* pathname of database */
+   DBHANDLE      db_handle;                                         /* database handle */
+   NOTEHANDLE    note_handle;                                       /* note handle */
+   STATUS        error;                                             /* return code from API calls */
+   int           note_class_value;                                  /* set to NOTE_CLASS_INFO - policy doc */
+   NOTEID        note_ID;                                           /* to read the policy and help docs */
 
-	
-	error = NotesInitExtended (argc, argv);
-	if (error)
-	{
-	   printf("Error: Unable to initialize Notes.\n");
-		return (1);
-	}
+        
+   error = NotesInitExtended (argc, argv);
+   if (error)
+   {
+       PRINTLOG("Error: Unable to initialize Notes.\n");
+       return (1);
+   }
 
 
 /* Get the command line parameters that the user entered. */
-    ProcessArgs(argc, argv, path_name);
+   ProcessArgs(argc, argv, path_name);
 
 
 /* Initialize the paragraph definition blocks used in the rich text fields
@@ -98,10 +113,10 @@ int main(int argc, char *argv[])
 /* Open the database. */
 
    if (error = NSFDbOpen (path_name, &db_handle))
-	{
-		PrintAPIError(error);
-		NotesTerm();
-      return (1);
+   {
+       PRINTERROR(error,"NSFDbOpen");
+       NotesTerm();
+       return (1);
    }
 
 /* Exit program if either a database policy document exists or a
@@ -112,16 +127,16 @@ int main(int argc, char *argv[])
                                   &note_ID);
    if (error != ERR_SPECIAL_ID)
    {
-      if (error == NOERROR)
-      {
-         printf ("\n\nA database Policy Document (Help-About document) exists ");
-         printf ("in this database.\n");
-         printf ("Program will not attempt to create any documents.\n\n");
-      }
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       if (error == NOERROR)
+       {
+          PRINTLOG ("\n\nA database Policy Document (Help-About document) exists ");
+          PRINTLOG ("in this database.\n");
+          PRINTLOG ("Program will not attempt to create any documents.\n\n");
+       }
+       PRINTERROR(error,"NSFDbGetSpecialNoteID");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
    error = NSFDbGetSpecialNoteID (db_handle,
@@ -129,26 +144,26 @@ int main(int argc, char *argv[])
                                   &note_ID);
    if (error != ERR_SPECIAL_ID)
    {
-      if (error == NOERROR)
-      {
-         printf ("\n\nA database Help Document (Help-Using document) exists ");
-         printf ("in this database.\n");
-         printf ("Program will not attempt to create any documents.\n\n");
-      }
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       if (error == NOERROR)
+       {
+          PRINTLOG ("\n\nA database Help Document (Help-Using document) exists ");
+          PRINTLOG ("in this database.\n");
+          PRINTLOG ("Program will not attempt to create any documents.\n\n");
+       }
+       PRINTERROR(error,"NSFDbGetSpecialNoteID");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Create a new note for the database policy document. */
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
    {
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteCreate");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Specify in the note header that this note is a database policy document */
@@ -161,42 +176,42 @@ int main(int argc, char *argv[])
 
    if (error != NOERROR)
    {
-		PrintAPIError(error);
-      NSFNoteClose (note_handle);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"add_rich_text");
+       NSFNoteClose (note_handle);
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Add the new note to the database. */
 
    if (error = NSFNoteUpdate (note_handle, 0))
    {
-		PrintAPIError(error);
-      NSFNoteClose (note_handle);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteUpdate");
+       NSFNoteClose (note_handle);
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Close the new note. */
 
    if (error = NSFNoteClose (note_handle))
    {
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteClose");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Create a new note for the database help document */
 
    if (error = NSFNoteCreate (db_handle, &note_handle))
    {
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteCreate");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Specify in the note header that this note is a database help document */
@@ -209,32 +224,32 @@ int main(int argc, char *argv[])
 
    if (error != NOERROR)
    {
-		PrintAPIError(error);
-      NSFNoteClose (note_handle);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"add_rich_text");
+       NSFNoteClose (note_handle);
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Add the new note to the database. */
 
    if (error = NSFNoteUpdate (note_handle, 0))
    {
-		PrintAPIError(error);
-      NSFNoteClose (note_handle);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteUpdate");
+       NSFNoteClose (note_handle);
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Close the new note. */
 
    if (error = NSFNoteClose (note_handle))
    {
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFNoteClose");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Now open and print out the database policy document and the database
@@ -246,18 +261,18 @@ int main(int argc, char *argv[])
                                       SPECIAL_ID_NOTE | NOTE_CLASS_INFO,
                                       &note_ID))
    {
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFDbGetSpecialNoteID");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
    if (error = print_doc (db_handle, note_ID))
    {
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"print_doc");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Use NSFDbGetSpecialNoteID to get the note ID of the help doc */
@@ -266,33 +281,33 @@ int main(int argc, char *argv[])
                                       SPECIAL_ID_NOTE | NOTE_CLASS_HELP,
                                       &note_ID))
    {
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFDbGetSpecialNoteID");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
    if (error = print_doc (db_handle, note_ID))
    {
-		PrintAPIError(error);
-		NSFDbClose(db_handle);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"print_doc");
+       NSFDbClose(db_handle);
+       NotesTerm();
+       return (1);
    }
 
 /* Close the database */
 
    if (error = NSFDbClose (db_handle))
    {
-		PrintAPIError(error);
-		NotesTerm();
-      return (1);
+       PRINTERROR(error,"NSFDbClose");
+       NotesTerm();
+       return (1);
    }
 
 /* End of subroutine. */
-   printf("\nProgram completed successfully.\n");
-	NotesTerm();
-	return (0);
+   PRINTLOG("\nProgram completed successfully.\n");
+   NotesTerm();
+   return (0);
 }
 
 
@@ -307,35 +322,35 @@ int main(int argc, char *argv[])
 
 STATUS add_rich_text (short doc_type, NOTEHANDLE note_handle)
 {
-   DHANDLE hCompound;          /* handle to CompoundText context */
-   STATUS error;
-   char *header;              /* Doc header text */
-   char *text;                /* Doc text */
+   DHANDLE       hCompound;         /* handle to CompoundText context */
+   STATUS        error;
+   char          *header;           /* Doc header text */
+   char          *text;             /* Doc text */
    COMPOUNDSTYLE Style;
    DWORD         dwStyleID;
    FONTID        fid;
-   FONTIDFIELDS    *fontfld;
+   FONTIDFIELDS  *fontfld;
 
    switch (doc_type)
    {
-      case POLICY_DOC:
-         header = POLICY_STRING1;
-         text = POLICY_STRING2;
-         break;
+       case POLICY_DOC:
+          header = POLICY_STRING1;
+          text = POLICY_STRING2;
+          break;
 
-      case HELP_DOC:
-         header = HELP_STRING1;
-         text = HELP_STRING2;
-         break;
+       case HELP_DOC:
+          header = HELP_STRING1;
+          text = HELP_STRING2;
+          break;
 
-      default:
-         header = "DOC HEADER";
-         text = "Text for the doc.";
-         break;
+       default:
+          header = "DOC HEADER";
+          text = "Text for the doc.";
+          break;
    }
 
    if (error = CompoundTextCreate (note_handle, "$BODY", &hCompound))
-      return (error);
+       return (error);
 
    /* Add the header text for the document */
 
@@ -344,15 +359,15 @@ STATUS add_rich_text (short doc_type, NOTEHANDLE note_handle)
    Style.JustifyMode = JUSTIFY_CENTER;
 
    error = CompoundTextDefineStyle (
-               hCompound,          /* handle to CompoundText context */
-               "",                 /* style name - none */
-               &Style,
-               &dwStyleID);        /* style id */
+                                    hCompound,          /* handle to CompoundText context */
+                                    "",                 /* style name - none */
+                                    &Style,
+                                    &dwStyleID);        /* style id */
 
    if (error != NOERROR)
    {
-      CompoundTextDiscard (hCompound);
-      return (error);
+       CompoundTextDiscard (hCompound);
+       return (error);
    }
 
    fontfld = (FONTIDFIELDS *)&fid;
@@ -363,32 +378,32 @@ STATUS add_rich_text (short doc_type, NOTEHANDLE note_handle)
    fontfld->Face = FONT_FACE_SWISS;
 
    error = CompoundTextAddParagraphExt (
-             hCompound,               /* handle to CompoundText context */
-             dwStyleID,               /* style id */
-             fid,                     /* font id */
-             header,                  /* paragraph of text to add */
-             (DWORD)strlen(header),   /* length of text to add */
-             NULLHANDLE);             /* handle to CLS translation table */
+                                        hCompound,               /* handle to CompoundText context */
+                                        dwStyleID,               /* style id */
+                                        fid,                     /* font id */
+                                        header,                  /* paragraph of text to add */
+                                        (DWORD)strlen(header),   /* length of text to add */
+                                        NULLHANDLE);             /* handle to CLS translation table */
 
    if (error != NOERROR)
    {
-      CompoundTextDiscard (hCompound);
-      return (error);
+       CompoundTextDiscard (hCompound);
+       return (error);
    }
 
    /* Add the text for the document */
 
    CompoundTextInitStyle (&Style);    /* initializes Style to the defaults */
    error = CompoundTextDefineStyle (
-             hCompound,          /* handle to CompoundText context */
-             "Normal",           /* style name */
-             &Style,
-             &dwStyleID);        /* style id */
+                                    hCompound,          /* handle to CompoundText context */
+                                    "Normal",           /* style name */
+                                    &Style,
+                                    &dwStyleID);        /* style id */
 
    if (error != NOERROR)
    {
-      CompoundTextDiscard (hCompound);
-      return (error);
+       CompoundTextDiscard (hCompound);
+       return (error);
    }
 
    fontfld->PointSize = 12;
@@ -397,30 +412,30 @@ STATUS add_rich_text (short doc_type, NOTEHANDLE note_handle)
    fontfld->Face = FONT_FACE_SWISS;
 
    error = CompoundTextAddParagraphExt (
-             hCompound,               /* handle to CompoundText context */
-             dwStyleID,               /* style id */
-             fid,                     /* font id */
-             text,                    /* paragraph of text to add */
-             (DWORD)strlen(text),     /* length of text to add */
-             NULLHANDLE);             /* handle to CLS translation table */
+                                        hCompound,               /* handle to CompoundText context */
+                                        dwStyleID,               /* style id */
+                                        fid,                     /* font id */
+                                        text,                    /* paragraph of text to add */
+                                        (DWORD)strlen(text),     /* length of text to add */
+                                        NULLHANDLE);             /* handle to CLS translation table */
 
    if (error != NOERROR)
    {
-      CompoundTextDiscard (hCompound);
-      return (error);
+       CompoundTextDiscard (hCompound);
+       return (error);
    }
 
    /* Add the CompoundText context to the note */
 
    error = CompoundTextClose (
-             hCompound,            /* handle to CompoundText context */
-             NULL,
-             NULL,
-             NULL,
-             0);
+                              hCompound,            /* handle to CompoundText context */
+                              NULL,
+                              NULL,
+                              NULL,
+                              0);
 
    if (error != NOERROR)
-      CompoundTextDiscard (hCompound);
+       CompoundTextDiscard (hCompound);
 
    return (error);
 
@@ -435,8 +450,8 @@ STATUS add_rich_text (short doc_type, NOTEHANDLE note_handle)
 *************************************************************************/
 
 STATUS LNPUBLIC print_doc (
-         DBHANDLE db_handle,
-         NOTEID note_ID)
+                           DBHANDLE db_handle,
+                           NOTEID note_ID)
 {
 
 
@@ -447,25 +462,25 @@ STATUS LNPUBLIC print_doc (
    BLOCKID     field_block;
    DWORD       field_length, text_length;
    WORD        field_type;
-   DHANDLE       text_buffer;
+   DHANDLE     text_buffer;
    char        *text_ptr;
    STATUS      error;
 
 
 /* Print the note ID. */
 
-   printf ("\n\n       ************* Note ID is: %lX. *************\n",
-      note_ID);
+   PRINTLOG ("\n\n       ************* Note ID is: %lX. *************\n",
+              note_ID);
 
 /* Open the note. */
 
    if (error = NSFNoteOpen (
-         db_handle,              /* database handle */
-         note_ID,                /* note ID */
-         0,                      /* open flags */
-         &note_handle))          /* note handle (return) */
+                            db_handle,              /* database handle */
+                            note_ID,                /* note ID */
+                            0,                      /* open flags */
+                            &note_handle))          /* note handle (return) */
 
-      return (error);
+       return (error);
 
 /* Look for the $BODY field within the note. This function tells us
 whether the field is there, and if present, its location (BLOCKID)
@@ -473,35 +488,35 @@ within Domino and Notes' memory. Check the return code for "field not
 found" versus a real error. */
 
    error = NSFItemInfo (
-         note_handle,             /* note handle */
-         "$BODY",                 /* field we want */
-         (WORD) strlen("$BODY"),  /* length of above */
-         NULL,                    /* full field (return) */
-         &field_type,             /* field type (return) */
-         &field_block,            /* field contents (return) */
-         &field_length);          /* field length (return) */
+                        note_handle,             /* note handle */
+                        "$BODY",                 /* field we want */
+                        (WORD) strlen("$BODY"),  /* length of above */
+                        NULL,                    /* full field (return) */
+                        &field_type,             /* field type (return) */
+                        &field_block,            /* field contents (return) */
+                        &field_length);          /* field length (return) */
 
    if (error)
    {
-      if (ERR(error) == ERR_ITEM_NOT_FOUND)
-         printf ("\n Error:  $BODY field not found \n");
-      NSFNoteClose (note_handle);
-      return (error);
+       if (ERR(error) == ERR_ITEM_NOT_FOUND)
+           PRINTLOG ("\n Error:  $BODY field not found \n");
+       NSFNoteClose (note_handle);
+       return (error);
    }
 
 /* Extract only the text from the rich-text field into an ASCII string. */
 
    if (error = ConvertItemToText (
-         field_block,   /* BLOCKID of field */
-         field_length,  /* length of field */
-         "\n",          /* line separator for output */
-         60,            /* line length in output */
-         &text_buffer,  /* output buffer */
-         &text_length,  /* output length */
-         TRUE))         /* strip tabs */
+                                  field_block,   /* BLOCKID of field */
+                                  field_length,  /* length of field */
+                                  "\n",          /* line separator for output */
+                                  60,            /* line length in output */
+                                  &text_buffer,  /* output buffer */
+                                  &text_length,  /* output length */
+                                  TRUE))         /* strip tabs */
    {
-      NSFNoteClose (note_handle);
-      return (error);
+       NSFNoteClose (note_handle);
+       return (error);
    }
 
 /* Lock the memory allocated for the text buffer. Cast the resulting
@@ -518,7 +533,7 @@ text string.) */
 
 /* Print the text of the $BODY field. */
 
-   printf ("\nThe text in this document is:\n\n%s\n", field_text);
+   PRINTLOG ("\nThe text in this document is:\n\n%s\n", field_text);
 
 /* Unlock and free the text buffer. */
 
@@ -528,11 +543,11 @@ text string.) */
 /* Close the note. */
 
    if (error = NSFNoteClose (note_handle))
-      return (error);
+       return (error);
 
 /* End of subroutine. */
 
-    return (NOERROR);
+   return (NOERROR);
 
 }
 
@@ -549,46 +564,20 @@ text string.) */
 *************************************************************************/
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                               char *db_name)
+                             char *db_name)
 {
-    if (argc != 2)
-    {
+   if (argc != 2)
+   {
 
-        printf("Enter database name: ");
-        fflush (stdout);
-        gets(db_name);
-        printf("\n");
+       printf("Enter database name: ");
+       fflush (stdout);
+       gets(db_name);
+       printf("\n");
 
-    }
-    else
-    {
-        strcpy(db_name, argv[1]);
-    } /* end if */
+   }
+   else
+   {
+       strcpy(db_name, argv[1]);
+   } /* end if */
 
 } /* ProcessArgs */
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

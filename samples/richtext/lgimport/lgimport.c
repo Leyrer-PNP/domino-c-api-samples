@@ -1,11 +1,26 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    lgimport
 
     FILE:       lgimport.c
 
     PURPOSE:    Shows how to load and call a Domino and Notes import library
-	            to import a large file into a rich text field.
+	        to import a large file into a rich text field.
 
     SYNTAX:     lgimport <DBname> <DLL Path> <File Path> [<Second DLL Name>]
 
@@ -36,7 +51,7 @@
              a form called "Simple Form" with a rich text field called
              "Body".  The LGIMPORT test database (lgimport.nsf) supplied
              with the HCL C API for Notes/Domino toolkit has these
-			 characteristics.
+             characteristics.
 
 ****************************************************************************/
 
@@ -70,6 +85,7 @@
 #include <osmisc.h>
 
 #include <lapiplat.h>
+#include <printLog.h>
 
 /* local includes  */
 
@@ -89,8 +105,6 @@ STATUS LNPUBLIC ImportCD(char *szModulePath,
 STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
                                    char  *pszImportFile,
                                    char  *pszItemName);
-
-void PrintAPIError (STATUS);
 
 /* function specification for Domino and Notes DLLs    */
 
@@ -132,27 +146,27 @@ STATUS (LNCALLBACKPTR ProcAddress)(VOID *IXContext, WORD Flags,
 
 int main(int argc, char *argv[])
 {
-    char    achTempName[MAXPATH];
-    char    *szModPath, *szFilePath, *szNSFFile, *szDLL;
+    char        achTempName[MAXPATH];
+    char       *szModPath, *szFilePath, *szNSFFile, *szDLL;
 
-    DHANDLE       hNewNote;
+    DHANDLE     hNewNote;
     DBHANDLE    hDbNSFFile;
     STATUS      usError=0;
 
-    /*   Start by calling Notes Init.  */
+    /* Start by calling Notes Init. */
 
-	 usError = NotesInitExtended (argc, argv);
-	 if (usError)
-	 {
-		 printf("Error: Unable to initialize Notes.\n");
-		 return (1);
-	 }
+    usError = NotesInitExtended (argc, argv);
+    if (usError)
+    {
+        PRINTLOG("Error: Unable to initialize Notes.\n");
+        return (1);
+    }
 
     if (argc != 4 && argc != 5)
     {
-        printf("\nUsage: \n\tlgimport <NSF Filename>");
-        printf(" <Import/Export DLL Name> <Import File Path>");
-        printf(" <Second DLL Name> (if necessary)\n");
+        PRINTLOG("\nUsage: \n\tlgimport <NSF Filename>");
+        PRINTLOG(" <Import/Export DLL Name> <Import File Path>");
+        PRINTLOG(" <Second DLL Name> (if necessary)\n");
         return(0);
     }
 
@@ -160,8 +174,8 @@ int main(int argc, char *argv[])
     szModPath    = argv[2];
     szFilePath   = argv[3];
 
-/*  If a 2nd DLL name was entered, set szDLL to it.  Otherwise, set */
-/*  szDLL to null.                                                  */
+    /* If a 2nd DLL name was entered, set szDLL to it.  Otherwise, set */
+    /* szDLL to null.                                                  */
 
     if (argc == 5)
         szDLL = argv[4];
@@ -174,7 +188,7 @@ int main(int argc, char *argv[])
 
     if (usError = ImportCD(szModPath, szFilePath, achTempName, szDLL))
     {
-        printf("\nUnable to create temporary file. Terminating...\n");
+        PRINTLOG("\nUnable to create temporary file. Terminating...\n");
         goto Done;
     }
 
@@ -183,8 +197,8 @@ int main(int argc, char *argv[])
 
     if (usError = NSFDbOpen(szNSFFile, &hDbNSFFile))
     {
-        printf("\nCannot open database '%s'. Terminating...\n", szNSFFile);
-		  PrintAPIError(usError);
+        PRINTLOG("\nCannot open database '%s'. Terminating...\n", szNSFFile);
+		  PRINTERROR(usError,"NSFDbOpen");
         goto Done;
     }
 
@@ -192,35 +206,35 @@ int main(int argc, char *argv[])
 
     if (usError = NSFNoteCreate(hDbNSFFile, &hNewNote))
     {
-        printf("\nCannot create new note. Terminating...\n");
+        PRINTLOG("\nCannot create new note. Terminating...\n");
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(usError);
+        PRINTERROR(usError,"NSFNoteCreate");
         goto Done;
     }
 
-    /* Add the Form name  */
+    /* Add the Form name */
 
     if (usError = NSFItemSetText(hNewNote,
                                  "Form",
                                  "Simple Form",
                                  (WORD) strlen("Simple Form")))
     {
-        printf("\nError while setting Form name. Terminating...\n");
+        PRINTLOG("\nError while setting Form name. Terminating...\n");
 
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(usError);
+        PRINTERROR(usError,"NSFItemSetText");
         goto Done;
     }
 
-    /*  Now add the imported data.  */
+    /* Now add the imported data. */
 
     if (usError = AppendImportItem(hNewNote, achTempName, "Body"))
     {
-        printf("\nError while adding rich text.  Terminating...\n");
+        PRINTLOG("\nError while adding rich text.  Terminating...\n");
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(usError);
+        PRINTERROR(usError,"AppendImportItem");
         goto Done;
     }
 
@@ -228,43 +242,43 @@ int main(int argc, char *argv[])
 
     if (usError = NSFNoteUpdate(hNewNote, 0))
     {
-        printf("\nError writing new Note. Terminating..\n");
+        PRINTLOG("\nError writing new Note. Terminating..\n");
         NSFNoteClose(hNewNote);    /* ERROR - Close note before exit.    */
         NSFDbClose(hDbNSFFile);    /* ERROR - Close database before exit.*/
-		  PrintAPIError(usError);
+        PRINTERROR(usError,"NSFNoteUpdate");
         goto Done;
     }
 
-    /* Start cleaning up.  First, Close the Note */
+    /* Start cleaning up. First, Close the Note */
 
     if (usError = NSFNoteClose(hNewNote))
-	 {
-        printf("\nUnable to close Note.  Terminating..\n");
-	     PrintAPIError(usError);
-		  goto Done;
-	 }
+    {
+        PRINTLOG("\nUnable to close Note.  Terminating..\n");
+        PRINTERROR(usError,"NSFNoteClose");
+        goto Done;
+    }
 
 
-    /* Now close the database.              */
+    /* Now close the database. */
 
     if (usError = NSFDbClose(hDbNSFFile))
-	 {
-		  printf("\nError closing database '%s'. Terminating...\n, szNSFFile");
-		  PrintAPIError(usError);
-		  goto Done;
-	 }
+    {
+        PRINTLOG("\nError closing database '%s'. Terminating...\n, szNSFFile");
+        PRINTERROR(usError,"NSFDbClose");
+        goto Done;
+    }
 
-	 printf("\nAll Done!\n");
+    PRINTLOG("\nAll Done!\n");
 
-	 NotesTerm();
+    NotesTerm();
 
-	 printf("\nProgram completed successfully.\n");
+    PRINTLOG("\nProgram completed successfully.\n");
 
-	 return(0);
+    return(0);
 
 Done:
     NotesTerm();
-	 return(1);
+    return(1);
 }
 
 
@@ -288,13 +302,13 @@ Done:
 STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
                            char *szTempName, char *szDLL)
 {
-    EDITIMPORTDATA EditImportData;  /* Import DLL data structure                 */
-    HMODULE hmod;                   /* module handle                             */
-    STATUS Error;                   /* Return status from Domino and Notes calls */
-    char *FileName;                 /* File name to be imported                  */
-    char TempName[] = "DEFAULT.CD"; /* Temp Filename for import.                 */
-    char *ModuleName;               /* pointer to DLL module name                */
-    char *SecondDLLName;
+    EDITIMPORTDATA EditImportData;            /* Import DLL data structure                 */
+    HMODULE        hmod;                      /* module handle                             */
+    STATUS         Error;                     /* Return status from Domino and Notes calls */
+    char          *FileName;                  /* File name to be imported                  */
+    char           TempName[] = "DEFAULT.CD"; /* Temp Filename for import.                 */
+    char          *ModuleName;                /* pointer to DLL module name                */
+    char          *SecondDLLName;
 
     ModuleName    = szModulePath;
     FileName      = szFileName;
@@ -305,7 +319,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
 
     if (Error = OSLoadLibrary (ModuleName, (DWORD)0, &hmod, &ProcAddress))
     {
-        printf ("OSLoadLibrary failed.\n");
+        PRINTLOG ("OSLoadLibrary failed.\n");
         goto Done;
     }
 
@@ -319,7 +333,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
     /* data.                                                            */
 
       strcpy (EditImportData.OutputFileName, TempName);
-      printf ("\nTemp filename is %s.\n", EditImportData.OutputFileName);
+      PRINTLOG ("\nTemp filename is %s.\n", EditImportData.OutputFileName);
 
     /* Assign the default fontid */
 
@@ -345,14 +359,14 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
 
 
     if (Error = (*ProcAddress) (&EditImportData,
-        IXFLAG_FIRST | IXFLAG_LAST,         /* Both 1st and last import */
-        0,                                  /* Use default hmodule      */
-        SecondDLLName,                      /* 2nd DLL, if needed.      */
-        FileName))                          /* File to import.          */
-        {
-            printf ("Call to DLL Entry point failed.\n");
-            goto Done;
-        }
+                                IXFLAG_FIRST | IXFLAG_LAST,         /* Both 1st and last import */
+                                0,                                  /* Use default hmodule      */
+                                SecondDLLName,                      /* 2nd DLL, if needed.      */
+                                FileName))                          /* File to import.          */
+    {
+        PRINTLOG ("Call to DLL Entry point failed.\n");
+        goto Done;
+    }
 
     /* return the temp filename to calling routine */
 
@@ -360,7 +374,7 @@ STATUS LNPUBLIC ImportCD(char *szModulePath, char *szFileName,
 
 Done:
     /* Free the DLL and return */
-	 OSFreeLibrary(hmod);
+    OSFreeLibrary(hmod);
     return Error;
 
 }
@@ -405,68 +419,68 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
                                  char *pszCDFile,
                                  char *pszItemName)
 {
-    STATUS sError;         /* Domino and Notes error status                 */
-    BOOL bError;           /* Returncode from PutPara, PutPabDef, PutPabRef */
-    char *pCDBuffer;       /* Rich Text memory buffer                       */
-    char *pCurrent;        /* Pointer to current location of buffer         */
+    STATUS sError;           /* Domino and Notes error status                 */
+    BOOL   bError;           /* Returncode from PutPara, PutPabDef, PutPabRef */
+    char  *pCDBuffer;        /* Rich Text memory buffer                       */
+    char  *pCurrent;         /* Pointer to current location of buffer         */
 
-    BYTE *pbSig;           /* Byte pointer to start of new CD record        */
-    WORD wSig;             /* Signature of current CD record                */
-    WORD wCDRecordLength;  /* Length of current CD record                   */
+    BYTE  *pbSig;            /* Byte pointer to start of new CD record        */
+    WORD  wSig;              /* Signature of current CD record                */
+    WORD  wCDRecordLength;   /* Length of current CD record                   */
 
-    long lCombinedLength;
+    long  lCombinedLength;
 
-    WORD wCDBufferLength = CD_BUFFER_LENGTH; /* Length of current CD buffer */
-    long lLength;                            /* Length of current read buffer*/
-    WORD wReadLength;                        /* Length of current read buffer*/
+    WORD  wCDBufferLength = CD_BUFFER_LENGTH; /* Length of current CD buffer */
+    long  lLength;                            /* Length of current read buffer*/
+    WORD  wReadLength;                        /* Length of current read buffer*/
 
-    WORD dwPos = sizeof(WORD);   /* Index for buffer manipulation           */
-    long longpos = sizeof(WORD); /* Initialy seek past TYPE_COMPOSITE       */
-                                 /*      at start of file                   */
-    long ltmpItemLength ;
-    WORD    wItemLength;         /* Index for buffer manipulation           */
-    BOOL    bFlag = FALSE;       /* termination flag                        */
-    int     CDFileFD;
+    WORD  dwPos = sizeof(WORD);    /* Index for buffer manipulation           */
+    long  longpos = sizeof(WORD);  /* Initialy seek past TYPE_COMPOSITE       */
+                                   /*      at start of file                   */
+    long  ltmpItemLength ;
+    WORD  wItemLength;         /* Index for buffer manipulation           */
+    BOOL  bFlag = FALSE;       /* termination flag                        */
+    int   CDFileFD;
 
 
    // CDFileFD = open (pszCDFile, O_RDWR|O_BINARY);
-	CDFileFD = open(pszCDFile, 0x0002 | 0x8000);
+    CDFileFD = open(pszCDFile, 0x0002 | 0x8000);
     if (CDFileFD  <= 0)
     {
-        /* Leave if error returned...                    */
+        /* Leave if error returned... */
 			
         unlink (pszCDFile);
         return (ERR_APPEND_RICHTEXT_ERROR);
     }
 
-    /* Allocate a buffer to read file into               */
+    /* Allocate a buffer to read file into  */
 
     pCDBuffer = (char *)malloc(wCDBufferLength);
     if (pCDBuffer == (char *) NULL)
     {
-        /* Leave if error returned...                    */
+        /* Leave if error returned... */
 
         close (CDFileFD);
         unlink (pszCDFile);
         return (ERR_APPEND_RICHTEXT_ERROR);
     }
 
-	 /* Keep a pointer to our current position in the buffer. */
+    /* Keep a pointer to our current position in the buffer. */
 	
-	 pCurrent = pCDBuffer;
+    pCurrent = pCDBuffer;
 
-    /* Set start length to zero  */
+    /* Set start length to zero */
 
     wItemLength = 0;
 
-    /*  Put a paragraph record in buffer.  */
+    /*  Put a paragraph record in buffer. */
 
     bError = PutPara(&pCurrent,
                      (WORD)(wCDBufferLength-(pCurrent-pCDBuffer)));
 
     if (bError == FALSE)
     {
-        printf ("Error adding paragraph record.  Terminating...");
+        PRINTLOG ("Error adding paragraph record.  Terminating...");
         free (pCDBuffer);
         close (CDFileFD);
         unlink (pszCDFile);
@@ -474,18 +488,18 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
 
     }
 
-    /* Setup a pabdef         */
+    /* Setup a pabdef */
 
     bError = PutPabDef(&pCurrent,
                            (WORD) 1,
                            (WORD)(wCDBufferLength-(pCurrent-pCDBuffer)),
                            JUSTIFY_LEFT);
 
-    /* Leave if error returned...   */
+    /* Leave if error returned... */
 
     if (bError == FALSE)
     {
-        printf ("Error adding paragraph definition record.  Terminating...");
+        PRINTLOG ("Error adding paragraph definition record.  Terminating...");
         free (pCDBuffer);
         close (CDFileFD);
         unlink (pszCDFile);
@@ -493,7 +507,7 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
     }
 
 
-    /* Now add a pabref     */
+    /* Now add a pabref */
 
     bError = PutPabRef(&pCurrent,
                            (WORD) 1,
@@ -501,27 +515,27 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
 
 	 wItemLength=pCurrent-pCDBuffer;
 
-    /* Leave if error returned...    */
+    /* Leave if error returned... */
 
     if (bError == FALSE)
 
     {
-        printf ("Error adding paragraph reference record.  Terminating...");
+        PRINTLOG ("Error adding paragraph reference record.  Terminating...");
         free (pCDBuffer);
         close (CDFileFD);
         unlink (pszCDFile);
         return (ERR_APPEND_RICHTEXT_ERROR);
     }
 
-    /* Keep on writing items until entire cd file hase been appended   */
+    /* Keep on writing items until entire cd file hase been appended */
 
     while (bFlag == FALSE)
     {
-		 /* Seek file to end of previous CD record   */
+        /* Seek file to end of previous CD record */
 
         if (lseek (CDFileFD, longpos, SEEK_SET) != longpos)
         {
-            /* Leave if error returned...           */
+            /* Leave if error returned... */
 
             free (pCDBuffer);
             close (CDFileFD);
@@ -529,17 +543,17 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
             return (ERR_APPEND_RICHTEXT_ERROR);
         }
 
-        /* Read the contents of the file into memory  */
+        /* Read the contents of the file into memory */
 
         wReadLength = read(CDFileFD,
                            &pCDBuffer[wItemLength],
                            (WORD)(wCDBufferLength - wItemLength));
 
-        /* check for error    */
+        /* check for error */
 
         if (wReadLength == 0xffff)
         {
-            /* Leave if error returned...    */
+            /* Leave if error returned... */
 
             free (pCDBuffer);
             close (CDFileFD);
@@ -548,7 +562,7 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
         }
 
 		
-		/* See whether the contents will fit in current item....  */
+        /* See whether the contents will fit in current item....  */
 
         if (wReadLength < CD_HIGH_WATER_MARK)
         {
@@ -586,19 +600,19 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
                wSig =  *(WORD*)pbSig;
                pbSig++;
 
-               /* find length of CD record.        */
+               /* find length of CD record. */
 
                if (*pbSig == 0)    				/* record length is a DWORD  */
                {
                   pbSig++;
                   wCDRecordLength = (WORD)*(DWORD*)pbSig;				
-			      }
+               }
 
                else if (*pbSig == 0xFF)        	/* record length is a WORD  */
-	   		   {
+	       {
                   pbSig++;
                   wCDRecordLength = *(WORD*)pbSig;				
-   			   }
+               }
 
                else	                            /* record length is the BYTE */
                   wCDRecordLength = (WORD) *pbSig;				
@@ -614,19 +628,19 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
             }
         }
 
-        /* Copy the imported item to the note if so    */
+        /* Copy the imported item to the note if so  */
 
         if (wItemLength > 0)
         {
             if (sError = NSFItemAppend(hNote,
-                                   (WORD) 0,
-                                   pszItemName,
-                                   (WORD) strlen(pszItemName),
-                                   TYPE_COMPOSITE,
-                                   pCDBuffer,
-                                   (DWORD)wItemLength))
+                                      (WORD) 0,
+                                      pszItemName,
+                                      (WORD) strlen(pszItemName),
+                                      TYPE_COMPOSITE,
+                                      pCDBuffer,
+                                      (DWORD)wItemLength))
             {
-                /* Leave if error returned...           */
+                /* Leave if error returned... */
 
                 free (pCDBuffer);
                 close (CDFileFD);
@@ -649,29 +663,3 @@ STATUS LNPUBLIC AppendImportItem(NOTEHANDLE hNote,
 
     return (NOERROR);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

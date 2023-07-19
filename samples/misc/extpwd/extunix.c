@@ -1,4 +1,20 @@
-#ifdef __cplusplus
+/*
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+ #ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -41,15 +57,15 @@ struct termios term;
                 return (ERR_EM_CONTINUE);
 
                /* Fetch the arguments */
-				VARARG_COPY(pArgs, data->Ap);
+                VARARG_COPY(pArgs, data->Ap);
 
             MaxPwdLen = VARARG_GET (pArgs, DWORD);
             retLength = VARARG_GET (pArgs, DWORD far *);
-          retPassword = VARARG_GET (pArgs, char far *);
-             FileName = VARARG_GET (pArgs, char far *);
+            retPassword = VARARG_GET (pArgs, char far *);
+            FileName = VARARG_GET (pArgs, char far *);
             OwnerName = VARARG_GET (pArgs, char far *);
-              DataLen = VARARG_GET (pArgs, DWORD);
-                 Data = VARARG_GET (pArgs, BYTE far *);
+            DataLen = VARARG_GET (pArgs, DWORD);
+            Data = VARARG_GET (pArgs, BYTE far *);
 
 
          printf("Please enter your password:  ");

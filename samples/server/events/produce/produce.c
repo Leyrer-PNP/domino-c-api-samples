@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    produce
 
@@ -66,33 +81,33 @@
 BOOL receiveConsumermesg()
 {
 
-	FILE* outFile = NULL;
+	FILE*           outFile = NULL;
 
-	char QueueName[] = "TEST_EVENT_QUEUE";   /*  Name of queue that will be created. */
-	char InputDestName[] = "EVENT.NSF"; /*  A database name to associate with   */
-										/*  events of a certain type.           */
+	char            QueueName[] = "TEST_EVENT_QUEUE";   /*  Name of queue that will be created. */
+	char            InputDestName[] = "EVENT.NSF";      /*  A database name to associate with   */
+                                                            /*  events of a certain type.           */
 
-	char OutputDestName[20];            /*  A buffer in which to read the name  */
-										/*  associated with a certain event.    */
-										/*  (Probably will be the same as       */
-										/*  InputDestName, but this is defined  */
-										/*  seperately for demonstration        */
-										/*  purposes).                          */
+	char            OutputDestName[20];                 /*  A buffer in which to read the name  */
+                                                            /*  associated with a certain event.    */
+                                                            /*  (Probably will be the same as       */
+                                                            /*  InputDestName, but this is defined  */
+                                                            /*  seperately for demonstration        */
+                                                            /*  purposes).                          */
 
-	BOOL   bDestNameReturned;           /*  TRUE if a name returned by call to  */
-										/*  EventGetDestName.                   */
+	BOOL            bDestNameReturned;                  /*  TRUE if a name returned by call to  */
+                                                            /*  EventGetDestName.                   */
 
-	DHANDLE hEventData;                  /*  A handle to event specific data.    */
-	STATUS sError;
-	BYTE far* pBuf;
+	DHANDLE         hEventData;                         /*  A handle to event specific data.    */
+	STATUS          sError;
+	BYTE far*       pBuf;
 	EVENT_DATA far* pEventData;
-	BYTE   DataBuf[64];                 /* A temp buf to hold event data.       */
-	BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
+	BYTE            DataBuf[64];                        /* A temp buf to hold event data.       */
+	BYTE            MessageBuf[128];                    /* A buffer in which to build log msgs. */
 
 	/*
-		*Create the event queue, and specify that we are interested in events
-		* of type EVT_MISCand of severity SEV_NORMAL.
-		*/
+         * Create the event queue, and specify that we are interested in events
+         * of type EVT_MISCand of severity SEV_NORMAL.
+         */
 	
 
 	//if (sError = EventQueueAlloc(QueueName))
@@ -189,53 +204,53 @@ BOOL receiveConsumermesg()
 
 STATUS LNPUBLIC AddInMain(HMODULE hModule, int argc, char* argv[])
 {
-			char szQueueName[] = "TEST_EVENT_QUEUE";
-			char szDBName[] = "EVENT.NSF";
+	char szQueueName[] = "TEST_EVENT_QUEUE";
+	char szDBName[] = "EVENT.NSF";
 
-			TIMEDATE EventTimeDate;
-			BYTE     EventBuffer[EVENT_BUF_SIZE];
-			WORD     wLen;
-			STATUS   sError;
+	TIMEDATE EventTimeDate;
+	BYTE     EventBuffer[EVENT_BUF_SIZE];
+	WORD     wLen;
+	STATUS   sError;
 
-			/*
-			 *  Initialize this task.
-			 */
+	/*
+	 *  Initialize this task.
+	 */
 
-			char string1[] = "Initializing";
-			char string2[] = "Event Producer Test: Initialization complete.";
-			char string3[] = "Idle";
-			char string4[] = "PRODUCE Test: Produced an event!";
-			char string5[] = "Terminating";
-			char string6[] = "PRODUCE Test: Termination complete.";
-			char string7[] = "before thread";
-			char string8[] = "after thread";
-			char string9[] = "system call execution failed";
-			char string11[] = "Initializing";
-			char string12[] = "CONSUME Test: Initialization complete.";
-			char string13[] = "Idle";
-			char string14[] = "CONSUME consumed an event at ";
-			char string16[] = "CONSUME Test: Termination complete.";
+	char string1[] = "Initializing";
+	char string2[] = "Event Producer Test: Initialization complete.";
+	char string3[] = "Idle";
+	char string4[] = "PRODUCE Test: Produced an event!";
+	char string5[] = "Terminating";
+	char string6[] = "PRODUCE Test: Termination complete.";
+	char string7[] = "before thread";
+	char string8[] = "after thread";
+	char string9[] = "system call execution failed";
+	char string11[] = "Initializing";
+	char string12[] = "CONSUME Test: Initialization complete.";
+	char string13[] = "Idle";
+	char string14[] = "CONSUME consumed an event at ";
+	char string16[] = "CONSUME Test: Termination complete.";
 
-			AddInSetStatusText(string1);
-			AddInLogMessageText(string2, NOERROR);
-			//intf("%s", string2);
-			AddInSetStatusText(string3);
+	AddInSetStatusText(string1);
+	AddInLogMessageText(string2, NOERROR);
+	//intf("%s", string2);
+	AddInSetStatusText(string3);
 
 
-			/*
-			 *  Start of code that gets executed each minute.
-			 */
+	/*
+	 *  Start of code that gets executed each minute.
+	 */
 
 #ifdef UNIX
-			{
+	{
 			
-			AddInSetStatusText(string11);
-			AddInLogMessageText(string12, NOERROR);
-			//	printf("%s",string2);
-			AddInSetStatusText(string13);
+	AddInSetStatusText(string11);
+	AddInLogMessageText(string12, NOERROR);
+	//	printf("%s",string2);
+	AddInSetStatusText(string13);
 
-			EventQueueAlloc(szQueueName);
-			EventRegisterEventRequest(EVT_MISC,
+	EventQueueAlloc(szQueueName);
+	EventRegisterEventRequest(EVT_MISC,
 				SEV_NORMAL,
 				szQueueName,
 				szDBName);
@@ -251,27 +266,27 @@ STATUS LNPUBLIC AddInMain(HMODULE hModule, int argc, char* argv[])
 
 			
 
-			int count = 0;
-			while (!AddInIdle())
-			{
-				if (AddInSecondsHaveElapsed(10))
-				{
-					/*
-					 *  If a minute has passed, get the current time and date.  Then
-					 *  generate an event of type EVT_MISC and severity SEV_NORMAL.
-					 *  Pass a string containing the time and date as event-specific
-					 *  data.
-					 */
+	int count = 0;
+	while (!AddInIdle())
+	{
+		if (AddInSecondsHaveElapsed(10))
+		{
+			/*
+			 *  If a minute has passed, get the current time and date.  Then
+			 *  generate an event of type EVT_MISC and severity SEV_NORMAL.
+			 *  Pass a string containing the time and date as event-specific
+			 *  data.
+			 */
 
-					OSCurrentTIMEDATE(&EventTimeDate);
-					ConvertTIMEDATEToText(NULL,
+			OSCurrentTIMEDATE(&EventTimeDate);
+			ConvertTIMEDATEToText(NULL,
 						NULL,
 						&EventTimeDate,
 						(char*)EventBuffer,
 						sizeof(EventBuffer) - 1,
 						&wLen);
 
-					sError = EventQueuePut(szQueueName,
+			sError = EventQueuePut(szQueueName,
 						NULL,
 						EVT_MISC,
 						SEV_NORMAL,
@@ -280,52 +295,52 @@ STATUS LNPUBLIC AddInMain(HMODULE hModule, int argc, char* argv[])
 						wLen,
 						(BYTE far*) EventBuffer);
 
-					AddInLogMessageText(string4, NOERROR);
-					sleep(1);
-				receiveConsumermesg();
-						count++;
-					if (count > 4)
-					{
+			AddInLogMessageText(string4, NOERROR);
+			sleep(1);
+			receiveConsumermesg();
+			count++;
+			if (count > 4)
+				{
 
-						sleep(2); //2 seconds
+					sleep(2); //2 seconds
 
-						break;
-					}
+					break;
 				}
 			}
-
-			sError = EventDeregisterEventRequest(EVT_MISC, SEV_NORMAL, szQueueName);
-			EventQueueFree(szQueueName);
-			/*
-			 *  We get here when the server notifies us that it is time to terminate.
-			 *  This is usually when the user has entered "quit" to the server console.
-			 * Clean up anything we have been doing.
-			 */
-			 AddInSetStatusText(string5);
-			AddInLogMessageText(string16, NOERROR);
-			AddInSetStatusText(string5);
-			AddInLogMessageText(string6, NOERROR);
-
-
-			/*
-			 *  End of add-in task.  We must "return" here rather than "exit".ADDIN_MSG_FMT
-			 */
-
-			return (NOERROR);
 		}
 
+		sError = EventDeregisterEventRequest(EVT_MISC, SEV_NORMAL, szQueueName);
+		EventQueueFree(szQueueName);
+		/*
+		 *  We get here when the server notifies us that it is time to terminate.
+		 *  This is usually when the user has entered "quit" to the server console.
+		 * Clean up anything we have been doing.
+		 */
+		AddInSetStatusText(string5);
+		AddInLogMessageText(string16, NOERROR);
+		AddInSetStatusText(string5);
+		AddInLogMessageText(string6, NOERROR);
+
+
+		/*
+		 *  End of add-in task.  We must "return" here rather than "exit".ADDIN_MSG_FMT
+		 */
+
+		return (NOERROR);
+	}
+
 #else
-{
-			char szPath[] = "consume.exe";
+	{
+		char                szPath[] = "consume.exe";
 
-			PROCESS_INFORMATION pif;  //Gives info on the thread and..
-									 //..process for the new process
-			STARTUPINFO si;          //Defines how to start the program
+		PROCESS_INFORMATION pif;          //Gives info on the thread and..
+					          //..process for the new process
+		STARTUPINFO         si;           //Defines how to start the program
 
-			ZeroMemory(&si, sizeof(si)); //Zero the STARTUPINFO struct
-			si.cb = sizeof(si);         //Must set size of structure
+		ZeroMemory(&si, sizeof(si));      //Zero the STARTUPINFO struct
+		si.cb = sizeof(si);               //Must set size of structure
 
-			BOOL bRet = CreateProcess(
+		BOOL bRet = CreateProcess(
 				szPath, //Path to executable file
 				NULL,   //Command string - not needed here
 				NULL,   //Process handle not inherited
@@ -337,36 +352,36 @@ STATUS LNPUBLIC AddInMain(HMODULE hModule, int argc, char* argv[])
 				&si,    //Pointer to STARTUPINFO
 				&pif);   //Pointer to PROCESS_INFORMATION
 
-			if (bRet == FALSE)
+		if (bRet == FALSE)
+		{
+			MessageBox(HWND_DESKTOP, "Unable to start program", "", MB_OK);
+			return 1;
+		}
+		CloseHandle(pif.hProcess);   //Close handle to process
+		CloseHandle(pif.hThread);    //Close handle to thread
+
+
+		int count = 0;
+		while (!AddInIdle())
+		{
+			if (AddInSecondsHaveElapsed(10))
 			{
-				MessageBox(HWND_DESKTOP, "Unable to start program", "", MB_OK);
-				return 1;
-			}
-			CloseHandle(pif.hProcess);   //Close handle to process
-			CloseHandle(pif.hThread);    //Close handle to thread
+				/*
+				 *  If a minute has passed, get the current time and date.  Then
+				 *  generate an event of type EVT_MISC and severity SEV_NORMAL.
+				 *  Pass a string containing the time and date as event-specific
+				 *  data.
+				 */
 
-
-			int count = 0;
-			while (!AddInIdle())
-			{
-				if (AddInSecondsHaveElapsed(10))
-				{
-					/*
-					 *  If a minute has passed, get the current time and date.  Then
-					 *  generate an event of type EVT_MISC and severity SEV_NORMAL.
-					 *  Pass a string containing the time and date as event-specific
-					 *  data.
-					 */
-
-					OSCurrentTIMEDATE(&EventTimeDate);
-					ConvertTIMEDATEToText(NULL,
+				OSCurrentTIMEDATE(&EventTimeDate);
+				ConvertTIMEDATEToText(NULL,
 						NULL,
 						&EventTimeDate,
 						(char*)EventBuffer,
 						sizeof(EventBuffer) - 1,
 						&wLen);
 
-					sError = EventQueuePut(szQueueName,
+				sError = EventQueuePut(szQueueName,
 						NULL,
 						EVT_MISC,
 						SEV_NORMAL,
@@ -374,34 +389,34 @@ STATUS LNPUBLIC AddInMain(HMODULE hModule, int argc, char* argv[])
 						FMT_TEXT,
 						wLen,
 						(BYTE far*) EventBuffer);
-					count++;
-					AddInLogMessageText(string4, NOERROR);
-					if (count > 4)
-					{
+				count++;
+				AddInLogMessageText(string4, NOERROR);
+				if (count > 4)
+				{
 
-						Sleep(2000);//2000 ms
+					Sleep(2000);//2000 ms
 
-						break;
-					}
+					break;
 				}
 			}
-
-			/*
-			 *  We get here when the server notifies us that it is time to terminate.
-			 *  This is usually when the user has entered "quit" to the server console.
-			 * Clean up anything we have been doing.
-			 */
-
-			AddInSetStatusText(string5);
-			AddInLogMessageText(string6, NOERROR);
-
-
-			/*
-			 *  End of add-in task.  We must "return" here rather than "exit".ADDIN_MSG_FMT
-			 */
-
-			return (NOERROR);
 		}
+
+		/*
+		 *  We get here when the server notifies us that it is time to terminate.
+		 *  This is usually when the user has entered "quit" to the server console.
+		 * Clean up anything we have been doing.
+		 */
+
+		AddInSetStatusText(string5);
+		AddInLogMessageText(string6, NOERROR);
+
+
+		/*
+		 *  End of add-in task.  We must "return" here rather than "exit".ADDIN_MSG_FMT
+		 */
+
+		return (NOERROR);
+	}
 #endif
 }
 

@@ -1,4 +1,19 @@
 /*************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
 PROGRAM:	sharedirectory
 
@@ -21,8 +36,7 @@ SYNTAX:		sharedirectory
 #include "osmisc.h"
 #include "miscerr.h"
 #include "oserr.h"
-
-void PrintAPIError (STATUS);
+#include "printLog.h"
 
 /* Program declaration. */
 int main(int argc, char *argv[])
@@ -38,7 +52,7 @@ int main(int argc, char *argv[])
 
 	if (error != NOERROR)
 	{
-		PrintAPIError(error);
+		PRINTERROR(error,"NotesInitExtended");
 		return (1);
 	}
 
@@ -47,41 +61,14 @@ int main(int argc, char *argv[])
 
 	if (OSGetSharedDataDirectory (szShareDirectory) == 0)
 	{
-		printf("OSGetSharedDataDirectory failed.\n");
+		PRINTLOG("OSGetSharedDataDirectory failed.\n");
 	}
 	else
 	{
-		printf("The shared data directory of the multi-user Notes client is \"%s\".\n", szShareDirectory);
-		printf("Program completed successfully.\n");
+		PRINTLOG("The shared data directory of the multi-user Notes client is \"%s\".\n", szShareDirectory);
+		PRINTLOG("Program completed successfully.\n");
 	}
 	NotesTerm();
 	return (0);
 }
 
-/*************************************************************************
-
-    FUNCTION:  PrintAPIError
-
-    PURPOSE:   This function prints the error message 
-               associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-	STATUS  string_id = ERR(api_error);
-	char    szErrorText[256] = {0};
-	WORD    wtext_len = 0;
-
-	/* Get the message for this error code from the resource string table. */
-
-	wtext_len = OSLoadString (NULLHANDLE,
-		string_id,
-		szErrorText,
-		sizeof(szErrorText));
-
-	/* Print error message. */
-	fprintf (stderr, "\n%s.\n", szErrorText);
-
-}

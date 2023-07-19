@@ -1,4 +1,19 @@
- /****************************************************************************
+/****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     HEADER:    printLog
 
@@ -45,6 +60,25 @@ Note: If CAPI_FILE_LOGGING env is not set then it is considered as console loggi
 	 inString++; \
 	 i++; \
    } \
+}
+
+
+#define PRINTERROR(api_error,api_name)\
+{\
+     FILE *logFP = stdout;\
+     STATUS  string_id = ERR(api_error);\
+     char    szErrorText[256] = { 0 };\
+     WORD    wTextLen = 0;\
+     char *__filePtr__=__FILE__;\
+     if (logFP) {\
+     /* Get the message for this error code from the resource string table.*/\
+         wTextLen = OSLoadString(NULLHANDLE,\
+         string_id,\
+         szErrorText,\
+         sizeof(szErrorText));\
+     /* Print error message. */\
+         fprintf(logFP, "[ERROR]:%s:%d:%s - %s", __filePtr__,__LINE__,api_name,szErrorText);\
+     }\
 }
 
 

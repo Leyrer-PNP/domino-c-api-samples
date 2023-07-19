@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    mktable
 
@@ -457,11 +472,11 @@ BOOL    CDPutTable(int table_num, WORD first_last_record,
     PURPOSE:    Create a CDBEGINRECORD record in the supplied buffer.
 
     INPUTS:
-      version - version of this element.
+      version       - version of this element.
 		
-      cd_out_ptr -  pointer to CD buffer under construction.
+      cd_out_ptr    - pointer to CD buffer under construction.
 
-      cd_input_cnt - current offset into CD buffer.
+      cd_input_cnt  - current offset into CD buffer.
 
       cd_output_cnt - offset into CD buffer after CDBEGINRECORD
 		      was added.
@@ -504,11 +519,11 @@ BOOL    CDPutBeginRecord(WORD version,
     PURPOSE:    Create a CDENDRECORD record in the supplied buffer.
 
     INPUTS:
-      version - version of this element.
+      version       - version of this element.
 		
-      cd_out_ptr -  pointer to CD buffer under construction.
+      cd_out_ptr    - pointer to CD buffer under construction.
 
-      cd_input_cnt - current offset into CD buffer.
+      cd_input_cnt  - current offset into CD buffer.
 
       cd_output_cnt - offset into CD buffer after CDENDRECORD
 		      was added.
@@ -551,15 +566,15 @@ BOOL    CDPutEndRecord(WORD version,
     PURPOSE:    Create a CDPRETABLEBEGIN record in the supplied buffer.
 
     INPUTS:
-      table_num - table number
+      table_num     - table number
 		
-		rows - number of rows.
+      rows          - number of rows.
 		
-      columns - number of coulmns.
+      columns       - number of coulmns.
 
-      cd_out_ptr -  pointer to CD buffer under construction.
+      cd_out_ptr    - pointer to CD buffer under construction.
 
-      cd_input_cnt - current offset into CD buffer.
+      cd_input_cnt  - current offset into CD buffer.
 
       cd_output_cnt - offset into CD buffer after CDPRETABLEBEGIN
 		      was added.
@@ -659,11 +674,11 @@ BOOL    CDPutPreTableBegin(int table_num,
 
     INPUTS:
 
-      table_num - table number
+      table_num     - table number
 		
-      cd_out_ptr -  pointer to CD buffer under construction.
+      cd_out_ptr    - pointer to CD buffer under construction.
 
-      cd_input_cnt - current offset into CD buffer.
+      cd_input_cnt  - current offset into CD buffer.
 
       cd_output_cnt - offset into CD buffer after CDBORDERINFO
 		      was added.
@@ -785,13 +800,13 @@ BOOL    CDPutBorderInfo(int table_num,
       vert_intercell_width - dist from cell's border to top or
 			     bottom of text in cell's para.
 
-      flags - Determines whether or not table is to be automati-
-	  cally resized with the MDI Child window.
-	  CDTABLE_AUTO_CELL_WIDTH - Fit to Window table.
+      flags         - Determines whether or not table is to be automati-
+	              cally resized with the MDI Child window.
+	              CDTABLE_AUTO_CELL_WIDTH - Fit to Window table.
 
-      cd_out_ptr -  pointer to CD buffer under construction.
+      cd_out_ptr    - pointer to CD buffer under construction.
 
-      cd_input_cnt - current offset into CD buffer.
+      cd_input_cnt  - current offset into CD buffer.
 
       cd_output_cnt - offset into CD buffer after CDTABLEBEGIN
 		      was added.
@@ -919,9 +934,9 @@ BOOL    CDPutCell(BYTE row, BYTE column,  WORD cell_left_margin,
     PURPOSE:   Create a CDTABLEEND   record in the supplied buffer.
 
     INPUTS:
-      cd_out_ptr -  pointer to CD buffer under construction.
+      cd_out_ptr    - pointer to CD buffer under construction.
 
-      cd_input_cnt - current offset into CD buffer.
+      cd_input_cnt  - current offset into CD buffer.
 
       cd_output_cnt - offset into CD buffer after CDTABLEBEGIN
 		      was added.

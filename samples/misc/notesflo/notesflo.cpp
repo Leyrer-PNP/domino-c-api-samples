@@ -1,19 +1,34 @@
-//*********************************************************************
-//
-//	PROGRAM:	NotesFlo.cpp
-//
-//	PURPOSE:	NotesFlow demonstration
-//
-//	NOTES:		This program can run either stand-alone or as an OLE
-//				server.  As an OLE server, this program supports
-//				self-registration - no .reg file is required.  In
-//				addition, this program can generate a registration
-//				file automatically if that's needed - run the program
-//				with the single command-line argument -MakeReg, and
-//				the appropriate file, either win16.reg or win32.reg,
-//				will be created.
-//
-//*********************************************************************
+/*********************************************************************
+*
+* Copyright HCL Technologies 1996, 2023.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+*
+*   PROGRAM:	NotesFlo.cpp
+*
+*	PURPOSE:	NotesFlow demonstration
+*
+*	NOTES:		This program can run either stand-alone or as an OLE
+*				server.  As an OLE server, this program supports
+*				self-registration - no .reg file is required.  In
+*				addition, this program can generate a registration
+*				file automatically if that's needed - run the program
+*				with the single command-line argument -MakeReg, and
+*				the appropriate file, either win16.reg or win32.reg,
+*				will be created.
+*
+*********************************************************************/
 
 	// Standard C headers
 #include <stdio.h>
@@ -78,10 +93,10 @@ LPWSTR	lpAppOleTitle	= OLESTR ("NotesFlow Demo");
 int WINAPI WinMain(
 	HINSTANCE	hInstance,
 	HINSTANCE	hPrevInstance,
-    LPSTR		lpCmdLine,
+	LPSTR		lpCmdLine,
 	int			nCmdShow
 ) {
-    MSG			msg;
+	MSG			msg;
 	BOOL		fInitSucceeded;
 	BOOL		fRegServer;
 	BOOL		fUnregServer;
@@ -259,7 +274,7 @@ BOOL InitApplication (
 BOOL InitInstance (
     HINSTANCE	hInstance,
     int			nCmdShow,
-	BOOL		fStartedByOle
+    BOOL		fStartedByOle
 ) {
 		// Check the OLE version number
 	DWORD		dwOleVersion = ::OleBuildVersion ();
@@ -332,7 +347,7 @@ BOOL TermInstance (
 LRESULT CALLBACK AppWndProc (
 	HWND	hWnd,
 	UINT	message,
-    WPARAM	wParam,
+	WPARAM	wParam,
 	LPARAM	lParam
 ) {
     switch (message)
@@ -414,7 +429,7 @@ LRESULT CALLBACK AppWndProc (
 LRESULT CALLBACK DocWndProc (
 	HWND	hWnd,
 	UINT	message,
-    WPARAM	wParam,
+	WPARAM	wParam,
 	LPARAM	lParam
 ) {
     switch (message)
@@ -499,7 +514,7 @@ LRESULT CALLBACK DocWndProc (
 LRESULT CALLBACK HatchWndProc (
 	HWND	hWnd,
 	UINT	message,
-    WPARAM	wParam,
+	WPARAM	wParam,
 	LPARAM	lParam
 ) {
     switch (message)
@@ -591,7 +606,7 @@ LRESULT CALLBACK HatchWndProc (
 BOOL CALLBACK AboutDlgProc (
 	HWND	hDlg,
 	UINT	message,
-    WPARAM	wParam,
+	WPARAM	wParam,
 	LPARAM	lParam
 ) {
     switch (message)

@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    consume
 
@@ -72,26 +87,26 @@
 STATUS LNPUBLIC  AddInMain (HMODULE hModule, int argc, char *argv[])
 {
 
-char QueueName[] = "TEST_EVENT_QUEUE";   /*  Name of queue that will be created. */
-char InputDestName[] = "EVENT.NSF"; /*  A database name to associate with   */
-                                    /*  events of a certain type.           */
+char            QueueName[] = "TEST_EVENT_QUEUE";   /*  Name of queue that will be created. */
+char            InputDestName[] = "EVENT.NSF";      /*  A database name to associate with   */
+                                                    /*  events of a certain type.           */
 
-char OutputDestName[20];            /*  A buffer in which to read the name  */
-                                    /*  associated with a certain event.    */
-                                    /*  (Probably will be the same as       */
-                                    /*  InputDestName, but this is defined  */
-                                    /*  seperately for demonstration        */
-                                    /*  purposes).                          */
+char            OutputDestName[20];                 /*  A buffer in which to read the name  */
+                                                    /*  associated with a certain event.    */
+                                                    /*  (Probably will be the same as       */
+                                                    /*  InputDestName, but this is defined  */
+                                                    /*  seperately for demonstration        */
+                                                    /*  purposes).                          */
 
-BOOL   bDestNameReturned;           /*  TRUE if a name returned by call to  */
-                                    /*  EventGetDestName.                   */
+BOOL            bDestNameReturned;                  /*  TRUE if a name returned by call to  */
+                                                    /*  EventGetDestName.                   */
                                     
-DHANDLE hEventData;                  /*  A handle to event specific data.    */
-STATUS sError;
-BYTE far *pBuf;
+DHANDLE         hEventData;                         /*  A handle to event specific data.    */
+STATUS          sError;
+BYTE far       *pBuf;
 EVENT_DATA far *pEventData;
-BYTE   DataBuf[64];                 /* A temp buf to hold event data.       */
-BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
+BYTE            DataBuf[64];                        /* A temp buf to hold event data.       */
+BYTE            MessageBuf[128];                    /* A buffer in which to build log msgs. */
 
 /*
  *  Initialize this task. 
@@ -110,7 +125,7 @@ BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
  *  Create the event queue, and specify that we are interested in events
  *  of type EVT_MISC and of severity SEV_NORMAL.
  */
-	if (sError = EventQueueAlloc(QueueName))
+    if (sError = EventQueueAlloc(QueueName))
         return (ERR(sError));
    
     if (sError = EventRegisterEventRequest(EVT_MISC,
@@ -122,7 +137,7 @@ BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
 /* 
  *  Start the AddInIdle() loop.
  */
-	int count = 0;
+    int count = 0;
     while (!AddInIdle())
     {
 
@@ -205,7 +220,7 @@ BYTE   MessageBuf[128];             /* A buffer in which to build log msgs. */
 /*
  *  We get here when the server notifies us that it is time to terminate.  
  *  This is usually when the user has entered "quit" to the server console. 
- * Clean up anything we have been doing.
+ *  Clean up anything we have been doing.
  */
 
 #if defined (OS400)

@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    twokey
 
@@ -35,6 +50,7 @@
 #include <miscerr.h>
 #include <editods.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -45,13 +61,13 @@
 #define STRING_LENGTH   256
 
 /* cleanup flag values */
-#define DO_NOTHING      0x0000
-#define CLOSE_DB        0x0001
+#define DO_NOTHING               0x0000
+#define CLOSE_DB                 0x0001
 #define CLOSE_COLLECTION         0x0002
-#define FREE_KEY1       0x0004
+#define FREE_KEY1                0x0004
 #define FREE_TRANSLATEDKEY       0x0008
-#define FREE_KEY2       0x0010
-#define FREE_PKEY       0x0011
+#define FREE_KEY2                0x0010
+#define FREE_PKEY                0x0011
 
 #define VIEWNAME_LEN 256
 #define DBNAME_LEN  256
@@ -63,7 +79,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                                char *Key2,
                                char *dbFilename,
                                char *ViewName);
-void PrintAPIError (STATUS);
 
 
 int main (int argc, char *argv[])
@@ -71,38 +86,38 @@ int main (int argc, char *argv[])
 
 /* Local data declarations */
 
-   STATUS         error=NOERROR;
-   STATUS         returnCode=NOERROR;
-   WORD           cleanup=DO_NOTHING;
-   char           dbFilename[DBNAME_LEN], ViewName[VIEWNAME_LEN];    
-   DBHANDLE       hDb;            
-   NOTEID         ViewID;         
-   HCOLLECTION    hCollection; 
+   STATUS                error=NOERROR;
+   STATUS                returnCode=NOERROR;
+   WORD                  cleanup=DO_NOTHING;
+   char                  dbFilename[DBNAME_LEN], ViewName[VIEWNAME_LEN];    
+   DBHANDLE              hDb;            
+   NOTEID                ViewID;         
+   HCOLLECTION           hCollection; 
    COLLECTIONPOSITION    posCollection;   
-   DHANDLE          hBuffer;        
-   NOTEID        *pNoteID;        
-   DWORD          NumNotesFound=0;     
-   DWORD          NumNotesMatch=0;     
-   DWORD          NoteCount = 0;     
-   DWORD          i;     
-   char          *Key1;               /* primary input key */
-   char          *TranslatedKey;      /* Translated string key */
-   char          *Key2;               /* secondary input key */
-   char          *pTemp, *pKey;
-   WORD           Item1ValueLen, Item2ValueLen, signal_flag;
-   WORD           TranslatedKeyLen;
-   BOOL           FirstTime = TRUE;    
+   DHANDLE               hBuffer;        
+   NOTEID                *pNoteID;        
+   DWORD                 NumNotesFound=0;     
+   DWORD                 NumNotesMatch=0;     
+   DWORD                 NoteCount = 0;     
+   DWORD                 i;     
+   char                  *Key1;               /* primary input key */
+   char                  *TranslatedKey;      /* Translated string key */
+   char                  *Key2;               /* secondary input key */
+   char                  *pTemp, *pKey;
+   WORD                  Item1ValueLen, Item2ValueLen, signal_flag;
+   WORD                  TranslatedKeyLen;
+   BOOL                  FirstTime = TRUE;    
 
-   ITEM_TABLE     Itemtbl;
-   ITEM           Item;
-   WORD           Word;
-   double         Double, dValue=0;
+   ITEM_TABLE            Itemtbl;
+   ITEM                  Item;
+   WORD                  Word;
+   double                Double, dValue=0;
 
 /*      Initialize Domino and Notes */
  
    if (error = NotesInitExtended(argc, argv))
    {
-      printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+      PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
       return (1);
    }
 
@@ -113,7 +128,7 @@ int main (int argc, char *argv[])
 
    if (Key1 == NULL)    
    {
-      printf("Error: Out of memory when allocating Key1.\n");
+      PRINTLOG("Error: Out of memory when allocating Key1.\n");
       returnCode=1;
       goto exit1;
    }
@@ -124,7 +139,7 @@ int main (int argc, char *argv[])
 
    if (TranslatedKey == NULL)    
    {
-      printf("Error: Out of memory when allocating TranslatedKey.\n");
+      PRINTLOG("Error: Out of memory when allocating TranslatedKey.\n");
       returnCode=1;
       goto exit1;
    }
@@ -135,7 +150,7 @@ int main (int argc, char *argv[])
 
    if (Key2 == NULL)    
    {
-      printf("Error: Out of memory when allocating Key2.\n");
+      PRINTLOG("Error: Out of memory when allocating Key2.\n");
       returnCode=1;
       goto exit1;
    }
@@ -166,16 +181,16 @@ int main (int argc, char *argv[])
 /* Get the current collection using this view. */
 
    if (error = NIFOpenCollection(
-    hDb,           /* handle of db with view */
-    hDb,           /* handle of db with data */
-    ViewID,        /* noteID  of the view */
-    0,             /* collection open flags */
-    NULLHANDLE,    /* handle to unread ID list (input and return) */
-    &hCollection,  /* collection handle (return) */
-    NULLHANDLE,    /* handle to open view note (return) */
-    NULL,          /* universal noteID  of view (return) */
-    NULLHANDLE,    /* handle to collapsed list (return) */
-    NULLHANDLE))   /* handle to selected list (return) */
+                      hDb,           /* handle of db with view */
+                      hDb,           /* handle of db with data */
+                      ViewID,        /* noteID  of the view */
+                      0,             /* collection open flags */
+                      NULLHANDLE,    /* handle to unread ID list (input and return) */
+                      &hCollection,  /* collection handle (return) */
+                      NULLHANDLE,    /* handle to open view note (return) */
+                      NULL,          /* universal noteID  of view (return) */
+                      NULLHANDLE,    /* handle to collapsed list (return) */
+                      NULLHANDLE))   /* handle to selected list (return) */
       goto exit1;
 
    cleanup |= CLOSE_COLLECTION;
@@ -183,11 +198,11 @@ int main (int argc, char *argv[])
    /* Translate the input key to LMBCS */
 #ifndef OS400
    TranslatedKeyLen = OSTranslate (
-      OS_TRANSLATE_NATIVE_TO_LMBCS,
-      Key1,
-      (WORD) strlen (Key1),
-      TranslatedKey,
-      STRING_LENGTH);
+                         OS_TRANSLATE_NATIVE_TO_LMBCS,
+                         Key1,
+                         (WORD) strlen (Key1),
+                         TranslatedKey,
+                         STRING_LENGTH);
 #else
    strcpy(TranslatedKey, Key1);
    TranslatedKeyLen = strlen(TranslatedKey);
@@ -200,7 +215,7 @@ int main (int argc, char *argv[])
 
    if (pKey == NULL)    
    {
-      printf("Error: Out of memory.\n");
+      PRINTLOG("Error: Out of memory.\n");
       returnCode=1;
       goto exit1;
    }
@@ -244,17 +259,17 @@ int main (int argc, char *argv[])
    column values match the given search keys: */
 
    error = NIFFindByKey(
-       hCollection,
-       pKey,          /* refer to key   */
-       FIND_CASE_INSENSITIVE,     /* match rules */
-       &posCollection, /* where match begins (return) */
-       &NumNotesMatch);/* how many match (return) */
+                  hCollection,
+                  pKey,                  /* refer to key   */
+                  FIND_CASE_INSENSITIVE, /* match rules */
+                  &posCollection,        /* where match begins (return) */
+                  &NumNotesMatch);       /* how many match (return) */
 
        
 
    if (ERR(error) == ERR_NOT_FOUND) 
    {
-      printf ("\nKey not found in the collection.\n");
+      PRINTLOG ("\nKey not found in the collection.\n");
       error=NOERROR;
       goto exit1;
    }
@@ -269,32 +284,32 @@ int main (int argc, char *argv[])
   /* Read entries in the collection */
 
       if (error = NIFReadEntries(
-        hCollection,         /* handle to this collection           */
-        &posCollection,      /* where to start in collection        */
-        (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
-                                      /* order to use when skipping */
-        FirstTime ? 0L : 1L, /* number to skip i                    */
-        NAVIGATE_NEXT,       /* order to use when reading           */
-        NumNotesMatch - NoteCount,  /* max number to read           */
-        READ_MASK_NOTEID,    /* info we want                        */
-        &hBuffer,            /* handle to info (return)             */
-        NULL,                /* length of buffer (return)           */
-        NULL,                /* entries skipped (return)            */
-        &NumNotesFound,      /* entries read (return)               */
-        &signal_flag))       /* signal and share warnings (return)  */
+                         hCollection,         /* handle to this collection */
+                         &posCollection,      /* where to start in collection */
+                         (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
+                                              /* order to use when skipping */
+                         FirstTime ? 0L : 1L, /* number to skip i */
+                         NAVIGATE_NEXT,       /* order to use when reading */
+                         NumNotesMatch - NoteCount,  /* max number to read */
+                         READ_MASK_NOTEID,    /* info we want */
+                         &hBuffer,            /* handle to info (return) */
+                         NULL,                /* length of buffer (return) */
+                         NULL,                /* entries skipped (return) */
+                         &NumNotesFound,      /* entries read (return) */
+                         &signal_flag))       /* signal and share warnings (return) */
          goto exit1;
 
       if (hBuffer == NULLHANDLE)
       {
-         printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+         PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
          goto exit1;
       }
 
       pNoteID = (NOTEID *) OSLockObject (hBuffer);
 
-      printf ("\n");
+      PRINTLOG ("\n");
       for (i=0; i<NumNotesFound; i++)
-          printf ("Note count is %lu. \t noteID  is: %lX\n", 
+          PRINTLOG ("Note count is %lu. \t noteID  is: %lX\n", 
              ++NoteCount, pNoteID[i]);
    
       OSUnlockObject (hBuffer);
@@ -327,12 +342,12 @@ exit1:
       free(pKey);
 
    if (error)
-      PrintAPIError(error);
+      PRINTERROR(error,"NIFReadEntries");
 
    NotesTerm();
 
    if (returnCode==NOERROR && error==NOERROR)
-      printf("\nProgram completed successfully.\n");
+      PRINTLOG("\nProgram completed successfully.\n");
 
    if (returnCode)
       return(returnCode);
@@ -387,28 +402,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
  
     } /* end if */
 } /* ProcessArgs */
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
 

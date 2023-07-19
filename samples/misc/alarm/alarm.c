@@ -1,4 +1,19 @@
 /************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  
    PROGRAM:    alarm
 
@@ -34,6 +49,7 @@
 #include <ods.h>
 #include <osmem.h>
 #include <osmisc.h>
+#include <PRINTLOG.h>
 
 
 #define MAX_MESSAGE  (256)
@@ -47,7 +63,6 @@ char MsgQueueName [] = MQPREFIX_FOR_CLIENT "NOTESCLIENT";
 /* Function declarations */
 STATUS ProcessAlarmMessage (char *, WORD); 
 void LNPUBLIC  GetTDString( TIMEDATE *, char * );
-void PrintAPIError (STATUS);
 
 
 int main(int argc, char * argv[])
@@ -61,7 +76,7 @@ int main(int argc, char * argv[])
     /* initialize with Domino and Notes */
     if (error = NotesInitExtended (argc, argv))
     {
-        printf("\n Unable to initialize Notes.\n");
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
     }
 
@@ -72,34 +87,34 @@ int main(int argc, char * argv[])
 
     /* Register the client with the Alarms Daemon */
     if (error = Alarm_RegisterInterest (NOTESCLIENT, 0))
-       goto Done2;
+        goto Done2;
 
     /* Tell the Alarms Daemon to refresh it's list of alarms */
     if (error = Alarm_RefreshAlarms (NOTESCLIENT))
-       goto Done3;
+        goto Done3;
 
     /* Main loop to process Alarm message.  We'll wait for 5 minutes for a
     message and if we don't get one, we'll time out */
 
     while (bNO_ALARM_MSG)
     {
-      printf("Waiting for message from the Alarms Daemon...\n");
-      error = MQGet (hQueue, MsgBuffer, MAX_MESSAGE,
-           MQ_WAIT_FOR_MSG, (300 * 1000), &MsgLen);
+        PRINTLOG("Waiting for message from the Alarms Daemon...\n");
+        error = MQGet (hQueue, MsgBuffer, MAX_MESSAGE,
+                       MQ_WAIT_FOR_MSG, (300 * 1000), &MsgLen);
 
-      MsgBuffer[MsgLen] = '\0';
+        MsgBuffer[MsgLen] = '\0';
 
-      if (NOERROR == error)
-      {
-       printf("Received Alarm Message!\n\n");
-       error = ProcessAlarmMessage (MsgBuffer, MsgLen);
-       bNO_ALARM_MSG = FALSE; 
-      }
-      else if (ERR_MQ_TIMEOUT == error)
-      {
-       printf("Received Timeout...\n");
-       bNO_ALARM_MSG = FALSE; 
-      }
+        if (NOERROR == error)
+        {
+            PRINTLOG("Received Alarm Message!\n\n");
+            error = ProcessAlarmMessage (MsgBuffer, MsgLen);
+            bNO_ALARM_MSG = FALSE; 
+        }
+        else if (ERR_MQ_TIMEOUT == error)
+        {
+            PRINTLOG("Received Timeout...\n");
+            bNO_ALARM_MSG = FALSE; 
+        }
     }   /* End of main task loop. */
  
 Done3:
@@ -116,12 +131,12 @@ Done1:
     /* End of subroutine. */
     if (error)
     {
-         if (error!=999)
-            PrintAPIError (error);  
+        if (error!=999)
+            PRINTERROR (error,"MQOpen");  
     }
     else
     {
-        printf("\nProgram completed successfully.\n");
+        PRINTLOG("\nProgram completed successfully.\n");
     }
 
     NotesTerm();
@@ -155,37 +170,37 @@ STATUS ProcessAlarmMessage (char *pMsg, WORD msgLen)
     /* see what type of alarm message type we have */
     switch (pAlarmMsg.Type)
     {
-      case ALARM_MSG_PENDING_ALARMS:
-   printf("Alarm Message Type:%s\n","ALARM_MSG_PENDING_ALARMS");
-      break;
-      case ALARM_MSG_NEW_ALARM:
-   printf("Alarm Message Type:%s\n","ALARM_MSG_NEW_ALARM");
-      break;
-      case ALARM_MSG_IS_TERMINATING:
-   printf("Alarm Message Type:%s\n","ALARM_MSG_IS_TERMINATING");
-      break;
-      default:
-   printf("Invalid Alarm Message Type!\n");
-   return(999);
-      break;
+        case ALARM_MSG_PENDING_ALARMS:
+            PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_PENDING_ALARMS");
+            break;
+        case ALARM_MSG_NEW_ALARM:
+            PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_NEW_ALARM");
+            break;
+        case ALARM_MSG_IS_TERMINATING:
+            PRINTLOG("Alarm Message Type:%s\n","ALARM_MSG_IS_TERMINATING");
+            break;
+        default:
+            PRINTLOG("Invalid Alarm Message Type!\n");
+            return(999);
+            break;
     }
 
     /* print out the data */
-    printf("Number of Alarms:%d\n",pAlarmMsg.wNumOfAlarms);
-    printf("Number of Alarms:%lx\n",pAlarmMsg.Flags);
+    PRINTLOG("Number of Alarms:%d\n",pAlarmMsg.wNumOfAlarms);
+    PRINTLOG("Number of Alarms:%lx\n",pAlarmMsg.Flags);
 
     /* get a pointer to the ALARMS_DATA structure */
     pData = (char *)OSLockObject(pAlarmMsg.hAlarmsData);
     memcpy((ALARM_DATA *)&pAlarmData, (ALARM_DATA *)pData,
-                  sizeof(ALARM_DATA));
+            sizeof(ALARM_DATA));
 
     /* convert timedate info to string */
     GetTDString(&(pAlarmData.tmEventTime), szEventTime);
     GetTDString(&(pAlarmData.tmAlarmTime), szAlarmTime);
 
     /* print out the data */
-    printf("Event Time:%s\n",szEventTime);
-    printf("Alarm Time:%s\n",szAlarmTime);
+    PRINTLOG("Event Time:%s\n",szEventTime);
+    PRINTLOG("Alarm Time:%s\n",szAlarmTime);
 
     /* Tell Alarm Daemon to process Alarm... */
     error = Alarm_ProcessAlarm(NOTESCLIENT, 0, pAlarmData.EventUNID, 0);
@@ -209,42 +224,10 @@ void LNPUBLIC  GetTDString( TIMEDATE * ptdModified, char * szTimedate )
     WORD            wLen;
 
     ConvertTIMEDATEToText( NULL, NULL, 
-             ptdModified, 
-             szTimedate, 
-             MAXALPHATIMEDATE,
+                           ptdModified, 
+                           szTimedate, 
+                           MAXALPHATIMEDATE,
              &wLen );
     szTimedate[wLen] = '\0';
     return;
 }
-
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

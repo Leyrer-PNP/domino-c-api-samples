@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:      schedule
 
@@ -56,7 +71,7 @@
 #include <schgtw.h>
 #include <textlist.h>
 
-
+#include <printLog.h>
 #include <osmisc.h>
 
 
@@ -66,8 +81,6 @@
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
-
-void PrintAPIError (STATUS);
 
 
 /************************************************************************
@@ -86,7 +99,7 @@ int main(int argc, char *argv[])
 
 	if (sError = NotesInitExtended (argc, argv))
 	{
-	    printf("\n Unable to initialize Notes.\n");
+	    PRINTLOG("\n Unable to initialize Notes.\n");
 	    return (1);
 	}
 
@@ -112,7 +125,7 @@ int main(int argc, char *argv[])
     * Get full distinguished user name
     */
     SECKFMUserInfo(KFM_ui_GetUserInfo, AUser, NULL);
-    printf("User name in full distinguished format is : %s\n",AUser);
+    PRINTLOG("User name in full distinguished format is : %s\n",AUser);
 
 
    /*
@@ -123,7 +136,7 @@ int main(int argc, char *argv[])
 
     if (sError)
     {
-      PrintAPIError (sError);
+      PRINTERROR (sError,"OSPathNetConstruct");
       NotesTerm();
       return (1);
     }
@@ -150,17 +163,20 @@ int main(int argc, char *argv[])
 
     else
     {
-        printf ("Invalid Schedule Command %s.\n",szCmd);
-        PrintAPIError (sError);
+        PRINTLOG ("Invalid Schedule Command %s.\n",szCmd);
+        PRINTERROR (sError,"OSPathNetConstruct");
         NotesTerm();
         return (1);
     }
 
     if (!sError)
-        printf("\n\nProgram completed successfully.\n");
-	
-	else
-        PrintAPIError (sError);
+    {
+        PRINTLOG("\n\nProgram completed successfully.\n");
+    }	
+    else
+    {
+        PRINTERROR (sError,"OSPathNetConstruct");
+    }
 
 
     NotesTerm();
@@ -276,7 +292,7 @@ STATUS LNPUBLIC ScheduleTask(int command)
 
     /* display BUSY free time information */
     if (command == BUSY)
-      printf("\n\nThis is the first free time available for the user: %s\n",
+      PRINTLOG("\n\nThis is the first free time available for the user: %s\n",
                    AUser);
 
     /* Get the first free time available */
@@ -306,7 +322,7 @@ STATUS LNPUBLIC ScheduleTask(int command)
 
     /* display BUSY free time information */
     if (command == BUSY)
-      printf("\nThese are the busy times for the user: %s\n", AUser);
+      PRINTLOG("\nThese are the busy times for the user: %s\n", AUser);
 
     /* display BUSY free time information */
     if (command == BUSY)
@@ -603,7 +619,7 @@ STATUS LNPUBLIC AddSchedule()
     } /* end of for */
 
     sError = NSFNoteUpdate( hNote, 0 );
-	printf("\n Scheduled meeting for %s between %s to %s ", szMailFileName,startTime,endTime);
+    PRINTLOG("\n Scheduled meeting for %s between %s to %s ", szMailFileName,startTime,endTime);
 Exit3:
 
     OSUnlockObject (hData);
@@ -640,7 +656,7 @@ BOOL LNPUBLIC CreateCDRecords(char *pData, WORD *wDataLen, char * wstring)
    rt_field=(BYTE *) malloc( tmpLen);
    if (rt_field == (BYTE *) NULL)
    {
-        printf("Error: unable to allocate %d bytes memory\n",tmpLen);
+        PRINTLOG("Error: unable to allocate %d bytes memory\n",tmpLen);
         return(FALSE);
    }
 
@@ -870,7 +886,7 @@ void LNPUBLIC DumpTimeRangeItem( char * pData)
       pData += sizeof(TIMEDATE_PAIR);
       GetTDString( &TimeDatePair.Lower, szTimedate );
       GetTDString( &TimeDatePair.Upper, szUpperTD );
-      printf("%s - %s\n", szTimedate, szUpperTD );
+      PRINTLOG("%s - %s\n", szTimedate, szUpperTD );
     }
 
     return;
@@ -925,34 +941,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *cmd,
     } /* end if */
 
 } /* ProcessArgs */
-
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}

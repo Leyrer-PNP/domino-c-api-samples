@@ -1,4 +1,19 @@
 /************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    readmail
 
@@ -71,6 +86,7 @@
 #if defined(OS400)
 #include <misc.h>
 #endif
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -88,8 +104,6 @@ char szNewline_Terminate[] = "\r\n";
 
 
 /* function prototypes */
-
-void PrintAPIError (STATUS);
 
 STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
                                         char *FileName);
@@ -158,7 +172,7 @@ int main(int argc, char *argv[])
 
     if (error)
     {
-        printf("\nUnable to initialize Notes. Error Code[0x%04x]\n", error);
+        PRINTLOG("\nUnable to initialize Notes. Error Code[0x%04x]\n", error);
         return(1);
     }
 
@@ -175,122 +189,122 @@ int main(int argc, char *argv[])
 
     if (error = MailOpenMessageFile(szMailFilePath, &hMessageFile))
     {
-        printf ("Error: unable to open '%s'.\n", szMailFilePath);
+        PRINTLOG ("Error: unable to open '%s'.\n", szMailFilePath);
         goto Exit0;
     }
 
     /* Create message list of messages in the file - just 64K */
 
     if (error = MailCreateMessageList(hMessageFile,
-                        &hMessageList, &MessageList, &MessageCount))
+                                      &hMessageList, &MessageList, &MessageCount))
     {
-        printf ("Error: unable to create message list.\n");
+        PRINTLOG ("Error: unable to create message list.\n");
         goto Exit1;
     }
 
-    printf ("Mail file contains %d message(s).\n", MessageCount);
+    PRINTLOG ("Mail file contains %d message(s).\n", MessageCount);
 
     /* Print out each of the outbound messages. */
 
     for (Msg = 0; Msg < MessageCount; Msg++)
     {
-        printf ("\nMessage #%d: \n", Msg+1);
+        PRINTLOG ("\nMessage #%d: \n", Msg+1);
 
         if (error = MailOpenMessage (MessageList, Msg, &hMessage))
         {
-            printf ("Error: unable to open message number %d.\n", Msg+1);
+            PRINTLOG ("Error: unable to open message number %d.\n", Msg+1);
             goto Exit2;
         }
 
         /* Get the originator's name/address. */
 
         if (error = MailGetMessageOriginator(MessageList, Msg,
-                Originator, sizeof(Originator), &OriginatorLength))
+                                             Originator, sizeof(Originator), &OriginatorLength))
         {
-            printf ("Error: unable to get message originator.\n");
+            PRINTLOG ("Error: unable to get message originator.\n");
             goto Exit2;
         }
 
         Originator[OriginatorLength] = '\0';
 
-        printf ("\tOriginator = '%s'\n", Originator);
+        PRINTLOG ("\tOriginator = '%s'\n", Originator);
 
         if (error = MailGetMessageInfo(MessageList, Msg,
                             &RecipientCount, NULL, NULL))
         {
-            printf ("Error: unable to get number of recipients in message.\n");
+            PRINTLOG ("Error: unable to get number of recipients in message.\n");
             MailCloseMessage (hMessage);
             goto Exit2;
         }
 
-        printf ("\tNumber of Recipients = %d.\n", RecipientCount);
+        PRINTLOG ("\tNumber of Recipients = %d.\n", RecipientCount);
 
         for (Rec = 0; Rec < RecipientCount; Rec++)
         {
             MailGetMessageRecipient(MessageList, Msg, Rec, RecipientName,
-                    sizeof(RecipientName), &RecipientNameLength);
+                                    sizeof(RecipientName), &RecipientNameLength);
             MailParseMailAddress(RecipientName, RecipientNameLength,
-                    UserName, sizeof(UserName), &UserNameLength,
-                    DomainName, sizeof(DomainName), &DomainNameLength);
+                                 UserName, sizeof(UserName), &UserNameLength,
+                                 DomainName, sizeof(DomainName), &DomainNameLength);
 
             UserName[UserNameLength] = '\0';
             DomainName[DomainNameLength] = '\0';
 
-            printf ("\t\tRecipient %d = '%s'\t Domain = '%s'\n", Rec+1,
+            PRINTLOG ("\t\tRecipient %d = '%s'\t Domain = '%s'\n", Rec+1,
                                 UserName, DomainName);
         }   /* end of loop over recipients */
 
         /* SendTo */
         MailGetMessageItem (hMessage, MAIL_SENDTO_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
 
         String[StringLength] = '\0';
-        printf ("\tTo: %s\n", String);
+        PRINTLOG ("\tTo: %s\n", String);
 
         /* CopyTo */
         MailGetMessageItem (hMessage, MAIL_COPYTO_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
-        printf ("\tCc: %s\n", String);
+        PRINTLOG ("\tCc: %s\n", String);
 
         /* From */
         MailGetMessageItem (hMessage, MAIL_FROM_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
-        printf ("\tFrom: %s\n", String);
+        PRINTLOG ("\tFrom: %s\n", String);
 
         /* PostedDate */
         MailGetMessageItemTimeDate(hMessage, MAIL_POSTEDDATE_ITEM_NUM, &Time);
         ConvertTIMEDATEToText(NULL, NULL, &Time, String,
-                                    sizeof(String) - 1, &StringLength);
+                              sizeof(String) - 1, &StringLength);
         String[StringLength] = '\0';
-        printf("\tDate: %s\n", String);
+        PRINTLOG("\tDate: %s\n", String);
 
         /* Subject. If non-delivery report, prefix with "NonDelivery of:" */
 
         MailGetMessageItem (hMessage, MAIL_SUBJECT_ITEM_NUM, String,
-                                        MAXSPRINTF, &StringLength);
+                            MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
         if (NonDeliveryReport = MailIsNonDeliveryReport(hMessage))
         {
-            printf ("\tNonDelivery of: %s\n", String);
+            PRINTLOG ("\tNonDelivery of: %s\n", String);
         }
         else
         {
-            printf ("\tSubject: %s\n", String);
+            PRINTLOG ("\tSubject: %s\n", String);
         }
 
         if (NonDeliveryReport)
         {
             MailGetMessageItem(hMessage, MAIL_INTENDEDRECIPIENT_ITEM_NUM,
-                            String, sizeof(String), &StringLength);
+                               String, sizeof(String), &StringLength);
             String[StringLength] = '\0';
-            printf("\tIntended Recipients: %s\n", String);
+            PRINTLOG("\tIntended Recipients: %s\n", String);
 
             MailGetMessageItem(hMessage, MAIL_FAILUREREASON_ITEM_NUM,
-                            String, sizeof(String), &StringLength);
+                               String, sizeof(String), &StringLength);
             String[StringLength] = '\0';
-            printf("\tFailure Reason: %s\n", String);
+            PRINTLOG("\tFailure Reason: %s\n", String);
         }
 
         /* Body */
@@ -298,25 +312,25 @@ int main(int argc, char *argv[])
 
         if (error = GetUniqueFileName(szDriveLetter_blank, szExtensionName_TMP, BodyFileName))
         {
-            printf ("Error: unable to create temporary file name.\n");
+            PRINTLOG ("Error: unable to create temporary file name.\n");
             MailCloseMessage (hMessage);
             goto Exit2;
         }
         if (error = MailGetMessageBodyText(hMessage,
-                                    NULL,     /* Use standard Body item */
-                                    szNewline_Terminate,
-                                    80,        /* 80 chars per line */
-                                    TRUE,     /* Convert TABs */
-                                    BodyFileName,
-                                    &BodyFileSize))
+                                           NULL,     /* Use standard Body item */
+                                           szNewline_Terminate,
+                                           80,        /* 80 chars per line */
+                                           TRUE,     /* Convert TABs */
+                                           BodyFileName,
+                                           &BodyFileSize))
         {
-            printf ("Error: unable to get Message body into temporary file.\n");
+            PRINTLOG ("Error: unable to get Message body into temporary file.\n");
 #ifdef LINUX
             unlink(BodyFileName);
 #else
             _unlink(BodyFileName);
 #endif
-            PrintAPIError(error);
+            PRINTERROR(error,"MailGetMessageBodyText");
             MailCloseMessage (hMessage);
             goto Exit2;
         }
@@ -329,16 +343,16 @@ int main(int argc, char *argv[])
         if (!(BodyFile = fopen(BodyFileName, "r")))
     #endif
         {
-            printf ("Error: unable to open temporary file.\n");
+            PRINTLOG ("Error: unable to open temporary file.\n");
             unlink(BodyFileName);
             MailCloseMessage (hMessage);
             goto Exit2;
         }
 
-        printf ("\tBody:\n");
+        PRINTLOG ("\tBody:\n");
         while (fgets(String, READMAIL_BODY_LINELEN, BodyFile))
         {
-            printf("\t\t%s\n", String);
+            PRINTLOG("\t\t%s\n", String);
         }
         fclose(BodyFile);
         unlink(BodyFileName);
@@ -349,7 +363,7 @@ int main(int argc, char *argv[])
                                 &bhAttachment, OriginalFileName,
                                 NULL, NULL, NULL, NULL, NULL); Att++)
         {
-            printf("\tAttachment %d = '%s'\n", Att+1, OriginalFileName);
+            PRINTLOG("\tAttachment %d = '%s'\n", Att+1, OriginalFileName);
         }
 
         MailCloseMessage (hMessage);
@@ -369,10 +383,13 @@ Exit1:
         MailCloseMessageFile(hMessageFile);
 Exit0:
     if (ERR(error))
-       PrintAPIError(error);
+    {
+        PRINTERROR(error, "MailOpenMessageFile");
+    }
     else
-       printf("\nProgram completed successfully.\n");
-
+    {
+        PRINTLOG("\nProgram completed successfully.\n");
+    }
     NotesTerm();
     return(ERR(error));
 }
@@ -406,9 +423,9 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     }
     else
     {
-	memset(server_name, '\0', SERVER_NAME_LEN);    
+        memset(server_name, '\0', SERVER_NAME_LEN);    
         strncpy(server_name, argv[1], SERVER_NAME_LEN-1);
-	memset(db_name, '\0', MAXPATH);    
+        memset(db_name, '\0', MAXPATH);    
         strncpy(db_name, argv[2], MAXPATH-1);
     } /* end if */
 } /* ProcessArgs */
@@ -431,7 +448,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 #if defined(UNIX) || defined(MAC)  /* UNIX platforms */
 
 STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
-                                        char *FileName)
+                                     char *FileName)
 
 {
     int     file;
@@ -456,7 +473,7 @@ STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
 #else  /* Wintel */
 
 STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
-                                        char *FileName)
+                                     char *FileName)
 
 {
     int     file;
@@ -482,29 +499,3 @@ STATUS near pascal GetUniqueFileName(char *Drive, char *Ext,
 }
 
 #endif
-
-
-/************************************************************************
-   This function prints the HCL C API for Notes/Domino error message
-   associated with an error code.
-*************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}

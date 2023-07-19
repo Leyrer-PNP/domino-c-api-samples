@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     FILE:       agents.c
 
@@ -7,7 +22,7 @@
     DESCRIPTION:
         This file contains routines that print the contents of
         Query and Action records to the dumpfile. These routines
-        mostly just dump structures defined in HCL C API for Domino and  
+        mostly just dump structures defined in HCL C API for Domino and
 		Notes header file queryods.h.
 
         Note: #ifdef APITESTMODE is for internal use only.  
@@ -283,7 +298,7 @@ void    LNPUBLIC  DumpQueryTextterm (
 ) {
     char far *		p = RecordPtr;
     CDQUERYTEXTTERM	QTextTermRec;
-	int				index;
+    int				index;
 
     fprintf (dumpfile, "  CDQUERYTEXTTERM\n");
 
@@ -334,7 +349,7 @@ void    LNPUBLIC  DumpQueryByfield (
 ) {
     char far *		p = RecordPtr;
     CDQUERYBYFIELD	QByFieldRec;
-	char *			pName;
+    char *			pName;
     char			szTimedate[MAXALPHATIMEDATE+1];
     double			Number;
 
@@ -510,7 +525,7 @@ void    LNPUBLIC  DumpQueryByform (
 ) {
     char *			p = RecordPtr;
     CDQUERYBYFORM	QByFormRec;
-	WORD			index;
+    WORD			index;
 
     fprintf (dumpfile, "  CDQUERYBYFORM\n");
 
@@ -1439,7 +1454,7 @@ void    LNPUBLIC  DumpActionJavaAgent (
 
 /************************************************************************
 
-    FUNCTION:   PickApartTime
+	FUNCTION:   PickApartTime
 
 	PURPOSE:	Divide a time value into hours, minutes, seconds, and
 				milliseconds (NOT ticks!!)

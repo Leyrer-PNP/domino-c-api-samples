@@ -1,4 +1,20 @@
 /************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+
     PROGRAM:    mail_cert
 
     FILE:       mail_cert.c
@@ -33,6 +49,7 @@
 #include <kfm.h>
 #include <mail.h>
 #include <mailserv.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -49,7 +66,6 @@
 
 STATUS LNPUBLIC AddIDUnique (void far *, SEARCH_MATCH far *, ITEM_TABLE far *);
 STATUS LNPUBLIC GetCertificate(void far *, DWORD);
-void PrintAPIError (STATUS);
 void  LNPUBLIC  ProcessArgs (char *DBFileName);
 SECGETSIGNERINFOPROC VerifyCertCallBack (void *, void *, DWORD, WORD, WORD);
 
@@ -83,7 +99,7 @@ int main (int argc, char *argv[])
 /*  Command line parameters. */
     if (argc != 2)
     {
-        printf ("\nUsage:  %s  <db filename>  \n", argv[0]);
+        PRINTLOG ("\nUsage:  %s  <db filename>  \n", argv[0]);
         return (NOERROR);
     }
 
@@ -92,16 +108,16 @@ int main (int argc, char *argv[])
 /* Initialize Notes Session*/
     if (error = NotesInitExtended (argc, argv))
     {
-       printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
-       return ERR(error);
+        PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+        return ERR(error);
     }
 
 
 /*  Open the database. */
     if (error = NSFDbOpen (szDBName, &hDB))
     {
-        printf ("Error: unable to open database '%s'.\n", szDBName);
-        PrintAPIError (error);
+        PRINTLOG ("Error: unable to open database '%s'.\n", szDBName);
+        PRINTERROR (error,"NSFDbOpen");
         return (ERR(error));
     }
 
@@ -113,8 +129,8 @@ int main (int argc, char *argv[])
 */
     if (error = IDCreateTable(sizeof(NOTEID), &hNoteIDTable))
     {
-        printf ("Error: unable to create ID table.\n");
-        PrintAPIError(error);
+        PRINTLOG ("Error: unable to create ID table.\n");
+        PRINTERROR(error,"IDCreateTable");
         NSFDbClose (hDB);
         return (ERR(error));
     }
@@ -130,8 +146,8 @@ int main (int argc, char *argv[])
         &hNoteIDTable,  /* argument to AddIDUnique */
         NULL))          /* returned ending date (unused) */
     {
-        printf ("Error: unable to search database.\n");
-        PrintAPIError(error);
+        PRINTLOG ("Error: unable to search database.\n");
+        PRINTERROR(error,"NSFSearch");
         IDDestroyTable(hNoteIDTable);
         NSFDbClose (hDB);
         return ERR(error);
@@ -142,8 +158,8 @@ int main (int argc, char *argv[])
                             GetCertificate, /* called for each ID */
                             &hDB))          /* arg passed to func */
     {
-        printf ("Error: unable to enumerate documents in ID table.\n");
-        PrintAPIError(error);
+        PRINTLOG ("Error: unable to enumerate documents in ID table.\n");
+        PRINTERROR(error,"IDEnumerate");
     }
 
     IDDestroyTable(hNoteIDTable);
@@ -151,7 +167,7 @@ int main (int argc, char *argv[])
     NSFDbClose (hDB);
 
     if (error == NOERROR)
-       printf("\nProgram completed successfully.\n");
+        PRINTLOG("\nProgram completed successfully.\n");
 
     NotesTerm();
     return (0);
@@ -185,18 +201,18 @@ STATUS LNPUBLIC AddIDUnique
 
     if (error = IDInsert(hNoteIDTable, SearchMatch.ID.NoteID, &flagOK))
     {
-        printf ("Error: unable to insert note ID into table.\n");
-        PrintAPIError(error);
+        PRINTLOG ("Error: unable to insert note ID into table.\n");
+        PRINTERROR(error,"IDInsert");
         return ERR(error);
     }
 
     if (flagOK == TRUE)
     {
-        printf ("\tInserted note %lX into table.\n", SearchMatch.ID.NoteID);
+        PRINTLOG ("\tInserted note %lX into table.\n", SearchMatch.ID.NoteID);
     }
     else
     {
-        printf ("\tNote %lX is already in table.\n", SearchMatch.ID.NoteID);
+        PRINTLOG ("\tNote %lX is already in table.\n", SearchMatch.ID.NoteID);
     }
 
     return (NOERROR);
@@ -218,44 +234,44 @@ STATUS LNPUBLIC GetCertificate (void far * phDB, DWORD NoteID)
     
     void *pCallCtx = NULL;
 
-    printf ("\tProcessing note %lX.\n", NoteID);
+    PRINTLOG ("\tProcessing note %lX.\n", NoteID);
     hDB = *( (DBHANDLE far *)phDB );
 
     if (error = NSFNoteOpenExt (
-            hDB,
-            NoteID,
-            OPEN_RAW_MIME,
-            &hNote))
+                                hDB,
+                                NoteID,
+                                OPEN_RAW_MIME,
+                                &hNote))
     {
-        printf ("Error: unable to open note.\n");
-        PrintAPIError(error);
+        PRINTLOG ("Error: unable to open note.\n");
+        PRINTERROR(error,"NSFNoteOpenExt");
         return ERR(error);
     }
 
-   if (NSFNoteIsSignedOrSealed (hNote, (BOOL far *) NULL, (BOOL far *) NULL) )
-   {
-        printf("this mail was signed\n"); 
+    if (NSFNoteIsSignedOrSealed (hNote, (BOOL far *) NULL, (BOOL far *) NULL) )
+    {
+        PRINTLOG("this mail was signed\n"); 
         MailGetMessageItem (hNote, MAIL_SUBJECT_ITEM_NUM, String,
                                       MAXSPRINTF, &StringLength);
         String[StringLength] = '\0';
-        printf("\nSUBJECT:%s\n", String);
-        printf(" Calling SECGetSignerInfoFromMail ...\n");
+        PRINTLOG("\nSUBJECT:%s\n", String);
+        PRINTLOG(" Calling SECGetSignerInfoFromMail ...\n");
         if (error = SECGetSignerInfoFromMail(hNote, (SECGETSIGNERINFOPROC) &VerifyCertCallBack, 
                                   pCallCtx, 0, 0))
         {
-           printf("  Unable to get signerInfoFrom Mail.\n");
-           PrintAPIError(error);
-           return ERR(error);
+            PRINTLOG("  Unable to get signerInfoFrom Mail.\n");
+            PRINTERROR(error,"SECGetSignerInfoFromMail");
+            return ERR(error);
         }
         else
         {
-           printf("  SECGetSignerInfoFromMail had no errors.\n\n"); 
+            PRINTLOG("  SECGetSignerInfoFromMail had no errors.\n\n"); 
         }
-   }
+    }
 
-   NSFNoteClose(hNote);
+    NSFNoteClose(hNote);
    
-   return (NOERROR);
+    return (NOERROR);
   
 }
 
@@ -271,7 +287,7 @@ STATUS LNPUBLIC GetCertificate (void far * phDB, DWORD NoteID)
 
 void  LNPUBLIC  ProcessArgs (char *DBFileName)
 {
-    printf("Enter name of database: ");
+    PRINTLOG("Enter name of database: ");
     fflush(stdout);
     gets(DBFileName);
 
@@ -289,28 +305,7 @@ void  LNPUBLIC  ProcessArgs (char *DBFileName)
 
 SECGETSIGNERINFOPROC VerifyCertCallBack (void *pCallCtx, void *pCert, DWORD CertSize, WORD Res1, WORD Res2)
 {
-   printf("  Inside VerifyCertCallBack...\n");
-   printf("  Internet certificate found - CertSize = %ld\n\n", CertSize);
-   return (NOERROR);
-}
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stdout, "\n   *** %s\n\n\n", error_text);
-
+    PRINTLOG("  Inside VerifyCertCallBack...\n");
+    PRINTLOG("  Internet certificate found - CertSize = %ld\n\n", CertSize);
+    return (NOERROR);
 }

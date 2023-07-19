@@ -1,4 +1,19 @@
 /*************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    SECDOM
 
@@ -43,11 +58,11 @@ int unknown = 1;
 
 
 #ifdef SOLARIS || LINUX
-	struct spwd result;
+    struct spwd result;
 #endif
 
 #ifdef AIX
-	struct passwd *result;
+    struct passwd *result;
 #endif
 
 
@@ -55,39 +70,44 @@ int unknown = 1;
 
 #ifdef SOLARIS || LINUX
 
-if (getspnam_r(userName, &result, buffer, sizeof(buffer))) {
+if (getspnam_r(userName, &result, buffer, sizeof(buffer))) 
+{
 /* Encrypt the password and see if it matches the
  * encrypted password from the user's record.
  */
-		char *thisCrypt = NULL;
-		thisCrypt = (char *)crypt(password, result.sp_pwdp);
-		if (strcmp (result.sp_pwdp, thisCrypt) == 0) {
-			return success;
-		} else {
-			return error;
-		}
-	}
+    char *thisCrypt = NULL;
+    thisCrypt = (char *)crypt(password, result.sp_pwdp);
+    if (strcmp (result.sp_pwdp, thisCrypt) == 0) {
+        return success;
+    } else {
+        return error;
+    }
+}
 #endif
 
 #ifdef AIX
-	result = getpwnam(userName);
-	if (result && result->pw_passwd) {
+result = getpwnam(userName);
+if (result && result->pw_passwd)
+{
 /* Encrypt the password and see if it matches the
  * encrypted password from the user's record.
  */
-		char *thisCrypt = NULL;
-		thisCrypt = (char *)crypt(password,
-                                          result->pw_passwd);
-		if (strcmp (result->pw_passwd, thisCrypt) == 0) {
-			return success;
-		} else {
-			return error;
-		}
-	}
+    char *thisCrypt = NULL;
+    thisCrypt = (char *)crypt(password,
+                                  result->pw_passwd);
+    if (strcmp (result->pw_passwd, thisCrypt) == 0)
+    {
+        return success;
+    }
+    else
+    {
+        return error;
+    }
+}
 #endif
 
 
-	return unknown;
+return unknown;
 }
 
 #ifdef __cplusplus

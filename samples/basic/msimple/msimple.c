@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    msimple
 
@@ -46,6 +61,7 @@ extern "C" {
 #include <nsferr.h>
 #include <idtable.h>            /* IDCreateTable */
 #include <osmisc.h>
+#include <printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -53,9 +69,7 @@ extern "C" {
 
               
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                         char *db_filename); 
-
-void PrintAPIError (STATUS);
+                             char *db_filename); 
                          
 #define  STRING_LENGTH  256
               
@@ -89,8 +103,8 @@ int main(int argc, char *argv[])
    
    if (error = NotesInitExtended (argc, argv))
    {
-     printf("\n Unable to initialize Notes.\n");
-     return (1);
+       PRINTLOG("\n Unable to initialize Notes.\n");
+       return (1);
    }
    
    
@@ -98,7 +112,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (db_filename, &db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbOpen");  
        NotesTerm();
        return (1);
    } 
@@ -111,50 +125,50 @@ int main(int argc, char *argv[])
 
    if (error = IDCreateTable(sizeof(NOTEID), &hNoteIDTable))
    {
-      NSFDbClose (db_handle);
-      PrintAPIError (error);  
-      NotesTerm();
-      return (1);
+       NSFDbClose (db_handle);
+       PRINTERROR (error,"IDCreateTable");  
+       NotesTerm();
+       return (1);
    }
 
    /* Compile the selection formula. */
 
    if (error = NSFFormulaCompile (
-       NULL,               /* name of formula (none) */
-       0,                  /* length of name */
-       formula,            /* the ASCII formula */
-       (WORD) strlen(formula),    /* length of ASCII formula */
-       &formula_handle,    /* handle to compiled formula */
-       &wdc,               /* compiled formula length (don't care) */
-       &wdc,               /* return code from compile (don't care) */
-       &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
+                                  NULL,               /* name of formula (none) */
+                                  0,                  /* length of name */
+                                  formula,            /* the ASCII formula */
+                                  (WORD) strlen(formula),    /* length of ASCII formula */
+                                  &formula_handle,    /* handle to compiled formula */
+                                  &wdc,               /* compiled formula length (don't care) */
+                                  &wdc,               /* return code from compile (don't care) */
+                                  &wdc, &wdc, &wdc, &wdc)) /* compile error info (don't care) */
         
-      {
-         IDDestroyTable(hNoteIDTable);
-         NSFDbClose (db_handle);
-         PrintAPIError (error);  
-         NotesTerm();
-         return (1);
-      }
+   {
+       IDDestroyTable(hNoteIDTable);
+       NSFDbClose (db_handle);
+       PRINTERROR (error,"NSFFormulaCompile");  
+       NotesTerm();
+       return (1);
+   }
 
    /* Call NSFSearch to find the notes that match the selection criteria. 
       For each note found, the routine AddIdUnique is called. */
 
    if (error = NSFSearch (
-       db_handle,          /* database handle */
-       formula_handle,     /* selection formula */
-       NULL,               /* title of view in selection formula */
-       0,                  /* search flags */
-       NOTE_CLASS_DOCUMENT,    /* note class to find */
-       NULL,               /* starting date (unused) */
-       AddIDUnique,        /* call for each note found */
-       &hNoteIDTable,      /* argument to AddIDUnique */
-       NULL))              /* returned ending date (unused) */
+                          db_handle,          /* database handle */
+                          formula_handle,     /* selection formula */
+                          NULL,               /* title of view in selection formula */
+                          0,                  /* search flags */
+                          NOTE_CLASS_DOCUMENT,    /* note class to find */
+                          NULL,               /* starting date (unused) */
+                          AddIDUnique,        /* call for each note found */
+                          &hNoteIDTable,      /* argument to AddIDUnique */
+                          NULL))              /* returned ending date (unused) */
 
    {
        IDDestroyTable(hNoteIDTable);
        NSFDbClose (db_handle);
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFSearch");  
        NotesTerm();
        return (1);
    }
@@ -178,10 +192,10 @@ int main(int argc, char *argv[])
    /* End of main routine. */
 
    if (error == NOERROR)
-     printf("\nProgram completed successfully\n");
+       PRINTLOG("\nProgram completed successfully\n");
 
-     NotesTerm();
-     return (0);
+   NotesTerm();
+   return (0);
 
 }
 
@@ -192,9 +206,9 @@ int main(int argc, char *argv[])
 *************************************************************************/
 
 STATUS LNPUBLIC AddIDUnique    
-            (void far * phNoteIDTable,
-            SEARCH_MATCH far *pSearchMatch,
-            ITEM_TABLE far *summary_info)
+                           (void far * phNoteIDTable,
+                            SEARCH_MATCH far *pSearchMatch,
+                            ITEM_TABLE far *summary_info)
 {
    SEARCH_MATCH SearchMatch;
    DHANDLE    hNoteIDTable;
@@ -205,7 +219,7 @@ STATUS LNPUBLIC AddIDUnique
 
    /*  if (SearchMatch.MatchesFormula != SE_FMATCH)      V3 */
    if (!(SearchMatch.SERetFlags & SE_FMATCH))     /* V4 */
-      return (NOERROR);
+       return (NOERROR);
 
    hNoteIDTable = *((DHANDLE far *)phNoteIDTable);
 
@@ -235,63 +249,63 @@ STATUS LNPUBLIC modify_field (void far * phDB, DWORD NoteID)
 
    /* Print the note ID. */
 
-   printf ("\nNote ID is: %lX.\n", NoteID);
+   PRINTLOG ("\nNote ID is: %lX.\n", NoteID);
 
    /* Open the note. */
 
    if (error = NSFNoteOpen (
-            hDB,                    /* database handle */
-            NoteID,                 /* note ID */
-            0,                      /* open flags */
-            &note_handle))          /* note handle (return) */
+                            hDB,                    /* database handle */
+                            NoteID,                 /* note ID */
+                            0,                      /* open flags */
+                            &note_handle))          /* note handle (return) */
    {        
-      return (ERR(error));
+       return (ERR(error));
    }
 
    /* Look for (and get if it's there) the NUMBER field within this note.*/
 
    field_found = NSFItemGetNumber ( 
-               note_handle, 
-               "NUMBER",
-               &number_field);
+                                    note_handle, 
+                                    "NUMBER",
+                                    &number_field);
 
    /* If the NUMBER field was not found, we have nothing to do -- return. */
 
    if (!field_found)
    { 
-      printf ("NUMBER field not found in this document.\n");
-      return (NOERROR);
+       PRINTLOG ("NUMBER field not found in this document.\n");
+       return (NOERROR);
    } 
     
    /* Display what the field is now. */
 
-   printf ("NUMBER field is currently: %f\n", number_field);
+   PRINTLOG ("NUMBER field is currently: %f\n", number_field);
 
    /* Add one to the field and display that value. */
 
    ++number_field;
-   printf ("NUMBER field being changed to: %f\n", number_field);
+   PRINTLOG ("NUMBER field being changed to: %f\n", number_field);
 
    /* Write the new field value into the document. */
 
    if (error = NSFItemSetNumber(note_handle, "NUMBER", &number_field))
    {
-      NSFNoteClose (note_handle);
-      return (ERR(error));
+       NSFNoteClose (note_handle);
+       return (ERR(error));
    }
 
    /* Write the modified document back to the disk. */
 
    if (error = NSFNoteUpdate (note_handle, 0))
    {
-      NSFNoteClose (note_handle);
-      return (ERR(error));
+       NSFNoteClose (note_handle);
+       return (ERR(error));
    }
 
    /* Close the note. */
 
    if (error = NSFNoteClose (note_handle))
-      return (ERR(error));
+       return (ERR(error));
 
    /* End of subroutine. */
 
@@ -316,50 +330,19 @@ STATUS LNPUBLIC modify_field (void far * phDB, DWORD NoteID)
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *db_filename)
 { 
-    if (argc != 2)  
-    {
+   if (argc != 2)  
+   {
 
-      printf("Enter name of database: ");      
-      fflush (stdout);
-      gets(db_filename);
-      
-    }    
-    else
-    {
-         strcpy(db_filename, argv[1]);    
-      } /* end if */
+       printf("Enter name of database: ");      
+       fflush (stdout);
+       gets(db_filename);
+       
+   }    
+   else
+   {
+       strcpy(db_filename, argv[1]);    
+   } /* end if */
 } /* ProcessArgs */
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

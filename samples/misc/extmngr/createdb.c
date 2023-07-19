@@ -1,6 +1,22 @@
-/*
- *  Domino and Notes header files
+ /*
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ * Domino and Notes header files
  */
+
 #if defined(OS400)
 #pragma convert(850)
 #endif
@@ -133,61 +149,61 @@ int        item;
   __FileSeek(pFile, 0L, SEEK_SET);
 
 /* Read line from file */
-  while ( __ReadLine(String, 80, pFile))
-  {
-    /* malloc a new DBRECORD for each line */
+    while ( __ReadLine(String, 80, pFile))
+    {
+        /* malloc a new DBRECORD for each line */
 #ifndef OS400
-    pDBNew = (DBRECORD *) __AllocateMemory(sizeof(DBRECORD));
+        pDBNew = (DBRECORD *) __AllocateMemory(sizeof(DBRECORD));
 #else
-    pDBNew = &(r_pDBRecord[icount]);
-    icount++;
+        pDBNew = &(r_pDBRecord[icount]);
+        icount++;
 #endif
 
-    if (!pDBNew)
-      return(ERR_MEMORY);
-    /* if we haven't created the first record yet init it */
-    if (pDBHead == NULL)
-    {
-      pDBHead = pDBNew;
-      pDBHead->Next = 0;
-      pDBPrev = pDBHead;
+        if (!pDBNew)
+            return(ERR_MEMORY);
+        /* if we haven't created the first record yet init it */
+        if (pDBHead == NULL)
+        {
+            pDBHead = pDBNew;
+            pDBHead->Next = 0;
+            pDBPrev = pDBHead;
+        }
+        else
+            pDBPrev->Next = pDBNew;
+
+        /* search for "|" in string.  This is the delimiter per field or item */
+        pString = strtok((char *)String,"|");
+        strcpy(pDBNew->CommonName,pString); /* copy first item */
+
+        item = 0;
+
+        while (pString != NULL)
+        {
+            pString = strtok(NULL,"|");
+
+            switch(item++)
+            {
+                case 0:  strcpy(pDBNew->LatinName,pString); /* copy into the LName item */
+                    break;
+
+                case 1:  strcpy(pDBNew->Range,pString); /* copy into the Range item */
+                    break;
+                case 2:  strcpy(pDBNew->Status,pString); /* copy into the Status item */
+                    if (pDBNew->Status[strlen(pDBNew->Status)-1]=='\n')
+                        pDBNew->Status[strlen(pDBNew->Status)-1]='\0';
+                    break;
+                default:
+                    break;
+            }
+        }
+        pDBNew->Next = 0;
+        pDBPrev = pDBNew;
     }
-    else
-      pDBPrev->Next = pDBNew;
-
-    /* search for "|" in string.  This is the delimiter per field or item */
-    pString = strtok((char *)String,"|");
-    strcpy(pDBNew->CommonName,pString); /* copy first item */
-
-    item = 0;
-
-    while (pString != NULL)
-    {
-      pString = strtok(NULL,"|");
-
-      switch(item++)
-      {
-        case 0:  strcpy(pDBNew->LatinName,pString); /* copy into the LName item */
-                 break;
-
-        case 1:  strcpy(pDBNew->Range,pString); /* copy into the Range item */
-                 break;
-        case 2:  strcpy(pDBNew->Status,pString); /* copy into the Status item */
-                 if (pDBNew->Status[strlen(pDBNew->Status)-1]=='\n')
-                     pDBNew->Status[strlen(pDBNew->Status)-1]='\0';
-                 break;
-        default:
-                 break;
-      }
-    }
-    pDBNew->Next = 0;
-    pDBPrev = pDBNew;
-  }
   
-  __CloseFile(pFile); 
-  *pDBRec = pDBHead;
+    __CloseFile(pFile); 
+    *pDBRec = pDBHead;
 
-  return(NOERROR);
+    return(NOERROR);
 } 
 
 
@@ -208,107 +224,107 @@ int        item;
 
 STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
 {
-  NOTEHANDLE hNote;
-  NOTEID FormNoteID;
-  STATUS sError;
-  DBHANDLE hDB;
+    NOTEHANDLE hNote;
+    NOTEID FormNoteID;
+    STATUS sError;
+    DBHANDLE hDB;
 
-  char    error_text[200];
+    char    error_text[200];
 
-  char szFileName[] = "animals.nsf";
+    char szFileName[] = "animals.nsf";
 
-  DHANDLE hTextInputTransFormula;
-  WORD   wTextInputTransFormulaLen;
-  char  *pTextInputTransFormula;
+    DHANDLE hTextInputTransFormula;
+    WORD   wTextInputTransFormulaLen;
+    char  *pTextInputTransFormula;
 
-  WORD   wdc;           /* "We Don't Care" - Used to receive data that */
-                        /* we don't care about that is returned by     */
-                        /* NSFFormulaCompile.                          */
+    WORD   wdc;           /* "We Don't Care" - Used to receive data that */
+                          /* we don't care about that is returned by     */
+                          /* NSFFormulaCompile.                          */
 
-  WORD wCDBufferLength = MAXONESEGSIZE; /* Length of current CD buffer */
+    WORD wCDBufferLength = MAXONESEGSIZE; /* Length of current CD buffer */
 
-  CDFIELD           CDField;
-  CDBEGINRECORD     CDBegin;
-  CDENDRECORD       CDEnd;
-  CDEXT2FIELD           CDExt2Field;
-
-
-  char far   *pBufferStart, far *pBuffer;
-
-  char LatinNameString[] = "Latin Name:\t";
-  char RangeString[]     = "Range:\t\t";
-  char StatusString[]    = "Status:\t\t";
-
-  char CommonNameField[] = "CommonNameField";
-  char CommonNameDescription[] =  "This is the Common Name Field";
-
-  char LatinNameField[]  = "LatinNameField";
-  char LatinNameDescription[] =  "This is the Latin Name Field";
-  char TextInputTransFormula[] = "@Uppercase(TextField)";
-
-  char RangeField[]   =    "RangeField";
-  char RangeDescription[] =  "This is the Range Number Field";
-
-  char StatusField[]     = "StatusField";
-  char StatusDescription[]   =  "This is the Status Field";
-
-  char FormName[] = "Animals Form";
-
-  BOOL bError;
-  DHANDLE hMem;
-  FONTIDFIELDS *pFontFields;
-  WORD ClassForm = NOTE_CLASS_FORM;
-
-  CDDOCUMENT InfoStruct;
-  BYTE       bInfoLength;
-
-  char far  *pInfoBufStart, far *pInfoBuf;
-  DHANDLE      hInfoBuf;
-  WORD       wInfoBufLen;
-  DWORD      dwItemLength;
-
-  STATUS  error = NOERROR;              /* error code from API calls */
-
-  if ((gFStream = __OpenFile(FileName, APPEND_PERMISSION)) == NULL)
-  {
-    sError = ERR_FILE_OPEN;
-    goto Exit2;
-  }
+    CDFIELD           CDField;
+    CDBEGINRECORD     CDBegin;
+    CDENDRECORD       CDEnd;
+    CDEXT2FIELD           CDExt2Field;
 
 
+    char far   *pBufferStart, far *pBuffer;
 
-  LogLine("---------------------------------------------------\n");
-  LogLine("Creating DBForm \n");
-  LogLine("---------------------------------------------------\n");
+    char LatinNameString[] = "Latin Name:\t";
+    char RangeString[]     = "Range:\t\t";
+    char StatusString[]    = "Status:\t\t";
+
+    char CommonNameField[] = "CommonNameField";
+    char CommonNameDescription[] =  "This is the Common Name Field";
+
+    char LatinNameField[]  = "LatinNameField";
+    char LatinNameDescription[] =  "This is the Latin Name Field";
+    char TextInputTransFormula[] = "@Uppercase(TextField)";
+
+    char RangeField[]   =    "RangeField";
+    char RangeDescription[] =  "This is the Range Number Field";
+
+    char StatusField[]     = "StatusField";
+    char StatusDescription[]   =  "This is the Status Field";
+
+    char FormName[] = "Animals Form";
+
+    BOOL bError;
+    DHANDLE hMem;
+    FONTIDFIELDS *pFontFields;
+    WORD ClassForm = NOTE_CLASS_FORM;
+
+    CDDOCUMENT InfoStruct;
+    BYTE       bInfoLength;
+
+    char far  *pInfoBufStart, far *pInfoBuf;
+    DHANDLE      hInfoBuf;
+    WORD       wInfoBufLen;
+    DWORD      dwItemLength;
+
+    STATUS  error = NOERROR;              /* error code from API calls */
+
+    if ((gFStream = __OpenFile(FileName, APPEND_PERMISSION)) == NULL)
+    {
+        sError = ERR_FILE_OPEN;
+        goto Exit2;
+    }
+
+
+
+    LogLine("---------------------------------------------------\n");
+    LogLine("Creating DBForm \n");
+    LogLine("---------------------------------------------------\n");
  // fflush(gFStream);
 
 /*
  * Open database
  */
 
-   if (sError = NSFDbOpen(szFileName, &hDB))
-   {
-      goto Exit2;
-   }
+    if (sError = NSFDbOpen(szFileName, &hDB))
+    {
+        goto Exit2;
+    }
 
 /*
  * Check to see if we can find a form with this name already (disallow duplicates)
  */
 
-  if ((sError = NIFFindDesignNote(hDB, FormName, NOTE_CLASS_FORM,
-                                 &FormNoteID)) != ERR_NOT_FOUND)
-  {
-      sError = 1;
-      goto Exit3;
-  }
+    if ((sError = NIFFindDesignNote(hDB, FormName, NOTE_CLASS_FORM,
+                                    &FormNoteID)) != ERR_NOT_FOUND)
+    {
+        sError = 1;
+        goto Exit3;
+    }
 /*
  * Now create a note in database
  */
 
-  if (sError = NSFNoteCreate(hDB, &hNote))
-  {
-      goto Exit3;
-  }
+    if (sError = NSFNoteCreate(hDB, &hNote))
+    {
+        goto Exit3;
+    }
 
 /*******************************************************************
  *
@@ -325,13 +341,13 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  *
  *******************************************************/
 
-  if (sError = NSFItemSetText(hNote,
-                              ITEM_NAME_TEMPLATE_NAME,
-                              FormName,
-                              MAXWORD))
-  {
-      goto Exit4;
-  }
+    if (sError = NSFItemSetText(hNote,
+                                ITEM_NAME_TEMPLATE_NAME,
+                                FormName,
+                                MAXWORD))
+    {
+        goto Exit4;
+    }
 
 /*********************************************************
  *
@@ -343,11 +359,11 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  *  First, allocate a buffer and get a pointer to it.
  */
 
-  wInfoBufLen = ODSLength(_CDDOCUMENT);
-  if (sError = OSMemAlloc(0, wInfoBufLen, &hInfoBuf))
-  {
-      goto Exit4;
-  }
+    wInfoBufLen = ODSLength(_CDDOCUMENT);
+    if (sError = OSMemAlloc(0, wInfoBufLen, &hInfoBuf))
+    {
+        goto Exit4;
+    }
 
 /*
  *  Get pointer to start of CDDOCUMENT BUFFER. pInfoBufStart will remain
@@ -355,25 +371,25 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  *  point to the next available byte.
  */
 
-  pInfoBufStart = (char*)OSLockObject(hInfoBuf);
-  memset( pInfoBufStart, 0, (size_t)wInfoBufLen );
-  pInfoBuf = pInfoBufStart;
+    pInfoBufStart = (char*)OSLockObject(hInfoBuf);
+    memset( pInfoBufStart, 0, (size_t)wInfoBufLen );
+    pInfoBuf = pInfoBufStart;
 
 /*
  *  Construct the CDDOCUMENT item.
  */
 
-  /* set CDDOCUMENT structure to all zeros */
-  memset(&InfoStruct ,0, sizeof(CDDOCUMENT));
+    /* set CDDOCUMENT structure to all zeros */
+    memset(&InfoStruct ,0, sizeof(CDDOCUMENT));
 
-  InfoStruct.Header.Signature = SIG_CD_DOCUMENT;
-  InfoStruct.Header.Length = bInfoLength;   /* ODSLength(_CDDOCUMENT);*/
-  InfoStruct.PaperColor = NOTES_COLOR_WHITE;
-  InfoStruct.FormFlags = 0;
-  InfoStruct.NotePrivileges = 0;
-  InfoStruct.FormFlags2 = 0;
-  InfoStruct.InherFieldNameLength = 0;
-  InfoStruct.PaperColorExt = 0;
+    InfoStruct.Header.Signature = SIG_CD_DOCUMENT;
+    InfoStruct.Header.Length = bInfoLength;   /* ODSLength(_CDDOCUMENT);*/
+    InfoStruct.PaperColor = NOTES_COLOR_WHITE;
+    InfoStruct.FormFlags = 0;
+    InfoStruct.NotePrivileges = 0;
+    InfoStruct.FormFlags2 = 0;
+    InfoStruct.InherFieldNameLength = 0;
+    InfoStruct.PaperColorExt = 0;
 
 /*
  *  Convert the CDDOCUMENT item to Domino and Notes Canonical format
@@ -398,13 +414,13 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
                          (void far *)pInfoBufStart,
                          dwItemLength);
 
-  OSUnlockObject(hInfoBuf);
-  OSMemFree(hInfoBuf);
+    OSUnlockObject(hInfoBuf);
+    OSMemFree(hInfoBuf);
 
-  if (sError)
-  {
-      goto Exit4;
-  }
+    if (sError)
+    {
+        goto Exit4;
+    }
 
 /********************************************************************
  *
@@ -420,61 +436,61 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  *  Text item placeholder.
  */
 
-  if (sError = NSFItemAppend(hNote,
-                             ITEM_PLACEHOLDER,
-                             CommonNameField,
-                             (WORD) strlen (CommonNameField),
-                             TYPE_INVALID_OR_UNKNOWN,
-                             NULL,
-                             0))
-  {
-      goto Exit4;
-  }
+    if (sError = NSFItemAppend(hNote,
+                               ITEM_PLACEHOLDER,
+                               CommonNameField,
+                               (WORD) strlen (CommonNameField),
+                               TYPE_INVALID_OR_UNKNOWN,
+                               NULL,
+                               0))
+    {
+        goto Exit4;
+    }
 
 /*
  *  Text item placeholder.
  */
 
-  if (sError = NSFItemAppend(hNote,
-                             ITEM_PLACEHOLDER,
-                             LatinNameField,
-                             (WORD) strlen (LatinNameField),
-                             TYPE_INVALID_OR_UNKNOWN,
-                             NULL,
-                             0))
-  {
-      goto Exit4;
-  }
+    if (sError = NSFItemAppend(hNote,
+                               ITEM_PLACEHOLDER,
+                               LatinNameField,
+                               (WORD) strlen (LatinNameField),
+                               TYPE_INVALID_OR_UNKNOWN,
+                               NULL,
+                               0))
+    {
+        goto Exit4;
+    }
 
 /*
  *  Text item placeholder.
  */
 
-  if (sError = NSFItemAppend(hNote,
-                             ITEM_PLACEHOLDER,
-                             RangeField,
-                             (WORD) strlen (RangeField),
-                             TYPE_INVALID_OR_UNKNOWN,
-                             NULL,
-                             0))
-  {
-      goto Exit4;
-  }
+    if (sError = NSFItemAppend(hNote,
+                               ITEM_PLACEHOLDER,
+                               RangeField,
+                               (WORD) strlen (RangeField),
+                               TYPE_INVALID_OR_UNKNOWN,
+                               NULL,
+                               0))
+    {
+        goto Exit4;
+    }
 
 /*
  *  Text item placeholder.
  */
 
-  if (sError = NSFItemAppend(hNote,
-                             ITEM_PLACEHOLDER,
-                             StatusField,
-                             (WORD) strlen (StatusField),
-                             TYPE_INVALID_OR_UNKNOWN,
-                             NULL,
-                             0))
-  {
-      goto Exit4;
-  }
+    if (sError = NSFItemAppend(hNote,
+                               ITEM_PLACEHOLDER,
+                               StatusField,
+                               (WORD) strlen (StatusField),
+                               TYPE_INVALID_OR_UNKNOWN,
+                               NULL,
+                               0))
+    {
+        goto Exit4;
+    }
 
 
 /*****************************************************************
@@ -487,18 +503,18 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
 /*
  * Allocate a buffer in which the CDFIELD item will be built
  */
-  if (sError = OSMemAlloc (0, wCDBufferLength, &hMem))
-  {
-      goto Exit4;
-  }
+    if (sError = OSMemAlloc (0, wCDBufferLength, &hMem))
+    {
+        goto Exit4;
+    }
 
 /*
  *  Lock global buffer and initialize it.
  */
 
-  pBufferStart = (char far *)OSLockObject(hMem);
-  memset( pBufferStart, 0, (size_t) wCDBufferLength );
-  pBuffer = pBufferStart;
+    pBufferStart = (char far *)OSLockObject(hMem);
+    memset( pBufferStart, 0, (size_t) wCDBufferLength );
+    pBuffer = pBufferStart;
 
 
 /*********************************************************************
@@ -512,34 +528,34 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  * Setup a pabdef
  */
 
-  bError = PutPabDef(&pBuffer,
-                     1,
-                     (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
+    bError = PutPabDef(&pBuffer,
+                       1,
+                       (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
 
 /*
  * Leave if error returned...
  */
-  if (bError == FALSE)
-  {
-      goto Exit5;
-  }
+    if (bError == FALSE)
+    {
+        goto Exit5;
+    }
 
 /*
  * Now add a pabref
  */
 
-  bError = PutPabRef(&pBuffer,
-                     1,
-                     (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
+    bError = PutPabRef(&pBuffer,
+                       1,
+                       (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
 
 /*
  * Leave if error returned...
  */
 
-  if (bError == FALSE)
-  {
-      goto Exit5;
-  }
+    if (bError == FALSE)
+    {
+        goto Exit5;
+    }
 
 /*
  * New CDBEGINRECORD for R5 before a CDFIELD type.
@@ -556,7 +572,7 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  * New CDEXT2FIELD for R5 that follows a CDBEGINRECORD type.
  */
 
-	/* init full structure */
+    /* init full structure */
     memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
 
     CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
@@ -732,7 +748,7 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
     }
 
     bError = PutPara(&pBuffer,
-                    (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
+                     (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
 
     if (bError == FALSE)
     {
@@ -747,35 +763,35 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
 
   bError = PutText (&pBuffer,
                     LatinNameString,
-                   (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
+                    (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
 
 
-  if (bError == FALSE)
-  {
-      goto Exit5;
-  }
+    if (bError == FALSE)
+    {
+        goto Exit5;
+    }
 
 /*
  * New CDBEGINRECORD for R5 before a CDFIELD type.
  */
 
-  CDBegin.Header.Length = (BYTE)ODSLength(_CDBEGINRECORD);
-  CDBegin.Header.Signature = SIG_CD_BEGIN;
-  CDBegin.Version = 0;
-  CDBegin.Signature = SIG_CD_FIELD;
+    CDBegin.Header.Length = (BYTE)ODSLength(_CDBEGINRECORD);
+    CDBegin.Header.Signature = SIG_CD_BEGIN;
+    CDBegin.Version = 0;
+    CDBegin.Signature = SIG_CD_FIELD;
 
-  ODSWriteMemory( (void far * far *)&pBuffer, _CDBEGINRECORD,
-                  (void far *) &CDBegin, 1 );
+    ODSWriteMemory( (void far * far *)&pBuffer, _CDBEGINRECORD,
+                    (void far *) &CDBegin, 1 );
 
 /*
  * New CDEXT2FIELD for R5 that follows a CDBEGINRECORD type.
  */
 
-  /* init full structure */
-  memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
+    /* init full structure */
+    memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
 
-  CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
-  CDExt2Field.Header.Signature = SIG_CD_EXT2_FIELD;
+    CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
+    CDExt2Field.Header.Signature = SIG_CD_EXT2_FIELD;
 
   ODSWriteMemory( (void far * far *)&pBuffer, _CDEXT2FIELD,
                   (void far *) &CDExt2Field, 1 );
@@ -784,39 +800,39 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  * Create a CDFIELD structure to define this text field.
  */
 
-  CDField.Header.Signature = SIG_CD_FIELD;
-  CDField.Flags = FEDITABLE;
-  CDField.DataType = TYPE_TEXT;
-  CDField.ListDelim = LDDELIM_SEMICOLON;
+    CDField.Header.Signature = SIG_CD_FIELD;
+    CDField.Flags = FEDITABLE;
+    CDField.DataType = TYPE_TEXT;
+    CDField.ListDelim = LDDELIM_SEMICOLON;
 
 /*
  *  The NumberFormat paramter is not used for text fields, so clear it.
  */
 
-  CDField.NumberFormat.Digits     = 0;
-  CDField.NumberFormat.Format     = 0;
-  CDField.NumberFormat.Attributes = 0;
-  CDField.NumberFormat.Unused     = 0;
+    CDField.NumberFormat.Digits     = 0;
+    CDField.NumberFormat.Format     = 0;
+    CDField.NumberFormat.Attributes = 0;
+    CDField.NumberFormat.Unused     = 0;
 
 /*
  *  The TimeFormat paramter is not used for text fields, so clear it.
  */
 
-  CDField.TimeFormat.Date      = 0;
-  CDField.TimeFormat.Time      = 0;
-  CDField.TimeFormat.Zone      = 0;
-  CDField.TimeFormat.Structure = 0;
+    CDField.TimeFormat.Date      = 0;
+    CDField.TimeFormat.Time      = 0;
+    CDField.TimeFormat.Zone      = 0;
+    CDField.TimeFormat.Structure = 0;
 
 /*
  *  Set up FontID
  */
 
-  pFontFields = (FONTIDFIELDS *)&CDField.FontID;
+    pFontFields = (FONTIDFIELDS *)&CDField.FontID;
 
-  pFontFields->Face  = FONT_FACE_ROMAN;
-  pFontFields->Attrib = 0;
-  pFontFields->Color = NOTES_COLOR_BLACK;
-  pFontFields->PointSize  = 14;
+    pFontFields->Face  = FONT_FACE_ROMAN;
+    pFontFields->Attrib = 0;
+    pFontFields->Color = NOTES_COLOR_BLACK;
+    pFontFields->PointSize  = 14;
 
 /*
  * Compile the input translation formula.  This formula will translate
@@ -831,38 +847,38 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
                                  &wTextInputTransFormulaLen,
                                  &wdc, &wdc, &wdc,
                                  &wdc, &wdc))
-  {
-      goto Exit5;
-  }
+    {
+        goto Exit5;
+    }
 
 /*
  *  Fill in the rest of the CDFIELD item.
  */
 
-  CDField.DVLength = 0;  /* No default value formula         */
-  CDField.ITLength = wTextInputTransFormulaLen;
-  CDField.TabOrder = 0;
-  CDField.IVLength = 0;  /* No Input Validity Check formula  */
-  CDField.NameLength = strlen(LatinNameField);
-  CDField.DescLength = strlen(LatinNameDescription);
+    CDField.DVLength = 0;  /* No default value formula         */
+    CDField.ITLength = wTextInputTransFormulaLen;
+    CDField.TabOrder = 0;
+    CDField.IVLength = 0;  /* No Input Validity Check formula  */
+    CDField.NameLength = strlen(LatinNameField);
+    CDField.DescLength = strlen(LatinNameDescription);
 
-  CDField.TextValueLength = 0; /* Not a text list.   */
+    CDField.TextValueLength = 0; /* Not a text list.   */
 
 
-  CDField.Header.Length = ODSLength(_CDFIELD) +
-                          CDField.DVLength +
-                          CDField.ITLength +
-                          CDField.IVLength +
-                          CDField.NameLength +
-                          CDField.DescLength +
-                          CDField.TextValueLength;
+    CDField.Header.Length = ODSLength(_CDFIELD) +
+                            CDField.DVLength +
+                            CDField.ITLength +
+                            CDField.IVLength +
+                            CDField.NameLength +
+                            CDField.DescLength +
+                            CDField.TextValueLength;
 
 /*
  *  If total length of CDFIELD item is not even, make it so.
  */
 
-  if (CDField.Header.Length % 2)
-      CDField.Header.Length++;
+    if (CDField.Header.Length % 2)
+        CDField.Header.Length++;
 
 /*
  *  Convert the CDFIELD item to Domino and Notes Canonical format
@@ -878,49 +894,49 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  *  Get a pointer to the compiled input translation formula.
  */
 
-  pTextInputTransFormula = OSLock( char, hTextInputTransFormula );
+    pTextInputTransFormula = OSLock( char, hTextInputTransFormula );
 
  /*
   *  First, set the input translation formula.
   */
 
-  memcpy( pBuffer, pTextInputTransFormula, wTextInputTransFormulaLen );
-  pBuffer += CDField.ITLength;
+    memcpy( pBuffer, pTextInputTransFormula, wTextInputTransFormulaLen );
+    pBuffer += CDField.ITLength;
 
-  /* Unlock, free memory for formula */
-  OSUnlockObject(hTextInputTransFormula);
-  OSMemFree(hTextInputTransFormula);
+    /* Unlock, free memory for formula */
+    OSUnlockObject(hTextInputTransFormula);
+    OSMemFree(hTextInputTransFormula);
 
 /*
  *  Now set the field name.
  */
 
-  memcpy( pBuffer, LatinNameField, CDField.NameLength );
-  pBuffer += CDField.NameLength;
+    memcpy( pBuffer, LatinNameField, CDField.NameLength );
+    pBuffer += CDField.NameLength;
 
 /*
  *  And set the field description.
  */
 
-  memcpy( pBuffer, LatinNameDescription, CDField.DescLength );
-  pBuffer += CDField.DescLength;
+    memcpy( pBuffer, LatinNameDescription, CDField.DescLength );
+    pBuffer += CDField.DescLength;
 
 /* Ensure record length is even */
 
-  if ((pBuffer-pBufferStart) %2)
-      pBuffer++;
+    if ((pBuffer-pBufferStart) %2)
+        pBuffer++;
 
 /*
  * New CDENDRECORD for R5 after a CDFIELD type.
  */
 
-  CDEnd.Header.Length = (BYTE)ODSLength(_CDENDRECORD);
-  CDEnd.Header.Signature = SIG_CD_END;
-  CDEnd.Version = 0;
-  CDEnd.Signature = SIG_CD_FIELD;
+    CDEnd.Header.Length = (BYTE)ODSLength(_CDENDRECORD);
+    CDEnd.Header.Signature = SIG_CD_END;
+    CDEnd.Version = 0;
+    CDEnd.Signature = SIG_CD_FIELD;
 
-  ODSWriteMemory( (void far * far *)&pBuffer, _CDENDRECORD,
-                  (void far *) &CDEnd, 1 );
+    ODSWriteMemory( (void far * far *)&pBuffer, _CDENDRECORD,
+                    (void far *) &CDEnd, 1 );
 
 
 /*********************************************************************
@@ -936,7 +952,7 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  */
 
     bError = PutPara(&pBuffer,
-                    (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
+                     (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
 
 /*
  * Leave if error returned...
@@ -959,124 +975,124 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  * of this field's label.
  */
 
-  bError = PutText (&pBuffer,
-                    RangeString,
-                   (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
+    bError = PutText (&pBuffer,
+                      RangeString,
+                      (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
 
 
-  if (bError == FALSE)
-  {
-      goto Exit5;
-  }
+    if (bError == FALSE)
+    {
+        goto Exit5;
+    }
 
 /*
  * New CDBEGINRECORD for R5 before a CDFIELD type.
  */
 
-  CDBegin.Header.Length = (BYTE)ODSLength(_CDBEGINRECORD);
-  CDBegin.Header.Signature = SIG_CD_BEGIN;
-  CDBegin.Version = 0;
-  CDBegin.Signature = SIG_CD_FIELD;
+    CDBegin.Header.Length = (BYTE)ODSLength(_CDBEGINRECORD);
+    CDBegin.Header.Signature = SIG_CD_BEGIN;
+    CDBegin.Version = 0;
+    CDBegin.Signature = SIG_CD_FIELD;
 
-  ODSWriteMemory( (void far * far *)&pBuffer, _CDBEGINRECORD,
-                  (void far *) &CDBegin, 1 );
+    ODSWriteMemory( (void far * far *)&pBuffer, _CDBEGINRECORD,
+                    (void far *) &CDBegin, 1 );
 
 /*
  * New CDEXT2FIELD for R5 that follows a CDBEGINRECORD type.
  */
 
-  /* init full structure */
-  memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
+    /* init full structure */
+    memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
 
-  CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
-  CDExt2Field.Header.Signature = SIG_CD_EXT2_FIELD;
+    CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
+    CDExt2Field.Header.Signature = SIG_CD_EXT2_FIELD;
 
-  ODSWriteMemory( (void far * far *)&pBuffer, _CDEXT2FIELD,
-                  (void far *) &CDExt2Field, 1 );
+    ODSWriteMemory( (void far * far *)&pBuffer, _CDEXT2FIELD,
+                    (void far *) &CDExt2Field, 1 );
 
 /*
  * Create a CDFIELD structure to define this text field.
  */
 
-  CDField.Header.Signature = SIG_CD_FIELD;
-  CDField.Flags = FEDITABLE;
-  CDField.DataType = TYPE_TEXT;
-  CDField.ListDelim = LDDELIM_SEMICOLON;
+    CDField.Header.Signature = SIG_CD_FIELD;
+    CDField.Flags = FEDITABLE;
+    CDField.DataType = TYPE_TEXT;
+    CDField.ListDelim = LDDELIM_SEMICOLON;
 
 /*
  *  The NumberFormat paramter is not used for text fields, so clear it.
  */
 
-  CDField.NumberFormat.Digits     = 0;
-  CDField.NumberFormat.Format     = 0;
-  CDField.NumberFormat.Attributes = 0;
-  CDField.NumberFormat.Unused     = 0;
+    CDField.NumberFormat.Digits     = 0;
+    CDField.NumberFormat.Format     = 0;
+    CDField.NumberFormat.Attributes = 0;
+    CDField.NumberFormat.Unused     = 0;
 
 /*
  *  The TimeFormat paramter is not used for text fields, so clear it.
  */
 
-  CDField.TimeFormat.Date      = 0;
-  CDField.TimeFormat.Time      = 0;
-  CDField.TimeFormat.Zone      = 0;
-  CDField.TimeFormat.Structure = 0;
+    CDField.TimeFormat.Date      = 0;
+    CDField.TimeFormat.Time      = 0;
+    CDField.TimeFormat.Zone      = 0;
+    CDField.TimeFormat.Structure = 0;
 
 /*
  *  Set up FontID
  */
 
-  pFontFields = (FONTIDFIELDS *)&CDField.FontID;
+    pFontFields = (FONTIDFIELDS *)&CDField.FontID;
 
-  pFontFields->Face  = FONT_FACE_ROMAN;
-  pFontFields->Attrib = 0;
-  pFontFields->Color = NOTES_COLOR_BLACK;
-  pFontFields->PointSize  = 14;
+    pFontFields->Face  = FONT_FACE_ROMAN;
+    pFontFields->Attrib = 0;
+    pFontFields->Color = NOTES_COLOR_BLACK;
+    pFontFields->PointSize  = 14;
 
 /*
  * Compile the input translation formula.  This formula will translate
  * text entered into this field into all UPPERCASE.
  */
 
-  if (sError = NSFFormulaCompile(NULL,
-                                 0,
-                                 TextInputTransFormula,
-                                 (WORD) strlen(TextInputTransFormula),
-                                 &hTextInputTransFormula,
-                                 &wTextInputTransFormulaLen,
-                                 &wdc, &wdc, &wdc,
-                                 &wdc, &wdc))
-  {
-      goto Exit5;
-  }
+    if (sError = NSFFormulaCompile(NULL,
+                                   0,
+                                   TextInputTransFormula,
+                                   (WORD) strlen(TextInputTransFormula),
+                                   &hTextInputTransFormula,
+                                   &wTextInputTransFormulaLen,
+                                   &wdc, &wdc, &wdc,
+                                   &wdc, &wdc))
+    {
+        goto Exit5;
+    }
 
 /*
  *  Fill in the rest of the CDFIELD item.
  */
 
-  CDField.DVLength = 0;  /* No default value formula         */
-  CDField.ITLength = wTextInputTransFormulaLen;
-  CDField.TabOrder = 0;
-  CDField.IVLength = 0;  /* No Input Validity Check formula  */
-  CDField.NameLength = strlen(RangeField);
-  CDField.DescLength = strlen(RangeDescription);
+    CDField.DVLength = 0;  /* No default value formula         */
+    CDField.ITLength = wTextInputTransFormulaLen;
+    CDField.TabOrder = 0;
+    CDField.IVLength = 0;  /* No Input Validity Check formula  */
+    CDField.NameLength = strlen(RangeField);
+    CDField.DescLength = strlen(RangeDescription);
 
-  CDField.TextValueLength = 0; /* Not a text list.   */
+    CDField.TextValueLength = 0; /* Not a text list.   */
 
 
-  CDField.Header.Length = ODSLength(_CDFIELD) +
-                          CDField.DVLength +
-                          CDField.ITLength +
-                          CDField.IVLength +
-                          CDField.NameLength +
-                          CDField.DescLength +
-                          CDField.TextValueLength;
+    CDField.Header.Length = ODSLength(_CDFIELD) +
+                            CDField.DVLength +
+                            CDField.ITLength +
+                            CDField.IVLength +
+                            CDField.NameLength +
+                            CDField.DescLength +
+                            CDField.TextValueLength;
 
 /*
  *  If total length of CDFIELD item is not even, make it so.
  */
 
-  if (CDField.Header.Length % 2)
-      CDField.Header.Length++;
+    if (CDField.Header.Length % 2)
+        CDField.Header.Length++;
 
 /*
  *  Convert the CDFIELD item to Domino and Notes Canonical format and
@@ -1085,56 +1101,56 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  *  to the next byte after the CDFIELD record in the buffer.
  */
 
-  ODSWriteMemory( (void far * far *)&pBuffer, _CDFIELD,
-                  (void far *)&CDField, 1 );
+    ODSWriteMemory( (void far * far *)&pBuffer, _CDFIELD,
+                    (void far *)&CDField, 1 );
 
 /*
  *  Get a pointer to the compiled input translation formula.
  */
 
-  pTextInputTransFormula = OSLock( char, hTextInputTransFormula );
+    pTextInputTransFormula = OSLock( char, hTextInputTransFormula );
 
  /*
   *  First, set the input translation formula.
   */
 
-  memcpy( pBuffer, pTextInputTransFormula, wTextInputTransFormulaLen );
-  pBuffer += CDField.ITLength;
+    memcpy( pBuffer, pTextInputTransFormula, wTextInputTransFormulaLen );
+    pBuffer += CDField.ITLength;
 
   /* Unlock, free memory for formula */
-  OSUnlockObject(hTextInputTransFormula);
-  OSMemFree(hTextInputTransFormula);
+    OSUnlockObject(hTextInputTransFormula);
+    OSMemFree(hTextInputTransFormula);
 
 /*
  *  Now set the field name.
  */
 
-  memcpy( pBuffer, RangeField, CDField.NameLength );
-  pBuffer += CDField.NameLength;
+    memcpy( pBuffer, RangeField, CDField.NameLength );
+    pBuffer += CDField.NameLength;
 
 /*
  *  And set the field description.
  */
 
-  memcpy( pBuffer, RangeDescription, CDField.DescLength );
-  pBuffer += CDField.DescLength;
+    memcpy( pBuffer, RangeDescription, CDField.DescLength );
+    pBuffer += CDField.DescLength;
 
 /* Ensure record length is even */
 
-  if ((pBuffer-pBufferStart) %2)
-      pBuffer++;
+    if ((pBuffer-pBufferStart) %2)
+        pBuffer++;
 
 /*
  * New CDENDRECORD for R5 after a CDFIELD type.
  */
 
-  CDEnd.Header.Length = (BYTE)ODSLength(_CDENDRECORD);
-  CDEnd.Header.Signature = SIG_CD_END;
-  CDEnd.Version = 0;
-  CDEnd.Signature = SIG_CD_FIELD;
+    CDEnd.Header.Length = (BYTE)ODSLength(_CDENDRECORD);
+    CDEnd.Header.Signature = SIG_CD_END;
+    CDEnd.Version = 0;
+    CDEnd.Signature = SIG_CD_FIELD;
 
-  ODSWriteMemory( (void far * far *)&pBuffer, _CDENDRECORD,
-                  (void far *) &CDEnd, 1 );
+    ODSWriteMemory( (void far * far *)&pBuffer, _CDENDRECORD,
+                    (void far *) &CDEnd, 1 );
 
 /*********************************************************************
  *
@@ -1149,7 +1165,7 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  */
 
     bError = PutPara(&pBuffer,
-                    (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
+                     (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
 
 /*
  * Leave if error returned...
@@ -1160,7 +1176,7 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
     }
 
     bError = PutPara(&pBuffer,
-                    (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
+                     (WORD) (wCDBufferLength - (pBuffer - pBufferStart)));
 
     if (bError == FALSE)
     {
@@ -1172,67 +1188,67 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  * of this field's label.
  */
 
-  bError = PutText (&pBuffer,
+    bError = PutText (&pBuffer,
                     StatusString,
-                   (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
+                    (WORD)(wCDBufferLength - (pBuffer - pBufferStart)));
 
 
-  if (bError == FALSE)
-  {
-      goto Exit5;
-  }
+    if (bError == FALSE)
+    {
+        goto Exit5;
+    }
 
 /*
  * New CDBEGINRECORD for R5 before a CDFIELD type.
  */
 
-  CDBegin.Header.Length = (BYTE)ODSLength(_CDBEGINRECORD);
-  CDBegin.Header.Signature = SIG_CD_BEGIN;
-  CDBegin.Version = 0;
-  CDBegin.Signature = SIG_CD_FIELD;
+    CDBegin.Header.Length = (BYTE)ODSLength(_CDBEGINRECORD);
+    CDBegin.Header.Signature = SIG_CD_BEGIN;
+    CDBegin.Version = 0;
+    CDBegin.Signature = SIG_CD_FIELD;
 
-  ODSWriteMemory( (void far * far *)&pBuffer, _CDBEGINRECORD,
-                  (void far *) &CDBegin, 1 );
+    ODSWriteMemory( (void far * far *)&pBuffer, _CDBEGINRECORD,
+                    (void far *) &CDBegin, 1 );
 
 /*
  * New CDEXT2FIELD for R5 that follows a CDBEGINRECORD type.
  */
 
   /* init full structure */
-  memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
+    memset(&CDExt2Field, 0, sizeof(CDEXT2FIELD));
 
-  CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
-  CDExt2Field.Header.Signature = SIG_CD_EXT2_FIELD;
+    CDExt2Field.Header.Length = (WORD)ODSLength(_CDEXT2FIELD);
+    CDExt2Field.Header.Signature = SIG_CD_EXT2_FIELD;
 
-  ODSWriteMemory( (void far * far *)&pBuffer, _CDEXT2FIELD,
-                  (void far *) &CDExt2Field, 1 );
+    ODSWriteMemory( (void far * far *)&pBuffer, _CDEXT2FIELD,
+                    (void far *) &CDExt2Field, 1 );
 
 /*
  * Create a CDFIELD structure to define this text field.
  */
 
-  CDField.Header.Signature = SIG_CD_FIELD;
-  CDField.Flags = FEDITABLE;
-  CDField.DataType = TYPE_TEXT;
-  CDField.ListDelim = LDDELIM_SEMICOLON;
+    CDField.Header.Signature = SIG_CD_FIELD;
+    CDField.Flags = FEDITABLE;
+    CDField.DataType = TYPE_TEXT;
+    CDField.ListDelim = LDDELIM_SEMICOLON;
 
 /*
  *  The NumberFormat paramter is not used for text fields, so clear it.
  */
 
-  CDField.NumberFormat.Digits     = 0;
-  CDField.NumberFormat.Format     = 0;
-  CDField.NumberFormat.Attributes = 0;
-  CDField.NumberFormat.Unused     = 0;
+    CDField.NumberFormat.Digits     = 0;
+    CDField.NumberFormat.Format     = 0;
+    CDField.NumberFormat.Attributes = 0;
+    CDField.NumberFormat.Unused     = 0;
 
 /*
  *  The TimeFormat paramter is not used for text fields, so clear it.
  */
 
-  CDField.TimeFormat.Date      = 0;
-  CDField.TimeFormat.Time      = 0;
-  CDField.TimeFormat.Zone      = 0;
-  CDField.TimeFormat.Structure = 0;
+    CDField.TimeFormat.Date      = 0;
+    CDField.TimeFormat.Time      = 0;
+    CDField.TimeFormat.Zone      = 0;
+    CDField.TimeFormat.Structure = 0;
 
 /*
  *  Set up FontID
@@ -1240,56 +1256,56 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
 
   pFontFields = (FONTIDFIELDS *)&CDField.FontID;
 
-  pFontFields->Face  = FONT_FACE_ROMAN;
-  pFontFields->Attrib = 0;
-  pFontFields->Color = NOTES_COLOR_BLACK;
-  pFontFields->PointSize  = 14;
+    pFontFields->Face  = FONT_FACE_ROMAN;
+    pFontFields->Attrib = 0;
+    pFontFields->Color = NOTES_COLOR_BLACK;
+    pFontFields->PointSize  = 14;
 
 /*
  * Compile the input translation formula.  This formula will translate
  * text entered into this field into all UPPERCASE.
  */
 
-  if (sError = NSFFormulaCompile(NULL,
-                                 0,
-                                 TextInputTransFormula,
-                                 (WORD) strlen(TextInputTransFormula),
-                                 &hTextInputTransFormula,
-                                 &wTextInputTransFormulaLen,
-                                 &wdc, &wdc, &wdc,
-                                 &wdc, &wdc))
-  {
-      goto Exit5;
-  }
+    if (sError = NSFFormulaCompile(NULL,
+                                   0,
+                                   TextInputTransFormula,
+                                   (WORD) strlen(TextInputTransFormula),
+                                   &hTextInputTransFormula,
+                                   &wTextInputTransFormulaLen,
+                                   &wdc, &wdc, &wdc,
+                                   &wdc, &wdc))
+    {
+        goto Exit5;
+    }
 
 /*
  *  Fill in the rest of the CDFIELD item.
  */
 
-  CDField.DVLength = 0;  /* No default value formula         */
-  CDField.ITLength = wTextInputTransFormulaLen;
-  CDField.TabOrder = 0;
-  CDField.IVLength = 0;  /* No Input Validity Check formula  */
-  CDField.NameLength = strlen(StatusField);
-  CDField.DescLength = strlen(StatusDescription);
+    CDField.DVLength = 0;  /* No default value formula         */
+    CDField.ITLength = wTextInputTransFormulaLen;
+    CDField.TabOrder = 0;
+    CDField.IVLength = 0;  /* No Input Validity Check formula  */
+    CDField.NameLength = strlen(StatusField);
+    CDField.DescLength = strlen(StatusDescription);
 
-  CDField.TextValueLength = 0; /* Not a text list.   */
+    CDField.TextValueLength = 0; /* Not a text list.   */
 
 
-  CDField.Header.Length = ODSLength(_CDFIELD) +
-                          CDField.DVLength +
-                          CDField.ITLength +
-                          CDField.IVLength +
-                          CDField.NameLength +
-                          CDField.DescLength +
-                          CDField.TextValueLength;
+    CDField.Header.Length = ODSLength(_CDFIELD) +
+                            CDField.DVLength +
+                            CDField.ITLength +
+                            CDField.IVLength +
+                            CDField.NameLength +
+                            CDField.DescLength +
+                            CDField.TextValueLength;
 
 /*
  *  If total length of CDFIELD item is not even, make it so.
  */
 
-  if (CDField.Header.Length % 2)
-      CDField.Header.Length++;
+    if (CDField.Header.Length % 2)
+        CDField.Header.Length++;
 
 /*
  *  Convert the CDFIELD item to Domino and Notes Canonical format and
@@ -1311,31 +1327,31 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
   *  First, set the input translation formula.
   */
 
-  memcpy( pBuffer, pTextInputTransFormula, wTextInputTransFormulaLen );
-  pBuffer += CDField.ITLength;
+    memcpy( pBuffer, pTextInputTransFormula, wTextInputTransFormulaLen );
+    pBuffer += CDField.ITLength;
 
-  /* Unlock, free memory for formula */
-  OSUnlockObject(hTextInputTransFormula);
-  OSMemFree(hTextInputTransFormula);
+    /* Unlock, free memory for formula */
+    OSUnlockObject(hTextInputTransFormula);
+    OSMemFree(hTextInputTransFormula);
 
 /*
  *  Now set the field name.
  */
 
-  memcpy( pBuffer, StatusField, CDField.NameLength );
-  pBuffer += CDField.NameLength;
+    memcpy( pBuffer, StatusField, CDField.NameLength );
+    pBuffer += CDField.NameLength;
 
 /*
  *  And set the field description.
  */
 
-  memcpy( pBuffer, StatusDescription, CDField.DescLength );
-  pBuffer += CDField.DescLength;
+    memcpy( pBuffer, StatusDescription, CDField.DescLength );
+    pBuffer += CDField.DescLength;
 
 /* Ensure record length is even */
 
-  if ((pBuffer-pBufferStart) %2)
-      pBuffer++;
+    if ((pBuffer-pBufferStart) %2)
+        pBuffer++;
 
 /*
  * New CDENDRECORD for R5 after a CDFIELD type.
@@ -1356,44 +1372,44 @@ STATUS LNPUBLIC CreateDBForm(DBRECORD *pDBHead )
  ***********************************************************************/
 
   if (sError = NSFItemAppend(hNote,
-                 0,
-                 ITEM_NAME_TEMPLATE,
-                 (WORD) strlen (ITEM_NAME_TEMPLATE),
-                 TYPE_COMPOSITE,
-                 (void*)pBufferStart,
-                 pBuffer-pBufferStart))
-  {
-      goto Exit5;
-  }
+                             0,
+                             ITEM_NAME_TEMPLATE,
+                             (WORD) strlen (ITEM_NAME_TEMPLATE),
+                             TYPE_COMPOSITE,
+                             (void*)pBufferStart,
+                             pBuffer-pBufferStart))
+    {
+        goto Exit5;
+    }
 
 
-  sError = NSFNoteUpdate( hNote, 0 );
-  if (sError != NOERROR) 
-  {
-    OSLoadString (NULLHANDLE,
-                             sError,
-                             error_text,
-                             sizeof(error_text));
-    goto Exit5;
-  }
+    sError = NSFNoteUpdate( hNote, 0 );
+    if (sError != NOERROR) 
+    {
+        OSLoadString (NULLHANDLE,
+                      sError,
+                      error_text,
+                      sizeof(error_text));
+        goto Exit5;
+    }
  
 
 Exit5:
 
-  OSUnlockObject (hMem);
-  OSMemFree (hMem);
+    OSUnlockObject (hMem);
+    OSMemFree (hMem);
 
 Exit4:
 
-  NSFNoteClose( hNote );
+    NSFNoteClose( hNote );
 
 Exit3:
 
-  NSFDbClose( hDB );
+    NSFDbClose( hDB );
 
 Exit2:
   
-  return( sError );
+    return( sError );
 
 }
 
@@ -1422,7 +1438,7 @@ STATUS LNPUBLIC CreateDBNotes(DBRECORD *pDBRec)
     STATUS      error = NOERROR;    /* return code from API calls */
 
 	
-	gFStream = __OpenFile(FileName, APPEND_PERMISSION);
+    gFStream = __OpenFile(FileName, APPEND_PERMISSION);
 	
 	
    //FILE *gFStream = __OpenFile(FileName, APPEND_PERMISSION);
@@ -1437,107 +1453,107 @@ STATUS LNPUBLIC CreateDBNotes(DBRECORD *pDBRec)
 
     if (error = NSFDbOpen (path_name, &db_handle))
     {
-	goto Exit;
+        goto Exit;
     }
 
     while (pDBRec != NULL)
     {
       /* Create a new data note. */
 
-      if (error = NSFNoteCreate (db_handle, &note_handle))
-      {
-        NSFDbClose (db_handle);
-	goto Exit;
-      }
+        if (error = NSFNoteCreate (db_handle, &note_handle))
+        {
+            NSFDbClose (db_handle);
+            goto Exit;
+        }
 
-      /* Write a field named FORM to the note -- this field specifies the
+        /* Write a field named FORM to the note -- this field specifies the
          default form to use when displaying the note. */
 
-      if (error = NSFItemSetText ( note_handle,
-                  "FORM",
-                  "Animals Form",
-                  MAXWORD))
-      {
-        NSFNoteClose (note_handle);
-        NSFDbClose (db_handle);
-	goto Exit;
-      }
+        if (error = NSFItemSetText ( note_handle,
+                                     "FORM",
+                                     "Animals Form",
+                                     MAXWORD))
+        {
+            NSFNoteClose (note_handle);
+            NSFDbClose (db_handle);
+            goto Exit;
+        }
 
-      /* Write a text field to the note. */
+        /* Write a text field to the note. */
 
-      if (error = NSFItemSetText ( note_handle,
-                "CommonNameField",
-                pDBRec->CommonName,
-                MAXWORD))
-      {
-        NSFNoteClose (note_handle);
-        NSFDbClose (db_handle);
-	goto Exit;
-      }
+        if (error = NSFItemSetText ( note_handle,
+                                     "CommonNameField",
+                                     pDBRec->CommonName,
+                                     MAXWORD))
+        {
+            NSFNoteClose (note_handle);
+            NSFDbClose (db_handle);
+            goto Exit;
+        }
 
-      /* Write a text field to the note. */
+        /* Write a text field to the note. */
 
-      if (error = NSFItemSetText ( note_handle,
-                  "LatinNameField",
-                  pDBRec->LatinName,
-                  MAXWORD))
-      {
-        NSFNoteClose (note_handle);
-        NSFDbClose (db_handle);
-	goto Exit;
-      }
+        if (error = NSFItemSetText ( note_handle,
+                                     "LatinNameField",
+                                     pDBRec->LatinName,
+                                     MAXWORD))
+        {
+            NSFNoteClose (note_handle);
+            NSFDbClose (db_handle);
+            goto Exit;
+        }
 
-      /* Write a text field to the note. */
+        /* Write a text field to the note. */
 
-      if (error = NSFItemSetText ( note_handle,
-                  "RangeField",
-                  pDBRec->Range,
-                  MAXWORD))
-      {
-        NSFNoteClose (note_handle);
-        NSFDbClose (db_handle);
-	goto Exit;
-      }
-
-
-      /* Write a text field to the note. */
-
-      if (error = NSFItemSetText ( note_handle,
-                  "StatusField",
-                  pDBRec->Status,
-                  MAXWORD))
-      {
-        NSFNoteClose (note_handle);
-        NSFDbClose (db_handle);
-	goto Exit;
-      }
+        if (error = NSFItemSetText ( note_handle,
+                                     "RangeField",
+                                     pDBRec->Range,
+                                     MAXWORD))
+        {
+            NSFNoteClose (note_handle);
+            NSFDbClose (db_handle);
+            goto Exit;
+        }
 
 
-      /* Add the entire new note (with all fields) to the database. */
+        /* Write a text field to the note. */
 
-      if (error = NSFNoteUpdate (note_handle, 0))
-      {
-        NSFNoteClose (note_handle);
-        NSFDbClose (db_handle);
-	goto Exit;
-      }
+        if (error = NSFItemSetText ( note_handle,
+                                     "StatusField",
+                                     pDBRec->Status,
+                                     MAXWORD))
+        {
+            NSFNoteClose (note_handle);
+            NSFDbClose (db_handle);
+            goto Exit;
+        }
 
-      /* Close the note. (Remove its structure from memory.) */
 
-      if (error = NSFNoteClose (note_handle))
-      {
-        NSFDbClose (db_handle);
-	goto Exit;
-      }
+        /* Add the entire new note (with all fields) to the database. */
 
-      pDBRec = pDBRec->Next;
+        if (error = NSFNoteUpdate (note_handle, 0))
+        {
+            NSFNoteClose (note_handle);
+            NSFDbClose (db_handle);
+            goto Exit;
+        }
+
+        /* Close the note. (Remove its structure from memory.) */
+
+        if (error = NSFNoteClose (note_handle))
+        {
+            NSFDbClose (db_handle);
+            goto Exit;
+        }
+
+        pDBRec = pDBRec->Next;
     }
 
     /* Close the database */
 
     if (error = NSFDbClose (db_handle))
     {
-	goto Exit;
+        goto Exit;
     }
 
 Exit:    
@@ -1634,7 +1650,7 @@ STATUS LNPUBLIC CreateDBView()
     if (sError = NSFDbOpen( szFileName, &hDB ))
     {
         sprintf(gTextBuffer, "Error: unable to open database '%s'.\n", szFileName );
-       LogLine( gTextBuffer);
+        LogLine( gTextBuffer);
         goto Exit2;
     }
 
@@ -1741,8 +1757,8 @@ STATUS LNPUBLIC CreateDBView()
  */
 
     sError = NSFFormulaSummaryItem( hSelFormula,
-                    szItemName_1,
-                    wItemName_1_Len );
+                                    szItemName_1,
+                                    wItemName_1_Len );
     if (sError)
     {
         LogLine("-------------------------------------------------\n");

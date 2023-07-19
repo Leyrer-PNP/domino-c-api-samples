@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    wrich
 
@@ -30,9 +45,7 @@
 #include <colorid.h>
 #include <ostime.h>
 #include <osmisc.h>
-
-/* Local function prototypes */
-void PrintAPIError (STATUS);
+#include <printLog.h>
 
 
 /************************************************************************
@@ -57,11 +70,11 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-    char        *path_name;             /* pathname of database */
-    DBHANDLE    db_handle;              /* database handle */
-    NOTEHANDLE  note_handle;            /* note handle */
-    TIMEDATE    timedate;               /* a time/date field */
-    STATUS      error = 0;                  /* return code from API calls */
+    char                *path_name;             /* pathname of database */
+    DBHANDLE            db_handle;              /* database handle */
+    NOTEHANDLE          note_handle;            /* note handle */
+    TIMEDATE            timedate;               /* a time/date field */
+    STATUS              error = 0;              /* return code from API calls */
 
     CDPABDEFINITION     def1;                    /* paragraph style definition */
     CDPABDEFINITION     def2;                    /* paragraph style definition */
@@ -80,30 +93,30 @@ int main(int argc, char *argv[])
     WORD                wstring3Len = RT_STRING3_LEN;
     FONTIDFIELDS        *font;                   /* font definitions in text header */
 
-    BYTE                *rt_field;      /* allocated rich-text field */
-    BYTE                *buff_ptr;      /* position in allocated memory */
-    WORD                wBuffLen;       /* required CD buffer length */
-    DWORD               rt_size;        /* size of rich-text field */
+    BYTE                *rt_field;               /* allocated rich-text field */
+    BYTE                *buff_ptr;               /* position in allocated memory */
+    WORD                wBuffLen;                /* required CD buffer length */
+    DWORD               rt_size;                 /* size of rich-text field */
 
 /* Get the pathname of the database. */
 
     if (error = NotesInitExtended (argc, argv))
     {
-        printf("\nError initializing Notes.\n");
+        PRINTLOG("\nError initializing Notes.\n");
         return(1);
     }
 
     path_name = (char *) malloc(INPUT_LENGTH);
     if (path_name == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         NotesTerm();
         return (0);
     }
 
     if (argc != 2)
     {
-        printf("Enter the database filename: ");
+        PRINTLOG("Enter the database filename: ");
         fflush(stdout);
         gets(path_name);
     }
@@ -114,7 +127,7 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbOpen (path_name, &db_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbOpen");
         NotesTerm();
         return (1);
     }
@@ -127,18 +140,18 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteCreate (db_handle, &note_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFNoteCreate");
         NSFDbClose (db_handle);
         NotesTerm();
         return (1);
     }
 
 /* Write a field named FORM to the note -- this field specifies the
-default form to use when the note is displayed. */
+   default form to use when the note is displayed. */
 
     if (error = NSFItemSetText ( note_handle, "FORM", "RichTextForm", MAXWORD))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFItemSetText");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -151,27 +164,27 @@ default form to use when the note is displayed. */
 
     if (error = NSFItemSetTime (note_handle, "TIME_DATE", &timedate))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFItemSetTime");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
         return (1);
     }
 
-/*     The next several sections of code create and write a rich-text field.
-       A rich-text field consists of a series of CD records. This field
-       will contain two CDPABDEFINITION, two CDPARAGRAPH record, two
-       CDPABRFERENCE, and 3 CDTEXT records. A CDTEXT record consists of a CDTEXT
-       structure followed by run of text.
+/* The next several sections of code create and write a rich-text field.
+   A rich-text field consists of a series of CD records. This field
+   will contain two CDPABDEFINITION, two CDPARAGRAPH record, two
+   CDPABRFERENCE, and 3 CDTEXT records. A CDTEXT record consists of a CDTEXT
+   structure followed by run of text.
 
-       Allocate a buffer to hold this series of CD records. To calculate the
-       size of the buffer required, add up the ODS lengths of each of the CD
-       records it will contain. The length of a CDTEXT record is the ODS
-       length of the CDTEXT structure, plus the number of characters in the
-       text run. Force the number of characters in each text run to be even.
-       If the string length is odd, add one to the string length so that the
-       record length is even. You must ensure that all CD records begin on
-       even byte boundaries.
+   Allocate a buffer to hold this series of CD records. To calculate the
+   size of the buffer required, add up the ODS lengths of each of the CD
+   records it will contain. The length of a CDTEXT record is the ODS
+   length of the CDTEXT structure, plus the number of characters in the
+   text run. Force the number of characters in each text run to be even.
+   If the string length is odd, add one to the string length so that the
+   record length is even. You must ensure that all CD records begin on
+   even byte boundaries.
 */
 
     wstring1Len += (wstring1Len%2);
@@ -195,7 +208,7 @@ default form to use when the note is displayed. */
 
     if( rt_field == (BYTE *)NULL )
     {
-        printf("Error: unable to allocate %d bytes memory.\n", wBuffLen);
+        PRINTLOG("Error: unable to allocate %d bytes memory.\n", wBuffLen);
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -207,7 +220,7 @@ default form to use when the note is displayed. */
     buff_ptr = rt_field;
 
 /* Fill in the paragraph definition blocks. We use all defaults in the first
-and centered justification in the second. */
+   and centered justification in the second. */
 
     memset(&def1, 0 , sizeof(CDPABDEFINITION));
 
@@ -245,10 +258,10 @@ and centered justification in the second. */
     def2.TabTypes = TAB_DEFAULT;
     def2.Flags2 = 0;
 
-/*     Call ODSWriteMemory to convert the two CDPABDEFINITION structures
-       to Domino and Notes canonical format and write the converted structure
-      into the buffer at location buff_ptr. This advances buff_ptr to the
-       next byte in the buffer after the canonical format strucure.
+/* Call ODSWriteMemory to convert the two CDPABDEFINITION structures
+   to Domino and Notes canonical format and write the converted structure
+   into the buffer at location buff_ptr. This advances buff_ptr to the
+   next byte in the buffer after the canonical format strucure.
 */
 
     ODSWriteMemory( &buff_ptr, _CDPABDEFINITION, &def1, 1 );
@@ -276,8 +289,8 @@ and centered justification in the second. */
     text1.Header.Length = ODSLength( _CDTEXT ) + RT_STRING1_LEN;
 
 /* Fill in the font information for this run of text. Note that we set a
-pointer to the FontID data item within the CDTEXT header. Then we use the
-pointer to set the individual fields within the FontID. */
+   pointer to the FontID data item within the CDTEXT header. Then we use the
+   pointer to set the individual fields within the FontID. */
 
     font = ( FONTIDFIELDS * ) &(text1.FontID);
 
@@ -289,7 +302,7 @@ pointer to set the individual fields within the FontID. */
     ODSWriteMemory( &buff_ptr, _CDTEXT, &text1, 1 );
 
 /* Fill in the actual text of this text run and advance buffer pointer. Do not
-append a null to the text run. */
+   append a null to the text run. */
 
     memcpy( (char *)buff_ptr, string1, wstring1Len );
     buff_ptr += wstring1Len;
@@ -300,8 +313,8 @@ append a null to the text run. */
     text2.Header.Length = ODSLength( _CDTEXT ) + RT_STRING2_LEN;
 
 /* Fill in the font information for this run of text. Note that we set a
-pointer to the FontID data item within the CDTEXT header. Then we use the
-pointer to set the individual fields within the FontID. */
+   pointer to the FontID data item within the CDTEXT header. Then we use the
+   pointer to set the individual fields within the FontID. */
 
     font = ( FONTIDFIELDS * ) &(text2.FontID);
 
@@ -313,7 +326,7 @@ pointer to set the individual fields within the FontID. */
     ODSWriteMemory( &buff_ptr, _CDTEXT, &text2, 1 );
 
 /* Fill in the actual text of this text run. Do not append a null to the
-text run. */
+   text run. */
 
     memcpy( (char *)buff_ptr, string2, wstring2Len );
     buff_ptr += wstring2Len;
@@ -337,8 +350,8 @@ text run. */
     text3.Header.Length = ODSLength ( _CDTEXT ) + RT_STRING3_LEN;
 
 /* Fill in the font information for this run of text. Note that we set a
-pointer to the FontID data item within the CDTEXT header. Then we use the
-pointer to set the individual fields within the FontID. */
+   pointer to the FontID data item within the CDTEXT header. Then we use the
+   pointer to set the individual fields within the FontID. */
 
     font = ( FONTIDFIELDS * ) &(text3.FontID);
 
@@ -350,17 +363,17 @@ pointer to set the individual fields within the FontID. */
     ODSWriteMemory( &buff_ptr, _CDTEXT, &text3, 1 );
 
 /* Fill in the actual text of this text run. Do not append a null to the
-text run. */
+   text run. */
 
     memcpy( (char *)buff_ptr, string3, wstring3Len );
     buff_ptr += wstring3Len;
 
-/*     We are done filling the buffer with CD records. Now append the
-       buffer to the note as a rich text field. First find the size of
-       the buffer. Then add the rich-text field to the note by calling
-       NSFItemAppend. NSFItemAppend copies the data out of the buffer
-       specified by rt_field. Therfore, after calling NSFItemAppend, we
-       can free the buffer.
+/* We are done filling the buffer with CD records. Now append the
+   buffer to the note as a rich text field. First find the size of
+   the buffer. Then add the rich-text field to the note by calling
+   NSFItemAppend. NSFItemAppend copies the data out of the buffer
+   specified by rt_field. Therfore, after calling NSFItemAppend, we
+   can free the buffer.
 */
 
     rt_size = (DWORD)(buff_ptr - rt_field);
@@ -376,7 +389,7 @@ text run. */
 
     if (error)
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFItemAppend");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -387,7 +400,7 @@ text run. */
 
     if (error = NSFNoteUpdate (note_handle, 0))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFNoteUpdate");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
         NotesTerm();
@@ -398,7 +411,7 @@ text run. */
 
     if (error = NSFNoteClose (note_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFNoteClose");
         NSFDbClose (db_handle);
         NotesTerm();
         return (1);
@@ -408,7 +421,7 @@ text run. */
 
     if (error = NSFDbClose (db_handle))
     {
-        PrintAPIError (error);
+        PRINTERROR (error,"NSFDbClose");
         NotesTerm();
         return (1);
     }
@@ -418,27 +431,3 @@ text run. */
     NotesTerm();
     return (0);
 }
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
-

@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    hotspot
 
@@ -65,7 +80,7 @@
  *       WORD wLength          Number of bytes remaining in the buffer.
  *
  *    Returns:
- *        BOOL TRUE if Successful
+ *        BOOL TRUE  if Successful
  *        BOOL FALSE if Not Successful
  *
  *
@@ -81,7 +96,7 @@ BOOL PutPara( char far * far *ppBuf,
     BYTE        bSig  =  (BYTE)SIG_CD_PARAGRAPH;
 
 
-    /* If not enough space in buffer for this paragraph, then exit.   */
+/* If not enough space in buffer for this paragraph, then exit.   */
 
     if (wLength < ODSLength(_CDPARAGRAPH))
         return (FALSE);
@@ -110,15 +125,15 @@ BOOL PutPara( char far * far *ppBuf,
  *
  *   Arguments:
  *       char far * far *ppBuf Address of pointer to next available byte in
- *                            buffer containing the item being created.
- *       char far * pText          Far ptr to text to go into CD record.
- *       WORD wLength         Number of bytes remaining in the buffer.
- *       int  Type            Text Type - only checks for
- *                                 HOTSPOTREC_TYPE_HOTLINK
- *                            otherwise pass 0.
+ *                             buffer containing the item being created.
+ *       char far * pText      Far ptr to text to go into CD record.
+ *       WORD wLength          Number of bytes remaining in the buffer.
+ *       int  Type             Text Type - only checks for
+ *                             HOTSPOTREC_TYPE_HOTLINK
+ *                             otherwise pass 0.
  *    Returns:
- *        BOOL TRUE if Successful
- *        BOOL FALSE if Note Successful
+ *        BOOL TRUE  if Successful
+ *        BOOL FALSE if Not Successful
  *
  *    Comments:
  *
@@ -145,29 +160,29 @@ BOOL PutText(char far * far *ppBuf,
 
     if ( wLength < w)
 
-    /* (ODSLength(_CDTEXT) + wTextLength) > wLength */
+/* (ODSLength(_CDTEXT) + wTextLength) > wLength */
 
 
         return (FALSE);
 
-    /* Fill in the TEXT item structure.       */
+/* Fill in the TEXT item structure. */
 
     CDText.Header.Signature = SIG_CD_TEXT;
     CDText.Header.Length = ODSLength(_CDTEXT) + wTextLength;
 
-   /*
-    *  Fill in the font information for this run of text. Note that
-    *  we must overlay the FONTIDFIELDS structure onto the
-    *  CDText.FontID data item.
-    */
+/*
+ *  Fill in the font information for this run of text. Note that
+ *  we must overlay the FONTIDFIELDS structure onto the
+ *  CDText.FontID data item.
+ */
 
     pFont = (FONTIDFIELDS*)&CDText.FontID;
 
     pFont->Face = FONT_FACE_SWISS;
 
- /*
-  * Set the text to bold and underline if this is a Hotlink (URL).
-  */
+/*
+ * Set the text to bold and underline if this is a Hotlink (URL).
+ */
 
     if (Type == HOTSPOTREC_TYPE_HOTLINK)
       pFont->Attrib = ISBOLD | ISUNDERLINE;
@@ -214,7 +229,7 @@ BOOL PutText(char far * far *ppBuf,
  *       WORD FAR *pwRTLength Current length of the CD record;
  *
  *   Returns:
- *       STATUS NOERROR if Successful
+ *       STATUS NOERROR               if Successful
  *       STATUS ERR_CREATING_RICHTEXT if Not Successful
  *
  *   Comments:
@@ -276,7 +291,7 @@ STATUS PutHotSpotEnd(char far * far *pbRTItem, WORD wLength,
  *       WORD FAR *pwRTLength Current length of the CD record;
  *
  *   Returns:
- *       STATUS NOERROR if Successful
+ *       STATUS NOERROR               if Successful
  *       STATUS ERR_CREATING_RICHTEXT if Not Successful
  *
  *   Comments:
@@ -344,8 +359,8 @@ STATUS PutV4HotSpotEnd(char far * far *pbRTItem, WORD wLength,
  *       WORD FAR *pwRTLength Current length of the CD record;
  *
  *    Returns:
- *        STATUS NOERROR if Successful
- *        STATUS ERR_CREATING_RICHTEXT if Note Successful
+ *        STATUS NOERROR               if Successful
+ *        STATUS ERR_CREATING_RICHTEXT if Not Successful
  *
  *    Comments:
  *
@@ -437,13 +452,13 @@ STATUS PutButton(char far * far *pbRTItem, char *pButtonText,
  *   Arguments:
  *       char *pbRTItem       ptr to buffer containing the CD record
  *                            being created.
- *       char *pBarText              ptr to text to display on bar.
+ *       char *pBarText       ptr to text to display on bar.
  *       WORD wLength         Number of bytes remaining in the buffer.
  *       WORD FAR *pwRTLength Current length of the CD record;
  *
  *    Returns:
- *        STATUS NOERROR if Successful
- *        STATUS ERR_CREATING_RICHTEXT if Note Successful
+ *        STATUS NOERROR               if Successful
+ *        STATUS ERR_CREATING_RICHTEXT if Not Successful
  *
  *    Comments:
  *
@@ -537,13 +552,13 @@ STATUS PutBar(char far * far *pbRTItem, char *pBarText,
  *   Arguments:
  *       char *pbRTItem       ptr to buffer containing the CD record
  *                            being created.
- *       char * pBarText              Far ptr to text to display for action.
+ *       char *pBarText       Far ptr to text to display for action.
  *       WORD wLength         Number of bytes remaining in the buffer.
  *       WORD FAR *pwRTLength Current length of the CD record;
  *
  *    Returns:
- *        STATUS NOERROR if Successful
- *        STATUS ERR_CREATING_RICHTEXT if Note Successful
+ *        STATUS NOERROR               if Successful
+ *        STATUS ERR_CREATING_RICHTEXT if Not Successful
  *
  *    Comments:
  *
@@ -662,7 +677,7 @@ STATUS PutAction(char far * far *pbRTItem, char * pToInfo,
  *       WORD FAR *pwRTLength Current length of the CD record;
  *
  *    Returns:
- *        STATUS NOERROR if Successful
+ *        STATUS NOERROR               if Successful
  *        STATUS ERR_CREATING_RICHTEXT if Not Successful
  *
  *    Comments:

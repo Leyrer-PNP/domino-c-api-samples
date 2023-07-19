@@ -1,4 +1,20 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+
     PROGRAM:    allflds
 
     FILE:       allflds.c
@@ -37,25 +53,24 @@ extern "C" {
 #include <nsfsearc.h>
 #include <nsferr.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 
 /* Function prototypes */
 
 STATUS LNPUBLIC note_action (     /* called for every document */
-            VOID far *,
-            SEARCH_MATCH far *,
-            ITEM_TABLE far *);
+                              VOID far *,
+                              SEARCH_MATCH far *,
+                              ITEM_TABLE far *);
 
 STATUS LNPUBLIC field_action (    /* called for every field */
-            WORD,
-            WORD,
-            char far *,
-            WORD,
-            VOID far *,
-            DWORD,
-            VOID far *);
-
-void PrintAPIError (STATUS);
+                               WORD,
+                               WORD,
+                               char far *,
+                               WORD,
+                               VOID far *,
+                               DWORD,
+                               VOID far *);
 
 /************************************************************************
 
@@ -70,62 +85,62 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char        db_filename[]="test.nsf";   /* pathname of source database */
-   DBHANDLE    db_handle;                  /* handle of source database */ 
-   STATUS      error = NOERROR;            /* return status from API calls */
+    char        db_filename[]="test.nsf";   /* pathname of source database */
+    DBHANDLE    db_handle;                  /* handle of source database */ 
+    STATUS      error = NOERROR;            /* return status from API calls */
 
    
-   if (error = NotesInitExtended (argc, argv))
-   {
-	   printf("\n Unable to initialize Notes.\n");
-       return (1);
-   }
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
+        return (1);
+    }
 
       
 /* Open the database. */
    
-   if (error = NSFDbOpen (db_filename, &db_handle))
-   {
-       PrintAPIError (error);  
-       NotesTerm();
-       return (1); 
-   }
+    if (error = NSFDbOpen (db_filename, &db_handle))
+    {
+        PRINTERROR (error,"NSFDbOpen");  
+        NotesTerm();
+        return (1); 
+    }
 
   
 /* Call NSFSearch to find all data notes in the database. */
 
-   if (error = NSFSearch (
-         db_handle,        /* database handle */
-         NULLHANDLE,       /* selection formula */
-         NULL,             /* title of view in selection formula */
-         0,                /* search flags */
-         NOTE_CLASS_DOCUMENT,  /* note class to find */
-         NULL,             /* starting date (unused) */
-         note_action,      /* action routine for notes found */
-         &db_handle,       /* argument to action routine */
-         NULL))            /* returned ending date (unused) */
+    if (error = NSFSearch (
+                           db_handle,        /* database handle */
+                           NULLHANDLE,       /* selection formula */
+                           NULL,             /* title of view in selection formula */
+                           0,                /* search flags */
+                           NOTE_CLASS_DOCUMENT,  /* note class to find */
+                           NULL,             /* starting date (unused) */
+                           note_action,      /* action routine for notes found */
+                           &db_handle,       /* argument to action routine */
+                           NULL))            /* returned ending date (unused) */
 
-         {
-         NSFDbClose (db_handle);
-         PrintAPIError (error);  
-         NotesTerm();
-         return (1); 
-         }
+    {
+        NSFDbClose (db_handle);
+        PRINTERROR (error,"NSFSearch");  
+        NotesTerm();
+        return (1); 
+    }
 
 /* Close the database. */
 
-   if (error = NSFDbClose (db_handle))
-   {
-         PrintAPIError (error);  
-         NotesTerm();
-         return (1); 
-   }
+    if (error = NSFDbClose (db_handle))
+    {
+        PRINTERROR (error,"NSFDbClose");  
+        NotesTerm();
+        return (1); 
+    }
 
 
 /* End of main routine. */
-   printf("\nProgram completed successfully.\n");
-   NotesTerm();
-   return (0); 
+    PRINTLOG("\nProgram completed successfully.\n");
+    NotesTerm();
+    return (0); 
 
 }
 
@@ -151,9 +166,9 @@ int main(int argc, char *argv[])
 *************************************************************************/
 
 STATUS LNPUBLIC note_action
-            (VOID far *db_handle,
-            SEARCH_MATCH far *pSearchMatch,
-            ITEM_TABLE far *summary_info)
+                           (VOID far *db_handle,
+                            SEARCH_MATCH far *pSearchMatch,
+                            ITEM_TABLE far *summary_info)
 {
     SEARCH_MATCH  SearchMatch;
     NOTEHANDLE    note_handle;
@@ -171,28 +186,28 @@ but is shown here in case a starting date was used in the search. */
 
 /* Print the note ID. */
 
-    printf ("\nNote ID is: %lX.\n", SearchMatch.ID.NoteID);
+    PRINTLOG ("\nNote ID is: %lX.\n", SearchMatch.ID.NoteID);
 
 /* Open the note. */
 
     if (error = NSFNoteOpen (
-            *(DBHANDLE far *)db_handle,    /* database handle */
-            SearchMatch.ID.NoteID,    /* note ID */
-            0,            /* open flags */
-            &note_handle))        /* note handle (return) */
+                             *(DBHANDLE far *)db_handle,    /* database handle */
+                             SearchMatch.ID.NoteID,    /* note ID */
+                             0,            /* open flags */
+                             &note_handle))        /* note handle (return) */
         
         return (ERR(error));
 
 /* Scan all the fields in the note, calling an action routine for each. */
 
     if (error = NSFItemScan (
-            note_handle,    /* note handle */
-            field_action,    /* action routine for fields */
-            &note_handle))    /* argument to action routine */
-        {
+                             note_handle,    /* note handle */
+                             field_action,    /* action routine for fields */
+                             &note_handle))    /* argument to action routine */
+    {
         NSFNoteClose (note_handle);
         return (ERR(error));
-        }
+    }
 
 /* Close the note. */
 
@@ -220,13 +235,13 @@ but is shown here in case a starting date was used in the search. */
 *************************************************************************/
 
 STATUS LNPUBLIC field_action
-            (WORD unused,
-            WORD item_flags,
-            char far *name_ptr,
-            WORD name_len,
-            VOID far *item_value,
-            DWORD item_value_len,
-            VOID far *note_handle)
+                            (WORD unused,
+                             WORD item_flags,
+                             char far *name_ptr,
+                             WORD name_len,
+                             VOID far *item_value,
+                             DWORD item_value_len,
+                             VOID far *note_handle)
 {
     char    item_name[50];        /* name of the field */
     WORD    binary_datatype;    /* datatype of field in binary */
@@ -245,7 +260,7 @@ of it. We do this in order to treat the name as a standard C string. */
 /* Translate the binary data type to ASCII. */
 
     switch (binary_datatype)
-        {
+    {
         case TYPE_TEXT:
             strcpy (ascii_datatype, "Text");
             break;
@@ -270,48 +285,18 @@ of it. We do this in order to treat the name as a standard C string. */
         default:
             strcpy (ascii_datatype, "Unknown");
             break;
-        }
+    }
 
 /* Print the field name and data type. */
 
-    printf ("Found field named \"%s\" with data type \"%s\".\n",
-        item_name, ascii_datatype);
+    PRINTLOG ("Found field named \"%s\" with data type \"%s\".\n",
+    item_name, ascii_datatype);
 
 /* End of subroutine. */
 
     return (NOERROR);
 
 }
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif

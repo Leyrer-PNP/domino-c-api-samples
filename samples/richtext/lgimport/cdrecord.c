@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:      lgimport
 
@@ -48,7 +63,7 @@
  *       WORD wJustifyMode    Justify mode of paragraph. 
  *
  *    Returns:
- *        BOOL TRUE if Successful
+ *        BOOL TRUE  if Successful
  *        BOOL FALSE if Not Successful
  *
  *    Comments:
@@ -111,7 +126,7 @@ BOOL LNPUBLIC PutPabDef(char far * far * ppBuf,
  *       WORD wLength          Number of bytes remaining in the buffer. 
  *
  *    Returns:
- *        BOOL TRUE if Successful
+ *        BOOL TRUE  if Successful
  *        BOOL FALSE if Not Successful
  *     
  * 
@@ -132,7 +147,7 @@ BOOL LNPUBLIC PutPara( char far * far *ppBuf,
     if (wLength < ODSLength(_CDPARAGRAPH))
         return (FALSE);
 
-/* Fill in PARAGRAPH item structure  */
+    /* Fill in PARAGRAPH item structure  */
         
     CDPara.Header.Length = bLength;/* (BYTE) ODSLength(_CDPARAGRAPH); */
     CDPara.Header.Signature = bSig;/* SIG_CD_PARAGRAPH; */
@@ -157,13 +172,13 @@ BOOL LNPUBLIC PutPara( char far * far *ppBuf,
  * 
  *   Arguments:
  *       char far * far *ppBuf  Address of pointer to next available byte in 
- *                            buffer containing the item being created.
- *       WORD wPabDefNumber   The paragraph definition to which this pabref
- *                            refers.
- *       WORD wLength         Number of bytes remaining in the buffer. 
+ *                              buffer containing the item being created.
+ *       WORD wPabDefNumber     The paragraph definition to which this pabref
+ *                              refers.
+ *       WORD wLength           Number of bytes remaining in the buffer. 
  *
  *    Returns:
- *        BOOL TRUE if Successful
+ *        BOOL TRUE  if Successful
  *        BOOL FALSE if Not Successful
  *
  *

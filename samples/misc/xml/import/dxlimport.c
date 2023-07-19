@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
       
     PROGRAM:    dxlimport
 
@@ -57,6 +72,7 @@
 #include <osmem.h>
 #include <lapiplat.h>
 #include "dxlimport.h"
+#include <printLog.h>
 
 #ifdef UNIX
 	#define STRICMP strcasecmp
@@ -72,29 +88,29 @@
 
 int main(int argc, char *argv[])
 {
-    STATUS		error =  NOERROR;
+	STATUS		error =  NOERROR;
 	struct		ImportOptions	impOptions;
 	DBHANDLE	hDB;
 
-	char       pname[MAXPATH] = "";         /* buffer to store the input path to database */
-	char       *path_name;					/* pathname of database */
+	char		pname[MAXPATH] = "";         /* buffer to store the input path to database */
+	char		*path_name;					/* pathname of database */
 	
 
 	if (error = NotesInitExtended (argc, argv))
 	{
-		fprintf( stdout, "\n Unable to initialize Notes.\n");
+		PRINTLOG(  "\n Unable to initialize Notes.\n");
 		return (1);
 	} 
 
-    fprintf( stdout, "DXLIMPORT Utility\n" );
+	PRINTLOG(  "DXLIMPORT Utility\n" );
 
-    memset(&impOptions, 0, sizeof(impOptions));
-    error = ProcessArgs( argc, argv, &impOptions );
-   
-    /* ProcessArgs checks the syntax, etc. */
-    if (error)
-    {
-		fprintf(stdout, "\nInvalid command line argument(s).  Please try again. \n");
+	memset(&impOptions, 0, sizeof(impOptions));
+	error = ProcessArgs( argc, argv, &impOptions );
+	
+	/* ProcessArgs checks the syntax, etc. */
+	if (error)
+	{
+		PRINTLOG( "\nInvalid command line argument(s).  Please try again. \n");
 		PrintUsage();
 		NotesTerm(); /* ProcessArgs already printed an error message */ 
 		return (0);
@@ -103,45 +119,45 @@ int main(int argc, char *argv[])
 	path_name = impOptions.fileDatabase;		/* Assign Database to Import */
 
 	if (impOptions.serverName != NULL)			/* Check to see if user supplied a servername */
-    {
+	{
 		if (error = OSPathNetConstruct( NULL, impOptions.serverName, impOptions.fileDatabase, pname))
-        {
-             PrintAPIError(error);
-			 NotesTerm();
-			 return(1);
-        }
-        path_name = pname;
-    }
+		{
+			PRINTERROR(error,"OSPathNetConstruct");
+			NotesTerm();
+			return(1);
+		}
+		path_name = pname;
+	}
 
 	
-    fprintf( stdout, "dxlimport: importing '%s'\n", path_name );
+	PRINTLOG(  "dxlimport: importing '%s'\n", path_name );
 
-    if (error = NSFDbOpen( path_name, &hDB ))	/* Open the Domino/Notes Database */
-    {
-		fprintf( stdout, "Error: unable to open '%s.'\n", path_name );
-		PrintAPIError (error); 
+	if (error = NSFDbOpen( path_name, &hDB ))	/* Open the Domino/Notes Database */
+{
+		PRINTLOG(  "Error: unable to open '%s.'\n", path_name );
+		PRINTERROR (error,"NSFDbOpen"); 
 		NotesTerm();
 		return (1);
-    }
+	}
 
 	error = ImportXMLData(hDB, &impOptions);
 	
 	if(error)
 	{
 		NSFDbClose(hDB);
-		PrintAPIError(error);
+		PRINTERROR(error,"ImportXMLData");
 		NotesTerm();
 		return(1);
 	}
 
-    NSFDbClose( hDB );
-    
-    fprintf( stdout, "\n\nDXLIMPORT: Done.\n" );
-    
-    if (error == NOERROR)
-      printf("\nProgram completed successfully.\n");
-    NotesTerm();
-    return (0);
+	NSFDbClose( hDB );
+	
+	PRINTLOG(  "\n\nDXLIMPORT: Done.\n" );
+	
+	if (error == NOERROR)
+	PRINTLOG("\nProgram completed successfully.\n");
+	NotesTerm();
+	return (0);
 }
 
 /************************************************************************
@@ -154,15 +170,15 @@ int main(int argc, char *argv[])
 *************************************************************************/
 STATUS LNPUBLIC ImportXMLData( DBHANDLE hDB, struct ImportOptions *impOptions)
 {
-	STATUS					error = NOERROR;
+	STATUS				error = NOERROR;
 	DXL_IMPORT_PROPERTY		propValue;			/* DXL Import Property Values */
 	DXLLOGOPTION			logAction;			/* DXL Log Option Values */
-	Xml_Validation_Option	valOption;			/* XML Validation Options */
+	Xml_Validation_Option		valOption;			/* XML Validation Options */
 	DXLIMPORTHANDLE			hDXLImport;			/* DXL Import Handle */
 	DXLIMPORTOPTION			setGetValue;		/* DXL Import Option Values */
-	MEMHANDLE				hMem;				/* Memory Handle needed to view the log for any errors */
-	char					*pData;				/* Pointer to log information if any */
-	struct ImportContext	impCtx;				/* Information needed to pass to the reader function */
+	MEMHANDLE			hMem;			/* Memory Handle needed to view the log for any errors */
+	char				*pData;			/* Pointer to log information if any */
+	struct ImportContext		impCtx;		/* Information needed to pass to the reader function */
 	
 	/* Assign the DXLIMPORTHANDLE for this Import Session */
 	if(error = DXLCreateImporter (&hDXLImport))
@@ -317,9 +333,9 @@ STATUS LNPUBLIC ImportXMLData( DBHANDLE hDB, struct ImportOptions *impOptions)
 		/* iDxlResultLog */
 		propValue = iResultLog;
 		if(DXLGetImporterProperty(hDXLImport, propValue, &hMem))
-			fprintf(stdout, "\nUnable to Get Error Log Information...\n");
+		PRINTLOG( "\nUnable to Get Error Log Information...\n");
 		pData = (char *)OSMemoryLock(hMem);
-		fprintf(stdout, "\nResultLog = %s\n", pData);
+		PRINTLOG( "\nResultLog = %s\n", pData);
 		OSMemoryUnlock(hMem);
 		OSMemoryFree(hMem);
 	}
@@ -339,7 +355,7 @@ DWORD LNCALLBACK DXLReaderFunc(unsigned char *pBuffer, const DWORD MaxToRead, vo
 {
 	DWORD bytesReturned = 0;
 	DWORD numread = 0;
-    DWORD bytesToCopy = 0;
+	DWORD bytesToCopy = 0;
     
 	struct ImportContext *tmpCtx = (struct ImportContext*)impCtx;
 
@@ -351,7 +367,7 @@ DWORD LNCALLBACK DXLReaderFunc(unsigned char *pBuffer, const DWORD MaxToRead, vo
 
 		if (!tmpCtx->dxlInputFile)
 		{
-			fprintf(stdout, "Error: Unable to open XML Input file:%s.\n", tmpCtx->dxlFileName);
+			PRINTLOG( "Error: Unable to open XML Input file:%s.\n", tmpCtx->dxlFileName);
 			return(0);
 		}	
     
@@ -361,7 +377,7 @@ DWORD LNCALLBACK DXLReaderFunc(unsigned char *pBuffer, const DWORD MaxToRead, vo
 		/* get the file length of the file */
 		if((fstat(tmpCtx->InputFDHandle, &tmpCtx->buf) == -1))
 		{
-			fprintf(stdout, "Error: Unable to obtain file size.\n");
+			PRINTLOG( "Error: Unable to obtain file size.\n");
 			return(0);
 		}
 		tmpCtx->InputFDSize = tmpCtx->buf.st_size;
@@ -382,7 +398,7 @@ DWORD LNCALLBACK DXLReaderFunc(unsigned char *pBuffer, const DWORD MaxToRead, vo
 	numread = fread((unsigned char *)pBuffer, 1, bytesToCopy, tmpCtx->dxlInputFile);
 	if(ferror(tmpCtx->dxlInputFile))
 	{
-		fprintf(stdout, "Error: Unable to continue reading import file %s.\n Terminating..\n", "ExpNotes.xml");
+		PRINTLOG( "Error: Unable to continue reading import file %s.\n Terminating..\n", "ExpNotes.xml");
 		fclose(tmpCtx->dxlInputFile);
 		bytesReturned = 0;
 	}
@@ -596,64 +612,35 @@ STATUS  LNPUBLIC  ProcessArgs (int argc, char *argv[], struct ImportOptions *imp
 *************************************************************************/
 void    LNPUBLIC  PrintUsage()
 {
-	fprintf(stdout, "\nUSAGE : dxlimport [ options ]\n");
+	PRINTLOG( "\nUSAGE : dxlimport [ options ]\n");
 
-	fprintf(stdout, "\noptions: \n");
-	fprintf(stdout, "         -i dxlfile: DXL input file or URI; use -i with no name for standard input\n");
-	fprintf(stdout, "         -s server:  Domino server; omit for a local database\n");
-	fprintf(stdout, "         -r          Replace existing database properties\n");
-	fprintf(stdout, "         -n:         Use non-validating parser (uses validating parser otherwise)\n");
-	fprintf(stdout, "         -nef:       No exit on first fatal error (try to continue after fatal error)\n");
-	fprintf(stdout, "         -ui:        Ignore unknown elements and attributes\n");
-	fprintf(stdout, "         -uw:        Log warning for unknown elements and attributes\n");
-	fprintf(stdout, "         -ue:        Log error for unknown elements and attributes\n");
-	fprintf(stdout, "         -uf:        Log fatal error for unknown elements and attributes\n\n");
-	fprintf(stdout, "         -acli:      Ignore DXL <acl> elements (default)\n");
-	fprintf(stdout, "         -aclri:     Replace existing ACL with DXL <acl>, else ignore\n");
-	fprintf(stdout, "         -aclui:     Update existing ACL from DXL <acl>, else ignore\n");
-	fprintf(stdout, "         -desc:      Create new design elements, leaving existing elements intact\n");
-	fprintf(stdout, "         -desi:      Ignore DXL design elements (default)\n");
-	fprintf(stdout, "         -desri:     Replace existing design elements with DXL, else ignore\n");
-	fprintf(stdout, "         -desrc:     Replace existing design elements with DXL, else create\n\n");
-	fprintf(stdout, "         -doci:      Ignore DXL <document> elements\n");
-	fprintf(stdout, "         -docc:      Create new documents (default)\n");
-	fprintf(stdout, "         -docri:     Replace existing documents with DXL, else ignore\n");
-	fprintf(stdout, "         -docrc:     Replace existing documents with DXL, else create\n");
-	fprintf(stdout, "         -docui:     Update existing documents from DXL, else ignore\n");
-	fprintf(stdout, "         -docuc:     Update existing documents from DXL, else create\n\n");
-	fprintf(stdout, "         -ftc:       Create full text index if a <fulltextsettings> element exists\n\n");
-	fprintf(stdout, "         -norepl:    Replace/update do not require database and DXL be replicas\n\n");
+	PRINTLOG( "\noptions: \n");
+	PRINTLOG( "         -i dxlfile: DXL input file or URI; use -i with no name for standard input\n");
+	PRINTLOG( "         -s server:  Domino server; omit for a local database\n");
+	PRINTLOG( "         -r          Replace existing database properties\n");
+	PRINTLOG( "         -n:         Use non-validating parser (uses validating parser otherwise)\n");
+	PRINTLOG( "         -nef:       No exit on first fatal error (try to continue after fatal error)\n");
+	PRINTLOG( "         -ui:        Ignore unknown elements and attributes\n");
+	PRINTLOG( "         -uw:        Log warning for unknown elements and attributes\n");
+	PRINTLOG( "         -ue:        Log error for unknown elements and attributes\n");
+	PRINTLOG( "         -uf:        Log fatal error for unknown elements and attributes\n\n");
+	PRINTLOG( "         -acli:      Ignore DXL <acl> elements (default)\n");
+	PRINTLOG( "         -aclri:     Replace existing ACL with DXL <acl>, else ignore\n");
+	PRINTLOG( "         -aclui:     Update existing ACL from DXL <acl>, else ignore\n");
+	PRINTLOG( "         -desc:      Create new design elements, leaving existing elements intact\n");
+	PRINTLOG( "         -desi:      Ignore DXL design elements (default)\n");
+	PRINTLOG( "         -desri:     Replace existing design elements with DXL, else ignore\n");
+	PRINTLOG( "         -desrc:     Replace existing design elements with DXL, else create\n\n");
+	PRINTLOG( "         -doci:      Ignore DXL <document> elements\n");
+	PRINTLOG( "         -docc:      Create new documents (default)\n");
+	PRINTLOG( "         -docri:     Replace existing documents with DXL, else ignore\n");
+	PRINTLOG( "         -docrc:     Replace existing documents with DXL, else create\n");
+	PRINTLOG( "         -docui:     Update existing documents from DXL, else ignore\n");
+	PRINTLOG( "         -docuc:     Update existing documents from DXL, else create\n\n");
+	PRINTLOG( "         -ftc:       Create full text index if a <fulltextsettings> element exists\n\n");
+	PRINTLOG( "         -norepl:    Replace/update do not require database and DXL be replicas\n\n");
 	
     return;
 }
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-				error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stdout, "\n%s\n", error_text);
-
-}
 

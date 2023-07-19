@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    onecat
 
@@ -28,6 +43,7 @@
 #include <nif.h>
 #include <osmem.h>
 #include <miscerr.h>
+#include <printLog.h>
 
 #include <osmisc.h>
 
@@ -40,8 +56,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                          char *db_filename, 
                          char *view_name, 
                          char *category); 
- 
-void PrintAPIError (STATUS);
 
 #define  STRING_LENGTH  256
 
@@ -64,32 +78,32 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char     db_filename[STRING_LENGTH];            /* pathname of the database */
-   char     view_name[STRING_LENGTH];              /* name of the view we'll read */
-   char     category[STRING_LENGTH];               /* category to search for in view */
-   DBHANDLE db_handle;                             /* handle of the database */
-   NOTEID      view_id;                            /* note id of the view */
-   HCOLLECTION coll_handle;                        /* collection handle */
-   COLLECTIONPOSITION cat_index;                   /* index of category entry */
-   DHANDLE       buffer_handle;                    /* handle to buffer of info */
-   BYTE     *buff_ptr;                             /* pointer into info buffer */
-   NOTEID      entry_id;                           /* a collection entry id */
-   WORD     entry_indent;                          /* "indent level" of entry */
-   WORD     entry_index_size;                      /* size of index postion */
-   COLLECTIONPOSITION entry_index;                 /* an index position */
-   DWORD     entries_found;                        /* number of entries found */
-   DWORD   main_topics_found=0;                    /* number of main docs found */
-   DWORD   i;                                      /* a counter */
-   STATUS   error = NOERROR;                       /* return status from API calls */
-   WORD     signal_flag;                           /* signal and share warning flags */
-   BOOL     FirstTime = TRUE;                      /* used in NIFReadEntries loop */
+   char               db_filename[STRING_LENGTH];            /* pathname of the database */
+   char               view_name[STRING_LENGTH];              /* name of the view we'll read */
+   char               category[STRING_LENGTH];               /* category to search for in view */
+   DBHANDLE           db_handle;                             /* handle of the database */
+   NOTEID             view_id;                               /* note id of the view */
+   HCOLLECTION        coll_handle;                           /* collection handle */
+   COLLECTIONPOSITION cat_index;                             /* index of category entry */
+   DHANDLE            buffer_handle;                         /* handle to buffer of info */
+   BYTE               *buff_ptr;                             /* pointer into info buffer */
+   NOTEID             entry_id;                              /* a collection entry id */
+   WORD               entry_indent;                          /* "indent level" of entry */
+   WORD               entry_index_size;                      /* size of index postion */
+   COLLECTIONPOSITION entry_index;                           /* an index position */
+   DWORD              entries_found;                         /* number of entries found */
+   DWORD              main_topics_found=0;                   /* number of main docs found */
+   DWORD              i;                                     /* a counter */
+   STATUS             error = NOERROR;                       /* return status from API calls */
+   WORD               signal_flag;                           /* signal and share warning flags */
+   BOOL               FirstTime = TRUE;                      /* used in NIFReadEntries loop */
 
 
     /*   Start by calling Notes Init.  */
 
    if (error = NotesInitExtended (argc, argv))
    {
-       printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
        return (1);
    }
 
@@ -103,7 +117,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (db_filename, &db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbOpen");  
        NotesTerm();
        return (1);
    } 
@@ -114,7 +128,7 @@ int main(int argc, char *argv[])
    if (error = NIFFindView (db_handle, view_name, &view_id))
    {
        NSFDbClose (db_handle);
-       PrintAPIError (error);  
+       PRINTERROR (error,"NIFFindView");  
        NotesTerm();
        return (1);
    }
@@ -122,19 +136,19 @@ int main(int argc, char *argv[])
 /* Get the current collection using this view. */
 
    if (error = NIFOpenCollection(
-         db_handle,      /* handle of db with view */
-         db_handle,      /* handle of db with data */
-         view_id,        /* note id of the view */
-         0,              /* collection open flags */
-         NULLHANDLE,     /* handle to unread ID list (input and return) */
-         &coll_handle,   /* collection handle (return) */
-         NULLHANDLE,     /* handle to open view note (return) */
-         NULL,           /* universal note id of view (return) */
-         NULLHANDLE,     /* handle to collapsed list (return) */
-         NULLHANDLE))    /* handle to selected list (return) */
+                      db_handle,      /* handle of db with view */
+                      db_handle,      /* handle of db with data */
+                      view_id,        /* note id of the view */
+                      0,              /* collection open flags */
+                      NULLHANDLE,     /* handle to unread ID list (input and return) */
+                      &coll_handle,   /* collection handle (return) */
+                      NULLHANDLE,     /* handle to open view note (return) */
+                      NULL,           /* universal note id of view (return) */
+                      NULLHANDLE,     /* handle to collapsed list (return) */
+                      NULLHANDLE))    /* handle to selected list (return) */
    {
        NSFDbClose (db_handle);
-       PrintAPIError (error);  
+       PRINTERROR (error,"NIFOpenCollection");  
        NotesTerm();
        return (1);
    }
@@ -145,15 +159,15 @@ Ignore the "match count" that this call returns, since it does not span
 subcategories. */
 
    error = NIFFindByName (
-          coll_handle,             /* collection to look in */
-          category,                /* string to match on */
-          FIND_CASE_INSENSITIVE,   /* match rules */
-          &cat_index,              /* where match begins (return) */
-          NULL);                   /* how many match (return) */
+                 coll_handle,             /* collection to look in */
+                 category,                /* string to match on */
+                 FIND_CASE_INSENSITIVE,   /* match rules */
+                 &cat_index,              /* where match begins (return) */
+                 NULL);                   /* how many match (return) */
 
    if (ERR(error) == ERR_NOT_FOUND) 
    {
-      printf ("\nCategory not found in the collection.\n");
+      PRINTLOG ("\nCategory not found in the collection.\n");
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
       NotesTerm();
@@ -164,7 +178,7 @@ subcategories. */
    {
       NIFCloseCollection (coll_handle);
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFFindByName");  
       NotesTerm();
       return (1);
    }
@@ -183,25 +197,25 @@ arranged in the order of the bits in the READ_MASKs.
    do
       {
          if (error = NIFReadEntries(
-             coll_handle,            /* handle to this collection */
-             &cat_index,             /* where to start in collection */
-             (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
-                                     /* order to use when skipping */
-             FirstTime ? 0L : 1L,    /* number to skip */
-             NAVIGATE_NEXT,          /* order to use when reading */
-             0xFFFFFFFF,             /* max number to read */
-             READ_MASK_NOTEID +      /* info we want */
-             READ_MASK_INDENTLEVELS +
-             READ_MASK_INDEXPOSITION,
-             &buffer_handle,         /* handle to info buffer (return)  */
-             NULL,                   /* length of info buffer (return) */
-             NULL,                   /* entries skipped (return) */
-             &entries_found,         /* entries read (return) */
-             &signal_flag))          /* signal and share warnings (return) */
+                            coll_handle,            /* handle to this collection */
+                            &cat_index,             /* where to start in collection */
+                            (WORD) (FirstTime ? NAVIGATE_CURRENT : NAVIGATE_NEXT),
+                                                    /* order to use when skipping */
+                            FirstTime ? 0L : 1L,    /* number to skip */
+                            NAVIGATE_NEXT,          /* order to use when reading */
+                            0xFFFFFFFF,             /* max number to read */
+                            READ_MASK_NOTEID +      /* info we want */
+                            READ_MASK_INDENTLEVELS +
+                            READ_MASK_INDEXPOSITION,
+                            &buffer_handle,         /* handle to info buffer (return)  */
+                            NULL,                   /* length of info buffer (return) */
+                            NULL,                   /* entries skipped (return) */
+                            &entries_found,         /* entries read (return) */
+                            &signal_flag))          /* signal and share warnings (return) */
          {
             NIFCloseCollection (coll_handle);
             NSFDbClose (db_handle);
-            PrintAPIError (error);  
+            PRINTERROR (error,"NIFReadEntries");  
             NotesTerm();
             return (1);
          }
@@ -214,7 +228,7 @@ has some documents in it.) */
         {
            NIFCloseCollection (coll_handle);
            NSFDbClose (db_handle);
-           printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+           PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
            NotesTerm();
            return (0); 
         }
@@ -227,7 +241,7 @@ the resulting pointer to the type we need. */
 /* Start a loop that extracts the info about each collection entry from
 the information buffer. */
 
-        printf ("\n");
+        PRINTLOG ("\n");
         for (i = 1; i <= entries_found; i++)
         {
 
@@ -277,7 +291,7 @@ over it. */
 
 /* We have found a main-topic note. Print out its note ID. */
 
-           printf ("Main topic count is: %lu.  \tNote ID is: %lX.\n",
+           PRINTLOG ("Main topic count is: %lu.  \tNote ID is: %lX.\n",
                   ++main_topics_found, entry_id);
 
 /* End of loop that gets info about each entry. */
@@ -301,7 +315,7 @@ over it. */
    if (error = NIFCloseCollection(coll_handle))
    {
       NSFDbClose (db_handle);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFCloseCollection");  
       NotesTerm();
       return (1);
    }
@@ -310,7 +324,7 @@ over it. */
 
    if (error = NSFDbClose (db_handle))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbClose");  
        NotesTerm();
        return (1);
    } 
@@ -318,7 +332,7 @@ over it. */
 
 /* End of subroutine. */
 
-   printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
 
    NotesTerm();
    return (0); 
@@ -369,33 +383,4 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     } /* end if */
 } /* ProcessArgs */
 
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
 

@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    mktable
 
@@ -51,7 +66,7 @@
     ARGUMENTS:
       WORD para_num        - A unique ID to use for this PabDefinition.
 
-      BYTE **cd_out_ptr    -  pointer to CD buffer under construction.
+      BYTE **cd_out_ptr    - pointer to CD buffer under construction.
 
       DWORD cd_input_cnt   - current offset into CD buffer.
 
@@ -62,7 +77,7 @@
 
       WORD Right_Margin    - Rightmost Margin value for the paragraph.
 
-      WORD Flags           -  paragraph attribute flags.
+      WORD Flags           - paragraph attribute flags.
 
     RETURNS:
         Returns TRUE if successful, FALSE if not enough memory in buffer.
@@ -120,7 +135,7 @@ BOOL  CDPutPabdef(WORD para_num, BYTE **cd_out_ptr, DWORD cd_input_cnt,
      WORD para_num        - The paragraph definition ID to which this pabref
                             refers.
 
-     BYTE **cd_out_ptr    -  pointer to CD buffer under construction.
+     BYTE **cd_out_ptr    - pointer to CD buffer under construction.
 
      DWORD cd_input_cnt   - current offset into CD buffer.
 
@@ -168,7 +183,7 @@ BOOL  CDPutPabref(WORD para_num, BYTE **cd_out_ptr, DWORD cd_input_cnt,
 
     ARGUMENTS:
 
-      BYTE **cd_out_ptr      -  pointer to CD buffer under construction.
+      BYTE **cd_out_ptr      - pointer to CD buffer under construction.
 
       DWORD cd_input_cnt     - current offset into CD buffer.
 
@@ -213,16 +228,16 @@ BOOL CDPutPara(BYTE **cd_out_ptr,
 
     ARGUMENTS:
 
-      font_choice - which of the PROGRAMMER defined font/styles
-                    to use.
+      font_choice   - which of the PROGRAMMER defined font/styles
+                      to use.
 
-      text_buf - pointer to text buffer to copy to CDTEXT record.
+      text_buf      - pointer to text buffer to copy to CDTEXT record.
 
-      text_size - length of contents of text buffer.
+      text_size     - length of contents of text buffer.
 
-      cd_out_ptr -  pointer to CD buffer under construction.
+      cd_out_ptr    - pointer to CD buffer under construction.
 
-      cd_input_cnt - current offset into CD buffer.
+      cd_input_cnt  - current offset into CD buffer.
 
       cd_output_cnt - offset into CD buffer after CDTABLEBEGIN
                       was added.

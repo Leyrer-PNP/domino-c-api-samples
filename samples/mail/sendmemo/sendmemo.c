@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    sendmemo
 
@@ -67,14 +82,13 @@
 #include <fontid.h>
 #include <mail.h>
 #include <osmisc.h>
+#include<printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
 
 #define TEMP_MAIL_BODY_ITEM   "TempBody"
-
-void PrintAPIError (STATUS);
  
 
 /************************************************************************
@@ -137,8 +151,8 @@ int main(int argc, char * argv[])
 
         if (!OSGetEnvironmentInt("MAIL_ENABLE_MAILBOX_COMPATIBILITY"))
         {
-           printf ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
-           strcpy(szMailFileName, "mail2.box");
+            printf ("\nEnable mailbox parameter is not set ...\n\n Adding message to local 'mail2.box' file ...\n\n");
+            strcpy(szMailFileName, "mail2.box");
         }
     }
 
@@ -160,12 +174,12 @@ int main(int argc, char * argv[])
 
             if ((error == ERR_NOEXIST) && (!strcmp (szMailFileName, "mail2.box")))
             {
-               strcpy(szMailFileName, "mail.box");
+                strcpy(szMailFileName, "mail.box");
             }
             else
             {
-               printf ("Error: unable to open '%s'.\n", szMailBoxPath);
-               goto Done;
+                printf ("Error: unable to open '%s'.\n", szMailBoxPath);
+                goto Done;
             }
         }
     }
@@ -204,7 +218,7 @@ int main(int argc, char * argv[])
                                 MAXWORD))
     {
         printf ("Error: unable to set item '%s' into memo.\n",
-                                MAIL_RECIPIENTS_ITEM);
+                 MAIL_RECIPIENTS_ITEM);
         goto Done2;
     }
 
@@ -243,7 +257,7 @@ int main(int argc, char * argv[])
                                 MAXWORD))
     {
         printf ("Error: unable to set item '%s' into memo.\n",
-                                MAIL_DELIVERYREPORT_ITEM);
+                 MAIL_DELIVERYREPORT_ITEM);
         goto Done2;
     }
 
@@ -296,9 +310,9 @@ int main(int argc, char * argv[])
     }
 
     if (error = ConvertItemToCompositeExt(bidValue, dwValueLen,
-                DEFAULT_FONT_ID, "", PARADELIM_BLANKLINE,
-                &hRichTextBody, &dwRichTextLen,
-                NULL, 0, FALSE))
+                                          DEFAULT_FONT_ID, "", PARADELIM_BLANKLINE,
+                                          &hRichTextBody, &dwRichTextLen,
+                                          NULL, 0, FALSE))
     {
         printf ("Error: unable to convert text item to composite.\n");
         goto Done2;
@@ -309,8 +323,8 @@ int main(int argc, char * argv[])
     dwRichTextLen -= sizeof(WORD);
 
     if (error = NSFItemAppend(hMemo, 0, MAIL_BODY_ITEM,
-                    (WORD) strlen(MAIL_BODY_ITEM), TYPE_COMPOSITE, pRichTextBody,
-                    dwRichTextLen))
+                              (WORD) strlen(MAIL_BODY_ITEM), TYPE_COMPOSITE, pRichTextBody,
+                              dwRichTextLen))
     {
         printf ("Error: unable to append item '%s' to note.\n",
                             MAIL_BODY_ITEM);
@@ -323,7 +337,7 @@ int main(int argc, char * argv[])
     OSMemFree(hRichTextBody);
 
     if (error = NSFItemDelete(hMemo, TEMP_MAIL_BODY_ITEM,
-                            (WORD) strlen(TEMP_MAIL_BODY_ITEM)))
+                              (WORD) strlen(TEMP_MAIL_BODY_ITEM)))
     {
         printf ("Error: unable to delete item '%s' to note.\n",
                             TEMP_MAIL_BODY_ITEM);
@@ -344,7 +358,9 @@ Done1:
 
 Done:
     if (error)
-        PrintAPIError (error);  
+    {
+        PRINTERROR(error, "NSFDbOpen");
+    }
     else
     {
         printf ("%s: successfully deposited memo '%s' in '%s'.\n",
@@ -355,34 +371,3 @@ Done:
     NotesTerm();
     return (error); 
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

@@ -1,4 +1,20 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+
     PROGRAM:    makenav
 
     FILE:       makenav.c
@@ -79,13 +95,14 @@ extern "C" {
 #include <viewfmt.h>
 #include <colorid.h>
 #include <osmisc.h>
+#include <printLog.h>
 
 #ifdef OS390
 #include <_Ascii_a.h>  /* NOTE: must be the LAST file included */
 #include <lapicinc.h>
 #endif
 
-	#if !defined(ND64) 
+#if !defined(ND64) 
     #define DHANDLE HANDLE 
 #endif
 
@@ -107,8 +124,6 @@ WORD           bDocNoteFound;
 STATUS LNPUBLIC FindFirstNote(void *, SEARCH_MATCH *, ITEM_TABLE * );
 STATUS LNPUBLIC FindLayoutCount(WORD, WORD, char *, WORD, VOID *, DWORD, VOID * );
 
-void PrintAPIError (STATUS);
-
 /************************************************************************
 
     FUNCTION:   main
@@ -116,16 +131,16 @@ void PrintAPIError (STATUS);
 *************************************************************************/
 int main(int argc, char *argv[])
 {
-    STATUS  sError = NOERROR;
-    WORD    ClassView = NOTE_CLASS_VIEW;
+    STATUS        sError = NOERROR;
+    WORD          ClassView = NOTE_CLASS_VIEW;
 
-    DBHANDLE   hDB;           /* sample database handle */
-    NOTEHANDLE hViewNote;      /* sample navigator view handle */
-    NOTEID     ViewNoteID;    /* and note id                  */
+    DBHANDLE      hDB;           /* sample database handle */
+    NOTEHANDLE    hViewNote;     /* sample navigator view handle */
+    NOTEID        ViewNoteID;    /* and note id                  */
 
-    char szFileName[] = "makenav.nsf";         /* sample database to be used */
-    char szMainView[] = "MainView";            /* title of view to be used */
-    char szNavViewName[] = "Sample Navigator"; /* title of navigator view */
+    char          szFileName[] = "makenav.nsf";         /* sample database to be used */
+    char          szMainView[] = "MainView";            /* title of view to be used */
+    char          szNavViewName[] = "Sample Navigator"; /* title of navigator view */
 
 /*
  * Variables pertaining to the Navigator Layout ($ViewMapLayout) item and 
@@ -135,49 +150,49 @@ int main(int argc, char *argv[])
     VIEWMAP_RECT_RECORD    NavRect;
     VIEWMAP_ACTION_RECORD  NavAction;
 
-    WORD    wNavLayoutBufLen;
-    DHANDLE  hNavLayoutBuffer;
-    char   *pNavLayoutBuffer;
-    char   *pNLBuf;
+    WORD          wNavLayoutBufLen;
+    DHANDLE       hNavLayoutBuffer;
+    char          *pNavLayoutBuffer;
+    char          *pNLBuf;
 
-    char    szNavName[]  = "DocLink(MM/DD/YYYY)"; /* Navigator name placeholder */
-    char    szNavLabel[] = "MM/DD/YYYY";          /* Navigator label placeholder */
-    WORD    wNavNameLen  = strlen(szNavName);
-    WORD    wNavLabelLen = strlen(szNavLabel);
+    char          szNavName[]  = "DocLink(MM/DD/YYYY)"; /* Navigator name placeholder */
+    char          szNavLabel[] = "MM/DD/YYYY";          /* Navigator label placeholder */
+    WORD          wNavNameLen  = strlen(szNavName);
+    WORD          wNavLabelLen = strlen(szNavLabel);
 
     TIMEDATE      CurrTimeDate;  /* Current TimeDate */
     TIMEDATE      YesterTimeDate;   /* Current TimeDate less 1 day */
     TIMEDATE      CurrDate;      /* Current (extracted) date */
-    TFMT        DateFormat;
-    FONTIDFIELDS   *font;
+    TFMT          DateFormat;
+    FONTIDFIELDS  *font;
 
 /*
  * NOTELINK variables.
  */
-    DBREPLICAINFO    DBReplica;
-    NOTEHANDLE       hMainView;  
-    NOTEID           MainViewID; 
-    ORIGINATORID    ViewOID;
+    DBREPLICAINFO DBReplica;
+    NOTEHANDLE    hMainView;  
+    NOTEID        MainViewID; 
+    ORIGINATORID  ViewOID;
     UNID          ViewUNID;
     UNID          DocNoteUNID;
 
 /* 
  * Design Flags ($Flags) item variable.
  */
-   char    szDFlags[3];
+   char           szDFlags[3];
 
 /* 
  **************************************************************************
  * Start program.
  **************************************************************************
  */         
-    printf("HCL Notes API\nmakenav sample program\n");
+    PRINTLOG("HCL Notes API\nmakenav sample program\n");
 
-	if (sError = NotesInitExtended (argc, argv))
-	{
-        printf("\n Unable to initialize Notes.\n");
-        return (1);
-	}
+    if (sError = NotesInitExtended (argc, argv))
+    {
+       PRINTLOG("\n Unable to initialize Notes.\n");
+       return (1);
+    }
 
    
 /*
@@ -185,8 +200,8 @@ int main(int argc, char *argv[])
  */
     if (sError = NSFDbOpen( szFileName, &hDB ))
     {
-        printf("Error: unable to open database '%s'.\n", szFileName );
-        goto Exit1;
+       PRINTLOG("Error: unable to open database '%s'.\n", szFileName );
+       goto Exit1;
     }
 
 /*
@@ -197,23 +212,23 @@ int main(int argc, char *argv[])
     if ((sError = NIFFindView(hDB, szNavViewName, &ViewNoteID )) == NOERROR)
     {
        if (sError = NSFNoteOpen(hDB, ViewNoteID, 0, &hViewNote ))
-      {
-         printf("Error: unable to open navigator view note in database.\n");
-         goto Exit2;
-      }
+       {
+           PRINTLOG("Error: unable to open navigator view note in database.\n");
+           goto Exit2;
+       }
     }
 
 /*
  * Navigator does not exist, create the note in database.
  */
     else
-   {
+    {
        sError = NSFNoteCreate( hDB, &hViewNote );
        if (sError) 
        {
-           printf("Error: unable to create note in database.\n" );
+           PRINTLOG("Error: unable to create note in database.\n" );
            goto Exit2;
-      }
+       } 
     
 /*
  * Set the NOTE_CLASS to NOTE_CLASS_VIEW.
@@ -224,34 +239,34 @@ int main(int argc, char *argv[])
  * Set the view name. 
  */
        sError = NSFItemSetText( hViewNote, VIEW_TITLE_ITEM,
-                              szNavViewName, MAXWORD );
+                                szNavViewName, MAXWORD );
        if (sError)
-      {
-         printf("Error: unable to set text item '%s' in view note.\n",
-                   VIEW_TITLE_ITEM );
+       {
+           PRINTLOG("Error: unable to set text item '%s' in view note.\n",
+                    VIEW_TITLE_ITEM );
            goto Exit3;
-      }
+       }
 
 /*
  * Append Design flags for the Navigator view.
  */
-      szDFlags[0] = DESIGN_FLAG_VIEWMAP;
-      szDFlags[1] = DESIGN_FLAG_HIDE_FROM_V3;
-      szDFlags[2] = '\0';
-      sError = NSFItemAppend(  hViewNote,
-                               ITEM_SUMMARY,
-                               DESIGN_FLAGS,
-                               (WORD)strlen(DESIGN_FLAGS),
-                               TYPE_TEXT,
-                               szDFlags,
-                               (DWORD)strlen(szDFlags ));
+       szDFlags[0] = DESIGN_FLAG_VIEWMAP;
+       szDFlags[1] = DESIGN_FLAG_HIDE_FROM_V3;
+       szDFlags[2] = '\0';
+       sError = NSFItemAppend(  hViewNote,
+                                ITEM_SUMMARY,
+                                DESIGN_FLAGS,
+                                (WORD)strlen(DESIGN_FLAGS),
+                                TYPE_TEXT,
+                                szDFlags,
+                                (DWORD)strlen(szDFlags ));
        if (sError) 
        {
-           printf("Error: unable to append item '%s' to view note.\n",
-                   DESIGN_FLAGS );
+           PRINTLOG("Error: unable to append item '%s' to view note.\n",
+                    DESIGN_FLAGS );
            goto Exit3;
-      }
-   }
+       }
+    }
 
 /* 
  * Get current TIMEDATE, extract of the DATE portion (the navigator label), and adjust 
@@ -259,44 +274,44 @@ int main(int argc, char *argv[])
  */
     OSCurrentTIMEDATE(&CurrTimeDate );
 
-   TimeExtractLocal(&CurrTimeDate, FALSE, &CurrDate );
-   DateFormat.Date = TDFMT_FULL;
-   DateFormat.Structure = TSFMT_DATE;
-   ConvertTIMEDATEToText(NULL, &DateFormat, &CurrDate, szNavLabel, 
-                     wNavLabelLen, &wNavLabelLen);
-   szNavLabel[wNavLabelLen] = '\0';                         
+    TimeExtractLocal(&CurrTimeDate, FALSE, &CurrDate );
+    DateFormat.Date = TDFMT_FULL;
+    DateFormat.Structure = TSFMT_DATE;
+    ConvertTIMEDATEToText(NULL, &DateFormat, &CurrDate, szNavLabel, 
+                          wNavLabelLen, &wNavLabelLen);
+    szNavLabel[wNavLabelLen] = '\0';                         
 
-   YesterTimeDate = CurrTimeDate;
-   TimeDateAdjust(&YesterTimeDate, 0, 0, 0, -1, 0, 0);
+    YesterTimeDate = CurrTimeDate;
+    TimeDateAdjust(&YesterTimeDate, 0, 0, 0, -1, 0, 0);
 
 /*
  * Search the view for today's first document note, and set the global ID as appropriate
  */ 
-   bDocNoteFound = FALSE;
+    bDocNoteFound = FALSE;
 
     if (sError = NSFSearch (
-                    hDB,            /* database handle */
-                    NULLHANDLE,        /* selection formula (all) */
-                    szMainView,        /* title of view in selection formula */
-                    0,                 /* search flags */
-                    NOTE_CLASS_DOCUMENT,   /* note class to find */
-                    &YesterTimeDate,   /* starting date (unused) */
-                    FindFirstNote,      /* action routine for notes found */
-                    &hDB,           /* argument to action routine */
-                    NULL))              /* returned ending date (unused) */
-   {
-      printf("Error: database search failed.\n");
-      goto Exit3;
-   }
+                            hDB,            /* database handle */
+                            NULLHANDLE,        /* selection formula (all) */
+                            szMainView,        /* title of view in selection formula */
+                            0,                 /* search flags */
+                            NOTE_CLASS_DOCUMENT,   /* note class to find */
+                            &YesterTimeDate,   /* starting date (unused) */
+                            FindFirstNote,      /* action routine for notes found */
+                            &hDB,           /* argument to action routine */
+                            NULL))              /* returned ending date (unused) */
+    {
+       PRINTLOG("Error: database search failed.\n");
+       goto Exit3;
+    }
 
 /*
  * Exit if no document notes were available for today
  */
-   if (bDocNoteFound == FALSE)
-   {
-      printf("No new documents today. Navigator creation cancelled.\n" );
-      goto Exit3;
-   }
+    if (bDocNoteFound == FALSE)
+    {
+       PRINTLOG("No new documents today. Navigator creation cancelled.\n" );
+       goto Exit3;
+    }
 
 /* 
  * Retrieve the DBID, and the Note OIDs for both the view and document notes, 
@@ -304,24 +319,24 @@ int main(int argc, char *argv[])
  * These will be used by the NOTELINK for the Navigator action item.
  */
     if (sError = NSFDbReplicaInfoGet (hDB, &DBReplica))
-   {
-      printf("Error: could not retrieve DBID.\n");
-      goto Exit3;
-   }
+    {
+       PRINTLOG("Error: could not retrieve DBID.\n");
+       goto Exit3;
+    }
 
     if ((sError = NIFFindView(hDB, szMainView, &MainViewID )) == NOERROR)
     {
        if (sError = NSFNoteOpen(hDB, MainViewID, 0, &hMainView ))
-      {
-         printf("Error: unable to open MainView note in database.\n");
-         goto Exit3;
-      }
+       {
+           PRINTLOG("Error: unable to open MainView note in database.\n");
+           goto Exit3;
+       }
     }
-   else
+    else
     {
-      printf("Error: unable to find MainView note in database.\n");
-      goto Exit3;
-   }
+       PRINTLOG("Error: unable to find MainView note in database.\n");
+       goto Exit3;
+    }
     NSFNoteGetInfo (hMainView, _NOTE_OID, &ViewOID);
     ViewUNID.File = ViewOID.File;
     ViewUNID.Note = ViewOID.Note;
@@ -334,11 +349,11 @@ int main(int argc, char *argv[])
  * is used to programatically place the new draw object in a "free" UI area.
  */
     wLayoutCount = 0;
-   sError = NSFItemScan(hViewNote, FindLayoutCount, NULL );
+    sError = NSFItemScan(hViewNote, FindLayoutCount, NULL );
     if ((sError) && (sError != ERR_ITEM_NOT_FOUND )) 
     {
-        printf("Error: unable to scan '%s' view note.\n", VIEWMAP_LAYOUT_ITEM );
-        goto Exit3;
+       PRINTLOG("Error: unable to scan '%s' view note.\n", VIEWMAP_LAYOUT_ITEM );
+       goto Exit3;
     }
 
 /*
@@ -368,30 +383,30 @@ int main(int argc, char *argv[])
  /* 
   * If first navigator layout, then include header record in buffer length. 
   */
-   if (wLayoutCount == 0 )
-      wNavLayoutBufLen =  ODSLength( _VIEWMAP_HEADER_RECORD ) +
-                         ODSLength( _VIEWMAP_RECT_RECORD )   +
-                     wNavNameLen                         +
-                     wNavLabelLen                        +
-                     ODSLength( _VIEWMAP_ACTION_RECORD );   
-   else
-      wNavLayoutBufLen =  ODSLength( _VIEWMAP_RECT_RECORD )   +
-                     wNavNameLen                         +
-                     wNavLabelLen                        +
-                     ODSLength( _VIEWMAP_ACTION_RECORD );   
+    if (wLayoutCount == 0 )
+       wNavLayoutBufLen =  ODSLength( _VIEWMAP_HEADER_RECORD ) +
+                           ODSLength( _VIEWMAP_RECT_RECORD )   +
+                           wNavNameLen                         +
+                           wNavLabelLen                        +
+                           ODSLength( _VIEWMAP_ACTION_RECORD );   
+    else
+       wNavLayoutBufLen =  ODSLength( _VIEWMAP_RECT_RECORD )   +
+                           wNavNameLen                         +
+                           wNavLabelLen                        +
+                           ODSLength( _VIEWMAP_ACTION_RECORD );   
 
 /* 
  * Allocate and initialize the CD buffer for the entire $ViewMapLayout item.
  */
     if (sError = OSMemAlloc( 0, wNavLayoutBufLen, &hNavLayoutBuffer ))
     {
-        printf("Error: unable to allocate %d bytes memory.\n", 
+       PRINTLOG("Error: unable to allocate %d bytes memory.\n", 
                 wNavLayoutBufLen);
-        goto Exit3;
-    }
+       goto Exit3;
+   }
 
-    pNavLayoutBuffer = (char*) OSLockObject( hNavLayoutBuffer );
-    memset( pNavLayoutBuffer, 0, (size_t) wNavLayoutBufLen );
+   pNavLayoutBuffer = (char*) OSLockObject( hNavLayoutBuffer );
+   memset( pNavLayoutBuffer, 0, (size_t) wNavLayoutBufLen );
 
 /* 
  * Initialize pNLBuf. pNavLayoutBuffer will remain pointing to the top 
@@ -402,20 +417,20 @@ int main(int argc, char *argv[])
 /*
  * If first navigator layout, then create the VIEWMAP_HEADER_RECORD structure.
  */
-   if (wLayoutCount == 0 )
-   {
+    if (wLayoutCount == 0 )
+    {
        NavHeader.Header.Signature = SIG_CD_VMHEADER;
        NavHeader.Header.Length = (BYTE) ODSLength(_VIEWMAP_HEADER_RECORD );
        NavHeader.Version = VIEWMAP_VERSION;
        NavHeader.NameLen = 0;
 
-   /*
-    * Call ODSWriteMemory to convert the VIEWMAP_HEADER_RECORD structure from
-    * host-specific format to Domino and Notes canonical format, and copy it into the 
-    * buffer at location pNLBuf. ODSWriteMemory increments pNLBuf to point
-    * to the next byte in the buffer after the written data structure.
-    */
-      ODSWriteMemory( &pNLBuf, _VIEWMAP_HEADER_RECORD, &NavHeader, 1 );
+       /*
+        * Call ODSWriteMemory to convert the VIEWMAP_HEADER_RECORD structure from
+        * host-specific format to Domino and Notes canonical format, and copy it into the 
+        * buffer at location pNLBuf. ODSWriteMemory increments pNLBuf to point
+        * to the next byte in the buffer after the written data structure.
+        */
+       ODSWriteMemory( &pNLBuf, _VIEWMAP_HEADER_RECORD, &NavHeader, 1 );
 
    }
           
@@ -510,7 +525,7 @@ int main(int argc, char *argv[])
     OSMemFree( hNavLayoutBuffer );
     if (sError) 
     {
-        printf("Error: unable to append item '%s' to view note.\n", 
+        PRINTLOG("Error: unable to append item '%s' to view note.\n", 
                 VIEWMAP_LAYOUT_ITEM );
         goto Exit3;
     }
@@ -523,11 +538,11 @@ int main(int argc, char *argv[])
                    
     if (sError)
     {
-        printf("Error: unable to update view note in database.\n" );
+        PRINTLOG("Error: unable to update view note in database.\n" );
     }
     else
     {
-        printf("Successfully created view note in database.\n" );
+        PRINTLOG("Successfully created view note in database.\n" );
     }
 
 
@@ -541,7 +556,7 @@ Exit2:
 
 Exit1:
 
-    PrintAPIError (sError);  
+    PRINTERROR (sError,"NSFNoteUpdate");
     NotesTerm();
     return (sError); 
 
@@ -578,51 +593,51 @@ STATUS LNPUBLIC FindFirstNote ( VOID *hDB,
 
 /* Local data declarations. */
     SEARCH_MATCH    SearchMatch;             /* local copy of search match */  
-   STATUS         error;
-   NOTEHANDLE     hNoteHandle;
-   TIMEDATE    CurDate;
-   TIMEDATE    ModDate;
+    STATUS          error;
+    NOTEHANDLE      hNoteHandle;
+    TIMEDATE        CurDate;
+    TIMEDATE        ModDate;
 
     memcpy ((char*)(&SearchMatch), (char *)search_info, sizeof(SEARCH_MATCH));
 
     /*
-    * Skip this note if it does not really match the search criteria (it is
+     * Skip this note if it does not really match the search criteria (it is
      * now deleted or modified), or if a matching note has been found.
      */
     if (!(SearchMatch.SERetFlags & SE_FMATCH ))
-        return (NOERROR);
+       return (NOERROR);
 
     if (bDocNoteFound ) 
-        return (NOERROR);
+       return (NOERROR);
       
     /* Open the note. */
     if (error = NSFNoteOpen(
-            *(DBHANDLE *)hDB,            /* database handle */
-            SearchMatch.ID.NoteID,       /* note ID */
-            0,                           /* open flags */
-            &hNoteHandle) )              /* note handle (return) */
+                            *(DBHANDLE *)hDB,            /* database handle */
+                            SearchMatch.ID.NoteID,       /* note ID */
+                            0,                           /* open flags */
+                            &hNoteHandle) )              /* note handle (return) */
        
         return (ERR(error));
 
-   /* Get Modified time and compare it to today's date. */
-   OSCurrentTIMEDATE(&CurDate );
+    /* Get Modified time and compare it to today's date. */
+    OSCurrentTIMEDATE(&CurDate );
     NSFNoteGetInfo(hNoteHandle, _NOTE_MODIFIED, &ModDate );
 
     /* Extract out date only. */
-   TimeExtractLocal(&CurDate, FALSE, &CurDate );
-   TimeExtractLocal(&ModDate, FALSE, &ModDate );
+    TimeExtractLocal(&CurDate, FALSE, &CurDate );
+    TimeExtractLocal(&ModDate, FALSE, &ModDate );
     
-   /* If date compares, then set global flag, note id, and note OID. */
-   if (TimeDateEqual(&CurDate, &ModDate ))
-   {
-      bDocNoteFound = TRUE;
-      DocNoteID = SearchMatch.ID.NoteID;
+    /* If date compares, then set global flag, note id, and note OID. */
+    if (TimeDateEqual(&CurDate, &ModDate ))
+    {
+       bDocNoteFound = TRUE;
+       DocNoteID = SearchMatch.ID.NoteID;
        NSFNoteGetInfo(hNoteHandle, _NOTE_OID, &DocNoteOID );
     }
 
     /* Close the note. */
     if (error = NSFNoteClose(hNoteHandle ))
-        return (ERR(error));
+       return (ERR(error));
 
     /* End of subroutine. */
     return (NOERROR);
@@ -657,43 +672,11 @@ STATUS LNPUBLIC FindLayoutCount (   WORD  wUnused,
  * Determine if item is a Navigator Layout (VIEWMAP_LAYOUT_ITEM);
  * if it is, then increment global count. 
  */
-   if (!strcmp(szItemName, VIEWMAP_LAYOUT_ITEM ))
-      wLayoutCount++;
+    if (!strcmp(szItemName, VIEWMAP_LAYOUT_ITEM ))
+       wLayoutCount++;
 
-    return (NOERROR);
+   return (NOERROR);
 }
-
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-
 #ifdef __cplusplus
 }
 #endif
-

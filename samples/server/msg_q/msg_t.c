@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    msg_t    
 
@@ -70,10 +85,10 @@ STATUS LNPUBLIC AddInMain (
     
     /* Local data. */
 
-    STATUS        error;                       /* return code from API calls */
-    DHANDLE         hOldStatusLine;              /* handle to initial default status line*/
-    DHANDLE         hStatusLineDesc;             /* handle to new default status line */
-    HMODULE        hMod;                       /* add-in task's module handle */
+    STATUS      error;                         /* return code from API calls */
+    DHANDLE     hOldStatusLine;                /* handle to initial default status line*/
+    DHANDLE     hStatusLineDesc;               /* handle to new default status line */
+    HMODULE     hMod;                          /* add-in task's module handle */
     char        TaskName[MAX_NAME + 1];        /* command line task name */
     char        MsgTaskName[MAX_NAME + 1];     /* task name with prefix added */
     char        CommandString[MAX_NAME + 1];   /* command line string */

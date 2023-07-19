@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    dynamic
 
@@ -39,11 +54,10 @@
 #include <ostime.h>
 
 #include <osmisc.h>
+#include <printLog.h>
 
 
 #define PARA_STYLE_ID 1
-
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -81,19 +95,19 @@ int main(int argc, char *argv[])
     STATUS          error = NOERROR;  /* return code from API calls */
 
     
-	if (error = NotesInitExtended (argc, argv))
-	{
-        printf("\n Unable to initialize Notes.\n");
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	 }
+    }
 
 
     /* Open the database. */
     
     if (error = NSFDbOpen (path_name, &db_handle))
     {
-        printf( "Error: unable to open database `%s`\n", path_name );
-        PrintAPIError (error);  
+        PRINTLOG( "Error: unable to open database `%s`\n", path_name );
+        PRINTERROR (error,"NSFDbOpen");  
         NotesTerm();
         return (1);
     }
@@ -103,9 +117,9 @@ int main(int argc, char *argv[])
     
     if (error = NSFNoteCreate (db_handle, &note_handle))
     {
-        printf("Error: unable to create new document.\n");
+        PRINTLOG("Error: unable to create new document.\n");
         NSFDbClose (db_handle);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFNoteCreate");  
         NotesTerm();
         return (1);
     }
@@ -115,14 +129,14 @@ int main(int argc, char *argv[])
      */
     
     if (error = NSFItemSetText ( note_handle, 
-                "FORM",
-                "RichTextForm", 
-                MAXWORD))
+                                      "FORM",
+                                      "RichTextForm", 
+                                      MAXWORD))
     {
-        printf("Error: unable to set text item into new document.\n");
+        PRINTLOG("Error: unable to set text item into new document.\n");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFItemSetText");  
         NotesTerm();
         return (1);
     }
@@ -133,10 +147,10 @@ int main(int argc, char *argv[])
     
     if (error = NSFItemSetTime (note_handle, "TIME_DATE", &timedate))
     {
-        printf("Error: unable to set time item into new document.\n");
+        PRINTLOG("Error: unable to set time item into new document.\n");
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFItemSetTime");  
         NotesTerm();
         return (1);
     }
@@ -170,11 +184,11 @@ int main(int argc, char *argv[])
 
     if( rt_field == (BYTE *)NULL )
     {
-        printf("Error: unable to allocate %d bytes memory.\n", wBuffLen);
+        PRINTLOG("Error: unable to allocate %d bytes memory.\n", wBuffLen);
         NSFNoteClose (note_handle);
         NSFDbClose (db_handle);
-	    NotesTerm();
-	    return (0); 
+        NotesTerm();
+        return (0); 
     }    
               
     /* Keep a pointer to our current position in the buffer. */
@@ -183,9 +197,9 @@ int main(int argc, char *argv[])
               
     /* Initialize a CDPABDEFINITION structure.We use all defaults, 
        except for centered justification. 
-     */
+    */
 
-	memset(&pabdef, 0, sizeof(CDPABDEFINITION));
+    memset(&pabdef, 0, sizeof(CDPABDEFINITION));
 
     pabdef.Header.Signature = SIG_CD_PABDEFINITION;
     pabdef.Header.Length = ODSLength( _CDPABDEFINITION );
@@ -295,20 +309,20 @@ int main(int argc, char *argv[])
     rt_size = (DWORD)(buff_ptr - rt_field);
 
     error = NSFItemAppend( note_handle,
-                0,
-                "RICH_TEXT", (WORD) strlen("RICH_TEXT"),
-                TYPE_COMPOSITE,
-                rt_field, rt_size );
+                                0,
+                                "RICH_TEXT", (WORD) strlen("RICH_TEXT"),
+                                TYPE_COMPOSITE,
+                                rt_field, rt_size );
 
     free( rt_field );
     
     
     if (error)
     {
-        printf( "Error: unable to append rich text item to the note.\n" );
+        PRINTLOG( "Error: unable to append rich text item to the note.\n" );
         NSFNoteClose( note_handle );
         NSFDbClose( db_handle );
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFItemAppend");  
         NotesTerm();
         return (1);
     }
@@ -317,10 +331,10 @@ int main(int argc, char *argv[])
 
     if (error = NSFNoteUpdate( note_handle, 0 ))
     {
-        printf( "Error: unable to update note to database.\n" );
+        PRINTLOG( "Error: unable to update note to database.\n" );
         NSFNoteClose( note_handle );
         NSFDbClose( db_handle );
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFNoteUpdate");  
         NotesTerm();
         return (1);
     }
@@ -330,7 +344,7 @@ int main(int argc, char *argv[])
     if (error = NSFNoteClose( note_handle ))
     {
         NSFDbClose( db_handle );
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFNoteClose");  
         NotesTerm();
         return (1);
     }
@@ -339,42 +353,13 @@ int main(int argc, char *argv[])
 
     if (error = NSFDbClose( db_handle ))
     {
-        PrintAPIError (error);  
+        PRINTERROR (error,"NSFDbClose");  
         NotesTerm();
         return (1);
     }
-    printf ("Document containing rich text, successfully created\n");
-    printf("\nProgram completed successfully.\n");
+    PRINTLOG ("Document containing rich text, successfully created\n");
+    PRINTLOG("\nProgram completed successfully.\n");
     NotesTerm();
     return (0); 
 
-}
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-		error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
 }

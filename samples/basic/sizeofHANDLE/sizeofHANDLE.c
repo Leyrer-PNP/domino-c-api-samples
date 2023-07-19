@@ -1,4 +1,19 @@
 /*************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
 PROGRAM:    intro
 
@@ -33,6 +48,7 @@ SYNTAX:     intro  [server name - optional] <database filename>
 #include "lapicinc.h"
 #endif
 #include "lapiplat.h"
+#include "printLog.h"
 
 /* NOTE: This code MUST be the LAST file included so that ascii versions of the system APIs are used     */
 #if defined(OS390) && (__STRING_CODE_SET__==ISO8859-1 /* If os390 ascii compile                          */)     
@@ -42,7 +58,6 @@ SYNTAX:     intro  [server name - optional] <database filename>
 /* Local function prototypes */
 
 void  LNPUBLIC  ProcessArgs (char *ServerName, char *DBFileName, int *ArgNumber);
-void PrintAPIError (STATUS);
 
 
 /* Program declaration */
@@ -79,13 +94,13 @@ int main(int argc, char *argv[])
 
 	if (error)
 	{
-		fprintf (stderr, "\nError initializing Notes.\n");
-		return (1);
+	    fprintf (stderr, "\nError initializing Notes.\n");
+	    return (1);
 	}
 
-	printf("sizeof HANDLE %d\n", sizeof(HANDLE));
-	printf("sizeof MEMHANDLE %d\n", sizeof(MEMHANDLE));
-	printf("sizeof DHANDLE %d\n", sizeof(DHANDLE));
+	PRINTLOG("sizeof HANDLE %d\n", sizeof(HANDLE));
+	PRINTLOG("sizeof MEMHANDLE %d\n", sizeof(MEMHANDLE));
+	PRINTLOG("sizeof DHANDLE %d\n", sizeof(DHANDLE));
 
 	/* Terminate Domino and Notes. */
 
@@ -94,39 +109,6 @@ int main(int argc, char *argv[])
 	/* End of intro program. */
 
 	return (0);
-}
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-	STATUS  string_id = ERR(api_error);
-	char    error_text[200];
-	WORD    text_len;
-#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-	char    NATIVE_error_text[200];
-#endif /* OS390, ebcdic compile */
-
-	/* Get the message for this HCL C API for Notes/Domino error code
-	from the resource string table. */
-
-	text_len = OSLoadString (NULLHANDLE,
-		string_id,
-		error_text,
-		sizeof(error_text));
-
-	/* Print it. */
-
-#if defined(OS390) && (__STRING_CODE_SET__!=ISO8859-1 /* ebcdic compile */)
-	OSTranslate(OS_TRANSLATE_LMBCS_TO_NATIVE, error_text, MAXWORD, NATIVE_error_text, sizeof(NATIVE_error_text));
-	fprintf (stderr, "\n%s\n", NATIVE_error_text);
-#else
-	fprintf (stderr, "\n%s\n", error_text);
-#endif /* OS390, ebcdic compile */
-
 }
 
 /************************************************************************
@@ -151,7 +133,7 @@ void  LNPUBLIC  ProcessArgs (char *ServerName, char *DBFileName, int *ArgNumber)
 
 	if (!strcmp(ServerName, ""))
 	{
-		*ArgNumber = 2;
+	    *ArgNumber = 2;
 	}
 
 } /* ProcessArgs */

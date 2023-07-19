@@ -1,3 +1,18 @@
+/*
+* Copyright HCL Technologies 1996, 2023.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 /* INBOUND - Inbound message task of the mail gateway. */
 
@@ -30,60 +45,60 @@ void near pascal InboundTask()
 */
 
 {
-STATUS error;
-DHANDLE hMailboxFile, hMessage;
-TIMEDATE Time;
-char String[258], Code, *Value, OriginatorName[MAXRECIPIENTNAME+1];
-WORD ValueLength;
-char BodyFileName[_MAX_PATH], ForeignFileName[_MAX_PATH];
-FILE *BodyFile, *ForeignFile;
+    STATUS          error;
+    DHANDLE         hMailboxFile, hMessage;
+    TIMEDATE        Time;
+    char            String[258], Code, *Value, OriginatorName[MAXRECIPIENTNAME+1];
+    WORD            ValueLength;
+    char            BodyFileName[_MAX_PATH], ForeignFileName[_MAX_PATH];
+    FILE           *BodyFile, *ForeignFile;
 
-DHANDLE hRecipientsItem, hToItem, hCCItem;
-WORD RecipientsItemSize, ToItemSize, CCItemSize;
-WORD Recipients, ToEntries, CCEntries;
-LIST *RecipientsItem, *ToItem, *CCItem;
+    DHANDLE         hRecipientsItem, hToItem, hCCItem;
+    WORD            RecipientsItemSize, ToItemSize, CCItemSize;
+    WORD            Recipients, ToEntries, CCEntries;
+    LIST           *RecipientsItem, *ToItem, *CCItem;
 
-HANDLE hDir;
-WIN32_FIND_DATA FindBuf;
+    HANDLE          hDir;
+    WIN32_FIND_DATA FindBuf;
 	
-	hMailboxFile = hMessage = NULLHANDLE;
+    hMailboxFile = hMessage = NULLHANDLE;
 
-	/* Find a new foreign mail message in the inbound message directory. */
+    /* Find a new foreign mail message in the inbound message directory. */
 
-	_makepath(ForeignFileName, GatewayDrive, MGATE_INBOUND_DIR,
+    _makepath(ForeignFileName, GatewayDrive, MGATE_INBOUND_DIR,
 			  "*", MGATE_MSG_EXT);
 
     hDir = FindFirstFile(ForeignFileName, &FindBuf);
-	 if (hDir == (HANDLE) MAXWORD)
-	 {
+    if (hDir == (HANDLE) MAXWORD)
+    {
 	     return;
-	 }
+    }
 
-	_makepath(ForeignFileName, GatewayDrive, MGATE_INBOUND_DIR,
+    _makepath(ForeignFileName, GatewayDrive, MGATE_INBOUND_DIR,
 			  FindBuf.cFileName, NULL);
 
-	/* Transfer the foreign message to Domino and Notes. */
+    /* Transfer the foreign message to Domino and Notes. */
 
-	while (TRUE)
-		{
+    while (TRUE)
+	{
 		hRecipientsItem = hToItem = hCCItem = NULLHANDLE;
 		Recipients = ToEntries = CCEntries = 0;
 
 		AddInSetStatus(ERR_MGATE_RECEIVING, (char far *) ForeignFileName);
 		ForeignFile = fopen(ForeignFileName, "r+");
 		if (ForeignFile == NULL)
-			{
+		{
 			AddInLogError(ERR_MGATE_MSGOPEN, NOERROR, ForeignFileName);
 			goto done;
-			}
+		}
 
 		/* Create a Domino and Notes mail message. */
 
 		if (hMailboxFile == NULLHANDLE)
-			{
+		{
 			error = MailOpenMessageFile(NULL, &hMailboxFile);
 			if (error) goto Close;
-			}
+		}
 		error = MailCreateMessage(hMailboxFile, &hMessage);
 		if (error) goto Close;
 
@@ -106,32 +121,32 @@ WIN32_FIND_DATA FindBuf;
 		GetUniqueFileName(GatewayDrive, "", "TMP", BodyFileName);
 		BodyFile = fopen(BodyFileName, "w");
 		if (BodyFile == NULL)
-			{
+		{
 			AddInLogError(ERR_MGATE_BODYFILE, NOERROR, BodyFileName);
 			error = ERR_MGATE_BODYFILE;
 			goto Close;
-			}
+		}
 
 		/* Get each item line from the foreign message file. */
 
 		while (fgets(String, sizeof(String), ForeignFile))
-			{
+		{
 			Code = String[0];
 			Value = &String[1];
 			ValueLength = strlen(Value);
 			if (Value[ValueLength-1] == '\n')  /* Strip trailing newline */
-				{
+			{
 				Value[ValueLength-1] = '\0';
 				ValueLength--;
-				}
+			}
 
 			switch (Code)
-				{
+			{
 				case 'A':
 					{
 
-					/* 	Add an attachment. Original attachment file name
-						separated from actual file name by a comma. */
+					/* Add an attachment. Original attachment file name
+					   separated from actual file name by a comma. */
 
 					char *OriginalName = strchr(Value, ',');
 					*OriginalName++ = '\0';
@@ -214,25 +229,30 @@ WIN32_FIND_DATA FindBuf;
 
 				default:
 					AddInLogError(ERR_MGATE_UNKNOWNITEM, NOERROR, String);
-				}
-			if (error) goto Close;
 			}
+			if (error) 
+				goto Close;
+		}
 
 
 		/* Add the Recipients item to the message. */
 
-		if (Recipients == 0) goto Close; /* No recipients? Maybe all bad names. */
+		if (Recipients == 0) 
+			goto Close; /* No recipients? Maybe all bad names. */
 		error = MailAddRecipientsItem(hMessage, hRecipientsItem, RecipientsItemSize);
-		if (error) goto Close;
+		if (error) 
+			goto Close;
 		hRecipientsItem = NULLHANDLE;
 
 		/* Add the To and CC items to the message. */
 
 		error = MailAddHeaderItemByHandle(hMessage, MAIL_SENDTO_ITEM_NUM, hToItem, ToItemSize, 0);
-		if (error) goto Close;
+		if (error) 
+			goto Close;
 		hToItem = NULLHANDLE;
 		error = MailAddHeaderItemByHandle(hMessage, MAIL_COPYTO_ITEM_NUM, hCCItem, CCItemSize, 0);
-		if (error) goto Close;
+		if (error) 
+			goto Close;
 		hCCItem = NULLHANDLE;
 
 		/* Add the body item to the message. */
@@ -240,13 +260,14 @@ WIN32_FIND_DATA FindBuf;
 		fclose(BodyFile);
 		BodyFile = NULL;
 		error = MailAddMessageBodyTextExt(hMessage,
-								NULL,	/* Use standard Body item */
-								BodyFileName,
-								0L,		/* Use standard font */
-								"\r\n\x1a",	/* CR/LF/Ctrl-Z delimited lines */
-								0,		/* New paragraph at any blank lines */
-								NULL);	/* No translation table */
-		if (error) goto Close;
+							NULL,	        /* Use standard Body item */
+							BodyFileName,
+							0L,		/* Use standard font */
+							"\r\n\x1a",	/* CR/LF/Ctrl-Z delimited lines */
+							0,		/* New paragraph at any blank lines */
+							NULL);	        /* No translation table */
+		if (error) 
+			goto Close;
 
 		/* Transfer the message to the local mail router */
 
@@ -260,24 +281,24 @@ WIN32_FIND_DATA FindBuf;
 		unlink(BodyFileName);
 
 		if (hMessage != NULLHANDLE)
-			{
+		{
 			MailCloseMessage(hMessage);
 			hMessage = NULLHANDLE;
-			}
+		}
 
 		/* If no error, delete the original foreign message.  If there was
 			an error, return the file to the originator. */
 
 		if (!error)
-			{
+		{
 
 			/* Delete the Foreign message file. */
 	
 			fclose(ForeignFile);
 			unlink(ForeignFileName);
-			}
+		}
 		else
-			{
+		{
 			char BadFileName[_MAX_PATH];
 
 			AddInLogError(ERR_MGATE_TRANSFERERROR, error, NULL);
@@ -293,7 +314,7 @@ WIN32_FIND_DATA FindBuf;
 
 			_makepath(BadFileName, GatewayDrive, OriginatorName, FindBuf.cFileName, "MSG");
 			rename(ForeignFileName, BadFileName);
-			}
+		}
 
 	/* Find another foreign message file. */
 

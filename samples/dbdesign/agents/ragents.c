@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM: RAGENTS
 
@@ -41,7 +56,8 @@
 #include <osmem.h>
 #include <ostime.h>
 #include <agents.h>         /* Agent execution header */ 
-#include <osmisc.h> 
+#include <osmisc.h>
+#include<printLog.h>
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
@@ -56,7 +72,6 @@ STATUS  LNPUBLIC  ExecuteAgent( HAGENT, HAGENTCTX );
 void    LNPUBLIC  GetScriptRunInfo( HAGENTCTX );
 void    LNPUBLIC  CloseAgentContext ( HAGENTCTX );
 void    LNPUBLIC  CloseAgent ( HAGENT );
-void PrintAPIError (STATUS);
 
 /* program constants */
 char szAGENT_BACKGROUND[] = "Assign Support Rep";
@@ -86,15 +101,15 @@ int main (int argc, char *argv[])
     DBHANDLE    hDb;
 
     if (error = NotesInitExtended (argc, argv))
-	 {
-        printf("\n Unable to initialize Notes.\n");
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	 }
+    }
 
     /* Process arguments */
     if (argc != 2)
     {
-        printf ("Usage: ragents <database filename>\n");
+        PRINTLOG ("Usage: ragents <database filename>\n");
         goto Exit0;
     }
     szDbName = argv[1];
@@ -102,14 +117,14 @@ int main (int argc, char *argv[])
     /* Open input database */
     if (error = NSFDbOpen(szDbName, &hDb))
     {
-        printf ("Error: unable to open target database '%s'\n", szDbName);
+        PRINTLOG ("Error: unable to open target database '%s'\n", szDbName);
         goto Exit0;
     }
 
     /* Open file pointer to output log */
     if ((pAgentsLog = fopen(AGENTS_LOG, "w+")) == NULL) 
     {
-        printf ("Error: unable to open output log file '%s'\n", AGENTS_LOG);
+        PRINTLOG ("Error: unable to open output log file '%s'\n", AGENTS_LOG);
         goto Exit0;
     }
 
@@ -118,9 +133,9 @@ int main (int argc, char *argv[])
         goto Exit1;
 
     fprintf(pAgentsLog, "Successfully executed the triggered agent notes in '%s'.\n",
-                             szDbName);
-    printf ("Program execution completed.  See logfile '%s' for results.\n",
-                AGENTS_LOG);
+            szDbName);
+    PRINTLOG ("Program execution completed.  See logfile '%s' for results.\n",
+               AGENTS_LOG);
     fprintf (pAgentsLog, "Program execution completed.\n", AGENTS_LOG);
 
 
@@ -131,8 +146,9 @@ Exit1:
 
 Exit0:
     if (error)
-       PrintAPIError(error);
-
+    {
+       PRINTERROR(error, "fopen");
+    }
     NotesTerm();
     return(error);
 }
@@ -178,7 +194,7 @@ STATUS  LNPUBLIC  RunTriggeredAgents( DBHANDLE hDb )
     NSFNoteSetInfo(hParmNote, _NOTE_CLASS, &wNoteClass);
 
     if (error = NSFItemSetText(hParmNote, PARM_FIELD, PARM_VALUE,
-                                 (WORD)strlen(PARM_VALUE)) )
+                               (WORD)strlen(PARM_VALUE)) )
         goto Exit2;
 
     if (error = NSFNoteUpdate(hParmNote, 0))
@@ -188,7 +204,7 @@ STATUS  LNPUBLIC  RunTriggeredAgents( DBHANDLE hDb )
 
     /* Set up agent run context for the background agent */
     if (error = SetRunContext(hBackgroundAgent, LOTUSSCRIPT_ACTION, 
-                                &hAgentRunCtx))
+                              &hAgentRunCtx))
         goto Exit3;
 
     /* Run the background agent */
@@ -208,7 +224,7 @@ STATUS  LNPUBLIC  RunTriggeredAgents( DBHANDLE hDb )
 
     /* Reset the agent run context for the scheduled agent */
     if (error = SetRunContext(hScheduledAgent, FORMULA_ACTION, 
-                                &hAgentRunCtx))
+                              &hAgentRunCtx))
         goto Exit4;
 
     /* Run the scheduled agent */
@@ -251,7 +267,7 @@ Exit0:
 
     PURPOSE:    Locate the specified agent note, and create/return an open
                 agent handle for subsequent execution.   Calls the HCL 
-				C API for Domino and Notes routine, AgentOpen().
+                                C API for Domino and Notes routine, AgentOpen().
 
     INPUTS:     DBHANDLE    hDb             - handle to the open database
                 char        *szAgentName    - agent name ($TITLE)
@@ -274,7 +290,7 @@ STATUS  LNPUBLIC  OpenAgent( DBHANDLE hDb, char *szAgentName,
                                    NOTE_CLASS_FILTER, &AgentId))
     {
         error = NIFFindPrivateDesignNote (hDb, szAgentName,
-                                              NOTE_CLASS_FILTER, &AgentId);
+                                          NOTE_CLASS_FILTER, &AgentId);
         if (error)
             return (error);
     }
@@ -293,8 +309,8 @@ STATUS  LNPUBLIC  OpenAgent( DBHANDLE hDb, char *szAgentName,
                 specified agent handle and action type.   The runtime context
                 for LotusScript based actions include support for standard
                 output redirection and parameter passing.  Calls the HCL 
-				C API for Domino and Notes routines AgentCreateRunContext(), 
-				AgentRedirectStdout(),and AgentSetDocumentContext().
+                                C API for Domino and Notes routines AgentCreateRunContext(), 
+                                AgentRedirectStdout(),and AgentSetDocumentContext().
 
     INPUTS:     HAGENT      hOpenAgent      - handle to open agent
                 WORD        wActionType     - either LOTUSSCRIPT_ACTION or
@@ -303,7 +319,7 @@ STATUS  LNPUBLIC  OpenAgent( DBHANDLE hDb, char *szAgentName,
 
 *************************************************************************/
 STATUS  LNPUBLIC  SetRunContext( HAGENT hOpenAgent, WORD wActionType,
-                                    HAGENTCTX *hOpenAgentCtx )
+                                 HAGENTCTX *hOpenAgentCtx )
 {
     STATUS          error = NOERROR;
 
@@ -332,7 +348,7 @@ Exit0:
 
     PURPOSE:    Run the Agent, as specified by the agent handle and runtime
                 context.  Calls the HCL C API for Notes/Domino 
-				routine AgentRun().
+                                routine AgentRun().
 
     INPUTS:     HAGENT      hOpenAgent      - handle to open agent
                 HAGENTCTX   hOpenAgentCtx   - agent runtime context handle
@@ -353,14 +369,14 @@ STATUS  LNPUBLIC  ExecuteAgent( HAGENT hOpenAgent, HAGENTCTX hOpenAgentCtx )
     PURPOSE:    Get and report the redirected standard output string for 
                 the specified LotusScript based agent runtime context.
                 Calls the HCL C API for Notes/Domino routine 
-				AgentQueryStdoutBuffer().
+                                AgentQueryStdoutBuffer().
 
     INPUTS:     HAGENTCTX   hOpenAgentCtx   - agent runtime context handle
 
 *************************************************************************/
 void  LNPUBLIC  GetScriptRunInfo ( HAGENTCTX hOpenAgentCtx )
 {
-    DHANDLE           hStdout;
+    DHANDLE         hStdout;
     DWORD           dwLen;
     char            *pStdout;
 
@@ -425,7 +441,7 @@ void  LNPUBLIC  CloseAgentContext ( HAGENTCTX hOpenAgentCtx )
                 
                 This routine sequentially reads the CD records associated
                 with the run data objects created by Domino and Notes and 
-				attached to the $AssistRunInfo item.  
+                                attached to the $AssistRunInfo item.  
                 
                 First, the number of object entries are determined by 
                 reading the ODS_ASSISTRUNOBJECTHEADER record.  Next, the size
@@ -436,7 +452,7 @@ void  LNPUBLIC  CloseAgentContext ( HAGENTCTX hOpenAgentCtx )
                 data, they read and/or displayed as appropriate.  
 
                 Note that any other object entries are reserved by Domino 
-				and Notes and not read.
+                and Notes and not read.
 
     INPUTS:     DBHANDLE    hDb             - handle to the open database
                 char        *szAgentName    - agent name ($TITLE)
@@ -444,9 +460,9 @@ void  LNPUBLIC  CloseAgentContext ( HAGENTCTX hOpenAgentCtx )
 *************************************************************************/
 STATUS  LNPUBLIC  GetAgentRunInfo( DBHANDLE hDb, char *szAgentName )
 {
-    STATUS          error = NOERROR;
+    STATUS                      error = NOERROR;
     NOTEID                      AgentId;        
-    NOTEHANDLE      hAgentNote;
+    NOTEHANDLE                  hAgentNote;
 
 /* $AssistRunInfo run data object variables */
     OBJECT_DESCRIPTOR           objRunInfo;
@@ -458,7 +474,7 @@ STATUS  LNPUBLIC  GetAgentRunInfo( DBHANDLE hDb, char *szAgentName )
     WORD                        wClass;
     WORD                        wPrivs;
     WORD                        wCounter;
-    DHANDLE                       hBuffer;
+    DHANDLE                     hBuffer;
     DWORD                       dwOffset;
     ODS_ASSISTRUNOBJECTHEADER   RunHeader;
     ODS_ASSISTRUNOBJECTENTRY    RunEntry[5];
@@ -537,7 +553,7 @@ data objects */
  * exists.  */
 
     if (error = NSFDbReadObject(hDb,objRunInfo.RRV, dwOffset, 
-                    ODSLength(_ODS_ASSISTRUNOBJECTENTRY)*RunHeader.wEntries, &hBuffer))
+                ODSLength(_ODS_ASSISTRUNOBJECTENTRY)*RunHeader.wEntries, &hBuffer))
         goto Exit1;
     pObject = OSLock (char, hBuffer);
 
@@ -576,7 +592,7 @@ data objects */
  * It is always the first run data object. 
  */
     if (error = NSFDbReadObject(hDb, objRunInfo.RRV, dwOffset, 
-                      ODSLength(_ODS_ASSISTRUNINFO), &hBuffer))
+                ODSLength(_ODS_ASSISTRUNINFO), &hBuffer))
         goto Exit1;
     pObject = OSLock (char, hBuffer);
     ODSReadMemory( &pObject, _ODS_ASSISTRUNINFO, &RunInfo, 1 );
@@ -596,7 +612,7 @@ data objects */
         if (RunEntry[wCounter].dwLength != 0)
         {
             if (error = NSFDbReadObject(hDb, objRunInfo.RRV, dwOffset, 
-                             RunEntry[wCounter].dwLength, &hBuffer))
+                        RunEntry[wCounter].dwLength, &hBuffer))
                 goto Exit1;
             pObject = OSLock (char, hBuffer);
             if (wCounter == 2)
@@ -617,28 +633,3 @@ Exit1:
 Exit0:
     return (error);
 }
-
-
-/* This function prints the HCL C API for Notes/Domino error message
-   associated with an error code. */
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-    fprintf (stderr, "\n%s\n", error_text);
-
-}
-

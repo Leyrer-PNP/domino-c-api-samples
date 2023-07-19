@@ -1,4 +1,19 @@
 /***********************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
   PROGRAM:    billmngr.dll
   
@@ -92,7 +107,7 @@ STATUS LNPUBLIC BillRegister ( void );
 STATUS LNPUBLIC BillDeregister ( void );
 
 /*===========================================================================
-  STATUS LNPUBLIC MainEntryPoint ( void )
+   STATUS LNPUBLIC MainEntryPoint ( void )
     
    MainEntryPoint that is called after Domino and Notes loads this DLL at startup.
    It calls the local function BillRegister, to register with the Domino and Notes
@@ -101,7 +116,7 @@ STATUS LNPUBLIC BillDeregister ( void );
 
 STATUS FAR PASCAL MainEntryPoint( void )
 {
-	STATUS    error = NOERROR;
+   STATUS    error = NOERROR;
 
 /* call BillRegister and return */
    error = BillRegister();
@@ -111,7 +126,7 @@ STATUS FAR PASCAL MainEntryPoint( void )
 
 
 /*===========================================================================
-  STATUS LNPUBLIC BillRegister ( void )
+   STATUS LNPUBLIC BillRegister ( void )
     
    Creates Extension Manager Recursion ID and registers with Domino and Notes the 
    NSFNoteUpdateExtended event handlers.
@@ -119,56 +134,56 @@ STATUS FAR PASCAL MainEntryPoint( void )
 
 STATUS LNPUBLIC BillRegister ( void )
 {
-	STATUS error = NOERROR;
+   STATUS error = NOERROR;
 
 /* When run on a server the dll is called multiple times. ths flag 
    keeps the main code from being executed more than once. */  
 
    if ( gHooksRegistered )
-      return(NOERROR);
+       return(NOERROR);
 
 /* If first time, get a recursion ID for the run, and register the 
    extension manager handler functions for NSFNoteCreate */
 
    else
    {
-      gHooksRegistered = TRUE;
-      error = EMCreateRecursionID( &gRecursionID );
+       gHooksRegistered = TRUE;
+       error = EMCreateRecursionID( &gRecursionID );
 
 #ifndef UNIX
-      if (error == NOERROR )
-      {
-         error = EMRegister( EM_NSFNOTEUPDATEXTENDED,    /* before NFSNoteUpdateExtended */
-                             EM_REG_BEFORE, 
-                             (EMHANDLER)gBillHandler,
-                             gRecursionID,
-                             &gRegHandle1 );
-      }               
-      if (error == NOERROR )
-      {
-         error = EMRegister( EM_NSFNOTEUPDATEXTENDED,    /* after NFSNoteUpdateExtended */
-                             EM_REG_AFTER, 
-                             (EMHANDLER)gBillHandler,
-                             gRecursionID,
-                             &gRegHandle2 );
-      }               
+       if (error == NOERROR )
+       {
+           error = EMRegister( EM_NSFNOTEUPDATEXTENDED,    /* before NFSNoteUpdateExtended */
+                               EM_REG_BEFORE, 
+                               (EMHANDLER)gBillHandler,
+                               gRecursionID,
+                               &gRegHandle1 );
+       }               
+       if (error == NOERROR )
+       {
+           error = EMRegister( EM_NSFNOTEUPDATEXTENDED,    /* after NFSNoteUpdateExtended */
+                               EM_REG_AFTER, 
+                               (EMHANDLER)gBillHandler,
+                               gRecursionID,
+                               &gRegHandle2 );
+       }               
 #else
-      if (error == NOERROR )
-      {
-         error = EMRegister( EM_NSFNOTEUPDATEXTENDED,    /* before NFSNoteUpdateExtended */
-                             EM_REG_BEFORE, 
-                             BillHandler,
-                             gRecursionID,
-                             &gRegHandle1 );
-      }               
-      if (error == NOERROR )
-      {
-         error = EMRegister( EM_NSFNOTEUPDATEXTENDED,    /* after NFSNoteUpdateExtended */
-                             EM_REG_AFTER, 
-                             BillHandler,
-                             gRecursionID,
-                             &gRegHandle2 );
-      }               
+       if (error == NOERROR )
+       {
+           error = EMRegister( EM_NSFNOTEUPDATEXTENDED,    /* before NFSNoteUpdateExtended */
+                               EM_REG_BEFORE, 
+                               BillHandler,
+                               gRecursionID,
+                               &gRegHandle1 );
+       }               
+       if (error == NOERROR )
+       {
+           error = EMRegister( EM_NSFNOTEUPDATEXTENDED,    /* after NFSNoteUpdateExtended */
+                               EM_REG_AFTER, 
+                               BillHandler,
+                               gRecursionID,
+                               &gRegHandle2 );
+       }               
 #endif
    }
 
@@ -188,7 +203,7 @@ STATUS LNPUBLIC BillDeregister ( void )
 
    error = EMDeregister( gRegHandle1 );
    if ( error == NOERROR )
-      error = EMDeregister ( gRegHandle2 );
+       error = EMDeregister ( gRegHandle2 );
 
    return( error );
 }
@@ -236,13 +251,13 @@ STATUS LNCALLBACK BillHandler ( EMRECORD FAR * theData )
 /* Only bill if the API was successful. If not, return without sending 
    billing record. */
      
-      goto Done;
+       goto Done;
 
    if ((BOOL)(BillClass & BILL_CLASS_DATABASE))
    {
 
-      if ( theData->Status != NOERROR )
-         goto Done;
+       if ( theData->Status != NOERROR )
+           goto Done;
       
 /* otherwise handle Note Create billing by interpreting NSFNoteUpdateExtended calls */
       
@@ -251,22 +266,22 @@ STATUS LNCALLBACK BillHandler ( EMRECORD FAR * theData )
 /* Before the API:  check to see if the Note ID is equal to zero.   If it is 
    then this means a new note is being created and we should track the output. */
    
-      if ( theData->NotificationType == EM_BEFORE )
-      {
-         hNote = VARARG_GET (theData->Ap, DHANDLE);   /* save note handle */
-         (void) VARARG_GET (theData->Ap, DWORD);      /* skip update flags */
+       if ( theData->NotificationType == EM_BEFORE )
+       {
+           hNote = VARARG_GET (theData->Ap, DHANDLE);   /* save note handle */
+           (void) VARARG_GET (theData->Ap, DWORD);      /* skip update flags */
             
    /* get NOTEID of input note handle */
-         NSFNoteGetInfo(hNote, _NOTE_ID, &NoteId);
+           NSFNoteGetInfo(hNote, _NOTE_ID, &NoteId);
 
    /* if NOTEID = 0, then set for billing */
-         if (NoteId == 0)
-            gCreatedNote = TRUE;				
-         else
-            gCreatedNote = FALSE;				
+           if (NoteId == 0)
+               gCreatedNote = TRUE;				
+           else
+               gCreatedNote = FALSE;				
             
-         return ( ERR_EM_CONTINUE ); /* continue;, billing occurs after call */
-      }
+           return ( ERR_EM_CONTINUE ); /* continue;, billing occurs after call */
+       }
 
 /* If after the call and a new note was created, fill in the UserName, Note ID, 
    and Replica ID of the created note in the billing record. */
@@ -274,43 +289,43 @@ STATUS LNCALLBACK BillHandler ( EMRECORD FAR * theData )
 /* NOTE: Since a global is used to determine if a new note was created, this 
          logic assumes that the EM_AFTER handling occurs before a different 
          NSFNoteUpdateExtended EM_BEFORE thread is handled by Domino and Notes.  
-		 For heavily loaded systems, it may be necessary to serialize these requests. */
+         For heavily loaded systems, it may be necessary to serialize these requests. */
 
-      if (gCreatedNote == TRUE)
-	  {
-         memset( &(BillMsg.rec.notecreate), (char)0, sizeof( BillMsg.rec.notecreate ) );
-         hNote = VARARG_GET (theData->Ap, DHANDLE);   /* save note handle */
-         (void) VARARG_GET (theData->Ap, DWORD);      /* skip update flags */
+       if (gCreatedNote == TRUE)
+       {
+           memset( &(BillMsg.rec.notecreate), (char)0, sizeof( BillMsg.rec.notecreate ) );
+           hNote = VARARG_GET (theData->Ap, DHANDLE);   /* save note handle */
+           (void) VARARG_GET (theData->Ap, DWORD);      /* skip update flags */
 
    /* get NOTEID of note handle */
-         NSFNoteGetInfo(hNote, _NOTE_ID, &NoteId);
+           NSFNoteGetInfo(hNote, _NOTE_ID, &NoteId);
 
    /* get the DBHANDLE for note handle */
-         NSFNoteGetInfo(hNote, _NOTE_DB, &hDb);
+           NSFNoteGetInfo(hNote, _NOTE_DB, &hDb);
 
    /* get DBID associated with the DBHANDLE */
-         NSFDbIDGet(hDb, &DbId);
+           NSFDbIDGet(hDb, &DbId);
 
    /* get USERNAME associated with the DBHANDLE */
-         (void) NSFDbUserNameGet(hDb, Username, MAXUSERNAME);
+           (void) NSFDbUserNameGet(hDb, Username, MAXUSERNAME);
 
    /* if user is the server, then do not bill */
-         (void) SECKFMGetUserName(Servername);
-         if (!strcmp(Username, Servername))
-            goto Done; 	     
+           (void) SECKFMGetUserName(Servername);
+           if (!strcmp(Username, Servername))
+               goto Done; 	     
 
    /* else, set billing message fields with appropriate info*/
-         strcpy(BillMsg.rec.notecreate.Username, Username);
-         BillMsg.rec.notecreate.dbNoteID = NoteId;  
-         BillMsg.rec.notecreate.ReplicaID = DbId;  
+           strcpy(BillMsg.rec.notecreate.Username, Username);
+           BillMsg.rec.notecreate.dbNoteID = NoteId;  
+           BillMsg.rec.notecreate.ReplicaID = DbId;  
 
    /* and write the billing record */
-         error = BillingWrite( (DWORD)BILL_CLASS_DATABASE, 
-                               (WORD)BILL_NOTECREATEREC, 
-                               sizeof( BillMsg ),
-                               &BillMsg,
-                               BILL_QUEUE_NAME );
-      }
+           error = BillingWrite( (DWORD)BILL_CLASS_DATABASE, 
+                                 (WORD)BILL_NOTECREATEREC, 
+                                 sizeof( BillMsg ),
+                                 &BillMsg,
+                                 BILL_QUEUE_NAME );
+       }
    }
 
 /* Whether or not the Billing the record was written, return the original
@@ -318,9 +333,9 @@ STATUS LNCALLBACK BillHandler ( EMRECORD FAR * theData )
 
 Done:
    if (theData && theData->NotificationType == EM_BEFORE)
-      return( ERR_EM_CONTINUE );
+       return( ERR_EM_CONTINUE );
    else
-      return( theData->Status );
+       return( theData->Status );
 
 }
 
@@ -342,33 +357,32 @@ Done:
 BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD fdwReason, LPVOID lpReserved )
 {
 
-  switch(fdwReason)
-  {
-    case DLL_PROCESS_ATTACH:
-      InitializeCriticalSection( &gCriticalSection );
+   switch(fdwReason)
+   {
+       case DLL_PROCESS_ATTACH:
+           InitializeCriticalSection( &gCriticalSection );
 
-      gBillHandler = 
-	    (EMHANDLER)MakeProcInstance( (FARPROC)BillHandler, hInstance );
-      break;
+           gBillHandler = (EMHANDLER)MakeProcInstance( (FARPROC)BillHandler, hInstance );
+           break;
 
-    case DLL_PROCESS_DETACH:
-      (void) BillDeregister();
+       case DLL_PROCESS_DETACH:
+           (void) BillDeregister();
 
-      FreeProcInstance( gBillHandler );
+           FreeProcInstance( gBillHandler );
     
-      DeleteCriticalSection( &gCriticalSection );
-      break;
-  }
+           DeleteCriticalSection( &gCriticalSection );
+           break;
+   }
 
-  return( TRUE );
+   return( TRUE );
 
-  UNREFERENCED_PARAMETER(lpReserved);
+   UNREFERENCED_PARAMETER(lpReserved);
 }
 
 /* ========================================================== */
 /* =================== SHUTDOWN FUNCTIONS =================== */
 /* ========================================================== */
 /* 
-      SHUTDOWN PROCESSES ARE DONE IN THE DLLMAIN FUNCTION IN NT 
+   SHUTDOWN PROCESSES ARE DONE IN THE DLLMAIN FUNCTION IN NT 
 */
 #endif

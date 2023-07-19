@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    viewsumm
 
@@ -30,6 +45,7 @@
 #include <misc.h>
 #include <miscerr.h>
 #include <editods.h>
+#include <printLog.h>
 
 #include <osmisc.h>
 
@@ -46,7 +62,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
                             char *DBFileName, char *ViewName); 
 STATUS PrintSummary (BYTE *);
 STATUS ExtractTextList (BYTE *, char *);
-void PrintAPIError (STATUS);
 
 /************************************************************************
 
@@ -60,23 +75,23 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char     *DBFileName;            /* pathname of the database */
-   char     *ViewName;              /* name of the view we'll read */
-   char     DBBuf[STRING_LENGTH];
-   char     ViewBuf[STRING_LENGTH];
-   DBHANDLE hDB;                    /* handle of the database */
-   NOTEID      ViewID;              /* note id of the view */
-   HCOLLECTION hCollection;         /* collection handle */
-   COLLECTIONPOSITION CollPosition; /* index into collection */
-   DHANDLE       hBuffer;             /* handle to buffer of info */
-   BYTE        *pBuffer;            /* pointer into info buffer */
-   BYTE        *pSummary;           /* pointer into info buffer */
-   NOTEID      EntryID;             /* a collection entry id */
-   DWORD       EntriesFound;        /* number of entries found */
-   ITEM_VALUE_TABLE  ItemTable;           /* table in pSummary buffer */
-   WORD        SignalFlag;          /* signal and share warning flags */
-   DWORD       i;                   /* a counter */
-   STATUS      error = NOERROR;     /* return status from API calls */
+   char               *DBFileName;            /* pathname of the database */
+   char               *ViewName;              /* name of the view we'll read */
+   char               DBBuf[STRING_LENGTH];
+   char               ViewBuf[STRING_LENGTH];
+   DBHANDLE           hDB;                    /* handle of the database */
+   NOTEID             ViewID;                 /* note id of the view */
+   HCOLLECTION        hCollection;            /* collection handle */
+   COLLECTIONPOSITION CollPosition;           /* index into collection */
+   DHANDLE            hBuffer;                /* handle to buffer of info */
+   BYTE               *pBuffer;               /* pointer into info buffer */
+   BYTE               *pSummary;              /* pointer into info buffer */
+   NOTEID             EntryID;                /* a collection entry id */
+   DWORD              EntriesFound;           /* number of entries found */
+   ITEM_VALUE_TABLE   ItemTable;              /* table in pSummary buffer */
+   WORD               SignalFlag;             /* signal and share warning flags */
+   DWORD              i;                      /* a counter */
+   STATUS             error = NOERROR;        /* return status from API calls */
 
 
    memset(DBBuf, '\0', STRING_LENGTH);
@@ -89,7 +104,7 @@ int main(int argc, char *argv[])
 
    if (error = NotesInitExtended (argc, argv))
    {
-       printf("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
+       PRINTLOG("\n Unable to initialize Notes. Error Code[0x%04x]\n", error);
        return (1);
    }
 
@@ -97,7 +112,7 @@ int main(int argc, char *argv[])
 
    if (error = NSFDbOpen (DBFileName, &hDB))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbOpen");  
        NotesTerm();
        return (1);
    } 
@@ -111,7 +126,7 @@ int main(int argc, char *argv[])
          &ViewID))
    {
       NSFDbClose (hDB);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFFindView");  
       NotesTerm();
       return (1);
    }
@@ -119,19 +134,19 @@ int main(int argc, char *argv[])
 /* Get the current collection using this view. */
 
    if (error = NIFOpenCollection(
-         hDB,            /* handle of db with view */
-         hDB,            /* handle of db with data */
-         ViewID,         /* note id of the view */
-         0,              /* collection open flags */
-         NULLHANDLE,     /* handle to unread ID list (input and return) */
-         &hCollection,   /* collection handle (return) */
-         NULLHANDLE,     /* handle to open view note (return) */
-         NULL,           /* universal note id of view (return) */
-         NULLHANDLE,     /* handle to collapsed list (return) */
-         NULLHANDLE))    /* handle to selected list (return) */
+                      hDB,            /* handle of db with view */
+                      hDB,            /* handle of db with data */
+                      ViewID,         /* note id of the view */
+                      0,              /* collection open flags */
+                      NULLHANDLE,     /* handle to unread ID list (input and return) */
+                      &hCollection,   /* collection handle (return) */
+                      NULLHANDLE,     /* handle to open view note (return) */
+                      NULL,           /* universal note id of view (return) */
+                      NULLHANDLE,     /* handle to collapsed list (return) */
+                      NULLHANDLE))    /* handle to selected list (return) */
    {
       NSFDbClose (hDB);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFOpenCollection");  
       NotesTerm();
       return (1);
    }
@@ -149,24 +164,24 @@ arranged in the order of the bits in the READ_MASKs. */
    do
    {
       if (error = NIFReadEntries(
-             hCollection,        /* handle to this collection */
-             &CollPosition,      /* where to start in collection */
-             NAVIGATE_NEXT,      /* order to use when skipping */
-             1L,                 /* number to skip */
-             NAVIGATE_NEXT,      /* order to use when reading */
-             0xFFFFFFFF,         /* max number to read */
-             READ_MASK_NOTEID +  /* info we want */
-             READ_MASK_SUMMARYVALUES,
-             &hBuffer,           /* handle to info buffer (return)  */
-             NULL,               /* length of info buffer (return) */
-             NULL,               /* entries skipped (return) */
-             &EntriesFound,      /* entries read (return) */
-             &SignalFlag))       /* share warning and more signal flag
-                                    (return) */
+                         hCollection,        /* handle to this collection */
+                         &CollPosition,      /* where to start in collection */
+                         NAVIGATE_NEXT,      /* order to use when skipping */
+                         1L,                 /* number to skip */
+                         NAVIGATE_NEXT,      /* order to use when reading */
+                         0xFFFFFFFF,         /* max number to read */
+                         READ_MASK_NOTEID +  /* info we want */
+                         READ_MASK_SUMMARYVALUES,
+                         &hBuffer,           /* handle to info buffer (return)  */
+                         NULL,               /* length of info buffer (return) */
+                         NULL,               /* entries skipped (return) */
+                         &EntriesFound,      /* entries read (return) */
+                         &SignalFlag))       /* share warning and more signal flag
+                                                (return) */
       {
          NIFCloseCollection (hCollection);
          NSFDbClose (hDB);
-         PrintAPIError (error);  
+         PRINTERROR (error,"NIFReadEntries");  
          NotesTerm();
          return (1);
       }
@@ -177,20 +192,20 @@ arranged in the order of the bits in the READ_MASKs. */
       {
          NIFCloseCollection (hCollection);
          NSFDbClose (hDB);
-         printf ("\nEmpty buffer returned by NIFReadEntries.\n");
+         PRINTLOG ("\nEmpty buffer returned by NIFReadEntries.\n");
          NotesTerm();
          return (0); 
       }
 
 /* Lock down (freeze the location) of the information buffer. Cast
-the resulting pointer to the type we need. */
+   the resulting pointer to the type we need. */
 
       pBuffer = (BYTE *) OSLockObject (hBuffer);
 
 /* Start a loop that extracts the info about each collection entry from
-the information buffer. */
+   the information buffer. */
 
-      printf ("\n");
+      PRINTLOG ("\n");
       for (i = 1; i <= EntriesFound; i++)
       {
 
@@ -207,7 +222,7 @@ the information buffer. */
          memcpy (&ItemTable, pBuffer, sizeof(ItemTable));
 
 /* Remember where the start of this entry's summary is. Then advance
-the main pointer over the summary. */
+   the main pointer over the summary. */
       
          pSummary = pBuffer;
          pBuffer += ItemTable.Length; 
@@ -215,7 +230,7 @@ the main pointer over the summary. */
 /* If this entry is a category, say so. */
 
          if (NOTEID_CATEGORY & EntryID)
-            printf ("CATEGORY: ");
+            PRINTLOG ("CATEGORY: ");
 
 /* Call a local function to print the summary buffer. */
 
@@ -225,7 +240,7 @@ the main pointer over the summary. */
             OSMemFree (hBuffer);
             NIFCloseCollection (hCollection);
             NSFDbClose (hDB);
-            PrintAPIError (error);  
+            PRINTERROR (error,"PrintSummary");  
             NotesTerm();
             return (1);
          }
@@ -253,7 +268,7 @@ the main pointer over the summary. */
    if (error = NIFCloseCollection(hCollection))
    {
       NSFDbClose (hDB);
-      PrintAPIError (error);  
+      PRINTERROR (error,"NIFCloseCollection");  
       NotesTerm();
       return (1);
    }
@@ -262,14 +277,14 @@ the main pointer over the summary. */
 
    if (error = NSFDbClose (hDB))
    {
-       PrintAPIError (error);  
+       PRINTERROR (error,"NSFDbClose");  
        NotesTerm();
        return (1);
    }
 
 /* End of subroutine. */
 
-   printf("\nProgram completed successfully.\n");
+   PRINTLOG("\nProgram completed successfully.\n");
    NotesTerm();
    return (0); 
 }
@@ -310,17 +325,17 @@ The information in a view summary is as follows:
 
 /* Local variables */
 
-   BYTE *pSummaryPos;              /* current position in pSummary */
-   ITEM_VALUE_TABLE ItemTable;           /* header at start of pSummary */
-   USHORT  ItemCount;              /* number of items in pSummary */
-   USHORT  ItemLength[MAX_ITEMS];  /* length of each item */
-   USHORT  DataType;               /* type of pSummary item */
-   char ItemText[MAX_ITEM_LEN];    /* text of a pSummary item */
-   NUMBER  NumericItem;            /* a numeric item */
-   TIMEDATE   TimeItem;            /* a time/date item */
-   WORD TimeStringLen;             /* length of ASCII time/date */
-   STATUS  error;                  /* return code from API calls */
-   USHORT  i;                      /* a counter */
+   BYTE             *pSummaryPos;           /* current position in pSummary */
+   ITEM_VALUE_TABLE ItemTable;              /* header at start of pSummary */
+   USHORT           ItemCount;              /* number of items in pSummary */
+   USHORT           ItemLength[MAX_ITEMS];  /* length of each item */
+   USHORT           DataType;               /* type of pSummary item */
+   char             ItemText[MAX_ITEM_LEN]; /* text of a pSummary item */
+   NUMBER           NumericItem;            /* a numeric item */
+   TIMEDATE         TimeItem;               /* a time/date item */
+   WORD             TimeStringLen;          /* length of ASCII time/date */
+   STATUS           error;                  /* return code from API calls */
+   USHORT           i;                      /* a counter */
 
 
 /* Start reading the summary at its beginning. */
@@ -341,7 +356,7 @@ The information in a view summary is as follows:
 
    if (ItemCount > MAX_ITEMS)
    {
-      printf (
+      PRINTLOG (
          "Summary contains %d items - only printing the first %d items\n",
          ItemCount, MAX_ITEMS);
       ItemCount = MAX_ITEMS;
@@ -361,14 +376,14 @@ The information in a view summary is as follows:
    {
 
 /* If an item has zero length it indicates an "empty" item in the
-summary. This might occur in a lower-level category and stand for a
-higher-level category that has already appeared. Or an empty item might
-be a field that is missing in a response doc. Just print * as a place
-holder and go on to the next item in the pSummary. */
+   summary. This might occur in a lower-level category and stand for a
+   higher-level category that has already appeared. Or an empty item might
+   be a field that is missing in a response doc. Just print * as a place
+   holder and go on to the next item in the pSummary. */
 
       if (ItemLength[i] == 0)
       {
-         printf ("  *  ");
+         PRINTLOG ("  *  ");
          continue;
       }
       else if (ItemLength[i] >= MAX_ITEM_LEN)
@@ -383,8 +398,8 @@ holder and go on to the next item in the pSummary. */
       pSummaryPos += DATATYPE_SIZE;
 
 /* Extract the item from the summary and put it in readable
-form. The way in which we extract the item depends on its type.
-This program handles TEXT, TEXT_LIST, NUMBER, and TIME. */
+   form. The way in which we extract the item depends on its type.
+   This program handles TEXT, TEXT_LIST, NUMBER, and TIME. */
 
       switch (DataType)
       {
@@ -421,12 +436,12 @@ This program handles TEXT, TEXT_LIST, NUMBER, and TIME. */
             memcpy (&TimeItem, pSummaryPos, TIME_SIZE);
 
             if (error = ConvertTIMEDATEToText (
-                   NULL,
-                   NULL,
-                   &TimeItem,
-                   ItemText,
-                   MAXALPHATIMEDATE,
-                   &TimeStringLen))
+                                   NULL,
+                                   NULL,
+                                   &TimeItem,
+                                   ItemText,
+                                   MAXALPHATIMEDATE,
+                                   &TimeStringLen))
                return (ERR(error));
 
             ItemText[TimeStringLen] = '\0';
@@ -443,7 +458,7 @@ handles. */
 
 /* Print the item. (Add spaces so next item is separated.) */
 
-      printf ("%s    ", ItemText);
+      PRINTLOG ("%s    ", ItemText);
 
 /* Advance to next item in the pSummary. */
 
@@ -455,7 +470,7 @@ handles. */
 
 /* Print final line feed to end this pSummary display. */
 
-   printf ("\n");
+   PRINTLOG ("\n");
 
 /* End of function */
 
@@ -474,12 +489,12 @@ pSummary buffer. */
 
 /* Local variables */
 
-   USHORT  ListCount; /* number of entries in a text list */
-   char *ListEntry;   /* pointer to list entry */
-   WORD ListLen;      /* total length of text list */
-   WORD EntryLen;     /* length of one entry */
-   STATUS  error;     /* return code from API calls */
-   USHORT  i;         /* a counter */
+   USHORT  ListCount;    /* number of entries in a text list */
+   char    *ListEntry;   /* pointer to list entry */
+   WORD    ListLen;      /* total length of text list */
+   WORD    EntryLen;     /* length of one entry */
+   STATUS  error;        /* return code from API calls */
+   USHORT  i;            /* a counter */
 
 
 /* Clear the string that we'll fill up. */
@@ -502,11 +517,11 @@ pSummary buffer. */
 /* Get the entry. */
 
       if (error = ListGetText (
-             pBuffer,
-             FALSE, /* DataType not prepended to list */
-             i,
-             &ListEntry,
-             &EntryLen))
+                         pBuffer,
+                         FALSE, /* DataType not prepended to list */
+                         i,
+                         &ListEntry,
+                         &EntryLen))
          return (ERR(error));
 
 /* Copy this entry to the string we are building and move the pointer that
@@ -567,34 +582,3 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
          
     } /* end if */
 } /* ProcessArgs */
-
-/*************************************************************************
-
-    FUNCTION:   PrintAPIError
-
-    PURPOSE:    This function prints the HCL C API for Notes/Domino 
-                error message associated with an error code.
-
-**************************************************************************/
-
-void PrintAPIError (STATUS api_error)
-
-{
-    STATUS  string_id = ERR(api_error);
-    char    error_text[200];
-    WORD    text_len;
-
-    /* Get the message for this HCL C API for Notes/Domino error code
-       from the resource string table. */
-
-    text_len = OSLoadString (NULLHANDLE,
-                             string_id,
-                             error_text,
-                             sizeof(error_text));
-
-    /* Print it. */
-
-    fprintf (stderr, "\n%s\n", error_text);
-}
-
-

@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
     PROGRAM:    mktable
 
@@ -42,6 +57,7 @@
 #include <osfile.h>
 #include <textlist.h>
 #include <stdnames.h>
+#include <printLog.h>
 
 #include "mktable.h"
 
@@ -70,36 +86,36 @@ int main(int argc, char *argv[])
     char                  cell_str[LINEOTEXT], temp_buf[LINEOTEXT*2];
     DBHANDLE              db_handle;
     NOTEHANDLE            note_handle;
-    DHANDLE                 cd_buf_handle;
+    DHANDLE               cd_buf_handle;
     WORD                  rows, columns;
-    DHANDLE                 textlist_hdl;
+    DHANDLE               textlist_hdl;
     void                  *textlist_ptr;
     WORD                  list_entries, list_entry, textlist_size;
     WORD                  countr, countc;
     BYTE                  border_style;
     BYTE                  *cd_buf_ptr;              /* current CD buffer pointer */
     DWORD                 cd_buf_cnt = 0L;          /* CD buffer size counter */
-    CDPABDEFINITION       *anchor_pabdef_ptr;      /* first (non table) PABDEF */
+    CDPABDEFINITION       *anchor_pabdef_ptr;       /* first (non table) PABDEF */
 
-    CDPABDEFINITION  post_conversion_pabdef_ptr;  /* First paragraph definition in machine-specific format */
-    void  *pre_conversion_pabdef_ptr;            /* pointer for the data format conversion memory allocation */
-    int table_num;
+    CDPABDEFINITION       post_conversion_pabdef_ptr;  /* First paragraph definition in machine-specific format */
+    void                  *pre_conversion_pabdef_ptr;  /* pointer for the data format conversion memory allocation */
+    int                   table_num;
 
-	if (error = NotesInitExtended (argc, argv))
-	{
-        printf("\n Unable to initialize Notes.\n");
+    if (error = NotesInitExtended (argc, argv))
+    {
+        PRINTLOG("\n Unable to initialize Notes.\n");
         return (1);
-	}
+    }
 
     db_name = (char *) malloc(LINEOTEXT);
     if (db_name == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         NotesTerm();
         return (0);
     }
 
-/* Get the pathname of the database. */
+    /* Get the pathname of the database. */
     ProcessArgs(argc, argv, db_name);
 
     /* Open the database */
@@ -168,28 +184,28 @@ int main(int argc, char *argv[])
                   cd_buf_cnt, &cd_buf_cnt))
         goto Exit;
 
-/* In CDPutPabdef routine we use ODSWriteMemory  to convert the CDPABDEFINITION 
-   structure from machine-specific format into the canonical Domino and Notes format. 
-   This also means that if we'd like to reference the data from this 
-   sructure (PABID, LeftMargin, RightMargin, etc.), we have to copy 
-   the structure and convert the data back to machine-specific format by 
-   using ODSReadMemory function. */
+    /* In CDPutPabdef routine we use ODSWriteMemory  to convert the CDPABDEFINITION 
+       structure from machine-specific format into the canonical Domino and Notes format. 
+       This also means that if we'd like to reference the data from this 
+       sructure (PABID, LeftMargin, RightMargin, etc.), we have to copy 
+       the structure and convert the data back to machine-specific format by 
+       using ODSReadMemory function. */
 
-/* Allocate memory for the copy of the CDPABDEFINITION structure */
+    /* Allocate memory for the copy of the CDPABDEFINITION structure */
     pre_conversion_pabdef_ptr = (void *) malloc(ODSLength(_CDPABDEFINITION));
 
     if (pre_conversion_pabdef_ptr == NULL)
     {
-        printf("Error: Out of memory.\n");
+        PRINTLOG("Error: Out of memory.\n");
         NotesTerm();
         return (0);
     }
 
-/* Copy the CDPABDEFINITION structure */
+    /* Copy the CDPABDEFINITION structure */
 
    memcpy(pre_conversion_pabdef_ptr,anchor_pabdef_ptr, ODSLength(_CDPABDEFINITION));
 
-/* Convert the structure back to the machine-specific format */
+    /* Convert the structure back to the machine-specific format */
 
    ODSReadMemory(&pre_conversion_pabdef_ptr, _CDPABDEFINITION, &post_conversion_pabdef_ptr,1);
 
@@ -250,8 +266,8 @@ int main(int argc, char *argv[])
                     &cd_buf_ptr,  /* ptr to begin of Rich Text Buf   */
                     &cd_buf_cnt))/* current offset in to Buf        */
     {
-        printf("\nMKTABLE ERROR - Table and\\or Text too big or");
-        printf(" dimension out of range!\n");
+        PRINTLOG("\nMKTABLE ERROR - Table and\\or Text too big or");
+        PRINTLOG(" dimension out of range!\n");
         goto Exit;
     }
     else
@@ -310,8 +326,8 @@ int main(int argc, char *argv[])
                     textlist_ptr, PLNREDCR10,
                     &post_conversion_pabdef_ptr, &cd_buf_ptr, &cd_buf_cnt))
     {
-        printf("\nMKTABLE ERROR - Table and\\or Text too big or");
-        printf(" dimension out of range!\n");
+        PRINTLOG("\nMKTABLE ERROR - Table and\\or Text too big or");
+        PRINTLOG(" dimension out of range!\n");
         goto Exit;
     }
     else
@@ -337,8 +353,8 @@ int main(int argc, char *argv[])
              NULL, PLNREDCR10,
              &post_conversion_pabdef_ptr, &cd_buf_ptr, &cd_buf_cnt))
     {
-        printf("\nMKTABLE ERROR - Table and\\or Text too big or");
-        printf(" dimension out of range!\n");
+        PRINTLOG("\nMKTABLE ERROR - Table and\\or Text too big or");
+        PRINTLOG(" dimension out of range!\n");
         goto Exit;
     }
 
@@ -394,7 +410,7 @@ Exit: /* ERROR HANDLING */
     }
 
     if (!error)
-	  printf ("\nProgram completed successfully.\n");
+	  PRINTLOG ("\nProgram completed successfully.\n");
 
     NotesTerm();
     return (error);
