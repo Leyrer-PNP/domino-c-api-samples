@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *
-/* DESCRIPTION
+* DESCRIPTION
 
 This source file contains various routines used by the GETNOTE and
 PUTNOTE programs.
