@@ -82,7 +82,7 @@ STATUS LNPUBLIC AddNewNote(DBHANDLE db_handle, char *form_name,
 STATUS LNPUBLIC MakeNoteResponse (DBHANDLE db_handle, NOTEID main_nid,
                                          NOTEID resp_nid);
  
-void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
+void  LNPUBLIC  ProcessArgs (int argc, char *argv[],char *server_name,
                                char *dbpath_name, char *subject); 
 
 STATUS PrintSummary (BYTE *);
