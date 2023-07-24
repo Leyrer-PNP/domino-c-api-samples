@@ -22,10 +22,11 @@ uiaddin2.dll : uiaddin2.obj mswin64.def
     	-dll -entry:_DllMainCRTStartup$(DLLENTRY) -def:mswin64.def \
     	-out:uiaddin2.dll \
     	uiaddin2.obj \
-	$(LIBS_1) $(ENTRY_FLAG1) 
+	$(LIBS_1) $(ENTRY_FLAG1) /FORCE:MULTIPLE
 
 
 # Compilation command.
 
 uiaddin2.obj: uiaddin2.c
-	!cl -DCRTAPI1=_cdecl -DCRTAPI2=_cdecl -D_WIN32_WINNT=0x0500 -DNTDDI_VERSION=0x05000000 -D_WIN32_IE=0x0500 -DWINVER=0x0500 /optimize -DNT $(COPTIONS)  uiaddin2.c
+	!cl -DCRTAPI1=_cdecl -DCRTAPI2=_cdecl -D_WIN32_WINNT=0x0500 -DNTDDI_VERSION=0x05000000 -D_WIN32_IE=0x0500 -DWINVER=0x0500 /optimize -DNT -D_MT -MTd $(COPTIONS)  uiaddin2.c
+	
