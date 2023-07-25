@@ -23,4 +23,4 @@ $(PROGNAME).OBJ: $(PROGNAME).C
 # Link command.
 
 .OBJ.EXE:
-    link $(LOPTIONS) -out:$@ $** $(ENTRY_FLAG) $(LIBS)
+    link $(LOPTIONS_1) -out:$@ $** $(ENTRY_FLAG1) $(LIBS_1)
