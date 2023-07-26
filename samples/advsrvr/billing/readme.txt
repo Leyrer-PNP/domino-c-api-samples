@@ -201,7 +201,7 @@ Log template.
 3. Exit the server if it is running.
 
 4. Take a backup of the existing "nbilling" and copy the CAPI "billing"
-   OR "billses" executable in domino program directory.
+   OR "billsession" executable in domino program directory.
 
 5. Start the server software, and wait until all the server tasks have
    started (about 30 seconds).
