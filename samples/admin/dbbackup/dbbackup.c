@@ -1,19 +1,4 @@
 /****************************************************************************
- *
- * Copyright HCL Technologies 1996, 2023.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
 
  PROGRAM:   dbbackup
 
@@ -87,17 +72,17 @@ VOID main (int argc, char *argv[])
    BOOL     Logged;
    UNID     LogID;
    UNID     DbIID;
-   DWORD    LogExtent;
+   DWORD    LogExtent=-1;
 
    /* Get the pathname of the database from the command line. */
-   if (argc != 3)
+   if (argc != 4)
    {
-      PRINTLOG( "\nUsage:  dbbackup  <database filename> <output filename>\n");
+      PRINTLOG( "\nUsage:  dbbackup <Domino ini path> <database filename> <output filename>\n");
       exit (EXIT_SUCCESS);
-   }
+   } 
 
-   path_name = argv[1];
-   backup_file = argv[2];
+   path_name = argv[2];
+   backup_file = argv[3];
 
    /* Initialize Notes */
    if (NotesInitExtended (argc, argv))
@@ -109,7 +94,7 @@ VOID main (int argc, char *argv[])
    /* Open the database we're going to backup */
    if (err = NSFDbOpen(path_name, &hDB))
    {
-      PRINTERROR (err,"NSFDbOpen");
+      print_api_error (err);
       NotesTerm();
       exit (EXIT_FAILURE);
    }
@@ -117,7 +102,7 @@ VOID main (int argc, char *argv[])
    /* And get its full path so we can open it at the OS level */
    if (err = NSFDbPathGet(hDB, NULL, FullPath))
    {
-      PRINTERROR (err,"NSFDbPathGet");
+      print_api_error (err);
       NSFDbClose(hDB);
       NotesTerm();
       exit (EXIT_FAILURE);
@@ -130,7 +115,7 @@ VOID main (int argc, char *argv[])
                             &FileSizeLow,
                             &FileSizeHigh))
    {
-      PRINTERROR (err,"NSFBackupStart");
+      print_api_error (err);
       NSFDbClose(hDB);
       NotesTerm();
       exit (EXIT_FAILURE);
@@ -139,7 +124,7 @@ VOID main (int argc, char *argv[])
    /* Check to see if DB is being logged. */
    if (err = NSFDbGetLogInfo(hDB, 0L, &Logged, &LogID, &DbIID, &LogExtent))
    {
-      PRINTERROR (err,"NSFDbGetLogInfo");
+      print_api_error (err);
       NSFBackupEnd(hDB, BackupContext, BACKUPEND_ABORT);
       NSFDbClose(hDB);
       NotesTerm();
@@ -148,13 +133,13 @@ VOID main (int argc, char *argv[])
    if(!Logged)
    {
       PRINTLOG("\n  Database '%s' is not currently logged ...\n", path_name);
-      PRINTLOG("\n  Resulting backup file '%s' WILL NOT BE RECOVERABLE!!!\n", backup_file);
+      PRINTLOG("\n  Resulting backup file '%s' WILL NOT BE RECOVERABLE!!! [%x]\n", backup_file, LogExtent);
    }
 
    /* Open the database file at the OS level */
    if (err = SysFileOpenRead(FullPath, &srcfd))
    {
-      PRINTERROR (err,"SysFileOpenRead");
+      print_api_error (err);
       NSFBackupEnd(hDB, BackupContext, BACKUPEND_ABORT);
       NSFDbClose(hDB);
       NotesTerm();
@@ -164,7 +149,7 @@ VOID main (int argc, char *argv[])
    /* Move file pointer to begining of file */
    if (err = SysFileSeek(srcfd, 0, 0))
    {
-      PRINTERROR (err,"SysFileSeek");
+      print_api_error (err);
       SysFileClose(srcfd);
       NSFBackupEnd(hDB, BackupContext, BACKUPEND_ABORT);
       NSFDbClose(hDB);
@@ -176,7 +161,7 @@ VOID main (int argc, char *argv[])
       do not overwrite it if it already exists */
    if (err = SysFileCreate(backup_file, &dstfd))
    {
-      PRINTERROR (err,"SysFileCreate");
+      print_api_error (err);
       SysFileClose(srcfd);
       NSFBackupEnd(hDB, BackupContext, BACKUPEND_ABORT);
       NSFDbClose(hDB);
@@ -188,7 +173,7 @@ VOID main (int argc, char *argv[])
       writing to the destination file */
    if (err = OSMemAlloc(MEM_SHARE, BUFFER_SIZE, &hBuffer))
    {
-      PRINTERROR (err,"OSMemAlloc");
+      print_api_error (err);
       SysFileClose(dstfd);
       SysFileDelete(backup_file);
       SysFileClose(srcfd);
@@ -264,7 +249,7 @@ VOID main (int argc, char *argv[])
    /* If the copy hit a problem clean up */
    if (err)
    {
-      PRINTERROR (err,"OSMemAlloc");
+      print_api_error (err);
       OSUnlockObject(hBuffer);
       OSMemFree(hBuffer);
       SysFileDelete(backup_file);
@@ -285,7 +270,7 @@ VOID main (int argc, char *argv[])
                                         &InfoSizeLow,
                                         &InfoSizeHigh))
    {
-      PRINTERROR (err,"NSFBackupGetChangeInfoSize");
+      print_api_error (err);
       OSUnlockObject(hBuffer);
       OSMemFree(hBuffer);
       SysFileDelete(backup_file);
@@ -303,7 +288,7 @@ VOID main (int argc, char *argv[])
                                            InfoSizeLow,
                                            InfoSizeHigh))
    {
-      PRINTERROR (err,"NSFBackupStartApplyChangeInfo");
+      print_api_error (err);
       OSUnlockObject(hBuffer);
       OSMemFree(hBuffer);
       SysFileDelete(backup_file);
@@ -324,7 +309,7 @@ VOID main (int argc, char *argv[])
                                            BUFFER_SIZE,
                                            &FilledSize))
       {
-         PRINTERROR (err,"NSFBackupGetNextChangeInfo");
+         print_api_error (err);
          NSFBackupEndApplyChangeInfo(ApplyInfoContext, APPLYEND_ABORT);
          OSUnlockObject(hBuffer);
          OSMemFree(hBuffer);
@@ -341,7 +326,7 @@ VOID main (int argc, char *argv[])
                                              Buffer,
                                              FilledSize))
       {
-         PRINTERROR (err,"NSFBackupApplyNextChangeInfo");
+         print_api_error (err);
          NSFBackupEndApplyChangeInfo(ApplyInfoContext, APPLYEND_ABORT);
          OSUnlockObject(hBuffer);
          OSMemFree(hBuffer);
