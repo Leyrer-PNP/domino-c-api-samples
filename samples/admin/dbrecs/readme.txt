@@ -3,7 +3,7 @@ CIR9ZEN
 CIRA2EN
 
 (c) Copyright IBM Corporation   1996,   2013
-(c) Copyright HCL Technologies   1996,   2023
+(c) Copyright HCL Technologies   1996,   2021
 All rights reserved.
 
 
@@ -77,7 +77,7 @@ original DB.
 
 The command line of dbrecs is  -
 
-      dbrecs <option> [input file] [restore db]
+      dbrecs >Domino ini path> <option> [input file] [restore db]
 
 where:
 
@@ -144,7 +144,7 @@ current log state.
 
 Under Windows, type:
 
-      dbrecs CHECK "c:\lotus\notes\data\simple.bak"
+      dbrecs CHECK "c:\lotus\domino\data\simple.bak"
 
 If the program runs correctly, it should display
 
@@ -178,13 +178,13 @@ with the changes that were recorded as a result of the system logging.
 Under Windows, copy a valid backup file (as obtained from running
 dbbackup.exe) to the Domino data directory, type:
 
-      dbrecs recover "c:\lotus\notes\data\simple.bak"
+      dbrecs recover "c:\lotus\domino\data\simple.bak"
 
 If the program runs correctly, it should display
 
        Recovering backup file ...
 
-       Backup file c:\lotus\notes\data\simple.bak recovered.
+       Backup file c:\lotus\domino\data\simple.bak recovered.
 
       Program completed successfully.
 
@@ -259,20 +259,20 @@ with the changes that were recorded as a result of the system logging.
 Under Windows, copy a valid backup file (as obtained from running
 dbbackup.exe) to the Domino data directory, type:
 
-      dbrecs restore "c:\lotus\notes\data\simple.bak" "c:\lotus\notes\data\simple.nsf"
+      dbrecs "=C:\lotus\domino\data\notes.ini" restore "c:\lotus\domino\data\simple.bak" "c:\lotus\domino\data\simple.nsf"
 
 If the program runs correctly, it should display
 
-       Taking database c:\lotus\notes\data\simple.nsf offline ...
+       Taking database c:\lotus\domino\data\simple.nsf offline ...
 
        Recovering backup file ...
 
-       Backup file c:\lotus\notes\data\simple.bak recovered.
+       Backup file c:\lotus\domino\data\simple.bak recovered.
 
-       Restoring database c:\lotus\notes\data\simple.nsf
-        from recovered backup file c:\lotus\notes\data\simple.bak ...
+       Restoring database c:\lotus\domino\data\simple.nsf
+        from recovered backup file c:\lotus\domino\data\simple.bak ...
 
-       Bringing database c:\lotus\notes\data\simple.nsf online ...
+       Bringing database c:\lotus\domino\data\simple.nsf online ...
 
       Program completed successfully.
 
