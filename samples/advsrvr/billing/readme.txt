@@ -139,7 +139,7 @@ manager at server startup.
 3. Add the following line to the notes.ini file of the server, 
    normally found in the Domino data directory, and save the modified file:
 
-	EXTMGR_ADDINS=BILLMGR
+	EXTMGR_ADDINS=BILLING
 
    For UNIX platforms (AIX) the name of the shared library should be
    in lower case letters, e.g. for AIX:
@@ -178,7 +178,7 @@ are invoked each time the server is started.
 
 7. After the server has completed its startup processing, the user may 
 confirm that the add-in task is running by typing "show tasks" at the Domino
-server console. This will display a list of all server tasks that are 
+server console. This will display a list of all server tasks that are
 running, and the status of each task.
 
 
@@ -200,14 +200,17 @@ Log template.
 
 3. Exit the server if it is running.
 
-4. Start the server software, and wait until all the server tasks have
-started (about 30 seconds).
+4. Take a backup of the existing "nbilling" and copy the CAPI "billing"
+   OR "billsession" executable in domino program directory.
 
-5. From the server console, load the add-in task by typing
+5. Start the server software, and wait until all the server tasks have
+   started (about 30 seconds).
+
+6. From the server console, load the add-in task by typing
 	load billing
 
-6. Confirm that the add-in task is running by typing "show tasks" at the 
-server console.
+7. Confirm that the add-in task is running by typing "show tasks" at the
+   server console.
 
 
 NOTE: 
