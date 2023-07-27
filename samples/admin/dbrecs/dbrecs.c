@@ -1,4 +1,19 @@
 /****************************************************************************
+ *
+ * Copyright HCL Technologies 1996, 2023.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
 
  PROGRAM:   dbrecs
 
@@ -117,17 +132,17 @@ VOID main (int argc, char *argv[])
          {
             usage=1;													
             flags = 1;
-				if (!strcmp(RecOpt,"NOTE"))
-					NoteInfo = 1;
+            if (!strcmp(RecOpt,"NOTE"))
+                NoteInfo = 1;
          }
-	else if (!strcmp(RecOpt,"CHECK"))
-	{
+         else if (!strcmp(RecOpt,"CHECK"))
+         {
             usage=1;													
-	}
+         }
          /* Ensure null termination */
-        InFile[strlen(&InFile[0])+1] = '\0';
+         InFile[strlen(&InFile[0])+1] = '\0';
 
-	}
+      }
 
       if (argc == 5)
       {
@@ -199,16 +214,16 @@ VOID main (int argc, char *argv[])
       }
    }
 
-	if (!strcmp(RecOpt,"CHECK"))
+   if (!strcmp(RecOpt,"CHECK"))
    {
-	   PRINTLOG("\n Checking file to see if new backup is needed ...\n");
-	   if (err = CheckDb(InFile))
-	   {
-		   PRINTLOG("\nError checking file %s ... \n", InFile);
-		   SysFileClose(LogFD);
-		   NotesTerm();
-		   exit (EXIT_FAILURE);
-	   }
+      PRINTLOG("\n Checking file to see if new backup is needed ...\n");
+      if (err = CheckDb(InFile))
+      {
+         PRINTLOG("\nError checking file %s ... \n", InFile);
+         SysFileClose(LogFD);
+         NotesTerm();
+         exit (EXIT_FAILURE);
+      }
    }
 
    if (!strcmp(RecOpt,"RECOVER") || !strcmp(RecOpt, "RESTORE") || !strcmp(RecOpt, "NOTE"))
@@ -236,8 +251,8 @@ VOID main (int argc, char *argv[])
       }
       if (!flags)
       {
-		 PRINTLOG("\n The recovered backup file is %s\n",InFile);
-		 PRINTLOG("\n The database to be restored is %s\n",ResDb);
+         PRINTLOG("\n The recovered backup file is %s\n",InFile);
+         PRINTLOG("\n The database to be restored is %s\n",ResDb);
          PRINTLOG("\n\n Restoring database from recovered backup file ...\n");
          if(err = RestoreDbs(InFile, ResDb))
          {
@@ -320,10 +335,10 @@ STATUS LNPUBLIC NoteCallback(DWORD state_flags, void far *userParm, NOTE_RESTORE
 
    STATUS   err= NOERROR;
    NOTE_RESTORE_CALLBACK_INFO info;
-	char     timebuffer[MAXALPHATIMEDATE + 1];
+   char     timebuffer[MAXALPHATIMEDATE + 1];
    WORD     timelength;
    char     EventString[MAXPATHLENGTH + 100];
-	char     note_action[25]="";
+   char     note_action[25]="";
 
 
    memcpy( (char*)&info, (char*)pinfo, sizeof(NOTE_RESTORE_CALLBACK_INFO) );
@@ -331,38 +346,38 @@ STATUS LNPUBLIC NoteCallback(DWORD state_flags, void far *userParm, NOTE_RESTORE
    err = ConvertTIMEDATEToText(NULL, NULL, &info.TranTime, &timebuffer[0], MAXALPHATIMEDATE, &timelength);
    timebuffer[timelength] = '\0';
 
-	if(!err)
-	{
-	   switch (state_flags)
-	   {
-		   case MediaCallback_NoteInsert:
-		     strcpy(note_action, "Addition");
-		     break;
+   if(!err)
+   {
+      switch (state_flags)
+      {
+         case MediaCallback_NoteInsert:
+              strcpy(note_action, "Addition");
+              break;
 
-		   case MediaCallback_NoteDelete:
-		     strcpy(note_action, "Deletion");
-		     break;
+         case MediaCallback_NoteDelete:
+              strcpy(note_action, "Deletion");
+              break;
 
-		   case MediaCallback_CLR:
-		     strcpy(note_action, "Undo");
-		     break;
+         case MediaCallback_CLR:
+              strcpy(note_action, "Undo");
+              break;
 
-		   default:
-		     strcpy(note_action, "Unknown");
-	   }
+         default:
+              strcpy(note_action, "Unknown");
+      }
 
-		sprintf(EventString, "\n\tNote information for backup file %s\n\t\tStarted at: %s\n\t\tInfoSize: %d\n\t\tNoteID: %lX\n\t\tNoteHandle: %d\n\t\tUser Name: %s\n\t\tAction: %s\n\t\tFinished at",
-			 info.PathName,
-			 timebuffer,
-			 info.InfoSize,
-          info.NoteId,
-			 info.hNote,
-			 info.UserName,
-	       note_action);
+      sprintf(EventString, "\n\tNote information for backup file %s\n\t\tStarted at: %s\n\t\tInfoSize: %d\n\t\tNoteID: %lX\n\t\tNoteHandle: %d\n\t\tUser Name: %s\n\t\tAction: %s\n\t\tFinished at",
+              info.PathName,
+              timebuffer,
+              info.InfoSize,
+              info.NoteId,
+              info.hNote,
+              info.UserName,
+              note_action);
 
-  	   EventLog(LogFD, EventString);
+      EventLog(LogFD, EventString);
    }
-	return err;
+   return err;
 }
 
 
@@ -371,7 +386,7 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
 
    FUNCTION:  RecoverDbs
 
-	PURPOSE:   Recover specified backup file.
+   PURPOSE:   Recover specified backup file.
 
    INPUTS:    BUPath - Path to backup file.
               Rflags - Recovery flags.
@@ -382,7 +397,7 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
 {
    STATUS   err= NOERROR;
    char     EventString[MAXPATHLENGTH + 100];
-	unsigned short int index = 0;
+   unsigned short int index = 0;
    unsigned short int errindex = 0;
 
 
@@ -398,56 +413,56 @@ STATUS RecoverDbs(char * BUPath, DWORD Rflags, int RNoteInfo)
       In this case the original DB will be deleted when it is taken
       offline then replaced with its recovered backup file. */
 
-	if(Rflags)
+   if(Rflags)
       Rflags = DBRECOVER_ZAP_ID;
 
-	if(RNoteInfo)
-	{
-		sprintf(EventString, "\nRecovering backup file %s with CallBack", BUPath);
+   if(RNoteInfo)
+   {
+      sprintf(EventString, "\nRecovering backup file %s with CallBack", BUPath);
       EventLog(LogFD, EventString);
       err = NSFRecoverDatabasesWithCallback(BUPath, MyCallback, Rflags, &index, NULL, NoteCallback, 0);
-	}
-	else
-	{
-		if (!Rflags)
-		   sprintf(EventString, "Recovering backup file %s", BUPath);
-		else
-		   sprintf(EventString, "\nRecovering backup file %s", BUPath);
-      EventLog(LogFD, EventString);
-      err = NSFRecoverDatabases(BUPath, MyCallback, Rflags, &index, NULL);
-	}
-
-   if (!err)
-   {
-		/* Although this sample was designed to pass a 'list' containing
-		   only one database name via the BUPath parameter of
-			NSFRecoverDatabases, the following loops are included to
-			illustrate how to handle a 'list' containing multiple database
-			names along with the required imbedded NULLs. */
-
-		while (BUPath[0] != '\0')
-		{
-         PRINTLOG("\n Backup file recovered.\n");
-         sprintf(EventString, "Backup file %s recovery complete", BUPath);
-         EventLog(LogFD, EventString);
-			BUPath += strlen(BUPath) + 1;
-		}
    }
    else
    {
-		while (BUPath[0] != '\0')
-		{
-		   errindex++;
-			if(errindex ==index)
-			{
-				PRINTLOG("\nError recovering backup file %s\n", BUPath);
-            sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
-				BUPath,
-				print_api_error(err));
-				EventLog(LogFD, EventString);
-         }
-			BUPath += strlen(BUPath) + 1;
-		}
+      if (!Rflags)
+          sprintf(EventString, "Recovering backup file %s", BUPath);
+      else
+          sprintf(EventString, "\nRecovering backup file %s", BUPath);
+      EventLog(LogFD, EventString);
+      err = NSFRecoverDatabases(BUPath, MyCallback, Rflags, &index, NULL);
+   }
+
+   if (!err)
+   {
+      /* Although this sample was designed to pass a 'list' containing
+         only one database name via the BUPath parameter of
+         NSFRecoverDatabases, the following loops are included to
+         illustrate how to handle a 'list' containing multiple database
+         names along with the required imbedded NULLs. */
+
+      while (BUPath[0] != '\0')
+      {
+          PRINTLOG("\n Backup file recovered.\n");
+          sprintf(EventString, "Backup file %s recovery complete", BUPath);
+          EventLog(LogFD, EventString);
+          BUPath += strlen(BUPath) + 1;
+      }
+   }
+   else
+   {
+      while (BUPath[0] != '\0')
+      {
+          errindex++;
+          if(errindex ==index)
+          {
+             PRINTLOG("\nError recovering backup file %s\n", BUPath);
+             sprintf(EventString, " *** ERROR recovering backup file %s *** (%s)",
+                     BUPath,
+                     print_api_error(err));
+                     EventLog(LogFD, EventString);
+          }
+          BUPath += strlen(BUPath) + 1;
+      }
    }
    return err;
 }
@@ -503,7 +518,7 @@ STATUS RestoreDbs(char * BUPath, char * DbPath)
 
    FUNCTION:  RestoreDbs
 
-	PURPOSE:   Restore a specific database from a specific backup file.
+   PURPOSE:   Restore a specific database from a specific backup file.
 
    INPUTS:    BUPath - Path to recovered backup file.
               DbPath - Path to database to restore.
@@ -589,20 +604,20 @@ STATUS DoArchiveLogs(void)
    WORD   LogType;
 
    if ( err = NSFGetTransLogStyle (&LogType))
-      print_api_error(err);
+      PRINTERROR(err,"NSFGetTransLogStyle");
 
    if (LogType == TRANSLOG_STYLE_CIRCULAR || LogType == TRANSLOG_STYLE_LINEAR)
    {
-		switch(LogType)
-		{
-		   case TRANSLOG_STYLE_CIRCULAR:
-            PRINTLOG("\n  Transactional logging is 'CIRCULAR'.\n");
-				break;
+      switch(LogType)
+      {
+         case TRANSLOG_STYLE_CIRCULAR:
+              PRINTLOG("\n  Transactional logging is 'CIRCULAR'.\n");
+              break;
 
          case TRANSLOG_STYLE_LINEAR:
-            PRINTLOG("\n  Transactional logging is 'LINEAR'.\n");
-				break;
-		}
+              PRINTLOG("\n  Transactional logging is 'LINEAR'.\n");
+              break;
+      }
       return 1;
    }
 
@@ -615,7 +630,7 @@ STATUS DoArchiveLogs(void)
       return 1;
    }
 
-	while (!err)
+   while (!err)
    {
 
       /* Be sure on the first pass through to get the first archive log.
@@ -633,7 +648,7 @@ STATUS DoArchiveLogs(void)
       /* if we have a log to archive copy it off */
       if (err == NOERROR)
       {
-			PRINTLOG("\n  Creating archive log ...\n");
+         PRINTLOG("\n  Creating archive log ...\n");
 
          /* Create the destination file/directory -
          overwrite it if it already exists */
@@ -641,7 +656,7 @@ STATUS DoArchiveLogs(void)
          if (err = SysFileCreateDirectory(&ArchiveDir[0]))
          {
             PRINTLOG("\nError %d creating directory %s\n", err, ArchiveDir);
-				break;
+            break;
          }
 
          sprintf(&ArchiveDir[0],
@@ -670,7 +685,7 @@ STATUS DoArchiveLogs(void)
 
          if (err = NSFDoneArchivingLog(&LogId, &LogNumber))
          {
-            print_api_error(err);
+            PRINTERROR(err,"NSFDoneArchivingLog");
             break;
          }
 
@@ -691,7 +706,7 @@ STATUS DoArchiveLogs(void)
                 LogId.Note.Innards[0],
                 LogId.Note.Innards[1],
                 LogNumber,
-					 ArchivePath);
+                ArchivePath);
       }
       else if (err == ERR_NO_TRANSLOGS_TO_ARCHIVE)
       {
@@ -769,9 +784,9 @@ STATUS CheckDb(char * BUPath)
    char     EventString2[MAXPATHLENGTH + 100];
    DWORD    ComfortSpan = 0;  /* For 'CIRCULAR' or 'ARCHIVE' type logging. */
 /*   DWORD    ComfortSpan = 65536;  For 'CIRCULAR' type logging only */
-	DWORD    BackupNeeded;
+   DWORD    BackupNeeded;
    WORD     LogType;
-	int      unkown = 0;
+   int      unkown = 0;
 
 
    /* If the "check" option has been chosen, we'll determine the
@@ -780,34 +795,34 @@ STATUS CheckDb(char * BUPath)
 
 
    if ( err = NSFGetTransLogStyle (&LogType))
-      print_api_error(err);
+      PRINTERROR(err,"NSFGetTransLogStyle");
 
-	switch (LogType)
-	{
-	   case TRANSLOG_STYLE_ARCHIVE:
-         PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
-         if (ComfortSpan)
-            PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
-			break;
+   switch (LogType)
+   {
+      case TRANSLOG_STYLE_ARCHIVE:
+           PRINTLOG("\n  Transactional logging type is 'ARCHIVE'.\n");
+           if (ComfortSpan)
+              PRINTLOG("\n   For 'ARCHIVE' type logging only a ComfortSpan of '0' is supported.\n");
+              break;
 
-	   case TRANSLOG_STYLE_CIRCULAR:
-         PRINTLOG("\n  Transactional logging type is 'CIRCULAR'.\n");
-		   break;
+      case TRANSLOG_STYLE_CIRCULAR:
+           PRINTLOG("\n  Transactional logging type is 'CIRCULAR'.\n");
+           break;
 
-	   case TRANSLOG_STYLE_LINEAR:
-		   PRINTLOG("\n  Transactional logging type is 'LINEAR'.\n");
-		   break;
-	
-	   default:
-		   unkown = 1;
-			PRINTLOG("\n  Transactional logging type is 'UNKOWN'.\n");
-		   break;
-	}
+      case TRANSLOG_STYLE_LINEAR:
+           PRINTLOG("\n  Transactional logging type is 'LINEAR'.\n");
+           break;
 
-	if(unkown)
-		return (1);
+      default:
+           unkown = 1;
+           PRINTLOG("\n  Transactional logging type is 'UNKOWN'.\n");
+           break;
+   }
 
-	err = NSFIsNewBackupNeeded(BUPath, ComfortSpan, &BackupNeeded);
+   if(unkown)
+      return (1);
+
+   err = NSFIsNewBackupNeeded(BUPath, ComfortSpan, &BackupNeeded);
 
    if (!err)
    {
@@ -816,14 +831,14 @@ STATUS CheckDb(char * BUPath)
       if (ComfortSpan)
       {
          if (BackupNeeded)
-				strcat(EventString, "New Backup is needed");
+             strcat(EventString, "New Backup is needed");
          else
-				strcat(EventString, "New Backup is NOT needed");
-		}
+             strcat(EventString, "New Backup is NOT needed");
+      }
       else
       {
-            sprintf(EventString2, "Span of log is %d", BackupNeeded);
-            strcat(EventString, EventString2);
+         sprintf(EventString2, "Span of log is %d", BackupNeeded);
+         strcat(EventString, EventString2);
       }
 
       EventLog(LogFD, EventString);
