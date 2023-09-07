@@ -4,7 +4,7 @@
 #
 
 #CC defines the compiler.
-CC = g++
+CC = g++ -std=c++98 -pedantic
 
 # Set CCOPTS - the compiler options.
 CCOPTS = -c -m64
@@ -19,5 +19,5 @@ DEFINES = -DGCC3 -DGCC4 -fno-strict-aliasing -DGCC_LBLB_NOT_SUPPORTED -Wformat -
 INCDIR = -I$(NOTES_CAPI)/include -I$(NOTES_CAPI)/samples
 
 # set LIBS to list all the libraries ld should link with.
-LIBS = -lnotes -lm -lnsl -lpthread -lc -lresolv -ldl
+LIBS = -lnotes -lm -lpthread -lc -lresolv -ldl
 
