@@ -19,7 +19,7 @@
 
     FILE:       response.c
 
-    SYNTAX:     response  <dbpath_name>  "subject text"
+    SYNTAX:     response  <ServerName> <NSF name>  "subject text"
 
     PURPOSE:    Shows how to create response documents in a database,
                 how to read them from the database, and how to use NIFUpdateFilters.
@@ -82,7 +82,7 @@ STATUS LNPUBLIC AddNewNote(DBHANDLE db_handle, char *form_name,
 STATUS LNPUBLIC MakeNoteResponse (DBHANDLE db_handle, NOTEID main_nid,
                                          NOTEID resp_nid);
  
-void  LNPUBLIC  ProcessArgs (int argc, char *argv[],char *server_name,
+void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *server_name,
                                char *dbpath_name, char *subject); 
 
 STATUS PrintSummary (BYTE *);
@@ -124,7 +124,8 @@ int main(int argc, char *argv[])
                        note_id3;
     STATUS             error = NOERROR;
     char               *szDBpathName = NULL,
-                       *szSubject = NULL;
+                       *szSubject = NULL,
+		       *szSrvPath = NULL;
     char               szThePath[MAXPATH] = {0};
     char               szTheSubject[MAXSPRINTF] = {0};
     char               szRespSubject[MAXSPRINTF] = "A response to: ";
@@ -147,14 +148,11 @@ int main(int argc, char *argv[])
     FORMULAHANDLE      formula_handle = NULLHANDLE;  /* A compiled selection formula. */
     WORD               wIgnore = 0;                  /* A word we don't care about. */
     char               szUserName [MAXUSERNAME + 1] = "CN=Test User/O=Acme";	/* Domino Administrator user name */
-    char               szFullPath[MAXPATH] = "",
-                       szServerName[MAXPATH] = "";
+    char               szServerName [MAXPATH] = {0};
+    char               szFullPath[MAXPATH] = {0};
     NOTEID             noteid;
     BOOL               bFirst = TRUE;
     BOOL               bRetDeleted = FALSE;
-
-    memset(szFullPath, '\0', sizeof(szFullPath));
-    memset(szServerName, '\0', sizeof(szServerName));
 
     if (error = NotesInitExtended (argc, argv))
     {
@@ -169,17 +167,18 @@ int main(int argc, char *argv[])
 
     szDBpathName = szThePath;
     szSubject = szTheSubject;
-    ProcessArgs(argc, argv, szDBpathName, szSubject);
+    szSrvPath = szServerName;
+    ProcessArgs(argc, argv, szSrvPath, szDBpathName, szSubject);
 
     /* To get current user name. */
-    if (error = SECKFMGetUserName (szServerName))
+    if (error = SECKFMGetUserName (szUserName))
     {
         PRINTERROR (error,"SECKFMGetUserName");  
         NotesTerm();
         return (1);
     }
 
-    if (error = OSPathNetConstruct (NULL, szServerName, szDBpathName, szFullPath))
+    if (error = OSPathNetConstruct (NULL, szSrvPath, szDBpathName, szFullPath))
     {
         PRINTERROR (error,"OSPathNetConstruct");
         NotesTerm();
@@ -685,15 +684,20 @@ STATUS LNPUBLIC MakeNoteResponse (DBHANDLE db_handle,
                               from prompt.
                 subject -     subject obtained from command line or
                               from prompt.
+                server_name - server name obtained from command line or prompt.
 
 *************************************************************************/
 
-void  LNPUBLIC  ProcessArgs (int argc, char *argv[], 
+void  LNPUBLIC  ProcessArgs (int argc, char *argv[], char *server_name,
                                char *db_name, char *subject)
 { 
-    if (argc != 3)  
+    if (argc != 4)
     {
-        printf("Enter database name: ");      
+        printf("Enter Server name: ");
+        fflush (stdout);
+        gets(server_name);
+        printf("\n");
+        printf("Enter database name: ");
         fflush (stdout);
         gets(db_name);
         printf("\n");
@@ -703,8 +707,9 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     }    
     else
     {
-        strcpy(db_name, argv[1]);    
-        strcpy(subject, argv[2]);    
+        strcpy(server_name, argv[1]);
+        strcpy(db_name, argv[2]);
+        strcpy(subject, argv[3]);
     } /* end if */
 } /* ProcessArgs */
 
