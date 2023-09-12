@@ -1306,7 +1306,7 @@ void setThresholdInfo (char *szServerName, int iThreshold)
     nError = RemoteCommand (szServerName, szCommand, 
                             szServerResponse, &wResponseLen);
     
-    * Return if error with remote command */
+    /* Return if error with remote command */
     if (nError != NOERROR)
         goto Cleanup;
 

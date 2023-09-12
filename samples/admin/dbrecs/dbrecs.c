@@ -113,10 +113,10 @@ VOID main (int argc, char *argv[])
 
 
    /* Verify program inputs */
-   if (argc >= 2)
+   if (argc >= 5)
    {
       usage =0;
-      strcpy(RecOpt, argv[1]);
+      strcpy(RecOpt, argv[2]);
       for (i=0; i<15; i++)
       {
          if(RecOpt[i] == '\0')
@@ -125,9 +125,9 @@ VOID main (int argc, char *argv[])
       }
       if (!strcmp(RecOpt,"ARCHIVE"))
          usage =1;
-      if (argc >= 3)
+      if (argc >= 4)
       {
-         strcpy(InFile, argv[2]);
+         strcpy(InFile, argv[3]);
          if (!strcmp(RecOpt,"RECOVER") || !strcmp(RecOpt,"NOTE"))
          {
             usage=1;													
@@ -144,9 +144,9 @@ VOID main (int argc, char *argv[])
 
       }
 
-      if (argc == 4)
+      if (argc == 5)
       {
-         strcpy(ResDb, argv[3]);
+         strcpy(ResDb, argv[4]);
          if (!strcmp(RecOpt, "RESTORE"))
             usage=1;
       }
@@ -156,7 +156,7 @@ VOID main (int argc, char *argv[])
 
    if (!usage)
    {
-      PRINTLOG( "\nUsage: dbrecs <option> [input file] [restore db]\n");
+      PRINTLOG( "\nUsage: dbrecs <Domino ini path> <option> [input file] [restore db]\n");
       PRINTLOG( "\noption: ARCHIVE - Archive system logs.   (Input file NOT REQUIRED)\n");
       PRINTLOG( "        CHECK   - Check a database or backup file.    (Input file REQUIRED)\n");
       PRINTLOG( "        RECOVER - Recover a backup file. (Input file REQUIRED)\n");
