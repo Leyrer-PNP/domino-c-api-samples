@@ -6,7 +6,7 @@ All rights reserved.
 PROGRAM
 -------
 nif.c - To test the NIF API's routine
-NIFCollectionUpToDate, NIFIsNoteInView, NIFIsTimeVariantView and NIFReadEntriesExt.
+NIFCollectionUpToDate, NIFIsNoteInView, NIFIsTimeVariantView, NIFReadEntriesExt and NIFReadEntriesExt2.
 
 PURPOSE
 -----------
@@ -15,6 +15,7 @@ This program does the following checks
 2. Checks whether the collection is up to date.
 3. Checks whether the note is in the view.
 4. Reads the entries and gets the last updated time of the NSF file.
+5. Reads the entries and prints them in JSON format.
            
 ENVIRONMENTS
 -----------------------
@@ -42,15 +43,16 @@ running this program.
 - Under Windows or Linux
   type the following at the system command prompt:
  
-        nif <Database Name> <Time Variant View Name> <Normal View>
+        nif <Database Name> <Time Variant View Name> <Normal View> <json>
                  or
         nif
  
   where:
  
-  <Database Name>,  <Time Variant View Name> and <View Name> are database,
-  time variant view and normal view that is not time varying. If no command 
-  line arguments are provided, the program will prompt for them.
+  <Database Name>,  <Time Variant View Name>, <View Name> and <json> are database,
+  time variant view, normal view that is not time varying and "json" to output
+  read entries in JSON format. If no command line arguments are provided,
+  the program will prompt for them.
 
 Prerequisite: 
 --------------------
@@ -63,7 +65,7 @@ Linux:
 
 EXAMPLE:
 -------------
-	nif acls.nsf "simple view" "SimpleDataView"
+	nif acls.nsf "simple view" "SimpleDataView" "json"
 
 Expected OUTPUT:
 --------------------------
@@ -81,6 +83,14 @@ Reading NSF file.
 Empty buffer returned by NIFReadEntriesExt.
 Last update to NSF file was on = 24-10-1992 22:04:36.
 NIFReadEntriesExtTest was successful.
+
+Testing NIFReadEntriesExtTest2:
+-------------------------------
+Reading NSF file.
+
+{"ReadEntries":[{"@nid":"NT000020FE","plain_text":"This is another line of simple text.","number":836,"time_date":"1953-07-04T11:12:00.00Z"}]}
+
+NIFReadEntriesExtTest2 was successful.
 
 Creating note in NSF file:
 ----------------------------
