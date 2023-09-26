@@ -468,42 +468,42 @@ void LNPUBLIC EnumACLCallback (void *pParams, char far *Name,
 
    if ((strcmp(Name, "-Default-") == 0) || (strcmp(Name, USER2) == 0) || (strcmp(Name, USER3) == 0) || (strcmp(Name, DBMgr) == 0) || (strcmp(Name, GROUP1) == 0)) 
    {
-	   
-	   PRINTLOG("%-20s", Name);
+      
+      PRINTLOG("%-20s", Name);
 
-	   /* Get the access level */
-	   GetAccessLevelStr(wAccessLevel, szTempStr);
-	   PRINTLOG("%-20s", szTempStr);
+      /* Get the access level */
+      GetAccessLevelStr(wAccessLevel, szTempStr);
+      PRINTLOG("%-20s", szTempStr);
 
-	   /* Get the role name from the role bits */
+      /* Get the role name from the role bits */
 
-	   for (i = 0; i < ACL_PRIVCOUNT; i++)
-		   if (ACLIsPrivSet(*pRoleBits, i))
-		   {
-			   /* Get the role name */
-			   error = ACLGetPrivName(
-				   *(DHANDLE *)pParams, /* handle to ACL */
-				   (WORD)i,            /* role number */
-				   szTempStr);         /* returned role name */
-			   if (error == NOERROR)
-			   {
-				   PRINTLOG("%s\n                                        ",
-					   szTempStr);
-			   }
-			   else
-			   {
-				   PRINTERROR(error, "ACLGetPrivName");
-			   }
-		   }
+      for (i = 0; i < ACL_PRIVCOUNT; i++)
+         if (ACLIsPrivSet(*pRoleBits, i))
+         {
+             /* Get the role name */
+             error = ACLGetPrivName(
+                                    *(DHANDLE *)pParams, /* handle to ACL */
+                                    (WORD)i,            /* role number */
+                                    szTempStr);         /* returned role name */
+             if (error == NOERROR)
+             {
+                 PRINTLOG("%s\n                                        ",
+                          szTempStr);
+             }
+             else
+             {
+                 PRINTERROR(error, "ACLGetPrivName");
+             }
+         }
 
-	   PRINTLOG("\n");
+      PRINTLOG("\n");
 
-	   /* Interpret the access level privilege flags */
-	   if (wAccessFlags & ACL_FLAG_AUTHOR_NOCREATE)
-		   PRINTLOG("                    Cannot create docs.\n");
-	   if (wAccessFlags & ACL_FLAG_NODELETE)
-		   PRINTLOG("                    Cannot delete docs.\n");
-	   PRINTLOG("\n\n");
+      /* Interpret the access level privilege flags */
+      if (wAccessFlags & ACL_FLAG_AUTHOR_NOCREATE)
+         PRINTLOG("                    Cannot create docs.\n");
+      if (wAccessFlags & ACL_FLAG_NODELETE)
+         PRINTLOG("                    Cannot delete docs.\n");
+      PRINTLOG("\n\n");
    }
 }
 
