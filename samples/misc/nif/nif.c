@@ -248,16 +248,16 @@ int main(int argc, char* argv[])
 	/* Get a collection of view that is not time varying. */
 
 	if (error = NIFOpenCollection (
-		hDbHandle,				/* handle of db with view */
-		hDbHandle,				/* handle of db with data */
-		viewid,					/* note id of the view */
-		0,						/* collection open flags */
-		NULLHANDLE,				/* handle to unread ID list */
-		&hCollection,			/* collection handle */
-		NULLHANDLE,				/* handle to open view note */
-		NULL,					/* universal note id of view */
-		NULLHANDLE,				/* handle to collapsed list */
-		NULLHANDLE))			/* handle to selected list */
+	                               hDbHandle,				/* handle of db with view */
+	                               hDbHandle,				/* handle of db with data */
+	                               viewid,					/* note id of the view */
+	                               0,						/* collection open flags */
+	                               NULLHANDLE,				/* handle to unread ID list */
+	                               &hCollection,			/* collection handle */
+	                               NULLHANDLE,				/* handle to open view note */
+	                               NULL,					/* universal note id of view */
+	                               NULLHANDLE,				/* handle to collapsed list */
+	                               NULLHANDLE))			/* handle to selected list */
 	{
 		PRINTERROR(error,"NIFOpenCollection");
 		goto Exit0;
@@ -273,18 +273,18 @@ int main(int argc, char* argv[])
 	do
 	{
 		if (error = NIFReadEntries (
-			hCollection,		/* handle to this collection */
-			&CollPosition,		/* where to start in collection */
-			NAVIGATE_NEXT,		/* order to use when skipping */
-			1L,					/* number to skip */
-			NAVIGATE_NEXT,		/* order to use when reading */
-			0xFFFFFFFF,			/* max number to read */
-			READ_MASK_NOTEID,	/* info we want */
-			&hBuffer,			/* handle to info buffer */
-			NULL,				/* length of info buffer */
-			NULL,				/* entries skipped */
-			&dwEntriesFound,	/* entries read */
-			&wSignalFlag))		/* share warning and more signal flag */
+	                                hCollection,		/* handle to this collection */
+	                                &CollPosition,		/* where to start in collection */
+	                                NAVIGATE_NEXT,		/* order to use when skipping */
+	                                1L,					/* number to skip */
+	                                NAVIGATE_NEXT,		/* order to use when reading */
+	                                0xFFFFFFFF,			/* max number to read */
+	                                READ_MASK_NOTEID,	/* info we want */
+	                                &hBuffer,			/* handle to info buffer */
+	                                NULL,				/* length of info buffer */
+	                                NULL,				/* entries skipped */
+	                                &dwEntriesFound,	/* entries read */
+	                                &wSignalFlag))		/* share warning and more signal flag */
 		{
 			NIFCloseCollection(hCollection);
 			PRINTERROR (error,"NIFReadEntries");
@@ -817,22 +817,22 @@ BOOL LNPUBLIC NIFReadEntriesExtTest(DHANDLE hDB, NOTEID ViewID)
 	do
 	{
 		if(error = NIFReadEntriesExt(
-				hCollection,					/* handle to this collection */
-				&CollPosition,					/* where to start in collection */
-				NAVIGATE_NEXT,					/* order to use when skipping */
-				1L,								/* number to skip */
-				NAVIGATE_NEXT,					/* order to use when reading */
-				0xFFFFFFFF,						/* max number to read */
-				READ_MASK_NOTEID +				
-				READ_MASK_SUMMARYVALUES,		/* info we want to read */
-				NULL, NULLHANDLE, MAXDWORD, 0,	/* setting differential time and ID table as NULL */
-				&hBuffer,						/* handle to info buffer (return)  */
-				&retBufferLength,				/* length of info buffer (return) */
-				&retNumEntriesSkipped,			/* entries skipped (return) */
-				&dwEntriesFound,					/* entries read (return) */
-				&wSignalFlag,
-				&tdRetDiffTime,					/* place to get the differential time of NSF file */
-				&tdLastModified, NULL))
+		                             hCollection,					/* handle to this collection */
+		                             &CollPosition,					/* where to start in collection */
+		                             NAVIGATE_NEXT,					/* order to use when skipping */
+		                             1L,								/* number to skip */
+		                             NAVIGATE_NEXT,					/* order to use when reading */
+		                             0xFFFFFFFF,						/* max number to read */
+		                             READ_MASK_NOTEID +				
+		                             READ_MASK_SUMMARYVALUES,		/* info we want to read */
+		                             NULL, NULLHANDLE, MAXDWORD, 0,	/* setting differential time and ID table as NULL */
+		                             &hBuffer,						/* handle to info buffer (return)  */
+		                             &retBufferLength,				/* length of info buffer (return) */
+		                             &retNumEntriesSkipped,			/* entries skipped (return) */
+		                             &dwEntriesFound,					/* entries read (return) */
+		                             &wSignalFlag,
+		                             &tdRetDiffTime,					/* place to get the differential time of NSF file */
+		                             &tdLastModified, NULL))
 
 		{
 			NIFCloseCollection (hCollection);
