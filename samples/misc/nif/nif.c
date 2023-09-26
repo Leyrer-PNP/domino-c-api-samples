@@ -1069,8 +1069,6 @@ BOOL LNPUBLIC NSFNoteCreateTest(DHANDLE hDB)
 	return TRUE;
 }
 
-/* This function prints the error message associated with an error code. */
-
 
 /************************************************************************
 
