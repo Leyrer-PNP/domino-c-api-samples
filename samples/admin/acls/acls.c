@@ -133,12 +133,13 @@ void PrintACLLookup (char *pUserName, WORD wAccessLevel,
 void GetAccessLevelStr (WORD wAccessLevel, char *pAccessLevelName);
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                             char *db_name, char *db_mgr); 
+                             char *db_name, char *db_mgr);
+
+char DBMgr[STRING_LENGTH];      /* the first user */
 
 int main (int argc, char *argv[])
 {
    char DBPath[STRING_LENGTH];
-   char DBMgr[STRING_LENGTH];      /* the first user */
    DBHANDLE hDB;
    DHANDLE hACL;
    ACL_PRIVILEGES RoleBits = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};        
@@ -448,7 +449,7 @@ void LNPUBLIC EnumACLCallback (void *pParams, char far *Name,
                                  WORD wAccessFlags)
 
 /*   EnumACLCallback - This function is called by ACLEnumEntries.
- *   It prints out ACL information for each name in the ACL.
+ *   It prints out ACL information for only added entires name in the ACL.
  *
  *   Inputs:
  *      pParams      - pointer to parameters that have been passed to
@@ -465,41 +466,45 @@ void LNPUBLIC EnumACLCallback (void *pParams, char far *Name,
    int i;
    STATUS error;
 
-   PRINTLOG ("%-20s", Name);
-   
-   /* Get the access level */
-   GetAccessLevelStr (wAccessLevel, szTempStr);
-   PRINTLOG ("%-20s", szTempStr);
+   if ((strcmp(Name, "-Default-") == 0) || (strcmp(Name, USER2) == 0) || (strcmp(Name, USER3) == 0) || (strcmp(Name, DBMgr) == 0) || (strcmp(Name, GROUP1) == 0)) 
+   {
+      
+      PRINTLOG("%-20s", Name);
 
-   /* Get the role name from the role bits */
-   
-   for (i = 0; i < ACL_PRIVCOUNT; i++)
-      if (ACLIsPrivSet(*pRoleBits, i))
-      {
-         /* Get the role name */
-         error = ACLGetPrivName (
-                     *(DHANDLE *)pParams, /* handle to ACL */
-                     (WORD)i,            /* role number */
-                     szTempStr);         /* returned role name */
-         if (error == NOERROR)
-	 {
-            PRINTLOG ("%s\n                                        ", 
-                    szTempStr);
-	 }
-         else
+      /* Get the access level */
+      GetAccessLevelStr(wAccessLevel, szTempStr);
+      PRINTLOG("%-20s", szTempStr);
+
+      /* Get the role name from the role bits */
+
+      for (i = 0; i < ACL_PRIVCOUNT; i++)
+         if (ACLIsPrivSet(*pRoleBits, i))
          {
-             PRINTERROR (error,"ACLGetPrivName");
+             /* Get the role name */
+             error = ACLGetPrivName(
+                                    *(DHANDLE *)pParams, /* handle to ACL */
+                                    (WORD)i,            /* role number */
+                                    szTempStr);         /* returned role name */
+             if (error == NOERROR)
+             {
+                 PRINTLOG("%s\n                                        ",
+                          szTempStr);
+             }
+             else
+             {
+                 PRINTERROR(error, "ACLGetPrivName");
+             }
          }
-      }
 
-   PRINTLOG("\n");
+      PRINTLOG("\n");
 
-   /* Interpret the access level privilege flags */
-   if (wAccessFlags & ACL_FLAG_AUTHOR_NOCREATE)
-      PRINTLOG ("                    Cannot create docs.\n");
-   if (wAccessFlags & ACL_FLAG_NODELETE)
-      PRINTLOG ("                    Cannot delete docs.\n");
-   PRINTLOG("\n\n");
+      /* Interpret the access level privilege flags */
+      if (wAccessFlags & ACL_FLAG_AUTHOR_NOCREATE)
+         PRINTLOG("                    Cannot create docs.\n");
+      if (wAccessFlags & ACL_FLAG_NODELETE)
+         PRINTLOG("                    Cannot delete docs.\n");
+      PRINTLOG("\n\n");
+   }
 }
 
 
