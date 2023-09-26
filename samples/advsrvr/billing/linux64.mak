@@ -9,7 +9,7 @@ include $(NOTES_CAPI)/makeEnvLinux.mak
 
 # set TARGET to the name of the executable to create
 TARGET1 = billmgr.so  
-TARGET2 = billses
+TARGET2 = billsession
 TARGET = $(TARGET1) $(TARGET2)
 # set SOURCES to the list of C source files in this program
 SOURCES = billmngr.c billses.c

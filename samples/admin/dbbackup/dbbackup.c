@@ -90,14 +90,14 @@ VOID main (int argc, char *argv[])
    DWORD    LogExtent;
 
    /* Get the pathname of the database from the command line. */
-   if (argc != 3)
+   if (argc != 4)
    {
-      PRINTLOG( "\nUsage:  dbbackup  <database filename> <output filename>\n");
+      PRINTLOG( "\nUsage:  dbbackup <Domino ini path> <database filename> <output filename>\n");
       exit (EXIT_SUCCESS);
-   }
+   } 
 
-   path_name = argv[1];
-   backup_file = argv[2];
+   path_name = argv[2];
+   backup_file = argv[3];
 
    /* Initialize Notes */
    if (NotesInitExtended (argc, argv))
