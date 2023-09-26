@@ -984,10 +984,8 @@ BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
             PRINTERROR (error, "NIFCloseCollection");
             return FALSE;
 	}
-	if (error == NOERROR)
-            return TRUE;
-	else
-            return FALSE;
+
+        return TRUE;
 
 }
 
