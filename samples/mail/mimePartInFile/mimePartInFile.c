@@ -89,6 +89,7 @@ char *pszMsgBody2 =
 
 char        szMailServerName[MAXUSERNAME+1];
 char        szMailFileName[MAXUSERNAME+1] = MAILBOX_NAME;
+char        szMailBoxPath[MAXPATH+1] = { 0 };
 
 /* Function declaration */
 STATUS  CreateRFC822Header( char **, NOTEHANDLE );
@@ -111,7 +112,7 @@ int main( int argc, char * argv[] )
 {
     STATUS      error = NOERROR;
 
-    char        szMailBoxPath[MAXPATH+1] = { 0 };
+
     char        szRecipient[MAXUSERNAME+1] = { 0 };
     DBHANDLE    hMailBox = NULLHANDLE;
     NOTEHANDLE  hMemo = NULLHANDLE;
@@ -328,7 +329,7 @@ STATUS CheckMIMEPartInFile( NOTEHANDLE hNote )
     }
 
     PRINTLOG( "\n Noteid[%d]", noteID );
-    error = MIMEEMLExport3( szMailFileName, noteID, MIME_FILE_NAME, FALSE );
+    error = MIMEEMLExport3( szMailBoxPath, noteID, MIME_FILE_NAME, TRUE );
     if ( error != NOERROR )
     {
     PRINTLOG( "\nMIMEEMLExport3 Error:" );
