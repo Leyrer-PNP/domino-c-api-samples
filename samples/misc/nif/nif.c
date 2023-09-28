@@ -920,7 +920,7 @@ BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
         /* Open the collection. */
 
         error = NIFOpenCollection(hDB, hDB, ViewID, NULL, NULLHANDLE, &hCollection, NULL, NULL, NULL, NULL);
-        if (error)
+        if (error != NOERROR)
         {
             NSFDbClose (hDB);
             PRINTERROR (error, "NIFOpenCollection");
@@ -931,7 +931,7 @@ BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
         CollPosition.Tumbler[0] = 1;
         do
         {
-            if(error = NIFReadEntriesExt2(
+            if((error = NIFReadEntriesExt2(
 				        hCollection,			/* handle to this collection */
 				        &CollPosition,			/* where to start in collection */
 				        NAVIGATE_NEXT,			/* order to use when skipping */
@@ -948,7 +948,7 @@ BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
 				        &dwEntriesFound,		/* entries read (return) */
 				        &wSignalFlag,                   /* signal and share warning flags */
 				        &tdRetDiffTime,			/* place to get the differential time of NSF file */
-				        &tdLastModified, NULL))         /* returns last modified time */
+				        &tdLastModified, NULL))!= NOERROR)         /* returns last modified time */
             {
 		NIFCloseCollection (hCollection);
 		NSFDbClose (hDB);
@@ -979,13 +979,13 @@ BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
 	}while (wSignalFlag & SIGNAL_MORE_TO_DO);
 	PRINTLOG("\n\n");
 
-	if (error = NIFCloseCollection (hCollection))
+	if ((error = NIFCloseCollection (hCollection)) != NOERROR)
 	{
             PRINTERROR (error, "NIFCloseCollection");
             return FALSE;
 	}
-
-        return TRUE;
+	if (error == NOERROR)
+            return TRUE;
 
 }
 
@@ -1109,17 +1109,18 @@ void  LNPUBLIC  ProcessArgs (int argNumber, char *szArgVector[], char *szDBFileN
 		if (fgets(szJSON, STRING_LENGTH-1, stdin)!= NULL)
 		{
 			szJSON[strlen(szJSON) - 1] = '\0';
-		}
-		else
-		{
-			PRINTLOG("Please enter a valid string like \"json\" OR an empty string");
+			if((strcmp(szJSON,"json") != 0))
+			{
+				PRINTLOG("Please enter a valid string like \"json\" OR an empty string");
+			}
+
 		}
 	}
 	else
 	{
-		strncpy(szDBFileName, szArgVector[1], STRING_LENGTH-1);
-		strncpy(szTimeVariantView, szArgVector[2], STRING_LENGTH-1);
-		strncpy(szViewName, szArgVector[3], STRING_LENGTH-1);
-		strncpy(szJSON, szArgVector[4], STRING_LENGTH-1);
+		strncpy(szDBFileName, szArgVector[1], strlen(szArgVector[1])+1);
+		strncpy(szTimeVariantView, szArgVector[2], strlen(szArgVector[2])+1);
+		strncpy(szViewName, szArgVector[3], strlen(szArgVector[3])+1);
+		strncpy(szJSON, szArgVector[4], strlen(szArgVector[4])+1);
 	} /* end if */
 } /* ProcessArgs */
