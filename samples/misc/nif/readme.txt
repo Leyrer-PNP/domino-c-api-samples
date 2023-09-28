@@ -43,7 +43,7 @@ running this program.
 - Under Windows or Linux
   type the following at the system command prompt:
  
-        nif <Database Name> <Time Variant View Name> <Normal View> <json>
+        nif <Database Name> <Time Variant View Name> <Normal View> "json"
                  or
         nif
  
