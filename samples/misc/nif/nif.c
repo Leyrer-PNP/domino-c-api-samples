@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 	
 	ProcessArgs(argc, argv, szDbName, szTimeVariantView, szViewName, szJSON);
 
-	if (!strcmp(argv[4], "json")) {
+	if (!strcmp(szJSON, "json")) {
             bJsonEnabled = TRUE;
         }
 	else
