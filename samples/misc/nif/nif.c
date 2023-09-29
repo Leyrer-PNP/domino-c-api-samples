@@ -951,7 +951,6 @@ BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
 				        &tdLastModified, NULL))!= NOERROR)         /* returns last modified time */
             {
 		NIFCloseCollection (hCollection);
-		NSFDbClose (hDB);
 		PRINTERROR (error, "NIFReadEntriesExt2");
 		return FALSE;
             }
@@ -961,7 +960,6 @@ BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
             if (hBuffer == NULL)
             {
 		NIFCloseCollection (hCollection);
-		NSFDbClose (hDB);
 		PRINTLOG("Empty buffer returned by NIFReadEntriesExt2.\n");
 		return FALSE;
             }
