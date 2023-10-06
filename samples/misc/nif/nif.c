@@ -22,20 +22,22 @@
 	PURPOSE:
 	This program demonstrates how to use the API's
 	NIFCollectionUpToDate, NIFIsNoteInView, NIFIsTimeVariantView,
-	NIFGetViewRebuildDir and NIFReadEntriesExt.
+	NIFGetViewRebuildDir, NIFReadEntriesExt and NIFReadEntriesExt2.
 			
 	SYNTAX:
-	nif <database filename> <time varying view name> <not a time variant view name>
+	nif <database filename> <time varying view name> <not a time variant view name> <json>
 		or
 	nif
 	
-	Example: nif acls.nsf "simple view" "SimpleDataView"
+	Example: nif acls.nsf "simple view" "SimpleDataView" "json"
 
 	Description:
 	This program checks whether the view in a database is time-varying,
 	the collection is up-to-date, and the note ID is in the view.
 	It also gets the last modified time of the database and view rebuild
-	directory.
+	directory. It also prints the NIF Read Entries in JSON format if
+	"json" arg is given. This argument is required and if you don't want
+	JSON format then just give an empty string "" argument.
 
 *************************************************************************/
 
@@ -67,11 +69,12 @@
 
 /* Local function prototypes. */
 
-void  LNPUBLIC  ProcessArgs (int argNumber, char *szArgVector[], char *szDBFileName, char *szTimeVariantView, char *szViewName);
+void LNPUBLIC  ProcessArgs (int argNumber, char *szArgVector[], char *szDBFileName, char *szTimeVariantView, char *szViewName, char* szJSON);
 BOOL LNPUBLIC NIFCollectionUpToDateTest(DHANDLE hDB, NOTEID noteid);
 void LNPUBLIC NIFIsNoteInViewTest(DHANDLE hDB, NOTEID viewnoteid, NOTEID testnoteid);
 BOOL LNPUBLIC NIFIsTimeVariantViewTest(DHANDLE hDB, NOTEID viewnoteid);
 BOOL LNPUBLIC NIFReadEntriesExtTest(DHANDLE hDB, NOTEID viewnoteid);
+BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID viewnoteid);
 BOOL LNPUBLIC NSFNoteCreateTest(DHANDLE hDB);
 BOOL LNPUBLIC NIFGetViewRebuildDirTest();
 STATUS PrintSummary (BYTE *);
@@ -88,18 +91,20 @@ ALGORITHM:
 4)	Call NIFReadEntriesExtTest function to read the entries
 	in the view and also to get the last updated time of an
 	NSF file.
-5)	Add a note to the NSF file. Update and close note.
-6)	Call NIFCollectionUpToDateTest function to check whether
+5)	Call NIFReadEntriesExt2Test function to read the entries
+	in the view in JSON format if "json" arg is given.
+6)	Add a note to the NSF file. Update and close note.
+7)	Call NIFCollectionUpToDateTest function to check whether
 	the collection is up to date or not. If not, then update
 	the NSF file.
-7)	Open the collection and check that the note ids are in the 
+8)	Open the collection and check that the note ids are in the
 	view by calling the NIFIsNoteInViewTest function inside the 
 	NIFReadEntries call. Then close the collection.
-8)	Again, call the NIFReadEntriesExtTest function to check whether
+9)	Again, call the NIFReadEntriesExtTest function to check whether
 	the note is added and to get the last modified time of the 
 	NSF file and call NIFGetViewRebuildDirTest to get view rebuild
 	directory.
-9)	Close the NSF file.
+10)	Close the NSF file.
 *************************************************************************/
 
 int main(int argc, char* argv[])
@@ -122,9 +127,17 @@ int main(int argc, char* argv[])
 	NOTEID testid = 0x123;                       /* test if dor notesin view test */
 	BOOL bResult = FALSE;                        /* To store the bool output */
 	NOTEID TimeVariantViewid;                    /* id of the Time variant view from db*/
+	char szJSON[STRING_LENGTH] = {0};
+	BOOL bJsonEnabled = FALSE;
 	
-	ProcessArgs(argc, argv, szDbName, szTimeVariantView, szViewName);
-	
+	ProcessArgs(argc, argv, szDbName, szTimeVariantView, szViewName, szJSON);
+
+	if (!strcmp(szJSON, "json")) {
+            bJsonEnabled = TRUE;
+        }
+	else
+            bJsonEnabled = FALSE;
+
 	error = NotesInitExtended(argc, argv);
 
 	if (error)
@@ -190,6 +203,24 @@ int main(int argc, char* argv[])
 		goto Exit0;
 	}
 	
+	if (bJsonEnabled)
+	{
+		PRINTLOG("\nTesting NIFReadEntriesExt2Test:\n");
+		PRINTLOG("-------------------------------\n");
+		PRINTLOG("Reading NSF file.\n\n");
+
+		/* Reads the entries and print it in JSON format. */
+
+		if (NIFReadEntriesExt2Test (hDbHandle, viewid))
+		{
+			PRINTLOG("NIFReadEntriesExt2Test was successful.\n\n");
+		}
+		else
+		{
+			PRINTLOG("NIFReadEntriesExt2Test failed.\n");
+			goto Exit0;
+		}
+	}
 
 	/* Creates a notes document in NSF file. */
 
@@ -857,6 +888,107 @@ BOOL LNPUBLIC NIFReadEntriesExtTest(DHANDLE hDB, NOTEID ViewID)
 
 /************************************************************************
 
+	FUNCTION:	NIFReadEntriesExt2Test
+
+	PURPOSE:
+	Reads the entries in a view and prints it in JSON format.
+
+	INPUTS:
+	Database handle and note id of view.
+
+	OUTPUTS:
+	Returns TRUE if NIFReadEntriesExt2 was successful and prints the
+	JSON. If there are errors, returns FALSE.
+
+*************************************************************************/
+
+BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
+{
+	HCOLLECTION        hCollection = NULLHANDLE; /* collection handle */
+	COLLECTIONPOSITION CollPosition;             /* index into collection */
+	DHANDLE            hBuffer = NULLHANDLE;     /* handle to buffer of info */
+	char               *pBuffer = NULL;	     /* pointer into info buffer */
+	DWORD              dwEntriesFound = 0;       /* number of entries found */
+	WORD               wSignalFlag = 0;	     /* signal and share warning flags */
+	DWORD              dwPos = 0;                /* a counter */
+	STATUS             error = NOERROR;          /* return status from API calls */
+	unsigned           retNumEntriesSkipped = 0; /* return skipped entries */
+	unsigned short     retBufferLength = 0;      /* return length of buffer*/
+	TIMEDATE           tdLastModified = {0};     /* returns last modified time */
+	TIMEDATE           tdRetDiffTime = {0};	     /* returns differntial time */
+
+        /* Open the collection. */
+
+        error = NIFOpenCollection(hDB, hDB, ViewID, NULL, NULLHANDLE, &hCollection, NULL, NULL, NULL, NULL);
+        if (error != NOERROR)
+        {
+            NSFDbClose (hDB);
+            PRINTERROR (error, "NIFOpenCollection");
+            return FALSE;
+        }
+
+        CollPosition.Level = 0;
+        CollPosition.Tumbler[0] = 1;
+        do
+        {
+            if((error = NIFReadEntriesExt2(
+				        hCollection,			/* handle to this collection */
+				        &CollPosition,			/* where to start in collection */
+				        NAVIGATE_NEXT,			/* order to use when skipping */
+				        1L,				/* number to skip */
+				        NAVIGATE_NEXT,			/* order to use when reading */
+				        0xFFFFFFFF,			/* max number to read */
+				        READ_MASK_NOTEID +
+				        READ_MASK_SUMMARYVALUES,        /* info we want to read */
+				        READ_MASK_TO_JSON,	        /* flag to print in JSON format*/
+				        NULL, NULLHANDLE, MAXDWORD, 0,	/* setting differential time and ID table as NULL */
+				        &hBuffer,			/* handle to info buffer (return)  */
+				        &retBufferLength,		/* length of info buffer (return) */
+				        &retNumEntriesSkipped,		/* entries skipped (return) */
+				        &dwEntriesFound,		/* entries read (return) */
+				        &wSignalFlag,                   /* signal and share warning flags */
+				        &tdRetDiffTime,			/* place to get the differential time of NSF file */
+				        &tdLastModified, NULL))!= NOERROR)         /* returns last modified time */
+            {
+		NIFCloseCollection (hCollection);
+		PRINTERROR (error, "NIFReadEntriesExt2");
+		return FALSE;
+            }
+
+            /* Check to make sure there was a buffer of information returned. */
+
+            if (hBuffer == NULL)
+            {
+		NIFCloseCollection (hCollection);
+		PRINTLOG("Empty buffer returned by NIFReadEntriesExt2.\n");
+		return FALSE;
+            }
+            else
+            {
+                pBuffer = OSLock (char, hBuffer);
+                while (dwPos < retBufferLength)
+                {
+                     PRINTLOG("%c", pBuffer[dwPos]);
+                     dwPos++;
+                }
+                OSUnlockObject (hBuffer);
+                OSMemFree (hBuffer);
+	    }
+	}while (wSignalFlag & SIGNAL_MORE_TO_DO);
+	PRINTLOG("\n\n");
+
+	if ((error = NIFCloseCollection (hCollection)) != NOERROR)
+	{
+            PRINTERROR (error, "NIFCloseCollection");
+            return FALSE;
+	}
+	if (error == NOERROR)
+            return TRUE;
+
+}
+
+/************************************************************************
+
 	FUNCTION:	NSFNoteCreateTest
 
 	PURPOSE:
@@ -947,33 +1079,46 @@ BOOL LNPUBLIC NSFNoteCreateTest(DHANDLE hDB)
 	argc, argv - directly from the command line.
 
 	OUTPUTS:
-	szDBFileName, szTimeVariantView, szViewName - data from 
+	szDBFileName, szTimeVariantView, szViewName, szJSON - data from
 	the command line or the user input when prompted.
 
 *************************************************************************/
-void  LNPUBLIC  ProcessArgs (int argNumber, char *szArgVector[], char *szDBFileName, char *szTimeVariantView, char *szViewName)
+void  LNPUBLIC  ProcessArgs (int argNumber, char *szArgVector[], char *szDBFileName, char *szTimeVariantView, char *szViewName, char *szJSON)
 {
-	if (argNumber != 4)
+	if (argNumber != 5)
 	{
-		printf("Enter the name of Database: ");
+		PRINTLOG("Enter the name of Database: ");
 		fflush(stdout);
 		fgets(szDBFileName, STRING_LENGTH-1, stdin);
 		szDBFileName[strlen(szDBFileName) - 1] = '\0';
 
-		printf("Enter the name of Time Variant View: ");
+		PRINTLOG("Enter the name of Time Variant View: ");
 		fflush(stdout);
 		fgets(szTimeVariantView, STRING_LENGTH-1, stdin);
 		szTimeVariantView[strlen(szTimeVariantView) - 1] = '\0';
 
-		printf("Enter the name of view that is not time varying: ");
+		PRINTLOG("Enter the name of view that is not time varying: ");
 		fflush(stdout);
 		fgets(szViewName, STRING_LENGTH-1, stdin);
 		szViewName[strlen(szViewName) - 1] = '\0';
+
+		PRINTLOG("Type \"json\" to print the read entries in JSON format: ");
+		fflush(stdout);
+		if (fgets(szJSON, STRING_LENGTH-1, stdin)!= NULL)
+		{
+			szJSON[strlen(szJSON) - 1] = '\0';
+			if((strcmp(szJSON,"json") != 0))
+			{
+				PRINTLOG("Please enter a valid string like \"json\" OR an empty string");
+			}
+
+		}
 	}
 	else
 	{
-		strncpy(szDBFileName, szArgVector[1], STRING_LENGTH-1);
-		strncpy(szTimeVariantView, szArgVector[2], STRING_LENGTH-1);
-		strncpy(szViewName, szArgVector[3], STRING_LENGTH-1);
+		strncpy(szDBFileName, szArgVector[1], strlen(szArgVector[1])+1);
+		strncpy(szTimeVariantView, szArgVector[2], strlen(szArgVector[2])+1);
+		strncpy(szViewName, szArgVector[3], strlen(szArgVector[3])+1);
+		strncpy(szJSON, szArgVector[4], strlen(szArgVector[4])+1);
 	} /* end if */
 } /* ProcessArgs */
