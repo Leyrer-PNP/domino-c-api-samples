@@ -92,7 +92,7 @@ int main (int argc, char *argv[])
         BOOL            bExcludeInternet;
 
         char            altline[MAXPATH] = "I am out of office";
-        char            Altline1[MAXPATH] = "";
+        char            currrentoooStatus[MAXPATH] = "";
 
         if (argc != 3)
         {
@@ -332,13 +332,13 @@ int main (int argc, char *argv[])
         timetext[TimeStringLen] = '\0';
         PRINTLOG("%s.", timetext);
         
-        if (error = OOOGetAlternateAwayLine(pOOOContext, Altline1, sizeof(altline)))
+        if (error = OOOGetAlternateAwayLine(pOOOContext, currrentoooStatus, sizeof(altline)))
         {
             PRINTERROR(error, "OOOGetAlternateAwayLine");
             goto EXIT1;
         }
 
-        PRINTLOG("\n%s ", Altline1);
+        PRINTLOG("\n%s ", currrentoooStatus);
 
         if (hOOOContext && pOOOContext)
         {
