@@ -107,5 +107,6 @@ Gets OOO General Subject:
 RHEL User1/RHEL is out of office
 Gets OOO General Message:
 RHEL User1/RHEL will out of office 09/23/2020 to 09/24/2020.
+I am out of office
 Program completed successfully.
 
