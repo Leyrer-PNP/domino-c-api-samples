@@ -91,6 +91,9 @@ int main (int argc, char *argv[])
         WORD            retVersion,retState,pGeneralMessageLen;
         BOOL            bExcludeInternet;
 
+        char            altline[MAXPATH] = "I am out of office";
+        char            currrentoooStatus[MAXPATH] = "";
+
         if (argc != 3)
         {
           PRINTLOG( "\nUsage:  %s <user's mail database filename> <user name> \n", argv[0] );
@@ -252,6 +255,12 @@ int main (int argc, char *argv[])
 
         }
 
+        if (error = OOOSetAlternateAwayLine(pOOOContext, altline))
+        {
+            PRINTERROR(error, "OOOSetAlternateAwayLine");
+            goto EXIT1;
+        }
+
         if (error = OOOEnable(pOOOContext, TRUE))
         {
             PRINTERROR (error,"OOOEnable");
@@ -322,7 +331,14 @@ int main (int argc, char *argv[])
 
         timetext[TimeStringLen] = '\0';
         PRINTLOG("%s.", timetext);
+        
+        if (error = OOOGetAlternateAwayLine(pOOOContext, currrentoooStatus, sizeof(altline)))
+        {
+            PRINTERROR(error, "OOOGetAlternateAwayLine");
+            goto EXIT1;
+        }
 
+        PRINTLOG("\n%s ", currrentoooStatus);
 
         if (hOOOContext && pOOOContext)
         {
