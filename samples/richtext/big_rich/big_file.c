@@ -47,7 +47,18 @@
 #include <string.h>
 #include <memory.h>                     /* _fmemset() */
 #include <stdlib.h>                     /* atol() */
-#include "../../printLog.h"
+#if defined(CAPI_TESTING) 
+#include "printlog.h" 
+#else
+ #define PRINTLOG printf 
+ #define PRINTERROR(api_error, api_name) {\
+ char    szErrorText[256] = { 0 };\
+ WORD    wTextLen = 0;\
+ STATUS  string_id = ERR(api_error);\
+ OSLoadString(NULLHANDLE, string_id, szErrorText, sizeof(szErrorText));\
+ fprintf(stdout, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText);\
+ }
+#endif 
 
 #define LINE_LEN    72
 

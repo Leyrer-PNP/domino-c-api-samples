@@ -49,7 +49,18 @@
 #include <miscerr.h>
 #include <editods.h>
 #include <osmisc.h>
-#include "../../printLog.h"
+#if defined(CAPI_TESTING) 
+#include "printlog.h" 
+#else
+ #define PRINTLOG printf 
+ #define PRINTERROR(api_error, api_name) {\
+ char    szErrorText[256] = { 0 };\
+ WORD    wTextLen = 0;\
+ STATUS  string_id = ERR(api_error);\
+ OSLoadString(NULLHANDLE, string_id, szErrorText, sizeof(szErrorText));\
+ fprintf(stdout, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText);\
+ }
+#endif 
 #if !defined(UNIX)
 #include <windows.h>
 #endif
@@ -181,7 +192,7 @@ int main (int argc, char *argv[])
  
    if ( error = NotesInitExtended( argc, argv ) )
    {
-      PRINTLOG( "\n Unable to initialize Notes. Error Code[0x%04x]\n", error )
+      PRINTLOG( "\n Unable to initialize Notes. Error Code[0x%04x]\n", error );
       return (1);
    }
 /* allocating memory for input keys 
