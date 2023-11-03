@@ -46,7 +46,15 @@
 #include <nsfdb.h>
 #include <nsfdata.h>
 #include <osmisc.h>
-#include <printLog.h>
+#if defined(CAPI_TESTING) 
+#include "printlog.h" 
+#else
+ #define PRINTLOG printf 
+ #define PRINTERROR(api_error, api_name) {\
+ char    szErrorText[256] = { 0 };\
+ OSLoadString(NULLHANDLE, ERR(api_error), szErrorText, sizeof(szErrorText));\
+ fprintf(stderr, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText); }
+#endif 
 
 /* Local function prototypes */ 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],

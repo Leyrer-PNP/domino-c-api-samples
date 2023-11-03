@@ -95,7 +95,15 @@ extern "C" {
 #include <viewfmt.h>
 #include <colorid.h>
 #include <osmisc.h>
-#include <printLog.h>
+#if defined(CAPI_TESTING) 
+#include "printlog.h" 
+#else
+ #define PRINTLOG printf 
+ #define PRINTERROR(api_error, api_name) {\
+ char    szErrorText[256] = { 0 };\
+ OSLoadString(NULLHANDLE, ERR(api_error), szErrorText, sizeof(szErrorText));\
+ fprintf(stderr, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText); }
+#endif 
 
 #ifdef OS390
 #include <_Ascii_a.h>  /* NOTE: must be the LAST file included */

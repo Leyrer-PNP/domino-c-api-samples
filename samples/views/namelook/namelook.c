@@ -61,7 +61,15 @@
 #include <niferr.h>                     /* ERR_NO_MORE_MEMBERS */
 #include <lookup.h>
 #include <osmisc.h>
-#include <printLog.h>
+#if defined(CAPI_TESTING) 
+#include "printlog.h" 
+#else
+ #define PRINTLOG printf 
+ #define PRINTERROR(api_error, api_name) {\
+ char    szErrorText[256] = { 0 };\
+ OSLoadString(NULLHANDLE, ERR(api_error), szErrorText, sizeof(szErrorText));\
+ fprintf(stderr, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText); }
+#endif 
 
 #if !defined(ND64) 
     #define DHANDLE HANDLE 
