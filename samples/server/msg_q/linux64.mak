@@ -27,7 +27,7 @@ OBJECTS = $(OBJECTS1)
 # -o $(TARGET) causes compiler to create target rather than a.out
 LINKOPTS1 = -o $(TARGET1)
 
-BOOTOBJS = $(NOTES_CAPI)/lib/linux64/notes0.o $(NOTES_CAPI)/lib/linux64/notesai0.o
+BOOTOBJS = $(NOTES_CAPI)/lib/notes0.o $(NOTES_CAPI)/lib/notesai0.o
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(LINKOPTS1) $(OBJECTS1) $(BOOTOBJS) -L$(NOTESDIR) -Wl,-rpath-link $(NOTESDIR) $(LIBS)
