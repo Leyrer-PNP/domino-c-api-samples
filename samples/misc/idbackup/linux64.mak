@@ -5,7 +5,7 @@
 #
 
 #make env file
-include $(NOTES_CAPI)/makeEnvLinux.mak
+include ../../../makeEnvLinux.mak
 
 # set TARGET to the name of the executable to create
 TARGET = idbackup
@@ -19,7 +19,7 @@ HEADERS =
 # set OBJECTS to the list of object files that must be linked
 OBJECTS = $(TARGET).o
 
-BOOTOBJS = $(NOTES_CAPI)/lib/notes0.o $(NOTES_CAPI)/lib/notesai0.o
+BOOTOBJS = $(LOTUS)/notesapi/lib/notes0.o $(LOTUS)/notesapi/lib/notesai0.o
 
 # Set LINKOPTS - the linker options passed to CC when linking.
 # -o $(TARGET) causes compiler to create target rather than a.out

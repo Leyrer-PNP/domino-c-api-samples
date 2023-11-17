@@ -5,7 +5,7 @@
 #
 
 #make env file
-include $(NOTES_CAPI)/makeEnvLinux.mak
+include ../../../makeEnvLinux.mak
 
 # set TARGET to the name of the executable to create
 TARGET = activity
@@ -21,7 +21,7 @@ OBJECTS = $(TARGET).o
 
 # Link this program with the bootstrap code notes0.o because
 # this program is structured as a NotesMain.
-BOOTOBJS = $(NOTES_CAPI)/lib/notes0.o
+BOOTOBJS = $(LOTUS)/notesapi/lib/notes0.o
 
 # Set LINKOPTS - the linker options passed to CC when linking.
 # -o $(TARGET) causes compiler to create target rather than a.out
