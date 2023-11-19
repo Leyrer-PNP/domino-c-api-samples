@@ -104,12 +104,11 @@ int main(int argc, char *argv[])
 												
 	char          *pszIDVaultName = "IDVault";  												        
 	ADMINReqParams ARPptr;                             /* ADMINReqParams structure */
- 
-    char           szServer[SERVER_NAME_LEN];          /* server names are < 80 chars >*/
-    char           szDBName[MAXPATH];
+	char           szServer[SERVER_NAME_LEN];          /* server names are < 80 chars >*/
+	char           szDBName[MAXPATH];
 	char           szExt[STRING_LENGTH];
 	char          *pszServerName = "";
-    char          *pszAdminFile = "";
+	char          *pszAdminFile = "";
 	char          *pszExt = "";
 	char           szAdminFilePath[MAXPATH+1];
 	
@@ -122,18 +121,18 @@ int main(int argc, char *argv[])
 	
 	/* Initialize the notes */
 	if (error = NotesInitExtended(argc, argv))
-    {
-        PRINTERROR (error,"NotesInitExtended");
-        return(1);
-    }
+        {
+            PRINTERROR (error,"NotesInitExtended");
+            return(1);
+        }
 
-    /* Construct the path for the admin request file */
-    if (error = OSPathNetConstruct(NULL, pszServerName, pszAdminFile, szAdminFilePath))
-    {
-        PRINTERROR(error,"OSPathNetConstruct");
-        NotesTerm();
-        return (1);
-    }
+        /* Construct the path for the admin request file */
+        if (error = OSPathNetConstruct(NULL, pszServerName, pszAdminFile, szAdminFilePath))
+        {
+            PRINTERROR(error,"OSPathNetConstruct");
+            NotesTerm();
+            return (1);
+        }
 
 	/* Open the database. */
 	if (error = NSFDbOpen(szAdminFilePath, &db_handle))
@@ -146,10 +145,10 @@ int main(int argc, char *argv[])
 	/* Get the current user name */
 	if (error = SECKFMGetUserName(szAuthor))
 	{
-		PRINTERROR(error,"SECKFMGetUserName");
-		NSFDbClose (db_handle);
+	    PRINTERROR(error,"SECKFMGetUserName");
+	    NSFDbClose (db_handle);
 	    NotesTerm();
-		return (1);
+	    return (1);
 	}
 	
 	/* Get the mail servername form notes.ini */
@@ -159,17 +158,17 @@ int main(int argc, char *argv[])
 	{
 		PRINTLOG("\nTesting ADMINReqDeleteInNAB\n");
 		if (error = ADMINReqDeleteInNAB(db_handle,
-	                                   szAuthor,
-                                       szUserName,
-									   szMailServerName,
-									   szMailFileName,
-									   pszDeleteMailFile,
-									   &ARPptr,
-									   sizeof(ARPptr)))
+					        szAuthor,
+						szUserName,
+						szMailServerName,
+						szMailFileName,
+						pszDeleteMailFile,
+						&ARPptr,
+						sizeof(ARPptr)))
 	   {
-		   PRINTERROR(error,"ADMINReqDeleteInNAB");
-		   NSFDbClose (db_handle);
-		   NotesTerm();
+	       PRINTERROR(error,"ADMINReqDeleteInNAB");
+	       NSFDbClose (db_handle);
+	       NotesTerm();
 	       return (1);	
 	    }
 	
@@ -179,19 +178,19 @@ int main(int argc, char *argv[])
 	{
 		PRINTLOG("\nTesting ADMINReqDeleteInNABExt\n");
 		if (error = ADMINReqDeleteInNABExt(db_handle,
-	                                   szAuthor,
-                                       szUserName,
-									   szMailServerName,
-									   szMailFileName,
-									   pszDeleteMailFile,
-									   pszIDVaultFlag,
-									   pszIDVaultName,
-									   &ARPptr,
-									   sizeof(ARPptr)))
+	                                           szAuthor,
+						   szUserName,
+						   szMailServerName,
+						   szMailFileName,
+						   pszDeleteMailFile,
+						   pszIDVaultFlag,
+						   pszIDVaultName,
+						   &ARPptr,
+						   sizeof(ARPptr)))
 	    {
-		    PRINTERROR(error,"ADMINReqDeleteInNABExt");
-			NSFDbClose (db_handle);
-		    NotesTerm();
+                PRINTERROR(error,"ADMINReqDeleteInNABExt");
+		NSFDbClose (db_handle);
+		NotesTerm();
 	        return (1);		
 	    }
 	
@@ -225,9 +224,9 @@ int main(int argc, char *argv[])
                               from prompt.
                 db_name -     database name obtained from command line or
                               from prompt.
-				ext -         which version of API you want to test.
-                              Give " " to test ADMINReqDeleteInNAB and
-							  give "ext" to test ADMINReqDeleteInNABExt.
+                ext -         Which version of API you want to test.
+		                  Give " " to test ADMINReqDeleteInNAB and
+				  give "ext" to test ADMINReqDeleteInNABExt.
  
 *************************************************************************/
 
@@ -244,7 +243,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         printf ("Enter database filename:  ");
         fflush (stdout);
         fgets(db_name, MAXPATH-1, STDIN);
-		printf("\n");
+        printf("\n");
         printf ("Enter \" \" OR \"ext\" for testing ADMINReqDeleteInNAB OR ADMINReqDeleteInNABExt:");
         fflush (stdout);
         fgets(ext, STRING_LENGTH-1, STDIN);
@@ -255,7 +254,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         strncpy(server_name, argv[1], SERVER_NAME_LEN-1);
         memset(db_name, '\0', MAXPATH);    
         strncpy(db_name, argv[2], MAXPATH-1);
-		memset(ext, '\0', STRING_LENGTH);    
+        memset(ext, '\0', STRING_LENGTH);
         strncpy(ext, argv[3], STRING_LENGTH-1);
     } /* end if */
 } /* ProcessArgs */
