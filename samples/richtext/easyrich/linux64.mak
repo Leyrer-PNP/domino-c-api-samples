@@ -5,7 +5,7 @@
 #
 
 #make env file
-include $(NOTES_CAPI)/makeEnvLinux.mak
+include ../../../makeEnvLinux.mak
 
 # set TARGET to the name of the executable to create
 TARGET = easyrich
