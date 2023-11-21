@@ -76,11 +76,11 @@ int main(int argc, char *argv[])
 
 /* Local data declarations */
 
-   char     DBName[STRING_LENGTH];  /* pathname of database */
+   char     DBName[MAXUSERNAME]={0};  /* pathname of database */
    DBHANDLE hDB;           /* database handle */
    STATUS   error=NOERROR;       /* error code from API calls */
-   TIMEDATE retTime;       /* date that the database was last indexed */
-   char szTD[MAXALPHATIMEDATE + 1];
+   TIMEDATE retTime={0};       /* date that the database was last indexed */
+   char szTD[MAXALPHATIMEDATE + 1] = {0};
    WORD wRetLen;
 
 
@@ -106,12 +106,12 @@ int main(int argc, char *argv[])
    }
    else 
    {
-      PRINTLOG("\nFTIndexRequest is success on creating the remote server request for Indexing.");
+      PRINTLOG("FTIndexRequest is success on creating the remote server request for Indexing.\n");
    }
 
    if (!IsRemoteDbIndexed(hDB, 200))
    {
-      PRINTLOG("\nRemote DB is FT indexed");
+      PRINTLOG("Remote DB is FT indexed\n");
    }
 
    /* Report the date/time that this database was indexed */
