@@ -82,8 +82,10 @@ int main(int argc, char *argv[])
 	STATUS         error = NOERROR;                    /* error code from API calls */
 	char           szAuthor[MAXUSERNAME+1]={0};        /* author's name */
 	char           szUserName[MAXUSERNAME+1] = "CN=e user/O=HCLPNP";          /* user that must be deleted */  
+	char           szUserName1[MAXUSERNAME+1] = "CN=o user/O=HCLPNP";          /* user that must be deleted */  
 	char           szMailServerName[MAXPATH]={0};      /* mail server name */
 	char           szMailFileName[MAXPATH] = "mail\\euser.nsf";               /* mail file name */
+	char           szMailFileName1[MAXPATH] = "mail\\ouser.nsf";               /* mail file name */
 	char          *pszDeleteMailFile = "0";            /* "0" = Don't delete mail file */
                                                            /* "1" = Delete just mail file specified in person record */
                                                            /* "2" = Delete mail file specified in person record & all replicas */
@@ -169,9 +171,9 @@ int main(int argc, char *argv[])
 
 	if (error = ADMINReqDeleteInNABExt(db_handle,
 	                                           szAuthor,
-						   szUserName,
+						   szUserName1,
 						   szMailServerName,
-						   szMailFileName,
+						   szMailFileName1,
 						   pszDeleteMailFile,
 						   pszIDVaultFlag,
 						   pszIDVaultName,
