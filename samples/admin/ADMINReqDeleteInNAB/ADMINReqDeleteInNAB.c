@@ -21,7 +21,7 @@ FILE:       ADMINReqDeleteInNAB.c
 
 PURPOSE:    Shows the usage of ADMINReqDeleteInNAB and ADMINReqDeleteInNABExt API.
 
-SYNTAX:     ADMINReqDeleteInNAB  <server name> <database filename> <" "/"ext">
+SYNTAX:     ADMINReqDeleteInNAB  <server name> <database filename>
 
 *************************************************************************/
 #if defined(OS400)
@@ -54,10 +54,6 @@ SYNTAX:     ADMINReqDeleteInNAB  <server name> <database filename> <" "/"ext">
 #include <mail.h>
 #include <textlist.h>
 
-#if defined(OS390)
-#include "lapicinc.h"
-#endif
-#include "lapiplat.h"
 #if defined(CAPI_TESTING) 
 #include "printlog.h" 
 #else
@@ -68,20 +64,14 @@ SYNTAX:     ADMINReqDeleteInNAB  <server name> <database filename> <" "/"ext">
  fprintf(stderr, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText); }
 #endif 
 
-/* NOTE: This code MUST be the LAST file included so that ascii versions of the system APIs are used     */
-#if defined(OS390) && (__STRING_CODE_SET__==ISO8859-1 /* If os390 ascii compile                          */)     
-#include <_Ascii_a.h>
-#endif
-
 /* constant types */
- #define     SERVER_NAME_LEN         80
  #define     STDIN                   stdin
  #define     STRING_LENGTH           256
 
 /* function prototypes */
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                               char *server_name, char *db_name, char *ext);
+                               char *server_name, char *db_name);
 
 /* Program declaration */
 int main(int argc, char *argv[])
@@ -90,34 +80,32 @@ int main(int argc, char *argv[])
 
 	DBHANDLE       db_handle = NULLHANDLE;             /* database handle */
 	STATUS         error = NOERROR;                    /* error code from API calls */
-	char           szAuthor[MAXUSERNAME+1];            /* author's name */
+	char           szAuthor[MAXUSERNAME+1]={0};        /* author's name */
 	char           szUserName[MAXUSERNAME+1] = "CN=e user/O=HCLPNP";          /* user that must be deleted */  
-	char           szMailServerName[MAXPATH];          /* mail server name */
+	char           szMailServerName[MAXPATH]={0};      /* mail server name */
 	char           szMailFileName[MAXPATH] = "mail\\euser.nsf";               /* mail file name */
 	char          *pszDeleteMailFile = "0";            /* "0" = Don't delete mail file */
-                                                       /* "1" = Delete just mail file specified in person record */
-                                                       /* "2" = Delete mail file specified in person record & all replicas */
+                                                           /* "1" = Delete just mail file specified in person record */
+                                                           /* "2" = Delete mail file specified in person record & all replicas */
 														  
 	char          *pszIDVaultFlag = "2";	           /* "0" = Don't delete, just mark as inactive */
-                                                       /* "1" = Delete the user from the vault */
-                                                       /* "2" = Don't do anything with the user's ID in the vault */
+                                                           /* "1" = Delete the user from the vault */
+                                                           /* "2" = Don't do anything with the user's ID in the vault */
 												
 	char          *pszIDVaultName = "IDVault";  												        
 	ADMINReqParams ARPptr;                             /* ADMINReqParams structure */
-	char           szServer[SERVER_NAME_LEN];          /* server names are < 80 chars >*/
-	char           szDBName[MAXPATH];
-	char           szExt[STRING_LENGTH];
-	char          *pszServerName = "";
-	char          *pszAdminFile = "";
-	char          *pszExt = "";
-	char           szAdminFilePath[MAXPATH+1];
+	char           szServer[MAXUSERNAME]={0};      /* server names are < 80 chars >*/
+	char           szDBName[MAXPATH]={0};
+	char           szExt[STRING_LENGTH]={0};
+	char          *pszServerName = NULL;
+	char          *pszAdminFile = NULL;
+	char           szAdminFilePath[MAXPATH];
 	
 	pszServerName = szServer;
 	pszAdminFile = szDBName;
-	pszExt = szExt;
 	
 	/* Process input arguments */
-	ProcessArgs(argc, argv, pszServerName, pszAdminFile, pszExt);
+	ProcessArgs(argc, argv, pszServerName, pszAdminFile);
 	
 	/* Initialize the notes */
 	if (error = NotesInitExtended(argc, argv))
@@ -154,10 +142,11 @@ int main(int argc, char *argv[])
 	/* Get the mail servername form notes.ini */
 	OSGetEnvironmentString("MAILSERVER", szMailServerName, MAXPATH);
 
-	if(strcmp(pszExt," ") == 0)
-	{
-		PRINTLOG("\nTesting ADMINReqDeleteInNAB\n");
-		if (error = ADMINReqDeleteInNAB(db_handle,
+	PRINTLOG("***************************\n");
+	PRINTLOG("Testing ADMINReqDeleteInNAB\n");
+	PRINTLOG("***************************\n");
+
+	if (error = ADMINReqDeleteInNAB(db_handle,
 					        szAuthor,
 						szUserName,
 						szMailServerName,
@@ -165,19 +154,20 @@ int main(int argc, char *argv[])
 						pszDeleteMailFile,
 						&ARPptr,
 						sizeof(ARPptr)))
-	   {
-	       PRINTERROR(error,"ADMINReqDeleteInNAB");
-	       NSFDbClose (db_handle);
-	       NotesTerm();
-	       return (1);	
-	    }
+	{
+	    PRINTERROR(error,"ADMINReqDeleteInNAB");
+	    NSFDbClose (db_handle);
+	    NotesTerm();
+	    return (1);
+	}
 	
 	PRINTLOG("!!! ADMINReqDeleteInNAB Processed Sucessfully !!!\n ");
-	}
-	else if(strcmp(pszExt,"ext") == 0)
-	{
-		PRINTLOG("\nTesting ADMINReqDeleteInNABExt\n");
-		if (error = ADMINReqDeleteInNABExt(db_handle,
+
+	PRINTLOG("******************************\n");
+	PRINTLOG("Testing ADMINReqDeleteInNABExt\n");
+	PRINTLOG("******************************\n");
+
+	if (error = ADMINReqDeleteInNABExt(db_handle,
 	                                           szAuthor,
 						   szUserName,
 						   szMailServerName,
@@ -187,23 +177,15 @@ int main(int argc, char *argv[])
 						   pszIDVaultName,
 						   &ARPptr,
 						   sizeof(ARPptr)))
-	    {
-                PRINTERROR(error,"ADMINReqDeleteInNABExt");
-		NSFDbClose (db_handle);
-		NotesTerm();
-	        return (1);		
-	    }
-	
-	PRINTLOG("!!! ADMINReqDeleteInNABExt Processed Sucessfully !!!\n ");
-	}
-	else
 	{
-		PRINTLOG("Please enter following values:\n 1. \" \" - For testing ADMINReqDeleteInNAB \n 2. \"ext\" - For testingADMINReqDeleteInNABExt\n");
-		NSFDbClose (db_handle);
-		NotesTerm();
-		return(1);
+            PRINTERROR(error,"ADMINReqDeleteInNABExt");
+            NSFDbClose (db_handle);
+            NotesTerm();
+            return (1);
 	}
 	
+	 PRINTLOG("!!! ADMINReqDeleteInNABExt Processed Sucessfully !!!\n ");
+
 	/* Close the database. */
 	if (error = NSFDbClose (db_handle))
 	{
@@ -224,38 +206,29 @@ int main(int argc, char *argv[])
                               from prompt.
                 db_name -     database name obtained from command line or
                               from prompt.
-                ext -         Which version of API you want to test.
-		                  Give " " to test ADMINReqDeleteInNAB and
-				  give "ext" to test ADMINReqDeleteInNABExt.
  
 *************************************************************************/
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                               char *server_name, char *db_name, char *ext)
+                               char *server_name, char *db_name)
 {
-    if (argc != 4)
+    if (argc != 3)
     {
 
         printf("Enter server name: ");
         fflush (stdout);
-        fgets(server_name, SERVER_NAME_LEN, STDIN);
+        fgets(server_name, MAXUSERNAME, STDIN);
         printf("\n");
         printf ("Enter database filename:  ");
         fflush (stdout);
         fgets(db_name, MAXPATH-1, STDIN);
-        printf("\n");
-        printf ("Enter \" \" OR \"ext\" for testing ADMINReqDeleteInNAB OR ADMINReqDeleteInNABExt:");
-        fflush (stdout);
-        fgets(ext, STRING_LENGTH-1, STDIN);
     }
     else
     {
-        memset(server_name, '\0', SERVER_NAME_LEN);    
-        strncpy(server_name, argv[1], SERVER_NAME_LEN-1);
+        memset(server_name, '\0', MAXUSERNAME);
+        strncpy(server_name, argv[1], MAXUSERNAME-1);
         memset(db_name, '\0', MAXPATH);    
         strncpy(db_name, argv[2], MAXPATH-1);
-        memset(ext, '\0', STRING_LENGTH);
-        strncpy(ext, argv[3], STRING_LENGTH-1);
     } /* end if */
 } /* ProcessArgs */
 

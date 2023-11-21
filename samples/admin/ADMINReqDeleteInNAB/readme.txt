@@ -34,17 +34,16 @@ RUNNING ADMINReqDeleteInNAB:
 
 The command line of ADMINReqDeleteInNAB is  -
 
-    ADMINReqDeleteInNAB  <server name> <database filename> <" "/"ext">
+    ADMINReqDeleteInNAB  <server name> <database filename>
 
 where:
 
     <server name> is the name of a server where the database
                          resides.  
 
-    <database filename> is the filename of the Domino database.
-	
-	<" "/"ext"> Give " " for testing ADMINReqDeleteInNAB and "ext" for testing
-	            ADMINReqDeleteInNABExt
+    <database filename> is the filename of the Domino database.The database
+                         is Adminstartion request database "admin4.nsf"
+                         which captures the "Delete in Address Book" request.
 
 
 
