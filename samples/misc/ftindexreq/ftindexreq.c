@@ -150,9 +150,9 @@ exit0:
 
 short IsRemoteDbIndexed(DBHANDLE hDB, DWORD waitTime)
 {
-	short retVal = 0;
-	STATUS sErr = NOERROR;
-	TIMEDATE m_tdLastTime = { 0 };
+    short retVal = 0;
+    STATUS sErr = NOERROR;
+    TIMEDATE m_tdLastTime = { 0 };
     WORD wCounter = 0;
     do
     {
@@ -174,10 +174,10 @@ short IsRemoteDbIndexed(DBHANDLE hDB, DWORD waitTime)
     } while (ERR(sErr) != NOERROR);
 
     if (ERR(sErr) != NOERROR)
-	{
-		PRINTERROR(sErr, "FTGetLastIndexTime");
-		retVal=-1;
-	}
+    {
+       PRINTERROR(sErr, "FTGetLastIndexTime");
+       retVal=-1;
+    }
     return retVal;
 }
 

@@ -1,7 +1,7 @@
 #
-# makefile for Notes API sample program FTSEARCH
+# makefile for Notes API sample program FTindexreq
 # Windows 64-bit version using
-# Microsoft Visual Studio 2017
+# Microsoft Visual Studio 2017/2022
 #
 # This makefile assumes that the INCLUDE and LIB environment variables
 # are set up to point at the Notes and C "include" and "lib" directories.

@@ -1,7 +1,6 @@
 #
-#  makefile for Notes API sample program ftsearch
+#  makefile for Notes API sample program ftindexreq
 #                Linux RedHat
-#  NOTE: set NOTES_CAPI env before executing makefile
 #
 
 #make env file
