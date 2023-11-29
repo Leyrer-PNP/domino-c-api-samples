@@ -33,7 +33,7 @@ RUNNING ADMINReqDeleteInACLExt:
 
 The command line of ADMINReqDeleteInACLExt is  -
 
-    ADMINReqDeleteInACLExt  <server name> <database filename>
+    ADMINReqDeleteInACLExt  <server name> <database filename> <mail flag> <idvault flag>
 
 where:
 
@@ -43,3 +43,13 @@ where:
     <database filename> is the filename of the Domino database.The database
                          is Adminstartion request database "admin4.nsf"
                          which captures the "Delete in Access Control List" request.
+
+    <maile flag> is there list of falgs.
+                 "0" = Don't delete mail file.
+                 "1" = Delete just mail file specified in person record.
+                 "2" = Delete mail file specified in person record & all replicas.
+
+    <idvault flag> is there list of flags.
+                   "0" = Don't delete, just mark as inactive.
+                   "1" = Delete the user from the vault.
+                   "2" = Don't do anything with the user's ID in the vault.

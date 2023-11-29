@@ -24,9 +24,9 @@ HCL C API for Notes/Domino functions. The program
 gets the title of a local or remote Domino database and
 prints it to the screen.
 
-SYNTAX:     ADMINReqDeleteInACLExt  <server name> <database filename>
+SYNTAX:     ADMINReqDeleteInACLExt  <server name> <database filename>.<mail flag>.<idvault flag>
 
-*************************************************************************/
+*************************************************************************************************/
 #if defined(OS400)
 #pragma convert(850)
 #endif
@@ -79,7 +79,7 @@ SYNTAX:     ADMINReqDeleteInACLExt  <server name> <database filename>
 /* function prototypes */
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                               char *server_name, char *db_name);
+                               char *server_name, char *db_name, char *mail_flag ,char *idvault_flag);
 
 /* Program declaration */
 int main(int argc, char *argv[])
@@ -88,30 +88,37 @@ int main(int argc, char *argv[])
 
     DBHANDLE    db_handle = NULLHANDLE;         /* database handle */
     STATUS      error = NOERROR;                /* error code from API calls */
-    char        chAuthorName[MAXPATH] = {0};    /* author's name */
-    char        chUserName[MAXPATH] = "CN=R Era/O=HCL";        /* user ACL that must be deleted */
-    char        *chMailServerName = NULL;        /* mail server name */
-    char        chMailFileName[MAXPATH] = "mail\\rera.nsf";    /* mail file name */
-    char        *chMailFileFlag = "0";          /* "0" = Don't delete mail file */
+    char        chAuthorName[MAXUSERNAME+1] = {0};    /* author's name */
+    char        chUserName[MAXUSERNAME+1] = "CN=C user/O=HCL";        /* user ACL that must be deleted */
+    char        chMailServerName[MAXPATH] = {0};        /* mail server name */
+    char        chMailFileName[MAXPATH] = "mail\\cuser.nsf";    /* mail file name */
+    char        *chMailFileFlag = NULL;         /* "0" = Don't delete mail file */
                                                 /* "1" = Delete just mail file specified in person record */
                                                 /* "2" = Delete mail file specified in person record & all replicas */
                                             
-    char        *chIDVaultFlag  = "2";          /* "0" = Don't delete, just mark as inactive */
+    char        *chIDVaultFlag  = NULL;         /* "0" = Don't delete, just mark as inactive */
                                                 /* "1" = Delete the user from the vault */
                                                 /* "2" = Don't do anything with the user's ID in the vault */
                                             
-    char        *chIDVaultName = "BlueVault";   /* IDVault Name */
+    char        *chIDVaultName = "O=BlueVault";   /* IDVault Name */
     ADMINReqParams ARPptr;                      /* ADMINReqParams structure */
     int         ArgNum = 0;
     char        szServer[SERVER_NAME_LEN] = {0};      /* server names are < 80 chars */
     char        szDBName[MAXPATH] = {0};
+    char        *serverName = NULL;
     char        *admin4db = NULL;
+    char        mailFlag[2] = {0};
+    char        idVaultFlag[2] = {0};
     char        admin4DBFullPath[MAXPATH+1] = {0};
     
-    chMailServerName = szServer;
+    serverName = szServer;
     admin4db = szDBName;
+    chMailFileFlag = mailFlag;
+    chIDVaultFlag = idVaultFlag;
+
     
-    ProcessArgs(argc, argv, chMailServerName, admin4db);
+    ProcessArgs(argc, argv, serverName, admin4db, chMailFileFlag, chIDVaultFlag);
+
     
     /* Process input arguments */
     error = NotesInitExtended (argc, argv);
@@ -124,7 +131,7 @@ int main(int argc, char *argv[])
     }
     
     /* Construct the path for the admin request file */
-    if (error = OSPathNetConstruct(NULL, chMailServerName, admin4db, admin4DBFullPath))
+    if (error = OSPathNetConstruct(NULL, serverName, admin4db, admin4DBFullPath))
     {
         PRINTERROR (error,"OSPathNetConstruct");  
         NotesTerm();
@@ -147,6 +154,12 @@ int main(int argc, char *argv[])
         NotesTerm();
         return (1);
     }
+
+    /* Get the mail servername form notes.ini */
+    OSGetEnvironmentString("MAILSERVER", chMailServerName, MAXPATH);
+
+    memset(&ARPptr, 0x00, sizeof(ARPptr));
+    ARPptr.dwDeleteInNABType = DELETE_PERSON_IN_NAB;
    
     if (error = ADMINReqDeleteInACLExt(db_handle,
                                        chAuthorName,
@@ -161,20 +174,20 @@ int main(int argc, char *argv[])
     {
         PRINTERROR(error, "ADMINReqDeleteInACLExt");
         NotesTerm();
-		NSFDbClose(db_handle);
+        NSFDbClose(db_handle);
         return (1);
     }
     
-    PRINTLOG("\n!!! ADMINReqDeleteInACLExt Processed Sucessfully !!! ");
-    /* Close the database. */
+    PRINTLOG("\n!!! ADMINReqDeleteInACLExt Processed Sucessfully !!! \n ");
 
+    /* Close the database. */
     if (error = NSFDbClose (db_handle))
     {
         PRINTERROR (error,"NSFDbClose");
         NotesTerm();
         return (1);
     }
-   
+
 }
 
 /************************************************************************
@@ -187,13 +200,17 @@ int main(int argc, char *argv[])
                               from prompt.
                 db_name -     database name obtained from command line or
                               from prompt.
+                mail_flag   - mailflag name obtained from command line or
+                              from prompt.
+                idvault_flag  - vaultflag name obtained from command line or
+                              from prompt.
 
 *************************************************************************/
 
 void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
-                               char *server_name, char *db_name)
+                               char *server_name, char *db_name ,char *mail_flag ,char *idvault_flag)
 {
-    if (argc != 3)
+    if (argc != 5)
     {
 
         printf("Enter server name: ");
@@ -203,6 +220,15 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         printf ("Enter database filename:  ");
         fflush (stdout);
         fgets(db_name, MAXPATH-1, STDIN);
+        printf("\n");
+        printf ("Enter mail flag [0 or 1 or 2]:  ");
+        fflush (stdout);
+        fgets(mail_flag, MAXPATH-1, STDIN);
+        printf("\n");
+        printf ("Enter idvault flag [0 or 1 or 2]:  ");
+        fflush (stdout);
+        fgets(idvault_flag, MAXPATH-1, STDIN);
+
     }
     else
     {
@@ -210,5 +236,9 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         strncpy(server_name, argv[1], SERVER_NAME_LEN-1);
         memset(db_name, '\0', MAXPATH);    
         strncpy(db_name, argv[2], MAXPATH-1);
+        memset(mail_flag, '\0', MAXPATH);    
+        strncpy(mail_flag, argv[3], MAXPATH-1);
+        memset(idvault_flag, '\0', MAXPATH);    
+        strncpy(idvault_flag, argv[4], MAXPATH-1);
     } /* end if */
 } /* ProcessArgs */
