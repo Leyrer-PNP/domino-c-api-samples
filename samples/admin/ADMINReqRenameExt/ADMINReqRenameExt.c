@@ -66,8 +66,6 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 
 STATUS GetCertCtx (char far *, HCERTIFIER *, char far *);
 
-TIMEDATE ExpireDate;
-
 /* Program declaration */
 int main(int argc, char *argv[])
 {
@@ -75,27 +73,30 @@ int main(int argc, char *argv[])
 
     STATUS      error = NOERROR;             /* error code from API calls */
     DBHANDLE    hNABook = NULLHANDLE;        /* handle to NAB */
-    NOTEID      NoteID = 0;                  /* noteID */
+    NOTEID      noteID = 0;                  /* noteID */
     NOTEHANDLE  nhNote = NULLHANDLE;         /* handle to note*/ 
     HCERTIFIER  hCertCtx = NULLHANDLE;       /* handle to certifier context */
-    ADMINReqParams ARPptr;                   /* ADMINReqParam structure*/
+    ADMINReqParams arpPtr;                   /* ADMINReqParam structure*/
     BOOL        logged, ferror;              /* output params*/
-    char        USER_NAME[] = "CN=test user/O=HCLPNP";           /* user to be renamed*/
-    char        ORGUNIT_CERT_ID[] = "C:\\Domino\\data\\cert.id"; /* Organization cert ID*/
-    char        PASSWORD[] = "password";                         /* password for cert id*/
-    char        NEW_FIRST_NAME[]= "A";                           /* new first name */
-    char        NEW_LAST_NAME[]= "B";                            /* new last name */
-    char        NEW_MIDDLE_NAME[]= "C";                          /* new middle name */
-    char        USERS_FLD[] = "$Users";                          /* view to search for the user*/
+    char        szUserName[] = "CN=test user/O=HCLPNP";          /* user to be renamed*/
+    char        szOrgUnitCertID[] = "cert.id";                   /* organization cert ID*/
+    char        szDataPath[MAXPATH] = {0};                       /* domino data path */
+    char        szPassword[] = "password";                       /* password for cert id*/
+    char        szNewFirstName[]= "A";                           /* new first name */
+    char        szNewLastName[]= "B";                            /* new last name */
+    char        szNewMiddleName[]= "C";                          /* new middle name */
+    char        szUserFld[] = "$Users";                          /* view to search for the user*/
     char        szServer[MAXUSERNAME]={0};                       /* server name */
     char        szDBName[MAXPATH]={0};                           /* database name*/
     char       *pszServerName = NULL;                            /* pointer to servername*/   
     char       *pszNABFile = NULL;                               /* pointer to NAB file*/
-    char        szNABFilePath[MAXPATH];                          /* NAB file path*/
+    char        szNABFilePath[MAXPATH] = {0};                    /* NAB file path*/
+    char       *pszCertIDFilePath = NULL;                        /* domino cert ID file path*/
 	
     pszServerName = szServer;
     pszNABFile = szDBName;
 	
+
     /* Process input arguments */
     ProcessArgs(argc, argv, pszServerName, pszNABFile);
 	
@@ -106,6 +107,24 @@ int main(int argc, char *argv[])
         return(1);
     }
 
+    /* Reading Domino data directory */
+    OSGetDataDirectory(szDataPath);
+    PRINTLOG("data path : %s\n", szDataPath);
+
+    /* Adding trailing path separator*/
+    if (error = OSPathAddTrailingPathSeparator(szDataPath, sizeof(szDataPath)-1))
+    {
+	PRINTERROR(error,"OSPathAddTrailingPathSeparator");
+        NotesTerm();
+        return (1);
+    }
+    PRINTLOG("data path with trailing path separator: %s\n", szDataPath);
+
+    /* Preparing path for cert ID*/
+    strncat(szDataPath, szOrgUnitCertID, sizeof(szDataPath)-1 - strlen(szDataPath));
+    pszCertIDFilePath = szDataPath;
+    PRINTLOG("cert ID path : %s\n", pszCertIDFilePath);
+
     /* Construct the path for the admin request file */
     if (error = OSPathNetConstruct(NULL, pszServerName, pszNABFile, szNABFilePath))
     {
@@ -113,7 +132,7 @@ int main(int argc, char *argv[])
         NotesTerm();
         return (1);
     }
-	
+
     /* Open the database. */
     if (error = NSFDbOpen(szNABFilePath, &hNABook))
     {	
@@ -123,7 +142,7 @@ int main(int argc, char *argv[])
     }
 
     /* Get the Note ID of the user to be renamed. */
-    if (error = REGFindAddressBookEntry (hNABook, USERS_FLD, USER_NAME, &NoteID))
+    if (error = REGFindAddressBookEntry (hNABook, szUserFld, szUserName, &noteID))
     {
 	NSFDbClose (hNABook);
 	PRINTERROR (error,"REGFindAddressBookEntry");
@@ -132,7 +151,7 @@ int main(int argc, char *argv[])
     }
 
     /* Get the Note handle. */
-    if (error = NSFNoteOpen(hNABook, NoteID, 0, &nhNote))
+    if (error = NSFNoteOpen(hNABook, noteID, 0, &nhNote))
     {
 	NSFDbClose (hNABook);
 	PRINTERROR (error,"NSFNoteOpen");
@@ -141,8 +160,9 @@ int main(int argc, char *argv[])
     }
 
     /* Get the current certifier context */
-    if (error = GetCertCtx(ORGUNIT_CERT_ID, &hCertCtx, PASSWORD))
+	if (error = GetCertCtx(pszCertIDFilePath, &hCertCtx, szPassword))
     {
+	NSFNoteClose (nhNote);
 	NSFDbClose (hNABook);
 	PRINTERROR (error,"GetCertCtx");
 	NotesTerm();
@@ -150,24 +170,25 @@ int main(int argc, char *argv[])
     }
 	
     /* Intializing the ADMINReqParams structure */ 
-    memset(&ARPptr, 0x00, sizeof(ARPptr));
+    memset(&arpPtr, 0x00, sizeof(arpPtr));
 	
-    /* Call the ADMINReqRenameExt API */
+    /* Call the ADMINReqRenameExt API for renaming the user CN=test user/O=HCLPNP to CN=ACB/O=HCLPNP */
     if (error = ADMINReqRenameExt( hCertCtx,         /* certifier context */
 	                           hNABook,          /* handle to NAB file */
 	                           nhNote,           /* handle to notes document */
-	                           NEW_FIRST_NAME,   /* new first name */
-	                           NEW_MIDDLE_NAME,  /* new middle initial */
-	                           NEW_LAST_NAME,    /* new last name */
+	                           szNewFirstName,   /* new first name */
+	                           szNewMiddleName,  /* new middle initial */
+	                           szNewLastName,    /* new last name */
 	                           NULL,             /* new org name */
 	                           NULL,             /* new short name */
 	                           NULL,             /* new internet address */
 	                           &logged,          /* TRUE if request has been recorded in the certification log */
 	                           &ferror,          /* TRUE if an error occurred */
-	                           &ARPptr,          /* pointer to an ADMINReqParams structure */
-	                           sizeof(ARPptr)))  /* size of the buffer (ADMINReqParams structure) */
+	                           &arpPtr,          /* pointer to an ADMINReqParams structure */
+	                           sizeof(arpPtr)))  /* size of the buffer (ADMINReqParams structure) */
     {
 	SECKFMFreeCertifierCtx (hCertCtx);
+	NSFNoteClose (nhNote);
 	NSFDbClose (hNABook);
 	PRINTERROR (error,"ADMINReqRenameExt");
 	NotesTerm();
@@ -184,6 +205,14 @@ int main(int argc, char *argv[])
 	return (1);
     }
 
+    /* Terminate Domino and Notes. */
+
+    NotesTerm();
+
+    /* End of program. */
+
+    return (0);
+
 }
 /************************************************************************
 
@@ -192,11 +221,11 @@ int main(int argc, char *argv[])
     PURPOSE:     returns a handle to the certifier context.
 
     INPUTS:
-        pCertFilePath - pointer to full path spec of certifier id file
+        pCertFile  - pointer to full path spec of certifier id file
         szPassword - password
 
     OUTPUTS:
-        phCertCtx     - pointer to handle to Certifier context
+        phCertCtx  - pointer to handle to Certifier context
 
     RETURNS:    status code from API Call
 
@@ -205,27 +234,28 @@ int main(int argc, char *argv[])
 STATUS GetCertCtx (char far *pCertFile, HCERTIFIER *phCertCtx,
                    char far *szPassword)
 {
-    TIMEDATE ExpDate;
+    TIMEDATE tdExpDate;
     STATUS error = NOERROR;
-    char CertName[MAXSPRINTF] = {0};    /* Note:  Org names may be up to 64 chars
-                                   The CertName in this example is an org
-                                   name plus a  country code. */
-    BOOL IsHierarchical = FALSE;
-    WORD FileVersion = 0;
+    char szCertName[MAXSPRINTF] = {0};            /* certifier name */
+    BOOL bIsHierarchical = FALSE;
+    WORD wFileVersion = 0;
     KFM_PASSWORD KFMPassword, *pKFMPassword;    /* encoded password */
 
-    OSCurrentTIMEDATE(&ExpDate);
+    OSCurrentTIMEDATE(&tdExpDate);
 
     /* set the expiration date to two years from today (Domino and Notes default) */
-    error = TimeDateAdjust(&ExpDate, 0, 0, 0, 0, 0, 2);
-    ExpireDate = ExpDate;
+    error = TimeDateAdjust(&tdExpDate, 0, 0, 0, 0, 0, 2);
 
     if (error)
+    {
         return (error);
+    }
 
    /* get the encoded password */
     if (szPassword == NULL)
+    {
         pKFMPassword = NULL;
+    }
     else
     {
         pKFMPassword = &KFMPassword;
@@ -237,12 +267,11 @@ STATUS GetCertCtx (char far *pCertFile, HCERTIFIER *phCertCtx,
                                    pCertFile,       /* Certifier file path spec */
                                    pKFMPassword,    /* encoded password */
                                    NULL,            /* no certifier log */
-                                   &ExpDate,        /* expiration date */
-                                   CertName,        /* returned name of certifier */
+                                   &tdExpDate,      /* expiration date */
+                                   szCertName,      /* returned name of certifier */
                                    phCertCtx,       /* returned handle to certifier context */
-                                   &IsHierarchical, /* returned TRUE if certifier is
-                                   hierarchical */
-                                   &FileVersion);   /* returned file version */
+                                   &bIsHierarchical,/* returned TRUE if certifier is hierarchical */
+                                   &wFileVersion);  /* returned file version */
 
 
     return (error);

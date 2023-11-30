@@ -11,6 +11,9 @@ All rights reserved.
 PROGRAM
 -------
 ADMINReqRenameExt - Sample program to show usage of ADMINReqRenameExt API.
+                    This sample does renaming the user CN=test user/O=HCLPNP
+                    to CN=ACB/O=HCLPNP.Also, creates a "Rename Person in Address Book"
+                    request in the Administration Requests database (admin4.nsf).
 
 ENVIRONMENTS
 ------------
@@ -42,7 +45,7 @@ where:
 
     "names.nsf"   is the NAB file of the Domino database.The ADMINReqRenameExt API 
                   creates a "Rename Person in Address Book" 
-				  request in the Administration Requests database (admin4.nsf).
+                  request in the Administration Requests database (admin4.nsf).
 
 
 
