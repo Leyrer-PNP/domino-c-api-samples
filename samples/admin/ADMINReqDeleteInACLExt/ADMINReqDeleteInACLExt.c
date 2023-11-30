@@ -19,10 +19,7 @@ PROGRAM:    ADMINReqDeleteInACLExt
 
 FILE:       ADMINReqDeleteInACLExt.c
 
-PURPOSE:    Shows the basic structure of a main() routine that calls
-HCL C API for Notes/Domino functions. The program
-gets the title of a local or remote Domino database and
-prints it to the screen.
+PURPOSE:    This program will creates a "Delete in Access Control List" request in the Administration Requests database (admin4.nsf).
 
 SYNTAX:     ADMINReqDeleteInACLExt  <server name> <database filename>.<mail flag>.<idvault flag>
 
@@ -154,10 +151,8 @@ int main(int argc, char *argv[])
         NotesTerm();
         return (1);
     }
-
-    /* Get the mail servername form notes.ini */
-    OSGetEnvironmentString("MAILSERVER", chMailServerName, MAXPATH);
-
+    
+    strncpy(chMailServerName, serverName, MAXPATH);
     memset(&ARPptr, 0x00, sizeof(ARPptr));
     ARPptr.dwDeleteInNABType = DELETE_PERSON_IN_NAB;
    
@@ -187,6 +182,11 @@ int main(int argc, char *argv[])
         NotesTerm();
         return (1);
     }
+
+    /* Terminate Domino and Notes. */
+    NotesTerm();
+    /* End of program. */
+    return (0);
 
 }
 
@@ -223,11 +223,11 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         printf("\n");
         printf ("Enter mail flag [0 or 1 or 2]:  ");
         fflush (stdout);
-        fgets(mail_flag, MAXPATH-1, STDIN);
+        fgets(mail_flag, 2-1, STDIN);
         printf("\n");
         printf ("Enter idvault flag [0 or 1 or 2]:  ");
         fflush (stdout);
-        fgets(idvault_flag, MAXPATH-1, STDIN);
+        fgets(idvault_flag, 2-1, STDIN);
 
     }
     else
@@ -237,8 +237,8 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         memset(db_name, '\0', MAXPATH);    
         strncpy(db_name, argv[2], MAXPATH-1);
         memset(mail_flag, '\0', MAXPATH);    
-        strncpy(mail_flag, argv[3], MAXPATH-1);
+        strncpy(mail_flag, argv[3], sizeof(mail_flag));
         memset(idvault_flag, '\0', MAXPATH);    
-        strncpy(idvault_flag, argv[4], MAXPATH-1);
+        strncpy(idvault_flag, argv[4], sizeof(idvault_flag));
     } /* end if */
 } /* ProcessArgs */

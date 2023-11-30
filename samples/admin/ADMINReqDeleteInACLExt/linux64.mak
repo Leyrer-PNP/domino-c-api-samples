@@ -1,8 +1,6 @@
 #
 #  makefile for Notes API sample program ADMINReqDeleteInNAB
 #                Linux RedHat
-#  NOTE: set NOTES_CAPI env before executing makefile
-#
 
 #make env file
 include ../../../makeEnvLinux.mak
