@@ -200,6 +200,10 @@ int main(int argc, char *argv[])
 
     PRINTLOG("!!! ADMINReqRename Processed Sucessfully !!!\n ");
 	
+    /* Free the certifier context and close the note */
+    SECKFMFreeCertifierCtx (hCertCtx);
+    NSFNoteClose (nhNote);
+
     /* Close the database. */
     if (error = NSFDbClose (hNABook))
     {
