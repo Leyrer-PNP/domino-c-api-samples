@@ -68,7 +68,7 @@ The parameters are as follows:
  #define PRINTERROR(api_error, api_name) {\
  char    szErrorText[256] = { 0 };\
  OSLoadString(NULLHANDLE, ERR(api_error), szErrorText, sizeof(szErrorText));\
- fprintf(stdout, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText); }\
+ fprintf(stdout, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText); }
 #endif 
 
 /* Local include files */
