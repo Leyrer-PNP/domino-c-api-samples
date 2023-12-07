@@ -1,0 +1,46 @@
+Notes grants Author access to entities named in the Author Names field.
+The old, Notes 1.x and Notes 2.x Document Author data type is gone in
+Notes 3.0 and above.  Instead, there are 3 different data types: Names,
+Author Names, and Reader Names.
+
+When you compose a document using a form with a field of data type Names,
+the result is an item of TYPE_TEXT (or TYPE_TEXT_LIST) with the NAMES flag
+set.  The NAMES flag is the distinguished names flag. At the API level,
+the NAMES flag corresponds to the ITEM_NAMES bit in the item flags.
+
+The NAMES flag tells Notes that this field normally contains distinguished
+(hierarchical) names.  The Notes editor "cleans up" these otherwise ugly
+names to display them.  The cleaned-up version of distinguished names is
+known as the "abbreviated" distinguished name.  Internally, however, Notes
+still stores these values in un-abbreviated format.
+
+The NAMES flag itself, however, does not make the field an author field.
+
+When you compose a document using a form with a field of data type Author
+Names, the result is an item of TYPE_TEXT (or TYPE_TEXT_LIST) with
+both the NAMES flag and the READ/WRITE-ACCESS flag set.  As with other
+text fields, the SUMMARY flag is also set.  Internally, at the API level,
+the READ/WRITE-ACCESS flag corresponds to the ITEM_READWRITERS bit in the
+item flags.
+
+The READ/WRITE-ACCESS flag tells Notes that this is an Author field.
+
+Notes takes several actions in response to this author field.  First,
+it grants author access to any entity named in the field.  Since this new
+author field is TYPE_TEXT or TYPE_TEXT_LIST, it may contain multiple names
+and the names may be user names, group names, or servers.
+
+Second, Notes automatically appends the special field $UpdatedBy to any
+document that has an author field.  $UpdatedBy is a TEXT_LIST field that
+tracks all the users who created or modified a documet.  This preserves
+the funcitonality of the Author field of earlier versions of Notes.  Note
+that $UpdateBy has the NAMES flag set.  A related change in Notes is
+that the @Author function returns the contents of the $UpdatedBy field.
+
+To complete the new capabilities, Notes also introduces the data type
+Reader Names.  Fields of this type make text or text list items with the
+SUMMARY, NAMES, and READ-ACCESS flags set.  Notes grants reader access
+to entities named in a Reader Names field.  Internally, at the API level,
+the READ-ACCESS flag corresponds to the ITEM_READERS bit in the item flags.
+The Reader Names field does not qualify as an Author field in that it does
+not cause Notes to maintain a $UpdatedBy field.

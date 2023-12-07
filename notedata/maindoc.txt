@@ -1,0 +1,6 @@
+How does Notes handle document Author fields?
+When designing a form, the old data type "Doc Author" is gone. Instead,
+there are now three new data types that seem to be related: Names,
+Author Names, and Reader Names. How are each of these new data
+types intended to be used?  And what's this $UpdateBy field I see
+in documents when viewing "Fields" in the Document Properties InfoBox?
