@@ -1,7 +1,7 @@
 #
-# Makefile for HCL C API for Domino and Notes sample program, INTROWIN
+# Makefile for HCL C API for Domino and Notes sample program, ADMINReqDeleteInACL
 # Windows 64-bit version using
-# Microsoft Visual Studio 2017
+# Microsoft Visual Studio 2022
 #
 # This makefile assumes that the INCLUDE and LIB environment variables
 # are set up to point at the Notes and C "include" and "lib" directories.

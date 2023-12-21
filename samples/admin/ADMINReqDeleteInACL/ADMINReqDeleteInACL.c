@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
     char        *chMailFileFlag = NULL;         /* "0" = Don't delete mail file */
                                                 /* "1" = Delete just mail file specified in person record */
                                                 /* "2" = Delete mail file specified in person record & all replicas */
-    ADMINReqParams ARPptr;                      /* ADMINReqParams structure */
-    int         ArgNum = 0;
+    ADMINReqParams arpPtr;                      /* ADMINReqParams structure */
+    int         argNum = 0;
     char        szServer[SERVER_NAME_LEN] = {0};      /* server names are < 80 chars */
     char        szDBName[MAXPATH] = {0};
     char        *serverName = NULL;
@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
     }
     
     strncpy(chMailServerName, serverName, MAXPATH);
+    memset(&arpPtr, 0x00, sizeof(arpPtr));
     
     if (error = ADMINReqDeleteInACL(db_handle,
                                        chAuthorName,
@@ -152,8 +153,8 @@ int main(int argc, char *argv[])
                                        chMailServerName,
                                        chMailFileName,
                                        chMailFileFlag,
-                                       &ARPptr,
-                                       sizeof(ARPptr)))
+                                       &arpPtr,
+                                       sizeof(arpPtr)))
     {
         PRINTERROR(error, "ADMINReqDeleteInACL");
         NotesTerm();
