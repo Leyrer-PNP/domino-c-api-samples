@@ -145,9 +145,7 @@ int main(int argc, char *argv[])
     }
     
     strncpy(chMailServerName, serverName, MAXPATH);
-    memset(&ARPptr, 0x00, sizeof(ARPptr));
-   //ARPptr.dwDeleteInNABType = DELETE_PERSON_IN_NAB;
-   
+    
     if (error = ADMINReqDeleteInACL(db_handle,
                                        chAuthorName,
                                        chUserName,
@@ -211,7 +209,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
         printf("\n");
         printf ("Enter mail flag [0 or 1 or 2]:  ");
         fgets(mail_flag, MAXPATH-1, STDIN);
-		printf("\n");
+        printf("\n");
     }
     else
     {
