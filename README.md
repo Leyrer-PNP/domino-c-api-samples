@@ -27,9 +27,6 @@ Programs that show the structure of client specific API code or operations using
 ### Database Design
 Programs that show how to create and read database design elements, including forms, views, navigators, agents, access control lists, and policy and help documents
 
-### DB2
-Programs that show the structure of DB2 specific API code
-
 ### Mail
 Programs that show how to use the C API for electronic mail operations, such as sending and receiving mail and writing mail gateways
 
