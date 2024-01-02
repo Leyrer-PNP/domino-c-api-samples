@@ -46,5 +46,5 @@ where:
     <destination full path database name> is the filename of the Domino destination database.
 
 Note: For cluster setup please refer below link.
-https://help.hcltechsw.com/domino/10.0.1/conf_creatingacluster_t.html#:~:text=Procedure%201%20From%20the%20Domino%20Administrator%2C%20click%20the,new%20cluster%2C%20and%20then%20click%20OK.%20More%20items
+https://help.hcltechsw.com/domino/14.0.0/admin/conf_creatingacluster_t.html
     
