@@ -11,6 +11,8 @@ All rights reserved.
 PROGRAM
 -------
 ADMINReqChkAccessNewReplica - Sample program to show usage of ADMINReqChkAccessNewReplica.
+                              This function creates a "Check Access for New Replica Creation" 
+                              request in the Administration Requests database (admin4.nsf).
 
 ENVIRONMENTS
 ------------

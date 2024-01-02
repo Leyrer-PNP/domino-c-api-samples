@@ -1,6 +1,6 @@
 /*************************************************************************
  *
- * Copyright HCL Technologies 1996, 2023.
+ * Copyright HCL Technologies 1996, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,13 +64,8 @@ SYNTAX:     ADMINReqChkAccessNewReplica  <source server name> <source database n
  fprintf(stderr, "[ERROR]:%s:%d:%s - %s", __FILE__,__LINE__,api_name,szErrorText); }
 #endif 
 
-/* NOTE: This code MUST be the LAST file included so that ascii versions of the system APIs are used     */
-#if defined(OS390) && (__STRING_CODE_SET__==ISO8859-1 /* If os390 ascii compile                          */)     
-#include <_Ascii_a.h>
-#endif
-
 /* conestant types */
- #define     SrcServer_name_LEN         80
+ #define     SRCSERVER_NAME_LEN         80
  #define     STDIN                   stdin
 
 /* function prototypes */
@@ -90,27 +85,27 @@ int main(int argc, char *argv[])
     ADMINReqParams arpPtr;                      /* ADMINReqParams structure */
     DBREPLICAINFO  Replicainfo;
     int         argNum = 0;
-    char        szSourceServer[SrcServer_name_LEN] = {0};      /* server names are < 80 chars */
-    char        szSourceDBName[MAXPATH] = {0};
-    char        szDestinationServer[SrcServer_name_LEN] = {0};      /* server names are < 80 chars */
-    char        szDestinationDBName[MAXPATH] = {0};
-    char        *chSrcServer = NULL;     /* source Server name */
-    char        *chSrcPathName = NULL;   /* source file name */
-    char        *chDesServer = NULL;     /* destination Server name */ 
-    char        *chDesPathName = NULL;   /* destination file name */
+    char        chSourceServer[SRCSERVER_NAME_LEN] = {0};      /* server names are < 80 chars */
+    char        chSourceDBName[MAXPATH] = {0};
+    char        chDestinationServer[SRCSERVER_NAME_LEN] = {0};      /* server names are < 80 chars */
+    char        chDestinationDBName[MAXPATH] = {0};
+    char        *pchSrcServer = NULL;     /* source Server name */
+    char        *pchSrcPathName = NULL;   /* source file name */
+    char        *pchDesServer = NULL;     /* destination Server name */ 
+    char        *pchDesPathName = NULL;   /* destination file name */
     char        admin4db[] = "admin4.nsf";
     char        chTitle[]= "test";      /* Title of the database being replicated */
     
     char        admin4DBFullPath[MAXPATH+1] = {0};
     char        srcDBFullPath[MAXPATH+1] = {0};
     
-    chSrcServer = szSourceServer;
-    chSrcPathName = szSourceDBName;
-    chDesServer = szDestinationServer;
-    chDesPathName = szDestinationDBName;
+    pchSrcServer = chSourceServer;
+    pchSrcPathName = chSourceDBName;
+    pchDesServer = chDestinationServer;
+    pchDesPathName = chDestinationDBName;
 
     
-    ProcessArgs(argc, argv, chSrcServer, chSrcPathName, chDesServer, chDesPathName);
+    ProcessArgs(argc, argv, pchSrcServer, pchSrcPathName, pchDesServer, pchDesPathName);
 
     /* Process input arguments */
     error = NotesInitExtended (argc, argv);
@@ -123,7 +118,7 @@ int main(int argc, char *argv[])
     }
     
     /* Construct the path for the admin request file */
-    if (error = OSPathNetConstruct(NULL, chSrcServer, admin4db, admin4DBFullPath))
+    if (error = OSPathNetConstruct(NULL, pchSrcServer, admin4db, admin4DBFullPath))
     {
         PRINTERROR (error,"OSPathNetConstruct");  
         NotesTerm();
@@ -139,9 +134,10 @@ int main(int argc, char *argv[])
     }
     
     /* Construct the path for the srcDBFullPath request file */
-    if (error = OSPathNetConstruct(NULL, chSrcServer,chSrcPathName, srcDBFullPath))
+    if (error = OSPathNetConstruct(NULL, pchSrcServer,pchSrcPathName, srcDBFullPath))
     {
-        PRINTERROR (error,"OSPathNetConstruct");  
+        PRINTERROR (error,"OSPathNetConstruct");
+        NSFDbClose (db_handle);		
         NotesTerm();
         return (1);
     }
@@ -150,6 +146,7 @@ int main(int argc, char *argv[])
     if (error = NSFDbOpen (srcDBFullPath, &srcDB_handle))
     {
         PRINTERROR (error,"NSFDbOpen");
+        NSFDbClose (db_handle);
         NotesTerm();
         return (1);
     }
@@ -158,6 +155,7 @@ int main(int argc, char *argv[])
     if (error = NSFDbReplicaInfoGet (srcDB_handle, &Replicainfo))
     {
         NSFDbClose (srcDB_handle);
+        NSFDbClose (db_handle);
         NotesTerm();
         return (1);
     }
@@ -166,6 +164,7 @@ int main(int argc, char *argv[])
     if (error = SECKFMGetUserName(chAuthorName))
     {
         PRINTERROR(error, "SECKFMGetUserName");
+        NSFDbClose (srcDB_handle);
         NSFDbClose (db_handle);
         NotesTerm();
         return (1);
@@ -175,18 +174,19 @@ int main(int argc, char *argv[])
     
     if (error = ADMINReqChkAccessNewReplica(db_handle,
                                             chAuthorName,
-                                            chSrcServer,
+                                            pchSrcServer,
                                             srcDBFullPath,
                                             chTitle,
                                             &Replicainfo,
-                                            chDesServer,
-                                            chDesPathName,
+                                            pchDesServer,
+                                            pchDesPathName,
                                             &arpPtr,
                                             sizeof(arpPtr)))
     {
         PRINTERROR(error, "ADMINReqChkAccessNewReplica");
-        NotesTerm();
+        NSFDbClose (srcDB_handle);
         NSFDbClose(db_handle);
+        NotesTerm();
         return (1);
     }
     
@@ -196,6 +196,7 @@ int main(int argc, char *argv[])
     if (error = NSFDbClose (srcDB_handle))
     {
         PRINTERROR (error,"NSFDbClose");
+        NSFDbClose (db_handle);
         NotesTerm();
         return (1);
     }
@@ -239,7 +240,7 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
 
         printf("Enter Source Server name: ");
         fflush (stdout);
-        fgets(SrcServer_name, SrcServer_name_LEN, STDIN);
+        fgets(SrcServer_name, SRCSERVER_NAME_LEN, STDIN);
         printf("\n");
         printf ("Enter source file name:  ");
         fflush (stdout);
@@ -254,13 +255,13 @@ void  LNPUBLIC  ProcessArgs (int argc, char *argv[],
     }
     else
     {
-        memset(SrcServer_name, '\0', SrcServer_name_LEN);    
-        strncpy(SrcServer_name, argv[1], SrcServer_name_LEN-1);
+        memset(SrcServer_name, '\0', SRCSERVER_NAME_LEN);    
+        strncpy(SrcServer_name, argv[1], SRCSERVER_NAME_LEN-1);
         memset(SrcDb_name, '\0', MAXPATH);    
         strncpy(SrcDb_name, argv[2], MAXPATH-1);
-        memset(DesServer_name, '\0', MAXPATH);    
-        strncpy(DesServer_name, argv[3], sizeof(DesServer_name));
+        memset(DesServer_name, '\0', SRCSERVER_NAME_LEN);    
+        strncpy(DesServer_name, argv[3], SRCSERVER_NAME_LEN-1);
         memset(DesDb_name, '\0', MAXPATH);    
-        strncpy(DesDb_name, argv[4], sizeof(DesDb_name));
+        strncpy(DesDb_name, argv[4], MAXPATH-1);
     } /* end if */
 } /* ProcessArgs */
