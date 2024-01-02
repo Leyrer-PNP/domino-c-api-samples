@@ -15,9 +15,9 @@
  * limitations under the License.
  *
 
-PROGRAM:    ADMINReqDeleteInACL
+PROGRAM:    ADMINReqChkAccessNewReplica
 
-FILE:       ADMINReqDeleteInACL.c
+FILE:       ADMINReqChkAccessNewReplica.c
 
 PURPOSE:    This program will creates a "Check Access for New Replica Creation" request in the Administration Requests database (admin4.nsf).
 
