@@ -1,5 +1,5 @@
 #
-#  makefile for Notes API sample program ADMINReqChkAccessNewReplica
+#  makefile for Notes API sample program ADMINReqChkAccessMoveReplica
 #                Linux RedHat
 
 #make env file
