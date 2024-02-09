@@ -47,8 +47,6 @@ SYNTAX:     ADMINReqRename  <server name> "names.nsf"
 #include "osfile.h"
 #include "reg.h"
 #include "adminp.h"
-#include <nsfnote.h>
-#include <ostime.h>
 
 
 #if defined(CAPI_TESTING) 

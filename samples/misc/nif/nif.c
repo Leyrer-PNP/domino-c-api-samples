@@ -55,6 +55,7 @@
 #include <osmisc.h>
 #include <osfile.h>
 #include <idtable.h>
+#include <lapiplat.h>
 #include <nif.h>
 #include <osenv.h>
 #include <textlist.h>
@@ -947,7 +948,7 @@ BOOL LNPUBLIC NIFReadEntriesExt2Test(DHANDLE hDB, NOTEID ViewID)
 				        0xFFFFFFFF,			/* max number to read */
 				        READ_MASK_NOTEID +
 				        READ_MASK_SUMMARYVALUES,        /* info we want to read */
-				        READ_MASK2_TO_JSON,	        /* flag to print in JSON format*/
+				        READ_MASK_TO_JSON,	        /* flag to print in JSON format*/
 				        NULL, NULLHANDLE, MAXDWORD, 0,	/* setting differential time and ID table as NULL */
 				        &hBuffer,			/* handle to info buffer (return)  */
 				        &retBufferLength,		/* length of info buffer (return) */
