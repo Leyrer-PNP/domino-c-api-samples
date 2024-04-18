@@ -1,12 +1,12 @@
 #
-#  makefile for Notes API sample program ADMINReqRename
+#  makefile for Notes API sample program ADMINReqRecertify
 #                Linux RedHat
 
 #make env file
 include ../../../makeEnvLinux.mak
 
 # set TARGET to the name of the executable to create
-TARGET = ADMINReqRename
+TARGET = ADMINReqRecertify
 
 # set SOURCES to the list of C source files in this program
 SOURCES = $(TARGET).c
