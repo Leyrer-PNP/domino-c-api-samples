@@ -1,6 +1,6 @@
 /*************************************************************************
  *
- * Copyright HCL Technologies 1996, 2023.
+ * Copyright HCL Technologies 1996, 2024.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,15 @@
  * limitations under the License.
  *
 
-PROGRAM:    ADMINReqRename
+PROGRAM:    ADMINReqRecertify
 
-FILE:       ADMINReqRename.c
+FILE:       ADMINReqRecertify.c
 
-PURPOSE:    Shows the usage of ADMINReqRename API. This API renames 
-            an existing user to new first name, last name and middle name.
-            Also, it gives new org name as well. This API first creates a
-            a "Rename Person in Address Book" request the 
-            Administration Requests database (admin4.nsf).			
+PURPOSE:    Shows the usage of ADMINReqRecertify API. This function creates a 
+            "Recertify Person in Address Book" request in the Administration 
+			Requests database (admin4.nsf).			
 
-SYNTAX:     ADMINReqRename  <server name> "names.nsf"
+SYNTAX:     ADMINReqRecertify  <server name> "names.nsf"
 
 *************************************************************************/
 #if defined(OS400)
@@ -43,12 +41,12 @@ SYNTAX:     ADMINReqRename  <server name> "names.nsf"
 #include "global.h"
 #include "nsfdb.h"
 #include "nsfdata.h"
-#include "nsfnote.h"
 #include "osmisc.h"
 #include "osfile.h"
-#include "ostime.h"
 #include "reg.h"
 #include "adminp.h"
+#include <nsfnote.h>
+#include <ostime.h>
 
 
 #if defined(CAPI_TESTING) 
@@ -84,14 +82,10 @@ int main(int argc, char *argv[])
     HCERTIFIER  hCertCtx = NULLHANDLE;       /* handle to certifier context */
     ADMINReqParams arpPtr;                   /* ADMINReqParam structure*/
     BOOL        logged, ferror;              /* output params*/
-    char        szUserName[] = "CN=a user/O=XYZ";                /* user to be renamed*/
+    char        szUserName[] = "CN=domino admin/O=HCL";                /* user to be renamed*/
     char        szOrgUnitCertID[] = "cert.id";                   /* organization cert ID*/
     char        szDataPath[MAXPATH] = {0};                       /* domino data path */
-    char        szPassword[] = "password";                       /* password for cert id*/
-    char        szNewFirstName[]= "A";                           /* new first name */
-    char        szNewLastName[]= "B";                            /* new last name */
-    char        szNewMiddleName[]= "C";                          /* new middle name */
-    char        szNewOrgName[]= "ORG";                           /* new org name*/
+    char        szPassword[] = "password0";                       /* password for cert id*/
     char        szUserFld[] = "$Users";                          /* view to search for the user*/
     char        szServer[MAXUSERNAME]={0};                       /* server name */
     char        szDBName[MAXPATH]={0};                           /* database name*/
@@ -148,7 +142,7 @@ int main(int argc, char *argv[])
 	return (1);
     }
 
-    /* Get the Note ID of the user to be renamed. */
+    /* Get the Note ID of the user to be recertify. */
     if (error = REGFindAddressBookEntry (hNABook, szUserFld, szUserName, &noteID))
     {
 	NSFDbClose (hNABook);
@@ -179,14 +173,10 @@ int main(int argc, char *argv[])
     /* Intializing the ADMINReqParams structure */ 
     memset(&arpPtr, 0x00, sizeof(arpPtr));
 	
-    /* Call the ADMINReqRename API for renaming the user CN=a user/O=XYZ to CN=ACB/ORG/O=XYZ */
-    if (error = ADMINReqRename( hCertCtx,         /* certifier context */
+    /* Call the ADMINReqRecertify API for recertify the user */
+    if (error = ADMINReqRecertify( hCertCtx,         /* certifier context */
 	                           hNABook,          /* handle to NAB file */
 	                           nhNote,           /* handle to notes document */
-	                           szNewFirstName,   /* new first name */
-	                           szNewMiddleName,  /* new middle initial */
-	                           szNewLastName,    /* new last name */
-	                           szNewOrgName,     /* new org name */
 	                           &logged,          /* TRUE if request has been recorded in the certification log */
 	                           &ferror,          /* TRUE if an error occurred */
 	                           &arpPtr,          /* pointer to an ADMINReqParams structure */
@@ -195,12 +185,12 @@ int main(int argc, char *argv[])
 	SECKFMFreeCertifierCtx (hCertCtx);
 	NSFNoteClose (nhNote);
 	NSFDbClose (hNABook);
-	PRINTERROR (error,"ADMINReqRename");
+	PRINTERROR (error,"ADMINReqRecertify");
 	NotesTerm();
 	return (1);
     }
 
-    PRINTLOG("!!! ADMINReqRename Processed Sucessfully !!!\n ");
+    PRINTLOG("!!! ADMINReqRecertify Processed Sucessfully !!!\n ");
 	
     /* Free the certifier context and close the note */
     SECKFMFreeCertifierCtx (hCertCtx);
