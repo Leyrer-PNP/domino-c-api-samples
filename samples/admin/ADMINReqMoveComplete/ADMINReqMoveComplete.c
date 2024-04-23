@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 
     /* Construct the path for the admin request file. */
     if (error = OSPathNetConstruct(NULL, pszServerName, pszAdmin4NSFFile, szAdminFilePath))
-	{
+    {
         PRINTERROR(error,"OSPathNetConstruct");
         NotesTerm();
         return (1);
@@ -164,6 +164,7 @@ int main(int argc, char *argv[])
     if (error = OSPathNetConstruct(NULL, pszServerName, pszNABFile, szNABFilePath))
     {
         PRINTERROR(error,"OSPathNetConstruct");
+	NSFDbClose(db_handle);
         NotesTerm();
         return (1);
     }
@@ -229,6 +230,17 @@ int main(int argc, char *argv[])
     }
 
     NSFNoteClose (nhNote);
+
+    /* Close the database. */
+    if (error = NSFDbClose (hNABook))
+    {
+        SECKFMFreeCertifierCtx (hCertCtx);
+        NSFDbClose (db_handle);
+	PRINTERROR (error,"NSFDbClose");
+	NotesTerm();
+	return (1);
+    }
+
     PRINTLOG("!!! ADMINReqMoveUserInHier Processed Sucessfully !!!\n ");
 
     PRINTLOG("\n*************************************************\n");
@@ -351,9 +363,11 @@ int main(int argc, char *argv[])
 
 	OSMemFree(hBuffer);
 
-	/* repeat loop if more signal flag is set */
+	/* Breaking out of the loop. */
 
-} while (wSignalFlag & SIGNAL_MORE_TO_DO);
+	break;
+
+    } while (wSignalFlag & SIGNAL_MORE_TO_DO);
 	
     /* Intializing the ADMINReqParams structure. */ 
     memset(&arpPtr, 0x00, sizeof(arpPtr));
