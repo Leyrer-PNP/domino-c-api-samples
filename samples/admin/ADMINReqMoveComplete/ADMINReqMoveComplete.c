@@ -19,7 +19,7 @@ PROGRAM:    ADMINReqMoveComplete
 
 FILE:       ADMINReqMoveComplete.c
 
-PURPOSE:    Shows the usage of ADMINReqMoveComplete API.
+PURPOSE:    Shows the usage of ADMINReqMoveComplete & ADMINReqMoveUserInHier API.
 
 SYNTAX:     ADMINReqMoveComplete  <server name> "admin4.nsf"
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     STATUS      error = NOERROR;             /* error code from API calls */
     NOTEHANDLE  nhNote = NULLHANDLE;         /* handle to note*/ 
     HCERTIFIER  hCertCtx = NULLHANDLE;       /* handle to certifier context */
-    ADMINReqParams arpPtr;                   /* ADMINReqParam structure*/
+    ADMINReqParams arpPtr,ARPptr;            /* ADMINReqParam structure*/
     BOOL        logged, ferror;              /* output params*/
     char        szOrgUnitCertID[] = "cert.id";                   /* organization cert ID*/
     char        szDataPath[MAXPATH] = {0};                       /* domino data path */
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     char        szServer[MAXUSERNAME]={0};                       /* server name */
     char       *pszServerName = NULL;                            /* pointer to servername*/   
     char       *pszCertIDFilePath = NULL;                        /* domino cert ID file path*/
-    char       *pszAdminFile = NULL;                             /* pointer to admin DB file*/
+    char       *pszAdmin4NSFFile = NULL;                         /* pointer to admin DB file*/
     char        szAdminDBName[MAXPATH]= {0};                     /* admin DB file name */ 
     char        szAdminFilePath[MAXPATH] = {0};                  /* admin DB file path */
     DBHANDLE    db_handle = NULLHANDLE;                          /* DB file handle */
@@ -102,14 +102,22 @@ int main(int argc, char *argv[])
     NOTEID*     IdList = NULL;                                   /* pointer to a note id list */
     WORD        wSignalFlag = 0;                                 /* signal and share warning flags */
     DWORD       i=0;                                             /* local variable */
-    DWORD       notesFound=0;                                    /* notes found variable */ 
+    DWORD       notesFound=0;                                    /* notes found variable */
+    DBHANDLE    hNABook = NULLHANDLE;                            /* handle to NAB */
+    char       *pszNABFile = NULL;                               /* pointer to NAB file*/
+    char        szNABFilePath[MAXPATH] = {0};                    /* NAB file path*/
+    char        szUserName[] = "CN=test user/O=HCLPNP";          /* user to be renamed*/
+    char        szUserFld[] = "$Users";                          /* view to search for the user*/
+    char        szDBName[MAXPATH]= "names.nsf";                  /* NAB database name*/
+    NOTEID      noteID = 0;                                      /* noteID */
 	
     pszServerName = szServer;
-    pszAdminFile = szAdminDBName;
+    pszAdmin4NSFFile = szAdminDBName;
+    pszNABFile = szDBName;
 	
 
     /* Process input arguments. */
-    ProcessArgs(argc, argv, pszServerName, pszAdminFile);
+    ProcessArgs(argc, argv, pszServerName, pszAdmin4NSFFile);
 	
     /* Initialize the notes. */
     if (error = NotesInitExtended(argc, argv))
@@ -137,14 +145,14 @@ int main(int argc, char *argv[])
     PRINTLOG("cert ID path : %s\n", pszCertIDFilePath);
 
     /* Construct the path for the admin request file. */
-    if (error = OSPathNetConstruct(NULL, pszServerName, pszAdminFile, szAdminFilePath))
+    if (error = OSPathNetConstruct(NULL, pszServerName, pszAdmin4NSFFile, szAdminFilePath))
 	{
         PRINTERROR(error,"OSPathNetConstruct");
         NotesTerm();
         return (1);
     }
 	
-    /* Open the database. */
+    /* Open the admin4 DB database. */
     if (error = NSFDbOpen(szAdminFilePath, &db_handle))
     {	
 	PRINTERROR (error,"NSFDbOpen");
@@ -152,6 +160,81 @@ int main(int argc, char *argv[])
 	return (1);
     }
 	
+     /* Construct the path for the NAB file */
+    if (error = OSPathNetConstruct(NULL, pszServerName, pszNABFile, szNABFilePath))
+    {
+        PRINTERROR(error,"OSPathNetConstruct");
+        NotesTerm();
+        return (1);
+    }
+
+    PRINTLOG("*************************************************\n");
+    PRINTLOG("***********Testing-ADMINReqMoveUserInHier********\n");
+    PRINTLOG("*************************************************\n");
+
+    /* Open the names.nsf (NAB) database. */
+    if (error = NSFDbOpen(szNABFilePath, &hNABook))
+    {
+        PRINTERROR (error,"NSFDbOpen");
+        NotesTerm();
+        return (1);
+    }
+
+    /* Get the Note ID of the user to be renamed. */
+    if (error = REGFindAddressBookEntry (hNABook, szUserFld, szUserName, &noteID))
+    {
+        NSFDbClose (hNABook);
+        PRINTERROR (error,"REGFindAddressBookEntry");
+        NotesTerm();
+        return (1);
+    }
+
+    /* Get the Note handle. */
+    if (error = NSFNoteOpen(hNABook, noteID, 0, &nhNote))
+    {
+        NSFDbClose (hNABook);
+        PRINTERROR (error,"NSFNoteOpen");
+        NotesTerm();
+        return (1);
+    }
+
+    /* Get the current certifier context. */
+    if (error = GetCertCtx(pszCertIDFilePath, &hCertCtx, szPassword))
+    {
+	NSFNoteClose (nhNote);
+	NSFDbClose (db_handle);
+	PRINTERROR (error,"GetCertCtx");
+	NotesTerm();
+	return (1);
+    }
+
+    /* Intializing the ADMINReqParams structure */
+    memset(&ARPptr, 0x00, sizeof(ARPptr));
+
+    if (error = ADMINReqMoveUserInHier ( hCertCtx,
+                               hNABook,
+                               nhNote,
+                               "O=HCLPNP", /* Target Certifier */
+                               &logged,
+                               &ferror,
+                               &ARPptr,
+                               sizeof(ARPptr)) )
+    {
+        SECKFMFreeCertifierCtx (hCertCtx);
+        NSFNoteClose (nhNote);
+        NSFDbClose (hNABook);
+        PRINTERROR (error,"ADMINReqMoveUserInHier");
+        NotesTerm();
+        return (1);
+    }
+
+    NSFNoteClose (nhNote);
+    PRINTLOG("!!! ADMINReqMoveUserInHier Processed Sucessfully !!!\n ");
+
+    PRINTLOG("\n*************************************************\n");
+    PRINTLOG("*************Testing-ADMINReqMoveComplete********\n");
+    PRINTLOG("*************************************************\n");
+
     /* Find the view ID for viewname. */
     if (error = NIFFindView(
                    db_handle, 
@@ -225,16 +308,41 @@ int main(int argc, char *argv[])
 	}
 
 	IdList = (NOTEID far*)OSLockObject(hBuffer);
-		
+
+	if(IdList == NULL)
+	{
+	    PRINTLOG ("\nNote ID list is Empty.\n");
+	    NIFCloseCollection (colHandle);
+	    NSFDbClose (db_handle);
+            OSUnlockObject(hBuffer);
+            OSMemFree(hBuffer);
+            NotesTerm();
+            return (1);
+	}
+	else {
 	/* Print out the list of all the note IDs in this collection. */
 
-	for (i=0; i<dwEntriesFound; i++)
-	{
-	    if (NOTEID_CATEGORY & IdList[i])
-			continue;
-	    PRINTLOG ("Note count is %lu. \t Note ID is: %lX\n", 
+	    for (i=0; i<dwEntriesFound; i++)
+	    {
+	         if (NOTEID_CATEGORY & IdList[i])
+			    continue;
+	         PRINTLOG ("Note count is %lu. \t Note ID is: %lX\n",
                  ++notesFound, IdList[i]);
+	    }
+
+	    NOTEID nid = IdList[1];
+            if (error = NSFNoteOpen(db_handle, nid, 0, &nhNote))
+            {
+	         NIFCloseCollection (colHandle);
+	         NSFDbClose (db_handle);
+	         PRINTERROR (error,"NSFNoteOpen");
+                 OSUnlockObject(hBuffer);
+                 OSMemFree(hBuffer);
+	         NotesTerm();
+	         return (1);
+            }
 	}
+
 	/* Unlock the list of note IDs. */
 
 	OSUnlockObject(hBuffer);
@@ -245,26 +353,7 @@ int main(int argc, char *argv[])
 
 	/* repeat loop if more signal flag is set */
 
-} while (wSignalFlag & SIGNAL_MORE_TO_DO);     
-	
-    if (error = NSFNoteOpen(db_handle, IdList[1], 0, &nhNote))
-    {
-	NIFCloseCollection (colHandle);
-	NSFDbClose (db_handle);
-	PRINTERROR (error,"NSFNoteOpen");
-	NotesTerm();
-	return (1);
-    }
-	
-    /* Get the current certifier context. */
-    if (error = GetCertCtx(pszCertIDFilePath, &hCertCtx, szPassword))
-    {
-	NSFNoteClose (nhNote);
-	NSFDbClose (db_handle);
-	PRINTERROR (error,"GetCertCtx");
-	NotesTerm();
-	return (1);
-    }
+} while (wSignalFlag & SIGNAL_MORE_TO_DO);
 	
     /* Intializing the ADMINReqParams structure. */ 
     memset(&arpPtr, 0x00, sizeof(arpPtr));

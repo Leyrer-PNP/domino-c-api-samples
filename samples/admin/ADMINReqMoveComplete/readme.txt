@@ -10,8 +10,10 @@ All rights reserved.
 
 PROGRAM
 -------
-ADMINReqMoveComplete- Sample program to show usage of ADMINReqMoveComplete.
-                      This function creates a "Initiate Rename in Address Book" 
+ADMINReqMoveComplete- Sample program to show usage of ADMINReqMoveComplete and ADMINReqMoveUserInHier API.
+                      ADMINReqMoveUserInHier - This function creates a "Move Person in Hierarchy"
+                      request in the Administration Requests database (admin4.nsf).
+                      ADMINReqMoveComplete - This function creates a "Initiate Rename in Address Book"
                       request in the Administration Requests database (admin4.nsf).
                       It takes a handle to "AdminpMoveUserInHier" note in admin4
                       request database as an input parameter.
