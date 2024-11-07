@@ -58,7 +58,8 @@ int unknown = 1;
 
 
 #ifdef LINUX
-    struct spwd result;
+    struct spwd pwd;
+	struct spwd *ppwd;
 #endif
 
 #ifdef AIX
@@ -70,14 +71,14 @@ int unknown = 1;
 
 #ifdef LINUX
 
-if (getspnam_r(userName, &result, buffer, sizeof(buffer))) 
+if (getspnam_r(userName, &pwd, buffer, sizeof(buffer), &ppwd)) 
 {
 /* Encrypt the password and see if it matches the
  * encrypted password from the user's record.
  */
     char *thisCrypt = NULL;
-    thisCrypt = (char *)crypt(password, result.sp_pwdp);
-    if (strcmp (result.sp_pwdp, thisCrypt) == 0) {
+    thisCrypt = (char *)crypt(password, pwd.sp_pwdp);
+    if (strcmp (pwd.sp_pwdp, thisCrypt) == 0) {
         return success;
     } else {
         return error;
